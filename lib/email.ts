@@ -19,13 +19,25 @@ export async function sendEmail({
   }
 
   try {
-    const { data, error } = await resend.emails.send({
+    // Resend requires at least html or text
+    if (!html && !text) {
+      throw new Error("Either html or text must be provided");
+    }
+
+    const emailData: any = {
       from: process.env.EMAIL_FROM || "noreply@jobportal.com",
       to,
       subject,
-      html,
-      text,
-    });
+    };
+
+    if (html) {
+      emailData.html = html;
+    }
+    if (text) {
+      emailData.text = text;
+    }
+
+    const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
       console.error("Error sending email:", error);
