@@ -45,17 +45,24 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      // Prepare payload based on role
+      const payload: any = {
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      };
+
+      if (formData.role === "JOB_SEEKER") {
+        payload.firstName = formData.firstName;
+        payload.lastName = formData.lastName;
+      } else if (formData.role === "EMPLOYER") {
+        payload.companyName = formData.companyName;
+      }
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          companyName: formData.companyName,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();

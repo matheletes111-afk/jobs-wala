@@ -4,14 +4,39 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { UserRole } from "@prisma/client";
 
-const registerSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.nativeEnum(UserRole),
-  firstName: z.string().min(1, "First name is required").optional(),
-  lastName: z.string().min(1, "Last name is required").optional(),
-  companyName: z.string().min(1, "Company name is required").optional(),
-});
+const registerSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    role: z.nativeEnum(UserRole),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    companyName: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.role === UserRole.JOB_SEEKER) {
+        return data.firstName && data.firstName.length > 0 && data.lastName && data.lastName.length > 0;
+      }
+      return true;
+    },
+    {
+      message: "First name and last name are required for job seekers",
+      path: ["firstName"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.role === UserRole.EMPLOYER) {
+        return data.companyName && data.companyName.length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Company name is required for employers",
+      path: ["companyName"],
+    }
+  );
 
 export async function POST(req: NextRequest) {
   try {
