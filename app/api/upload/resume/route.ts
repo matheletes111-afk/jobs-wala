@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from "next/server";
+import { requireJobSeeker } from "@/lib/auth-utils";
+import { uploadFileToS3 } from "@/lib/s3";
+
+export async function POST(req: NextRequest) {
+  try {
+    await requireJobSeeker();
+
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (file.type !== "application/pdf") {
+      return NextResponse.json(
+        { error: "Only PDF files are allowed" },
+        { status: 400 }
+      );
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const url = await uploadFileToS3(
+      buffer,
+      file.name,
+      file.type
+    );
+
+    return NextResponse.json({ url });
+  } catch (error) {
+    console.error("Resume upload error:", error);
+    return NextResponse.json(
+      { error: "Failed to upload resume" },
+      { status: 500 }
+    );
+  }
+}
+
