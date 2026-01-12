@@ -68,8 +68,16 @@ export async function POST(req: NextRequest) {
     });
 
     // Create profile based on role
-    if (validatedData.role === UserRole.JOB_SEEKER) {
-      if (validatedData.firstName && validatedData.lastName) {
+    try {
+      if (validatedData.role === UserRole.JOB_SEEKER) {
+        if (!validatedData.firstName || !validatedData.lastName) {
+          // Clean up user if profile creation fails
+          await prisma.user.delete({ where: { id: user.id } });
+          return NextResponse.json(
+            { error: "First name and last name are required for job seekers" },
+            { status: 400 }
+          );
+        }
         await prisma.jobSeekerProfile.create({
           data: {
             userId: user.id,
@@ -77,9 +85,15 @@ export async function POST(req: NextRequest) {
             lastName: validatedData.lastName,
           },
         });
-      }
-    } else if (validatedData.role === UserRole.EMPLOYER) {
-      if (validatedData.companyName) {
+      } else if (validatedData.role === UserRole.EMPLOYER) {
+        if (!validatedData.companyName) {
+          // Clean up user if profile creation fails
+          await prisma.user.delete({ where: { id: user.id } });
+          return NextResponse.json(
+            { error: "Company name is required for employers" },
+            { status: 400 }
+          );
+        }
         await prisma.employerProfile.create({
           data: {
             userId: user.id,
@@ -87,6 +101,13 @@ export async function POST(req: NextRequest) {
           },
         });
       }
+    } catch (profileError) {
+      // Clean up user if profile creation fails
+      await prisma.user.delete({ where: { id: user.id } }).catch(() => {
+        // Ignore cleanup errors
+      });
+      console.error("Profile creation error:", profileError);
+      throw profileError;
     }
 
     return NextResponse.json(
@@ -102,8 +123,17 @@ export async function POST(req: NextRequest) {
     }
 
     console.error("Registration error:", error);
+    
+    // Return more detailed error information in development
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        message: errorMessage,
+        ...(process.env.NODE_ENV === "development" && { stack: errorStack })
+      },
       { status: 500 }
     );
   }
