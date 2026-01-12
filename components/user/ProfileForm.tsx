@@ -36,6 +36,7 @@ interface ProfileFormProps {
     education?: string | null;
     bio?: string | null;
     skills: string[];
+    resumeUrl?: string | null;
   };
 }
 
