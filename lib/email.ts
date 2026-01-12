@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.EMAIL_API_KEY);
+let resend: Resend | null = null;
+
+function getResend() {
+  if (!resend && process.env.EMAIL_API_KEY) {
+    resend = new Resend(process.env.EMAIL_API_KEY);
+  }
+  return resend;
+}
 
 export async function sendEmail({
   to,
@@ -13,12 +20,13 @@ export async function sendEmail({
   html?: string;
   text?: string;
 }) {
-  if (!process.env.EMAIL_API_KEY) {
-    console.warn("EMAIL_API_KEY not set, skipping email send");
-    return { success: false, error: "Email service not configured" };
-  }
-
   try {
+    const resendInstance = getResend();
+    if (!resendInstance) {
+      console.warn("EMAIL_API_KEY not set, skipping email send");
+      return { success: false, error: "Email service not configured" };
+    }
+
     // Resend requires at least html or text
     if (!html && !text) {
       throw new Error("Either html or text must be provided");
@@ -37,7 +45,7 @@ export async function sendEmail({
       emailData.text = text;
     }
 
-    const { data, error } = await resend.emails.send(emailData);
+    const { data, error } = await resendInstance.emails.send(emailData);
 
     if (error) {
       console.error("Error sending email:", error);
