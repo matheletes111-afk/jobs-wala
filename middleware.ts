@@ -1,8 +1,7 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default auth((req) => {
-  const session = req.auth;
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   // Public routes
@@ -11,34 +10,42 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
+  // Get session token
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
   // Protected routes require authentication
-  if (!session) {
+  if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  const role = token.role as string;
+
   // Admin routes
   if (path.startsWith("/admin")) {
-    if (session.user.role !== "ADMIN") {
+    if (role !== "ADMIN") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
 
   // Employer routes
   if (path.startsWith("/employer")) {
-    if (session.user.role !== "EMPLOYER" && session.user.role !== "ADMIN") {
+    if (role !== "EMPLOYER" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
 
   // User/Job Seeker routes
   if (path.startsWith("/user")) {
-    if (session.user.role !== "JOB_SEEKER" && session.user.role !== "ADMIN") {
+    if (role !== "JOB_SEEKER" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
