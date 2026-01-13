@@ -111,7 +111,18 @@ export default async function UserDashboardPage() {
             <p className="text-gray-500">No applications yet. Start applying to jobs!</p>
           ) : (
             <div className="space-y-4">
-              {recentApplications.map((application) => (
+              {recentApplications.map((application: {
+                id: string;
+                status: string;
+                appliedAt: Date;
+                job: {
+                  title: string;
+                  location: string | null;
+                  employer: {
+                    companyName: string;
+                  };
+                };
+              }) => (
                 <div
                   key={application.id}
                   className="flex items-center justify-between border-b pb-4"
