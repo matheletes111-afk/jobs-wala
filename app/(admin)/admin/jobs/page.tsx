@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatLocation } from "@/lib/utils";
+import { JobStatus } from "@prisma/client";
 
 export default async function AdminJobsPage() {
   await requireAdmin();
@@ -49,7 +50,18 @@ export default async function AdminJobsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {jobs.map((job) => (
+              {jobs.map((job: {
+                id: string;
+                title: string;
+                location: string;
+                status: JobStatus;
+                employer: {
+                  companyName: string;
+                };
+                _count: {
+                  applications: number;
+                };
+              }) => (
                 <TableRow key={job.id}>
                   <TableCell className="font-medium">{job.title}</TableCell>
                   <TableCell>{job.employer.companyName}</TableCell>
