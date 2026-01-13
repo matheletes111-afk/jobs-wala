@@ -38,7 +38,14 @@ export default async function AdminUsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {users.map((user: {
+                id: string;
+                email: string;
+                role: string;
+                createdAt: Date;
+                jobSeekerProfile: { firstName: string; lastName: string } | null;
+                employerProfile: { companyName: string } | null;
+              }) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
