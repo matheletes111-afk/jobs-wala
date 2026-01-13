@@ -87,7 +87,21 @@ export default async function EmployerApplicationsPage({
         </Card>
       ) : (
         <div className="space-y-4">
-          {applications.map((application) => (
+          {applications.map((application: {
+            id: string;
+            status: string;
+            appliedAt: Date;
+            coverLetter: string | null;
+            job: {
+              id: string;
+              title: string;
+            };
+            jobSeeker: {
+              firstName: string;
+              lastName: string;
+              resumeUrl: string | null;
+            };
+          }) => (
             <Card key={application.id}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
