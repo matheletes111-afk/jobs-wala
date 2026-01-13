@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-utils";
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/components/LogoutButton";
