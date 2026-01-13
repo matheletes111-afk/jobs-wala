@@ -1,6 +1,5 @@
 import { UserRole, JobStatus, ApplicationStatus, SubscriptionPlanType, SubscriptionStatus, EmploymentType } from "@prisma/client";
 
-export type { UserRole, JobStatus, ApplicationStatus, SubscriptionPlanType, SubscriptionStatus, EmploymentType };
 export { UserRole, JobStatus, ApplicationStatus, SubscriptionPlanType, SubscriptionStatus, EmploymentType };
 
 export interface User {
