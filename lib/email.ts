@@ -1,12 +1,20 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-let resend: Resend | null = null;
+let transporter: nodemailer.Transporter | null = null;
 
-function getResend() {
-  if (!resend && process.env.EMAIL_API_KEY) {
-    resend = new Resend(process.env.EMAIL_API_KEY);
+function getTransporter() {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST || "smtp.gmail.com",
+      port: parseInt(process.env.MAIL_PORT || "587"),
+      secure: process.env.MAIL_ENCRYPTION === "ssl", // true for 465, false for other ports
+      auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    });
   }
-  return resend;
+  return transporter;
 }
 
 export async function sendEmail({
@@ -21,38 +29,28 @@ export async function sendEmail({
   text?: string;
 }) {
   try {
-    const resendInstance = getResend();
-    if (!resendInstance) {
-      console.warn("EMAIL_API_KEY not set, skipping email send");
+    const mailTransporter = getTransporter();
+    if (!mailTransporter) {
+      console.warn("Email configuration not set, skipping email send");
       return { success: false, error: "Email service not configured" };
     }
 
-    // Resend requires at least html or text
+    // Nodemailer requires at least html or text
     if (!html && !text) {
       throw new Error("Either html or text must be provided");
     }
 
-    const emailData: any = {
-      from: process.env.EMAIL_FROM || "noreply@jobportal.com",
+    const mailOptions = {
+      from: `${process.env.MAIL_FROM_NAME || "KORA"} <${process.env.MAIL_FROM_ADDRESS || process.env.MAIL_USERNAME}>`,
       to,
       subject,
+      html: html || undefined,
+      text: text || undefined,
     };
 
-    if (html) {
-      emailData.html = html;
-    }
-    if (text) {
-      emailData.text = text;
-    }
+    const info = await mailTransporter.sendMail(mailOptions);
 
-    const { data, error } = await resendInstance.emails.send(emailData);
-
-    if (error) {
-      console.error("Error sending email:", error);
-      return { success: false, error };
-    }
-
-    return { success: true, data };
+    return { success: true, data: info };
   } catch (error) {
     console.error("Error sending email:", error);
     return { success: false, error };
@@ -98,6 +96,48 @@ export async function sendNewApplicationEmail({
       <h2>New Job Application</h2>
       <p><strong>${candidateName}</strong> has applied for the position: <strong>${jobTitle}</strong></p>
       <p>Please review the application in your employer dashboard.</p>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+
+export async function sendVerificationEmail({
+  to,
+  verificationLink,
+  name,
+}: {
+  to: string;
+  verificationLink: string;
+  name?: string;
+}) {
+  const subject = "Verify Your Email Address - KORA";
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">Email Verification Required</h2>
+        <p style="color: #666; line-height: 1.6;">
+          ${name ? `Hi ${name},` : "Hi there,"}
+        </p>
+        <p style="color: #666; line-height: 1.6;">
+          Thank you for registering with KORA! Please verify your email address by clicking the button below:
+        </p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationLink}" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="color: #666; line-height: 1.6; font-size: 14px;">
+          Or copy and paste this link into your browser:
+        </p>
+        <p style="color: #007bff; word-break: break-all; font-size: 12px;">
+          ${verificationLink}
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">
+          This link will expire in 24 hours. If you didn't create an account, please ignore this email.
+        </p>
+      </div>
     </div>
   `;
 

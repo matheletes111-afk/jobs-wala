@@ -73,7 +73,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirect to login
+      // Show success message and redirect to login
+      alert("Registration successful! Please check your email to verify your account before logging in.");
       router.push("/login?registered=true");
     } catch (error) {
       setError("An error occurred. Please try again.");

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,10 +11,30 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    const errorParam = searchParams.get("error");
+    const registered = searchParams.get("registered");
+    
+    if (verified === "true") {
+      setSuccess("Email verified successfully! You can now login.");
+    } else if (registered === "true") {
+      setSuccess("Registration successful! Please check your email to verify your account.");
+    } else if (errorParam === "invalid_token") {
+      setError("Invalid verification token. Please request a new verification email.");
+    } else if (errorParam === "token_expired") {
+      setError("Verification token has expired. Please request a new verification email.");
+    } else if (errorParam === "verification_failed") {
+      setError("Email verification failed. Please try again.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +49,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          setError("Please verify your email address before logging in. Check your inbox for the verification link.");
+        } else {
+          setError("Invalid email or password");
+        }
         setLoading(false);
         return;
       }
@@ -54,6 +78,11 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {success && (
+              <div className="rounded-md bg-green-50 p-3 text-sm text-green-800">
+                {success}
+              </div>
+            )}
             {error && (
               <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
                 {error}

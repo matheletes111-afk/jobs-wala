@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { UserRole } from "@prisma/client";
+import crypto from "crypto";
+import { sendVerificationEmail } from "@/lib/email";
 
 const registerSchema = z
   .object({
@@ -58,12 +60,20 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
 
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpiry = new Date();
+    verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + 24); // 24 hours expiry
+
     // Create user
     const user = await prisma.user.create({
       data: {
         email: validatedData.email,
         password: hashedPassword,
         role: validatedData.role,
+        emailVerified: false,
+        emailVerificationToken: verificationToken,
+        emailVerificationTokenExpiry: verificationTokenExpiry,
       },
     });
 
@@ -110,8 +120,31 @@ export async function POST(req: NextRequest) {
       throw profileError;
     }
 
+    // Send verification email
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const verificationLink = `${baseUrl}/api/verify-email?token=${verificationToken}`;
+    
+    const userName = validatedData.role === UserRole.JOB_SEEKER
+      ? `${validatedData.firstName} ${validatedData.lastName}`
+      : validatedData.companyName || validatedData.email;
+
+    try {
+      await sendVerificationEmail({
+        to: validatedData.email,
+        verificationLink,
+        name: userName,
+      });
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+      // Don't fail registration if email fails, but log it
+    }
+
     return NextResponse.json(
-      { message: "User registered successfully", userId: user.id },
+      { 
+        message: "User registered successfully. Please check your email to verify your account.",
+        userId: user.id,
+        emailSent: true,
+      },
       { status: 201 }
     );
   } catch (error) {
