@@ -78,7 +78,16 @@ export default async function AdminDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentJobs.map((job) => (
+            {recentJobs.map((job: {
+              id: string;
+              title: string;
+              location: string;
+              status: string;
+              createdAt: Date;
+              employer: {
+                companyName: string;
+              };
+            }) => (
               <div
                 key={job.id}
                 className="flex items-center justify-between border-b pb-4"
