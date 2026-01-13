@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatLocation } from "@/lib/utils";
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from "@/types";
 
 export default async function AdminJobsPage() {
   await requireAdmin();
