@@ -16,7 +16,17 @@ export async function GET() {
     const csv = [
       ["Job Title", "Candidate", "Status", "Applied At"].join(","),
       ...applications.map(
-        (a) =>
+        (a: {
+          job: {
+            title: string;
+          };
+          jobSeeker: {
+            firstName: string;
+            lastName: string;
+          };
+          status: string;
+          appliedAt: Date;
+        }) =>
           `"${a.job.title}","${a.jobSeeker.firstName} ${a.jobSeeker.lastName}","${a.status}","${a.appliedAt.toISOString()}"`
       ),
     ].join("\n");

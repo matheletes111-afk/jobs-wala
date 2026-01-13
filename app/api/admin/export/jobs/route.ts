@@ -15,7 +15,15 @@ export async function GET() {
     const csv = [
       ["Title", "Company", "Location", "Status", "Created At"].join(","),
       ...jobs.map(
-        (j) =>
+        (j: {
+          title: string;
+          location: string | null;
+          status: string;
+          createdAt: Date;
+          employer: {
+            companyName: string;
+          };
+        }) =>
           `"${j.title}","${j.employer.companyName}","${j.location}","${j.status}","${j.createdAt.toISOString()}"`
       ),
     ].join("\n");

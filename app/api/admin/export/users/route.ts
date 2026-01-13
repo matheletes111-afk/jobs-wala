@@ -16,7 +16,11 @@ export async function GET() {
     const csv = [
       ["Email", "Role", "Created At"].join(","),
       ...users.map(
-        (u) =>
+        (u: {
+          email: string;
+          role: string;
+          createdAt: Date;
+        }) =>
           `"${u.email}","${u.role}","${u.createdAt.toISOString()}"`
       ),
     ].join("\n");
