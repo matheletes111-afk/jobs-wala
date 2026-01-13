@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatLocation } from "@/lib/utils";
 
 interface Job {
   id: string;
@@ -25,7 +26,7 @@ export default function JobDetails({ job }: { job: Job }) {
         <CardTitle className="text-3xl">{job.title}</CardTitle>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge variant="outline">{job.employer.companyName}</Badge>
-          <Badge variant="outline">{job.location}</Badge>
+          <Badge variant="outline">{formatLocation(job.location)}</Badge>
           <Badge variant="outline">{job.category}</Badge>
           <Badge variant="outline">{job.employmentType}</Badge>
         </div>

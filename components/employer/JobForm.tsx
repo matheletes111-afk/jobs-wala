@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import LocationDropdown from "@/components/user/LocationDropdown";
 
 const jobSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -30,7 +31,12 @@ const jobSchema = z.object({
 
 type JobFormData = z.infer<typeof jobSchema>;
 
-export default function JobForm({ jobId, initialData }: { jobId?: string; initialData?: any }) {
+interface JobFormProps {
+  jobId?: string;
+  initialData?: Partial<JobFormData>;
+}
+
+export default function JobForm({ jobId, initialData }: JobFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,12 +49,15 @@ export default function JobForm({ jobId, initialData }: { jobId?: string; initia
     formState: { errors },
   } = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
-    defaultValues: initialData || {
-      employmentType: "FULL_TIME",
+    defaultValues: {
+      employmentType: initialData?.employmentType || "FULL_TIME",
+      location: initialData?.location || "",
+      ...initialData,
     },
   });
 
   const employmentType = watch("employmentType");
+  const locationValue = watch("location") as string | undefined;
 
   const onSubmit = async (data: JobFormData) => {
     setError("");
@@ -76,8 +85,9 @@ export default function JobForm({ jobId, initialData }: { jobId?: string; initia
 
       router.push("/employer/jobs");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -121,29 +131,25 @@ export default function JobForm({ jobId, initialData }: { jobId?: string; initia
             )}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
-              <Input
-                id="category"
-                {...register("category")}
-                placeholder="Technology"
-              />
-              {errors.category && (
-                <p className="text-sm text-red-600">{errors.category.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location *</Label>
-              <Input
-                id="location"
-                {...register("location")}
-                placeholder="New York, NY"
-              />
-              {errors.location && (
-                <p className="text-sm text-red-600">{errors.location.message}</p>
-              )}
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category *</Label>
+            <Input
+              id="category"
+              {...register("category")}
+              placeholder="Technology"
+            />
+            {errors.category && (
+              <p className="text-sm text-red-600">{errors.category.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Location *</Label>
+            <LocationDropdown
+              value={locationValue}
+              onChange={(value) => setValue("location", value)}
+              error={errors.location?.message}
+            />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { formatLocation } from "@/lib/utils";
 
 export default async function EmployerJobsPage() {
   const user = await requireEmployer();
@@ -61,7 +62,7 @@ export default async function EmployerJobsPage() {
                       </h3>
                     </Link>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge variant="outline">{job.location}</Badge>
+                      <Badge variant="outline">{formatLocation(job.location)}</Badge>
                       <Badge variant="outline">{job.category}</Badge>
                       <Badge
                         variant={

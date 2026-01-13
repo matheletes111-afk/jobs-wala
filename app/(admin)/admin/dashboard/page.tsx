@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatLocation } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
   await requireAdmin();
@@ -85,7 +86,7 @@ export default async function AdminDashboardPage() {
                 <div>
                   <h3 className="font-semibold">{job.title}</h3>
                   <p className="text-sm text-gray-600">
-                    {job.employer.companyName} • {job.location}
+                    {job.employer.companyName} • {formatLocation(job.location)}
                   </p>
                   <p className="text-xs text-gray-500">
                     Posted on {new Date(job.createdAt).toLocaleDateString()}

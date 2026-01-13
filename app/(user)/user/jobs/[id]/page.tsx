@@ -7,12 +7,13 @@ import ApplicationForm from "@/components/user/ApplicationForm";
 export default async function JobDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const user = await requireJobSeeker();
+  const { id } = await params;
 
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       employer: {
         include: {

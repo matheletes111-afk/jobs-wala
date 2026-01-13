@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatLocation } from "@/lib/utils";
 
 export default async function AdminJobsPage() {
   await requireAdmin();
@@ -52,7 +53,7 @@ export default async function AdminJobsPage() {
                 <TableRow key={job.id}>
                   <TableCell className="font-medium">{job.title}</TableCell>
                   <TableCell>{job.employer.companyName}</TableCell>
-                  <TableCell>{job.location}</TableCell>
+                  <TableCell>{formatLocation(job.location)}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
