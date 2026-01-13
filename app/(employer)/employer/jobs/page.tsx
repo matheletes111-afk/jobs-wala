@@ -51,7 +51,16 @@ export default async function EmployerJobsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {jobs.map((job) => (
+          {jobs.map((job: {
+            id: string;
+            title: string;
+            location: string | null;
+            category: string;
+            status: string;
+            _count: {
+              applications: number;
+            };
+          }) => (
             <Card key={job.id}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
