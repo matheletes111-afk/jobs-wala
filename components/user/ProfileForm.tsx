@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import LocationDropdown from "@/components/user/LocationDropdown";
 
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -49,6 +50,8 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -66,6 +69,8 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
         }
       : undefined,
   });
+
+  const locationValue = watch("location");
 
   const onSubmit = async (data: ProfileFormData) => {
     setError("");
@@ -159,24 +164,23 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                {...register("phone")}
-                placeholder="+1234567890"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                {...register("location")}
-                placeholder="City, Country"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              type="tel"
+              {...register("phone")}
+              placeholder="+1234567890"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Location</Label>
+            <LocationDropdown
+              value={locationValue}
+              onChange={(value) => setValue("location", value)}
+              error={errors.location?.message}
+            />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
