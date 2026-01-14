@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { formatLocation } from "@/lib/utils";
 
 export default async function ApplicationsPage() {
   const user = await requireJobSeeker();
@@ -64,7 +65,7 @@ export default async function ApplicationsPage() {
                       </h3>
                     </Link>
                     <p className="mt-1 text-gray-600">
-                      {application.job.employer.companyName} • {application.job.location}
+                      {application.job.employer.companyName} • {formatLocation(application.job.location)}
                     </p>
                     <p className="mt-2 text-sm text-gray-500">
                       Applied on {new Date(application.appliedAt).toLocaleDateString()}

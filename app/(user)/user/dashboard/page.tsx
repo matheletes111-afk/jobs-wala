@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { formatLocation } from "@/lib/utils";
 
 export default async function UserDashboardPage() {
   const user = await requireJobSeeker();
@@ -130,7 +131,7 @@ export default async function UserDashboardPage() {
                   <div>
                     <h3 className="font-semibold">{application.job.title}</h3>
                     <p className="text-sm text-gray-600">
-                      {application.job.employer.companyName} • {application.job.location}
+                      {application.job.employer.companyName} • {formatLocation(application.job.location)}
                     </p>
                     <p className="text-xs text-gray-500">
                       Applied on {new Date(application.appliedAt).toLocaleDateString()}
