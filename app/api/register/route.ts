@@ -128,7 +128,9 @@ export async function POST(req: NextRequest) {
 
     // Send verification email
     const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const verificationLink = `${baseUrl}/api/verify-email?token=${verificationToken}`;
+    // URL encode the token to handle special characters properly
+    const encodedToken = encodeURIComponent(verificationToken);
+    const verificationLink = `${baseUrl}/api/verify-email?token=${encodedToken}`;
     
     const userName = validatedData.role === UserRole.JOB_SEEKER
       ? `${validatedData.firstName} ${validatedData.lastName}`
@@ -136,8 +138,13 @@ export async function POST(req: NextRequest) {
 
     console.log("[REGISTER DEBUG] Preparing to send verification email");
     console.log("[REGISTER DEBUG] Email:", validatedData.email);
+    console.log("[REGISTER DEBUG] User ID:", user.id);
+    console.log("[REGISTER DEBUG] Raw token:", verificationToken);
+    console.log("[REGISTER DEBUG] Token length:", verificationToken.length);
+    console.log("[REGISTER DEBUG] Encoded token:", encodedToken);
     console.log("[REGISTER DEBUG] Verification link:", verificationLink);
     console.log("[REGISTER DEBUG] User name:", userName);
+    console.log("[REGISTER DEBUG] Token expiry:", verificationTokenExpiry);
 
     let emailResult;
     try {
