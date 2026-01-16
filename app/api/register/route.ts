@@ -134,22 +134,63 @@ export async function POST(req: NextRequest) {
       ? `${validatedData.firstName} ${validatedData.lastName}`
       : validatedData.companyName || validatedData.email;
 
+    console.log("[REGISTER DEBUG] Preparing to send verification email");
+    console.log("[REGISTER DEBUG] Email:", validatedData.email);
+    console.log("[REGISTER DEBUG] Verification link:", verificationLink);
+    console.log("[REGISTER DEBUG] User name:", userName);
+
+    let emailResult;
     try {
-      await sendVerificationEmail({
+      emailResult = await sendVerificationEmail({
         to: validatedData.email,
         verificationLink,
         name: userName,
       });
+      
+      console.log("[REGISTER DEBUG] Email send result:", JSON.stringify(emailResult, null, 2));
+      
+      if (!emailResult.success) {
+        console.error("[REGISTER DEBUG] ❌ Email failed to send:", emailResult.error);
+        // Don't fail registration if email fails, but log it
+      } else {
+        console.log("[REGISTER DEBUG] ✅ Email sent successfully!");
+      }
     } catch (emailError) {
-      console.error("Error sending verification email:", emailError);
+      console.error("[REGISTER DEBUG] ❌ Exception while sending email:", emailError);
+      console.error("[REGISTER DEBUG] Error details:", emailError instanceof Error ? emailError.message : String(emailError));
+      emailResult = { success: false, error: emailError };
       // Don't fail registration if email fails, but log it
+    }
+
+    // Serialize error for JSON response
+    let emailErrorString: string | undefined = undefined;
+    if (emailResult?.success === false && emailResult.error) {
+      if (typeof emailResult.error === 'string') {
+        emailErrorString = emailResult.error;
+      } else if (emailResult.error instanceof Error) {
+        emailErrorString = emailResult.error.message;
+      } else if (typeof emailResult.error === 'object') {
+        emailErrorString = JSON.stringify(emailResult.error);
+      } else {
+        emailErrorString = String(emailResult.error);
+      }
     }
 
     return NextResponse.json(
       { 
         message: "User registered successfully. Please check your email to verify your account.",
         userId: user.id,
-        emailSent: true,
+        emailSent: emailResult?.success || false,
+        ...(emailErrorString && { emailError: emailErrorString }),
+        // Include debug info in development
+        ...(process.env.NODE_ENV === "development" && {
+          debug: {
+            emailSent: emailResult?.success || false,
+            hasApiKey: !!process.env.RESEND_API_KEY,
+            fromEmail: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+            apiKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 3) || "N/A",
+          },
+        }),
       },
       { status: 201 }
     );
