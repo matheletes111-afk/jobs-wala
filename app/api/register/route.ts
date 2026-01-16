@@ -150,7 +150,9 @@ export async function POST(req: NextRequest) {
       console.log("[REGISTER DEBUG] Email send result:", JSON.stringify(emailResult, null, 2));
       
       if (!emailResult.success) {
-        console.error("[REGISTER DEBUG] ❌ Email failed to send:", emailResult.error);
+        // Type guard: check if error property exists
+        const error = 'error' in emailResult ? emailResult.error : undefined;
+        console.error("[REGISTER DEBUG] ❌ Email failed to send:", error);
         // Don't fail registration if email fails, but log it
       } else {
         console.log("[REGISTER DEBUG] ✅ Email sent successfully!");
@@ -164,15 +166,16 @@ export async function POST(req: NextRequest) {
 
     // Serialize error for JSON response
     let emailErrorString: string | undefined = undefined;
-    if (emailResult?.success === false && emailResult.error) {
-      if (typeof emailResult.error === 'string') {
-        emailErrorString = emailResult.error;
-      } else if (emailResult.error instanceof Error) {
-        emailErrorString = emailResult.error.message;
-      } else if (typeof emailResult.error === 'object') {
-        emailErrorString = JSON.stringify(emailResult.error);
+    if (emailResult?.success === false && 'error' in emailResult && emailResult.error) {
+      const error = emailResult.error;
+      if (typeof error === 'string') {
+        emailErrorString = error;
+      } else if (error instanceof Error) {
+        emailErrorString = error.message;
+      } else if (typeof error === 'object') {
+        emailErrorString = JSON.stringify(error);
       } else {
-        emailErrorString = String(emailResult.error);
+        emailErrorString = String(error);
       }
     }
 
