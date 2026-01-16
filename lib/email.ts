@@ -1,62 +1,64 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-let transporter: nodemailer.Transporter | null = null;
+// Initialize Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST || "smtp.gmail.com",
-      port: parseInt(process.env.MAIL_PORT || "587"),
-      secure: process.env.MAIL_ENCRYPTION === "ssl", // true for 465, false for other ports
-      auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
-  }
-  return transporter;
-}
-
+/**
+ * Base email sending function using Resend
+ */
 export async function sendEmail({
   to,
   subject,
   html,
   text,
+  from,
 }: {
   to: string;
   subject: string;
   html?: string;
   text?: string;
+  from?: string;
 }) {
   try {
-    const mailTransporter = getTransporter();
-    if (!mailTransporter) {
-      console.warn("Email configuration not set, skipping email send");
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("RESEND_API_KEY not set, skipping email send");
       return { success: false, error: "Email service not configured" };
     }
 
-    // Nodemailer requires at least html or text
+    // Resend requires at least html or text
     if (!html && !text) {
       throw new Error("Either html or text must be provided");
     }
 
-    const mailOptions = {
-      from: `${process.env.MAIL_FROM_NAME || "KORA"} <${process.env.MAIL_FROM_ADDRESS || process.env.MAIL_USERNAME}>`,
+    // Use the from address from env or default domain from Resend
+    const fromAddress =
+      from ||
+      process.env.RESEND_FROM_EMAIL ||
+      `${process.env.MAIL_FROM_NAME || "KORA"} <${process.env.RESEND_FROM_ADDRESS || "onboarding@resend.dev"}>`;
+
+    const result = await resend.emails.send({
+      from: fromAddress,
       to,
       subject,
       html: html || undefined,
       text: text || undefined,
-    };
+    });
 
-    const info = await mailTransporter.sendMail(mailOptions);
+    if (result.error) {
+      console.error("Resend API error:", result.error);
+      return { success: false, error: result.error };
+    }
 
-    return { success: true, data: info };
+    return { success: true, data: result.data };
   } catch (error) {
     console.error("Error sending email:", error);
     return { success: false, error };
   }
 }
 
+/**
+ * Send application status update notification to job seeker
+ */
 export async function sendApplicationNotificationEmail({
   to,
   jobTitle,
@@ -81,6 +83,9 @@ export async function sendApplicationNotificationEmail({
   return sendEmail({ to, subject, html });
 }
 
+/**
+ * Send new application notification to employer
+ */
 export async function sendNewApplicationEmail({
   to,
   candidateName,
@@ -102,6 +107,9 @@ export async function sendNewApplicationEmail({
   return sendEmail({ to, subject, html });
 }
 
+/**
+ * Send email verification link to user
+ */
 export async function sendVerificationEmail({
   to,
   verificationLink,
@@ -143,4 +151,3 @@ export async function sendVerificationEmail({
 
   return sendEmail({ to, subject, html });
 }
-

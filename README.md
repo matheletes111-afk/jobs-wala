@@ -131,8 +131,10 @@ Required environment variables (see `.env.example`):
 - `AWS_S3_BUCKET_NAME` - S3 bucket name
 - `RAZORPAY_KEY_ID` - Razorpay API key
 - `RAZORPAY_KEY_SECRET` - Razorpay API secret
-- `EMAIL_API_KEY` - Email service API key
-- `EMAIL_FROM` - Email sender address
+- `RESEND_API_KEY` - Resend API key (get from https://resend.com)
+- `RESEND_FROM_EMAIL` (optional) - Email sender address (e.g., "KORA <noreply@yourdomain.com>")
+- `RESEND_FROM_ADDRESS` (optional) - Fallback sender address if RESEND_FROM_EMAIL is not set
+- `MAIL_FROM_NAME` (optional) - Sender name (defaults to "KORA")
 
 ## Documentation
 

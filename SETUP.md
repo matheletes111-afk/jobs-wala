@@ -68,9 +68,12 @@ AWS_REGION="us-east-1"
 RAZORPAY_KEY_ID="your-razorpay-key-id"
 RAZORPAY_KEY_SECRET="your-razorpay-key-secret"
 
-# Email Service (Optional for now - needed for email notifications)
-EMAIL_API_KEY="your-resend-api-key"
-EMAIL_FROM="noreply@yourdomain.com"
+# Email Service - Resend (Optional for now - needed for email notifications)
+# Get your API key from https://resend.com
+RESEND_API_KEY="your-resend-api-key"
+RESEND_FROM_EMAIL="KORA <noreply@yourdomain.com>"  # Optional: Format as "Name <email@domain.com>"
+RESEND_FROM_ADDRESS="noreply@yourdomain.com"  # Optional: Fallback if RESEND_FROM_EMAIL not set
+MAIL_FROM_NAME="KORA"  # Optional: Sender name (defaults to "KORA")
 ```
 
 **Important:** Generate a secure `NEXTAUTH_SECRET`:

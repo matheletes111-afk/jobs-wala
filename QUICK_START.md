@@ -33,9 +33,12 @@ AWS_REGION="us-east-1"
 RAZORPAY_KEY_ID=""
 RAZORPAY_KEY_SECRET=""
 
-# Email Service (Optional for development)
-EMAIL_API_KEY=""
-EMAIL_FROM="noreply@jobportal.com"
+# Email Service - Resend (Optional for development)
+# Get your API key from https://resend.com
+RESEND_API_KEY=""
+RESEND_FROM_EMAIL="KORA <noreply@jobportal.com>"  # Optional: Format as "Name <email@domain.com>"
+RESEND_FROM_ADDRESS="noreply@jobportal.com"  # Optional: Fallback if RESEND_FROM_EMAIL not set
+MAIL_FROM_NAME="KORA"  # Optional: Sender name (defaults to "KORA")
 
 # Admin User Creation (Optional)
 ADMIN_EMAIL="admin@jobportal.com"
@@ -104,4 +107,5 @@ Clear cache and reinstall:
 rm -rf node_modules .next
 npm install
 ```
+
 
