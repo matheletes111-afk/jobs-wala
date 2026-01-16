@@ -1,7 +1,15 @@
 import { Resend } from "resend";
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Initialize Resend client - only create if API key is available
+ */
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new Resend(apiKey);
+}
 
 /**
  * Base email sending function using Resend
@@ -20,7 +28,8 @@ export async function sendEmail({
   from?: string;
 }) {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    const resend = getResendClient();
+    if (!resend) {
       console.warn("RESEND_API_KEY not set, skipping email send");
       return { success: false, error: "Email service not configured" };
     }
@@ -36,13 +45,35 @@ export async function sendEmail({
       process.env.RESEND_FROM_EMAIL ||
       `${process.env.MAIL_FROM_NAME || "KORA"} <${process.env.RESEND_FROM_ADDRESS || "onboarding@resend.dev"}>`;
 
-    const result = await resend.emails.send({
-      from: fromAddress,
-      to,
-      subject,
-      html: html || undefined,
-      text: text || undefined,
-    });
+    // Build email options - ensure at least html or text is present
+    const emailOptions: {
+      from: string;
+      to: string;
+      subject: string;
+      html: string;
+      text?: string;
+    } | {
+      from: string;
+      to: string;
+      subject: string;
+      text: string;
+      html?: string;
+    } = html
+      ? {
+          from: fromAddress,
+          to,
+          subject,
+          html,
+          ...(text && { text }),
+        }
+      : {
+          from: fromAddress,
+          to,
+          subject,
+          text: text!,
+        };
+
+    const result = await resend.emails.send(emailOptions);
 
     if (result.error) {
       console.error("Resend API error:", result.error);
