@@ -71,7 +71,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle>Find a Resume</CardTitle>
                 <CardDescription>
-                  Find the perfect candidate with our advanced resume search
+                  Find the perfect candidate with our advanced resume search feature
                 </CardDescription>
               </CardHeader>
               <CardContent>
