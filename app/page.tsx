@@ -39,7 +39,7 @@ export default function HomePage() {
           <div className="grid gap-6 md:grid-cols-3">
             <Card>
               <CardHeader>
-                <CardTitle>For Job Seekers</CardTitle>
+                <CardTitle>Find a Job</CardTitle>
                 <CardDescription>
                   Create your profile, upload your resume, and apply to jobs
                 </CardDescription>
@@ -54,7 +54,7 @@ export default function HomePage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>For Employers</CardTitle>
+                <CardTitle>Post a Job</CardTitle>
                 <CardDescription>
                   Post jobs, find candidates, and manage applications
                 </CardDescription>
@@ -69,7 +69,7 @@ export default function HomePage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Advanced Search</CardTitle>
+                <CardTitle>Find a Resume</CardTitle>
                 <CardDescription>
                   Find the perfect candidate with our advanced resume search
                 </CardDescription>
