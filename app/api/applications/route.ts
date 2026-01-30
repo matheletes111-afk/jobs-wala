@@ -3,6 +3,7 @@ import { requireJobSeeker } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { sendNewApplicationEmail } from "@/lib/email";
+import { canApplyForJobs } from "@/lib/profile-utils";
 
 const applicationSchema = z.object({
   jobId: z.string(),
@@ -32,14 +33,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if profile exists
+    // Check if profile exists and is complete
     const profile = await prisma.jobSeekerProfile.findUnique({
       where: { userId: user.id },
     });
 
     if (!profile) {
       return NextResponse.json(
-        { error: "Please complete your profile before applying" },
+        { 
+          error: "Please complete your profile before applying",
+          code: "PROFILE_INCOMPLETE",
+          details: "Profile not created. Please complete your profile first.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if profile meets requirements for applying
+    const { canApply, missingRequirements } = canApplyForJobs(profile);
+    
+    if (!canApply) {
+      return NextResponse.json(
+        {
+          error: "Profile incomplete. Please complete all required fields before applying.",
+          code: "PROFILE_INCOMPLETE",
+          missingRequirements,
+          details: `Missing: ${missingRequirements.join(", ")}`,
+        },
         { status: 400 }
       );
     }

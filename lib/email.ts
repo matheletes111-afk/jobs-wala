@@ -237,9 +237,9 @@ export async function sendEmail({
       console.error("[EMAIL DEBUG] ❌ SendGrid failed:", errorMsg);
       const errorDetails = (error as { response?: { body?: unknown } })?.response?.body || error;
       console.error("[EMAIL DEBUG] Error details:", errorDetails);
-      return { success: false, error };
-    }
+    return { success: false, error };
   }
+}
 
   // No email service configured
   console.error("[EMAIL DEBUG] ❌ No email service configured");
@@ -257,23 +257,164 @@ export async function sendApplicationNotificationEmail({
   jobTitle,
   companyName,
   status,
+  candidateName,
 }: {
   to: string;
   jobTitle: string;
   companyName: string;
   status: string;
+  candidateName?: string;
 }) {
-  const subject = `Application Update: ${jobTitle} at ${companyName}`;
-  const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Application Status Update</h2>
-      <p>Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been updated.</p>
-      <p><strong>Status:</strong> ${status}</p>
-      <p>Thank you for your interest!</p>
-    </div>
-  `;
+  // Status-specific email templates
+  const getStatusEmail = (status: string) => {
+    const normalizedStatus = status.toUpperCase();
+    const name = candidateName || "there";
 
-  return sendEmail({ to, subject, html });
+    switch (normalizedStatus) {
+      case "SHORTLISTED":
+        return {
+          subject: `🎉 Congratulations! You've been shortlisted for ${jobTitle} at ${companyName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; color: white; text-align: center; margin-bottom: 20px;">
+                <h1 style="margin: 0; font-size: 28px;">🎉 Congratulations!</h1>
+              </div>
+              <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+                <h2 style="color: #333; margin-bottom: 20px;">You've Been Shortlisted!</h2>
+                <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                  Hi ${name},
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  Great news! Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been reviewed and you've been <strong style="color: #28a745;">shortlisted</strong>!
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  This means your qualifications and experience have impressed the hiring team. They will be in touch with you soon regarding the next steps in the hiring process.
+                </p>
+                <div style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                  <p style="margin: 0; color: #1976D2; font-weight: bold;">What's Next?</p>
+                  <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                    Keep an eye on your email and dashboard for updates. The employer may contact you for interviews or additional information.
+                  </p>
+                </div>
+                <p style="color: #666; line-height: 1.6;">
+                  Best of luck with the next steps!
+                </p>
+                <p style="color: #666; line-height: 1.6; margin-top: 30px;">
+                  Best regards,<br>
+                  <strong>The KORA Team</strong>
+                </p>
+              </div>
+            </div>
+          `,
+        };
+
+      case "REVIEWED":
+        return {
+          subject: `Application Update: ${jobTitle} at ${companyName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+                <h2 style="color: #333; margin-bottom: 20px;">Application Under Review</h2>
+                <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                  Hi ${name},
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been <strong style="color: #ff9800;">reviewed</strong> by the hiring team.
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  The employer is currently evaluating all applications. You will be notified once a decision has been made regarding your candidacy.
+                </p>
+                <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                  <p style="margin: 0; color: #856404; font-weight: bold;">Status: Under Review</p>
+                  <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                    Please continue to check your dashboard for updates on your application status.
+                  </p>
+                </div>
+                <p style="color: #666; line-height: 1.6;">
+                  Thank you for your patience and interest in this position.
+                </p>
+                <p style="color: #666; line-height: 1.6; margin-top: 30px;">
+                  Best regards,<br>
+                  <strong>The KORA Team</strong>
+                </p>
+              </div>
+            </div>
+          `,
+        };
+
+      case "REJECTED":
+        return {
+          subject: `Update on your application for ${jobTitle} at ${companyName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+                <h2 style="color: #333; margin-bottom: 20px;">Application Update</h2>
+                <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                  Hi ${name},
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  Thank you for your interest in the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong>.
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  After careful consideration, we regret to inform you that we have decided to move forward with other candidates whose qualifications more closely match our current needs.
+                </p>
+                <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                  <p style="margin: 0; color: #721c24; font-weight: bold;">Application Status: Not Selected</p>
+                  <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                    This decision was not easy, and we appreciate the time you took to apply.
+                  </p>
+                </div>
+                <p style="color: #666; line-height: 1.6;">
+                  We encourage you to continue exploring other opportunities on KORA. We wish you the best in your job search.
+                </p>
+                <p style="color: #666; line-height: 1.6; margin-top: 30px;">
+                  Best regards,<br>
+                  <strong>The KORA Team</strong>
+                </p>
+              </div>
+            </div>
+          `,
+        };
+
+      case "PENDING":
+      default:
+        return {
+          subject: `Application Received: ${jobTitle} at ${companyName}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+                <h2 style="color: #333; margin-bottom: 20px;">Application Status Update</h2>
+                <p style="color: #666; line-height: 1.6; font-size: 16px;">
+                  Hi ${name},
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> is currently <strong style="color: #6c757d;">pending review</strong>.
+                </p>
+                <p style="color: #666; line-height: 1.6;">
+                  The employer will review your application and update you on the status. You can track your application status in your dashboard.
+                </p>
+                <div style="background-color: #e2e3e5; border-left: 4px solid #6c757d; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                  <p style="margin: 0; color: #383d41; font-weight: bold;">Status: Pending Review</p>
+                  <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                    We'll notify you as soon as there's an update on your application.
+                  </p>
+                </div>
+                <p style="color: #666; line-height: 1.6;">
+                  Thank you for your interest in this position!
+                </p>
+                <p style="color: #666; line-height: 1.6; margin-top: 30px;">
+                  Best regards,<br>
+                  <strong>The KORA Team</strong>
+                </p>
+              </div>
+    </div>
+          `,
+        };
+    }
+  };
+
+  const emailContent = getStatusEmail(status);
+  return sendEmail({ to, subject: emailContent.subject, html: emailContent.html });
 }
 
 /**

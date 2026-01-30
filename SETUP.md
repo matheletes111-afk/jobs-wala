@@ -36,7 +36,48 @@ CREATE DATABASE jobportal;
 docker run --name jobportal-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=jobportal -p 5432:5432 -d postgres:14
 ```
 
-### 3. Configure Environment Variables
+### 3. Set Up Cloudflare R2 Storage
+
+Before configuring environment variables, you need to set up Cloudflare R2:
+
+#### Step 1: Create R2 API Token
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. Click **R2** in the left sidebar
+3. Click **Manage R2 API Tokens** (or **Create API Token**)
+4. Click **Create API Token**
+5. Configure the token:
+   - **Token Name**: e.g., "Jobs Wala App"
+   - **Permissions**: Select **Object Read & Write** (or **Admin Read & Write** for full access)
+   - **TTL**: Leave blank for no expiration (or set expiration date)
+6. Click **Create API Token**
+7. **IMPORTANT**: Copy both values immediately:
+   - **Access Key ID** → This is your `R2_ACCESS_KEY_ID`
+   - **Secret Access Key** → This is your `R2_SECRET_ACCESS_KEY` (⚠️ Only shown once!)
+
+#### Step 2: Get Your Account ID
+
+- Your **Account ID** is visible in the R2 dashboard sidebar
+- It's also in the URL: `https://dash.cloudflare.com/{ACCOUNT_ID}/r2`
+- This is your `R2_ACCOUNT_ID`
+
+#### Step 3: Create an R2 Bucket
+
+1. In the R2 dashboard, click **Create bucket**
+2. Enter a bucket name (e.g., `jobs-wala-storage`)
+3. Click **Create bucket**
+4. This name is your `R2_BUCKET_NAME`
+
+#### Step 4: (Optional) Set Up Public Access
+
+If you want public URLs for files:
+
+1. Go to your bucket → **Settings**
+2. Enable **Public Access** (if needed)
+3. Note the public URL (e.g., `https://your-bucket.r2.dev`)
+4. This is your `R2_PUBLIC_URL` (optional)
+
+### 4. Configure Environment Variables
 
 1. Copy the example environment file:
 
@@ -58,11 +99,19 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/jobportal?schema=pub
 NEXTAUTH_SECRET="generate-a-random-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
 
-# AWS S3 (Optional for now - can use local storage for development)
-AWS_ACCESS_KEY_ID="your-aws-access-key"
-AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
-AWS_S3_BUCKET_NAME="your-bucket-name"
-AWS_REGION="us-east-1"
+# Cloudflare R2 Storage (Required for file uploads - resumes and logos)
+# Step-by-step guide to get credentials:
+# 1. Go to https://dash.cloudflare.com → R2 → Manage R2 API Tokens
+# 2. Click "Create API Token"
+# 3. Name it (e.g., "Jobs Wala App"), select "Object Read & Write" permissions
+# 4. Copy the Access Key ID and Secret Access Key (save immediately - secret won't be shown again!)
+# 5. Find your Account ID in the R2 dashboard sidebar
+# 6. Create a bucket in R2 dashboard if you haven't already
+R2_ACCOUNT_ID="your-r2-account-id"  # Found in R2 dashboard sidebar
+R2_ACCESS_KEY_ID="your-r2-access-key-id"  # From API token creation
+R2_SECRET_ACCESS_KEY="your-r2-secret-access-key"  # From API token creation (copy immediately!)
+R2_BUCKET_NAME="your-r2-bucket-name"  # Name of your R2 bucket
+R2_PUBLIC_URL="https://your-bucket.r2.dev"  # Optional: Public URL or custom domain for R2 bucket
 
 # Razorpay (Optional for now - needed for payment features)
 RAZORPAY_KEY_ID="your-razorpay-key-id"
@@ -86,7 +135,7 @@ openssl rand -base64 32
 [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))
 ```
 
-### 4. Run Database Migrations
+### 5. Run Database Migrations
 
 Set up your database schema:
 
@@ -101,7 +150,7 @@ npm run db:push
 npm run db:migrate
 ```
 
-### 5. Start the Development Server
+### 6. Start the Development Server
 
 Run the Next.js development server:
 
@@ -111,7 +160,7 @@ npm run dev
 
 The application will be available at: **http://localhost:3000**
 
-### 6. (Optional) Open Prisma Studio
+### 7. (Optional) Open Prisma Studio
 
 To view and manage your database data visually:
 

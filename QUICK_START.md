@@ -23,11 +23,13 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/jobportal?schema=pub
 NEXTAUTH_SECRET="your-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
 
-# AWS S3 (Optional for development)
-AWS_ACCESS_KEY_ID=""
-AWS_SECRET_ACCESS_KEY=""
-AWS_S3_BUCKET_NAME=""
-AWS_REGION="us-east-1"
+# Cloudflare R2 Storage (Required for file uploads)
+# Get credentials from: https://dash.cloudflare.com → R2 → Manage R2 API Tokens
+R2_ACCOUNT_ID=""
+R2_ACCESS_KEY_ID=""
+R2_SECRET_ACCESS_KEY=""
+R2_BUCKET_NAME=""
+R2_PUBLIC_URL=""  # Optional: Public URL for R2 bucket (e.g., https://your-bucket.r2.dev)
 
 # Razorpay (Optional for development)
 RAZORPAY_KEY_ID=""

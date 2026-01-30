@@ -23,17 +23,26 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    console.log("[RESUME UPLOAD] Starting upload for file:", file.name);
+    console.log("[RESUME UPLOAD] File size:", file.size, "bytes");
+    console.log("[RESUME UPLOAD] File type:", file.type);
+
     const url = await uploadFileToS3(
       buffer,
       file.name,
       file.type
     );
 
+    console.log("[RESUME UPLOAD] ✅ Upload successful, URL:", url);
     return NextResponse.json({ url });
   } catch (error) {
-    console.error("Resume upload error:", error);
+    console.error("[RESUME UPLOAD] ❌ Upload error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to upload resume";
     return NextResponse.json(
-      { error: "Failed to upload resume" },
+      { 
+        error: "Failed to upload resume",
+        details: errorMessage,
+      },
       { status: 500 }
     );
   }

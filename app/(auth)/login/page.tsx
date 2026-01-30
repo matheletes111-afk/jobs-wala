@@ -58,8 +58,14 @@ function LoginForm() {
         return;
       }
 
-      // Redirect based on user role
-      router.push("/dashboard");
+      // Check if there's a callback URL to redirect to
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else {
+        // Redirect based on user role
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (error) {
       setError("An error occurred. Please try again.");

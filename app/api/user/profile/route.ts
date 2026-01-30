@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireJobSeeker } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { calculateProfileCompletion, canApplyForJobs } from "@/lib/profile-utils";
 
 const profileSchema = z.object({
   firstName: z.string().min(1),
@@ -15,6 +16,46 @@ const profileSchema = z.object({
   skills: z.array(z.string()),
   resumeUrl: z.string().url().optional().nullable(),
 });
+
+export async function GET(req: NextRequest) {
+  try {
+    const user = await requireJobSeeker();
+
+    const profile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId: user.id },
+    });
+
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Profile not found" },
+        { status: 404 }
+      );
+    }
+
+    const completion = calculateProfileCompletion(profile);
+    const applicationEligibility = canApplyForJobs(profile);
+
+    return NextResponse.json({
+      ...profile,
+      completion: {
+        percentage: completion.percentage,
+        isComplete: completion.isComplete,
+        completedFields: completion.completedFields,
+        missingFields: completion.missingFields,
+      },
+      applicationEligibility: {
+        canApply: applicationEligibility.canApply,
+        missingRequirements: applicationEligibility.missingRequirements,
+      },
+    });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,7 +97,22 @@ export async function PUT(req: NextRequest) {
       data,
     });
 
-    return NextResponse.json(profile);
+    const completion = calculateProfileCompletion(profile);
+    const applicationEligibility = canApplyForJobs(profile);
+
+    return NextResponse.json({
+      ...profile,
+      completion: {
+        percentage: completion.percentage,
+        isComplete: completion.isComplete,
+        completedFields: completion.completedFields,
+        missingFields: completion.missingFields,
+      },
+      applicationEligibility: {
+        canApply: applicationEligibility.canApply,
+        missingRequirements: applicationEligibility.missingRequirements,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

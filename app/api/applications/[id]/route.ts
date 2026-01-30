@@ -51,12 +51,23 @@ export async function PATCH(
 
     // Send notification email
     if (application.jobSeeker.user.email) {
-      await sendApplicationNotificationEmail({
-        to: application.jobSeeker.user.email,
-        jobTitle: application.job.title,
-        companyName: application.job.employer.companyName,
-        status: data.status,
-      });
+      const candidateName = application.jobSeeker
+        ? `${application.jobSeeker.firstName} ${application.jobSeeker.lastName}`
+        : undefined;
+      
+      try {
+        await sendApplicationNotificationEmail({
+          to: application.jobSeeker.user.email,
+          jobTitle: application.job.title,
+          companyName: application.job.employer.companyName,
+          status: data.status,
+          candidateName,
+        });
+        console.log(`[APPLICATION UPDATE] Email sent to ${application.jobSeeker.user.email} for status: ${data.status}`);
+      } catch (emailError) {
+        console.error("[APPLICATION UPDATE] Failed to send email:", emailError);
+        // Don't fail the request if email fails
+      }
     }
 
     return NextResponse.json(updated);

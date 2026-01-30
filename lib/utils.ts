@@ -6,15 +6,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatLocation(location: string | null | undefined): string {
-  if (!location) return "Not specified";
+  if (!location || location.trim() === "") return "Not specified";
   
   try {
     const locationData = JSON.parse(location);
     const parts: string[] = [];
     
-    if (locationData.city) parts.push(locationData.city);
-    if (locationData.state) parts.push(locationData.state);
-    if (locationData.country) parts.push(locationData.country);
+    // Handle both lowercase and capitalized keys for backward compatibility
+    const city = locationData.city || locationData.City;
+    const state = locationData.state || locationData.State;
+    const country = locationData.country || locationData.Country;
+    
+    if (city) parts.push(city);
+    if (state) parts.push(state);
+    if (country) parts.push(country);
     
     return parts.length > 0 ? parts.join(", ") : location;
   } catch (e) {

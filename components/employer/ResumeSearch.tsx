@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { formatLocation } from "@/lib/utils";
 
 interface Candidate {
   id: string;
@@ -111,7 +112,7 @@ export default function ResumeSearch({
                     )}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {candidate.location && (
-                        <Badge variant="outline">{candidate.location}</Badge>
+                        <Badge variant="outline">{formatLocation(candidate.location)}</Badge>
                       )}
                       {candidate.experience !== null && (
                         <Badge variant="outline">

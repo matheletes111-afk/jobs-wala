@@ -126,9 +126,11 @@ Required environment variables (see `.env.example`):
 - `DATABASE_URL` - PostgreSQL connection string
 - `NEXTAUTH_SECRET` - Secret for NextAuth.js
 - `NEXTAUTH_URL` - Application URL
-- `AWS_ACCESS_KEY_ID` - AWS S3 access key
-- `AWS_SECRET_ACCESS_KEY` - AWS S3 secret key
-- `AWS_S3_BUCKET_NAME` - S3 bucket name
+- `R2_ACCOUNT_ID` - Cloudflare R2 Account ID
+- `R2_ACCESS_KEY_ID` - Cloudflare R2 Access Key ID
+- `R2_SECRET_ACCESS_KEY` - Cloudflare R2 Secret Access Key
+- `R2_BUCKET_NAME` - Cloudflare R2 Bucket Name
+- `R2_PUBLIC_URL` (optional) - Public URL for R2 bucket (e.g., https://your-bucket.r2.dev or custom domain)
 - `RAZORPAY_KEY_ID` - Razorpay API key
 - `RAZORPAY_KEY_SECRET` - Razorpay API secret
 - `RESEND_API_KEY` - Resend API key (get from https://resend.com)
