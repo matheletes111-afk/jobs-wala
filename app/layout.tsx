@@ -8,6 +8,14 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Job Portal - Find Your Dream Job",
   description: "Connect with top employers and discover opportunities that match your skills",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  icons: {
+    icon: [
+      { url: "/images/logo.jpeg", type: "image/jpeg", sizes: "any" },
+    ],
+    shortcut: "/images/logo.jpeg",
+    apple: "/images/logo.jpeg",
+  },
 };
 
 export default function RootLayout({

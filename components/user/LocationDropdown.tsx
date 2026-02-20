@@ -314,7 +314,7 @@ export default function LocationDropdown({
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="flex flex-col gap-4">
         <div className="space-y-2">
           <Label htmlFor="country">Country</Label>
           <Select

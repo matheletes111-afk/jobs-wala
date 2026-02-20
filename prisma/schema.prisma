@@ -20,6 +20,8 @@ enum JobStatus {
   ACTIVE
   INACTIVE
   PENDING
+  PAUSED   // On hold – not visible to candidates; can be set back to ACTIVE
+  CLOSED   // Permanently closed – not visible; cannot be re-opened
 }
 
 enum ApplicationStatus {
@@ -49,6 +51,30 @@ enum EmploymentType {
   FREELANCE
 }
 
+enum PayType {
+  HOURLY
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum CategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Category {
+  id        String         @id @default(cuid())
+  name      String
+  status    CategoryStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([status])
+}
+
 model User {
   id                    String    @id @default(cuid())
   email                 String    @unique
@@ -57,6 +83,11 @@ model User {
   emailVerified         Boolean   @default(false)
   emailVerificationToken String?  @unique
   emailVerificationTokenExpiry DateTime?
+  passwordResetToken    String?   @unique
+  passwordResetTokenExpiry DateTime?
+  pendingEmail          String?
+  emailChangeToken      String?   @unique
+  emailChangeTokenExpiry DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
@@ -67,6 +98,8 @@ model User {
   @@index([email])
   @@index([role])
   @@index([emailVerificationToken])
+  @@index([passwordResetToken])
+  @@index([emailChangeToken])
 }
 
 model JobSeekerProfile {
@@ -76,6 +109,7 @@ model JobSeekerProfile {
   lastName          String
   phone             String?
   location          String?
+  profileImage      String?
   resumeUrl         String?
   skills            String[] @default([])
   experience        Int?     @default(0) // years of experience
@@ -120,19 +154,27 @@ model EmployerProfile {
 }
 
 model Job {
-  id                String         @id @default(cuid())
-  title             String
-  description       String         @db.Text
-  category          String
-  location          String
-  experienceRequired Int?          @default(0) // years
-  salaryRange       String?        // e.g., "50000-80000"
-  employmentType    EmploymentType @default(FULL_TIME)
-  status            JobStatus      @default(PENDING)
-  postedBy          String
-  expiresAt         DateTime?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  id                 String         @id @default(cuid())
+  title              String
+  description        String         @db.Text
+  category           String
+  location           String
+  experienceRequired Int?           @default(0) // years (legacy)
+  experienceMin      Int?           // years
+  experienceMax      Int?           // years
+  salaryRange        String?        // legacy
+  salaryMin          Float?
+  salaryMax          Float?
+  currency           String?        // e.g. INR, USD
+  payType            PayType?       // HOURLY, WEEKLY, MONTHLY, etc.
+  requiredSkills     String[]       @default([])
+  secondarySkills    String[]       @default([])
+  employmentType     EmploymentType @default(FULL_TIME)
+  status             JobStatus      @default(PENDING)
+  postedBy           String
+  expiresAt          DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   employer EmployerProfile @relation("JobPostedBy", fields: [postedBy], references: [userId], onDelete: Cascade)
   applications Application[]

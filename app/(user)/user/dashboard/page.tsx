@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
+import CompanyLogo from "@/components/CompanyLogo";
+import { Briefcase, FileText, User, ChevronRight, Plus } from "lucide-react";
 
 export default async function UserDashboardPage() {
   const user = await requireJobSeeker();
@@ -19,7 +21,7 @@ export default async function UserDashboardPage() {
 
   const recentApplications = await prisma.application.findMany({
     where: { jobSeekerId: user.id },
-    take: 5,
+    take: 10,
     orderBy: { appliedAt: "desc" },
     include: {
       job: {
@@ -38,114 +40,151 @@ export default async function UserDashboardPage() {
     redirect("/user/profile/create");
   }
 
+  const colorCards = [
+    {
+      label: "Profile Status",
+      value: profile.resumeUrl ? "Complete" : "Incomplete",
+      icon: User,
+      href: "/user/profile",
+      className: profile.resumeUrl
+        ? "bg-emerald-600 text-white hover:bg-emerald-700"
+        : "bg-amber-500 text-white hover:bg-amber-600",
+    },
+    {
+      label: "Applications",
+      value: applicationsCount,
+      icon: FileText,
+      href: "/user/applications",
+      className: "bg-blue-600 text-white hover:bg-blue-700",
+    },
+    {
+      label: "Browse Jobs",
+      value: "Find Jobs",
+      icon: Briefcase,
+      href: "/user/jobs",
+      className: "bg-violet-600 text-white hover:bg-violet-700",
+    },
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Link href="/user/profile">
-          <Button>Edit Profile</Button>
-        </Link>
-      </div>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
+              Welcome to Your Dashboard
+            </h1>
+            <p className="mt-1 text-gray-600">
+              Track your applications and discover new opportunities.
+            </p>
+          </div>
+          <Link href="/user/jobs">
+            <Button className="gap-2 bg-[#2563eb] hover:bg-[#1d4ed8]">
+              <Plus className="h-4 w-4" />
+              Browse Jobs
+            </Button>
+          </Link>
+        </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Status</CardTitle>
-            <CardDescription>Your profile completion</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {profile.resumeUrl ? "Complete" : "Incomplete"}
-            </div>
-            {!profile.resumeUrl && (
-              <Link href="/user/profile">
-                <Button variant="outline" className="mt-2 w-full">
-                  Upload Resume
-                </Button>
+        <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {colorCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <Link key={card.label} href={card.href}>
+                <div
+                  className={`flex items-center gap-5 rounded-2xl p-6 shadow-md transition-all ${card.className}`}
+                >
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                    <Icon className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium opacity-90">{card.label}</p>
+                    <p className="text-3xl font-bold">{card.value}</p>
+                  </div>
+                </div>
               </Link>
-            )}
-          </CardContent>
-        </Card>
+            );
+          })}
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Applications</CardTitle>
-            <CardDescription>Total applications submitted</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{applicationsCount}</div>
+        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
+              <p className="text-sm text-gray-500">Your latest job applications</p>
+            </div>
             <Link href="/user/applications">
-              <Button variant="outline" className="mt-2 w-full">
-                View All
+              <Button variant="outline" size="sm" className="gap-1">
+                View all
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Link href="/user/jobs" className="block">
-              <Button variant="outline" className="w-full">
-                Browse Jobs
-              </Button>
-            </Link>
-            <Link href="/user/profile" className="block">
-              <Button variant="outline" className="w-full">
-                Edit Profile
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Recent Applications</CardTitle>
-          <CardDescription>Your latest job applications</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {recentApplications.length === 0 ? (
-            <p className="text-gray-500">No applications yet. Start applying to jobs!</p>
-          ) : (
-            <div className="space-y-4">
-              {recentApplications.map((application: {
+          </div>
+          <div className="divide-y divide-gray-100">
+            {recentApplications.length === 0 ? (
+              <div className="px-6 py-12 text-center text-gray-500">
+                No applications yet. Start applying to jobs!
+              </div>
+            ) : (
+              recentApplications.map((application: {
                 id: string;
                 status: string;
                 appliedAt: Date;
                 job: {
                   title: string;
                   location: string | null;
+                  category: string;
                   employer: {
                     companyName: string;
+                    companyLogo?: string | null;
                   };
                 };
               }) => (
-                <div
+                <Link
                   key={application.id}
-                  className="flex items-center justify-between border-b pb-4"
+                  href="/user/applications"
+                  className="flex items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50"
                 >
-                  <div>
-                    <h3 className="font-semibold">{application.job.title}</h3>
-                    <p className="text-sm text-gray-600">
-                      {application.job.employer.companyName} • {formatLocation(application.job.location)}
+                  <CompanyLogo
+                    companyLogo={application.job.employer.companyLogo}
+                    companyName={application.job.employer.companyName}
+                    size="sm"
+                    className="shrink-0 rounded-lg"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-gray-900">{application.job.title}</h3>
+                    <p className="text-sm text-gray-500">
+                      {application.job.employer.companyName}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      Applied on {new Date(application.appliedAt).toLocaleDateString()}
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        {formatLocation(application.job.location)}
+                      </span>
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        {application.job.category}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-400">
+                      Applied {new Date(application.appliedAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                      application.status === "SHORTLISTED"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : application.status === "REJECTED"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
                     {application.status}
                   </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </Link>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

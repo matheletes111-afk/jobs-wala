@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
+import { Check } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -70,8 +70,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // Prepare payload based on role
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         email: formData.email,
         password: formData.password,
         role: formData.role,
@@ -98,128 +97,228 @@ export default function RegisterPage() {
         return;
       }
 
-      // Show success message and redirect to login
       alert("Registration successful! Please check your email to verify your account before logging in.");
       router.push("/login?registered=true");
-    } catch (error) {
+    } catch {
       setError("An error occurred. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
-          <CardDescription>
-            Choose your account type and fill in your details
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="flex min-h-screen bg-gradient-to-r from-sky-50 via-white to-white">
+      {/* Left section - informational */}
+      <div className="hidden w-[45%] flex-col justify-center px-12 xl:px-20 lg:flex">
+        <Link href="/" className="mb-8 inline-flex">
+          <img
+            src="/images/logo.jpeg"
+            alt="Jobs Portal"
+            width={320}
+            height={320}
+            className="h-40 w-auto rounded-lg object-contain sm:h-56"
+          />
+        </Link>
+        <p className="mb-4 text-sm font-medium uppercase tracking-wider text-sky-500">
+          Create account
+        </p>
+        <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-800">
+          Join thousands of professionals hiring and getting hired
+        </h2>
+        <p className="mb-8 max-w-md text-base text-gray-600">
+          Build a profile that stands out, connect with employers, and unlock tailored recommendations to accelerate your career journey.
+        </p>
+        <ul className="space-y-3">
+          <li className="flex items-center gap-3 text-gray-700">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <Check className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+            Access curated jobs from verified companies
+          </li>
+          <li className="flex items-center gap-3 text-gray-700">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <Check className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+            Showcase your portfolio and skill badges
+          </li>
+          <li className="flex items-center gap-3 text-gray-700">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <Check className="h-4 w-4" strokeWidth={2.5} />
+            </span>
+            Collaborate with hiring teams in real time
+          </li>
+        </ul>
+      </div>
+
+      {/* Right section - form card */}
+      <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-[55%]">
+        <div className="mb-6 w-full lg:hidden">
+          <Link href="/" className="inline-flex">
+          <img
+            src="/images/logo.jpeg"
+            alt="Jobs Portal"
+            width={240}
+            height={240}
+            className="h-32 w-auto rounded-lg object-contain sm:h-40"
+          />
+        </Link>
+        </div>
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/50">
+          <h1 className="text-xl font-bold text-gray-900">
+            Create your free account
+          </h1>
+          <p className="mt-1 mb-6 text-sm text-gray-500">
+            Start as a candidate or an employer. Switch anytime.
+          </p>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                 {error}
               </div>
             )}
+
+            {/* Role segmented control */}
             <div className="space-y-2">
-              <Label htmlFor="role">I am a</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value) => setFormData({ ...formData, role: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select account type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="JOB_SEEKER">Job Seeker</SelectItem>
-                  <SelectItem value="EMPLOYER">Employer</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-gray-700">I am a</Label>
+              <div className="flex rounded-lg border border-gray-300 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: "JOB_SEEKER" })}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-colors ${
+                    formData.role === "JOB_SEEKER"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-transparent text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  Candidate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: "EMPLOYER" })}
+                  className={`flex-1 rounded-md py-2.5 text-sm font-medium transition-colors ${
+                    formData.role === "EMPLOYER"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-transparent text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  Employer
+                </button>
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-gray-700">
+                {formData.role === "EMPLOYER" ? "Work email" : "Email"}
+              </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={formData.role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
               />
             </div>
+
             {formData.role === "JOB_SEEKER" && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName" className="text-gray-700">
+                    First name
+                  </Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-gray-700">
+                    Last name
+                  </Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
               </>
             )}
+
             {formData.role === "EMPLOYER" && (
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name</Label>
+                <Label htmlFor="companyName" className="text-gray-700">
+                  Company name
+                </Label>
                 <Input
                   id="companyName"
+                  placeholder="Acme Studios"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                  className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
             )}
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
+              <Label htmlFor="password" className="text-gray-700">
+                Password
+              </Label>
+              <PasswordInput
                 id="password"
-                type="password"
+                placeholder="Create a password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
                 minLength={8}
               />
               <p className="text-xs text-gray-500">
-                Password must be at least 8 characters and contain uppercase, lowercase, number, and special character
+                At least 8 characters with uppercase, lowercase, number and special character
               </p>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
+              <Label htmlFor="confirmPassword" className="text-gray-700">
+                Confirm password
+              </Label>
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
                 minLength={6}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Register"}
+
+            <Button
+              type="submit"
+              className="h-11 w-full rounded-lg bg-blue-600 font-semibold hover:bg-blue-700"
+              disabled={loading}
+            >
+              {loading
+                ? "Creating account..."
+                : formData.role === "EMPLOYER"
+                  ? "Create Employer Account"
+                  : "Create account"}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            <span className="text-gray-600">Already have an account? </span>
-            <Link href="/login" className="text-blue-600 hover:underline">
-              Login
+
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700 hover:underline">
+              Sign in
             </Link>
-          </div>
-        </CardContent>
-      </Card>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
-

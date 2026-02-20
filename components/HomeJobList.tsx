@@ -1,12 +1,12 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { formatLocation } from "@/lib/utils";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface Job {
   id: string;
@@ -20,6 +20,7 @@ interface Job {
   createdAt: Date;
   employer: {
     companyName: string;
+    companyLogo?: string | null;
   };
 }
 
@@ -29,26 +30,21 @@ interface HomeJobListProps {
 
 export default function HomeJobList({ jobs }: HomeJobListProps) {
   const { data: session } = useSession();
-  const router = useRouter();
-
-  const handleApply = (jobId: string) => {
-    if (!session) {
-      // Redirect to login with return URL
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/user/jobs/${jobId}`)}`);
-    } else {
-      // User is logged in, go to job details page
-      router.push(`/user/jobs/${jobId}`);
-    }
-  };
 
   return (
     <div className="space-y-4">
       {jobs.map((job) => (
         <Card key={job.id} className="hover:shadow-md transition-shadow">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <Link href={`/user/jobs/${job.id}`}>
+            <div className="flex items-start gap-4">
+              <CompanyLogo
+                companyLogo={job.employer.companyLogo}
+                companyName={job.employer.companyName}
+                size="md"
+                className="shrink-0 rounded-lg"
+              />
+              <div className="min-w-0 flex-1">
+                <Link href={`/jobs/${job.id}`}>
                   <h3 className="text-xl font-semibold hover:text-blue-600">
                     {job.title}
                   </h3>
@@ -66,11 +62,15 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                   {job.description}
                 </p>
               </div>
-              <div className="ml-4 flex gap-2">
-                <Link href={`/user/jobs/${job.id}`}>
+              <div className="ml-auto flex shrink-0 gap-2">
+                <Link href={`/jobs/${job.id}`}>
                   <Button variant="outline">View Details</Button>
                 </Link>
-                <Button onClick={() => handleApply(job.id)}>Apply</Button>
+                {session && (
+                  <Link href={`/jobs/${job.id}`}>
+                    <Button>Apply</Button>
+                  </Link>
+                )}
               </div>
             </div>
           </CardContent>

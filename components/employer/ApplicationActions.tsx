@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,13 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 
 export default function ApplicationActions({
   applicationId,
   currentStatus,
+  onSuccess,
 }: {
   applicationId: string;
   currentStatus: string;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -34,6 +36,7 @@ export default function ApplicationActions({
         throw new Error("Failed to update status");
       }
 
+      onSuccess?.();
       router.refresh();
     } catch (error) {
       console.error("Error updating status:", error);
@@ -49,7 +52,14 @@ export default function ApplicationActions({
       disabled={loading}
     >
       <SelectTrigger className="w-32">
-        <SelectValue />
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Updating...
+          </span>
+        ) : (
+          <SelectValue />
+        )}
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="PENDING">Pending</SelectItem>

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
+import { CheckCircle2 } from "lucide-react";
+import ShareJobButton from "@/components/ShareJobButton";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface Job {
   id: string;
@@ -25,175 +27,179 @@ interface Job {
   salaryRange?: string | null;
   employmentType: string;
   experienceRequired?: number | null;
-  createdAt: Date;
-  employer: {
-    companyName: string;
-  };
+  employer: { companyName: string; companyLogo?: string | null };
 }
 
-interface JobSearchProps {
-  initialJobs: Job[];
+interface CategoryOption {
+  id: string;
+  name: string;
+  status: string;
 }
 
-export default function JobSearch({ initialJobs }: JobSearchProps) {
+interface FetchResult {
+  jobs: Job[];
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  appliedJobIds: string[];
+}
+
+export default function JobSearch() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState("");
   const [category, setCategory] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [location, setLocation] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("all");
+  const [appliedLocation, setAppliedLocation] = useState("");
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
 
-  // Filter jobs based on search criteria
-  const filteredJobs = useMemo(() => {
-    let filtered = [...initialJobs];
+  const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
 
-    // Search filter (title or description)
-    if (search.trim()) {
-      const searchLower = search.toLowerCase();
-      filtered = filtered.filter(
-        (job) =>
-          job.title.toLowerCase().includes(searchLower) ||
-          job.description.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Category filter
-    if (category && category !== "all") {
-      filtered = filtered.filter((job) => job.category === category);
-    }
-
-    // Location filter
-    if (location && location.trim() !== "") {
+  const fetchJobs = useCallback(
+    async (
+      pageNum: number,
+      searchVal: string,
+      categoryVal: string,
+      locationVal: string
+    ) => {
+      setLoading(true);
       try {
-        const locationData = JSON.parse(location);
-        filtered = filtered.filter((job) => {
-          try {
-            const jobLocation = JSON.parse(job.location);
-            let matches = false;
-            
-            // Priority: city > state > country
-            // If city is selected, match by city (exact match)
-            if (locationData.city && locationData.city.trim() !== "") {
-              matches = jobLocation.city && 
-                jobLocation.city.toLowerCase() === locationData.city.toLowerCase();
-            }
-            // If state is selected (but no city), match by state (exact match)
-            else if (locationData.state && locationData.state.trim() !== "") {
-              matches = jobLocation.state && 
-                jobLocation.state.toLowerCase() === locationData.state.toLowerCase();
-            }
-            // If only country is selected, match by country (exact match)
-            else if (locationData.country && locationData.country.trim() !== "") {
-              matches = jobLocation.country && 
-                jobLocation.country.toLowerCase() === locationData.country.toLowerCase();
-            }
-            
-            return matches;
-          } catch {
-            // If job location is not JSON, check if it contains the formatted location
-            try {
-              const formattedLocation = formatLocation(location);
-              return job.location.toLowerCase().includes(formattedLocation.toLowerCase());
-            } catch {
-              return job.location.toLowerCase().includes(location.toLowerCase());
-            }
-          }
-        });
+        const params = new URLSearchParams();
+        params.set("page", String(pageNum));
+        params.set("limit", "10");
+        if (searchVal.trim()) params.set("search", searchVal.trim());
+        if (categoryVal && categoryVal !== "all")
+          params.set("category", categoryVal);
+        if (locationVal.trim())
+          params.set("location", encodeURIComponent(locationVal.trim()));
+        const res = await fetch(`/api/user/jobs?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data: FetchResult = await res.json();
+        setJobs(data.jobs ?? []);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setPage(data.page ?? 1);
+        setAppliedJobIds(data.appliedJobIds ?? []);
       } catch {
-        // If location is not JSON, do simple string search
-        if (location.trim() !== "") {
-          filtered = filtered.filter((job) =>
-            job.location.toLowerCase().includes(location.toLowerCase())
-          );
-        }
+        setJobs([]);
+        setTotal(0);
+        setTotalPages(0);
+        setAppliedJobIds([]);
+      } finally {
+        setLoading(false);
       }
-    }
+    },
+    []
+  );
 
-    return filtered;
-  }, [initialJobs, search, category, location]);
+  useEffect(() => {
+    fetch("/api/categories?activeOnly=true")
+      .then((res) => res.json())
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+  }, []);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
-
-  // Reset to page 1 when filters change
-  const handleFilterChange = () => {
-    setCurrentPage(1);
-  };
+  useEffect(() => {
+    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation);
+  }, [page, appliedSearch, appliedCategory, appliedLocation, fetchJobs]);
 
   const handleSearch = () => {
-    handleFilterChange();
+    setAppliedSearch(search);
+    setAppliedCategory(category);
+    setAppliedLocation(location);
+    setPage(1);
   };
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="p-4">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                placeholder="Search jobs..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  handleFilterChange();
-                }}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-              <Select
-                value={category}
-                onValueChange={(value) => {
-                  setCategory(value);
-                  handleFilterChange();
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Technology">Technology</SelectItem>
-                  <SelectItem value="Finance">Finance</SelectItem>
-                  <SelectItem value="Healthcare">Healthcare</SelectItem>
-                  <SelectItem value="Education">Education</SelectItem>
-                  <SelectItem value="Marketing">Marketing</SelectItem>
-                  <SelectItem value="Sales">Sales</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <LocationDropdown
-                value={location}
-                onChange={(value) => {
-                  setLocation(value);
-                  handleFilterChange();
-                }}
-              />
-            </div>
-            <Button onClick={handleSearch} className="w-full">
-              Search
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+  const handleClear = () => {
+    setSearch("");
+    setCategory("all");
+    setLocation("");
+    setAppliedSearch("");
+    setAppliedCategory("all");
+    setAppliedLocation("");
+    setPage(1);
+  };
 
-      <div className="space-y-4">
-        {paginatedJobs.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500">No jobs found. Try adjusting your filters.</p>
-            </CardContent>
-          </Card>
+  const start = total === 0 ? 0 : (page - 1) * 10 + 1;
+  const end = Math.min(page * 10, total);
+
+  return (
+    <div className="flex flex-col gap-6 lg:flex-row">
+      <aside className="w-full shrink-0 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:w-72">
+        <h2 className="mb-4 font-semibold text-gray-900">Filter jobs</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm text-gray-600">Search</label>
+            <Input
+              placeholder="Title or description..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-gray-600">Category</label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm text-gray-600">Location</label>
+            <LocationDropdown value={location} onChange={setLocation} />
+          </div>
+          <Button onClick={handleSearch} disabled={loading} className="w-full bg-[#2563eb] hover:bg-[#1d4ed8]">
+            Apply filters
+          </Button>
+          <Button variant="outline" onClick={handleClear} disabled={loading} className="w-full border-gray-300">
+            Clear filters
+          </Button>
+        </div>
+      </aside>
+
+      <div className="flex-1">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-gray-600">
+            <span className="font-semibold text-gray-900">{total} Jobs Found</span>
+            <span className="ml-2 text-sm">Showing {start} - {end}</span>
+          </p>
+        </div>
+        {loading ? (
+          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+            Loading jobs...
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+            No jobs found. Try adjusting filters or clear filters.
+          </div>
         ) : (
-          <>
-            <p className="text-sm text-gray-600">
-              Found {filteredJobs.length} job{filteredJobs.length !== 1 ? "s" : ""}
-            </p>
-            {paginatedJobs.map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+          <div className="space-y-6">
+            {jobs.map((job) => (
+              <div key={job.id} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                <div className="flex items-start gap-4">
+                  <CompanyLogo
+                    companyLogo={job.employer.companyLogo}
+                    companyName={job.employer.companyName}
+                    size="md"
+                    className="shrink-0 rounded-lg"
+                  />
+                  <div className="min-w-0 flex-1">
                       <Link href={`/user/jobs/${job.id}`}>
                         <h3 className="text-xl font-semibold hover:text-blue-600">
                           {job.title}
@@ -201,7 +207,15 @@ export default function JobSearch({ initialJobs }: JobSearchProps) {
                       </Link>
                       <p className="mt-1 text-gray-600">{job.employer.companyName}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <Badge variant="outline">{formatLocation(job.location)}</Badge>
+                        {appliedSet.has(job.id) && (
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
+                            <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+                            Already applied
+                          </span>
+                        )}
+                        <Badge variant="outline">
+                          {formatLocation(job.location)}
+                        </Badge>
                         <Badge variant="outline">{job.category}</Badge>
                         <Badge variant="outline">{job.employmentType}</Badge>
                         {job.salaryRange && (
@@ -212,39 +226,81 @@ export default function JobSearch({ initialJobs }: JobSearchProps) {
                         {job.description}
                       </p>
                     </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9" />
                     <Link href={`/user/jobs/${job.id}`}>
-                      <Button>View Details</Button>
+                      <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">View Details</Button>
                     </Link>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
-          </>
+          </div>
         )}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+        {!loading && totalPages > 1 && (
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
           <Button
             variant="outline"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
             Previous
           </Button>
-          <span className="flex items-center px-4">
-            Page {currentPage} of {totalPages}
-          </span>
+          <div className="flex items-center gap-1">
+            {(() => {
+              const pages: (number | "ellipsis")[] = [];
+              const show = 3;
+              if (totalPages <= 7) {
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+              } else {
+                if (page <= show) {
+                  for (let i = 1; i <= show + 1; i++) pages.push(i);
+                  pages.push("ellipsis");
+                  pages.push(totalPages);
+                } else if (page >= totalPages - show + 1) {
+                  pages.push(1);
+                  pages.push("ellipsis");
+                  for (let i = totalPages - show; i <= totalPages; i++)
+                    pages.push(i);
+                } else {
+                  pages.push(1);
+                  pages.push("ellipsis");
+                  for (let i = page - 1; i <= page + 1; i++) pages.push(i);
+                  pages.push("ellipsis");
+                  pages.push(totalPages);
+                }
+              }
+              return pages.map((p, i) =>
+                p === "ellipsis" ? (
+                  <span key={`e-${i}`} className="px-2 text-gray-400">
+                    …
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    variant={page === p ? "default" : "outline"}
+                    size="sm"
+                    className="min-w-[2.25rem]"
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </Button>
+                )
+              );
+            })()}
+          </div>
           <Button
             variant="outline"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           >
             Next
           </Button>
         </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
-

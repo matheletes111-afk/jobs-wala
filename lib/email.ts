@@ -442,6 +442,53 @@ export async function sendNewApplicationEmail({
 }
 
 /**
+ * Send new job posted notification to admin(s).
+ * When an employer posts a job, admins get an email to review and approve or reject.
+ */
+export async function sendNewJobPostedNotificationToAdmin({
+  to,
+  jobTitle,
+  companyName,
+  reviewUrl,
+}: {
+  to: string;
+  jobTitle: string;
+  companyName: string;
+  reviewUrl: string;
+}) {
+  const subject = `New job posted: "${jobTitle}" by ${companyName} – please review`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">New job submitted for review</h2>
+        <p style="color: #666; line-height: 1.6; font-size: 16px;">
+          <strong>${companyName}</strong> has posted a new job and it is awaiting your review.
+        </p>
+        <div style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; color: #1976D2; font-weight: bold;">Job title</p>
+          <p style="margin: 5px 0 0 0; color: #333; font-size: 16px;">${jobTitle}</p>
+        </div>
+        <p style="color: #666; line-height: 1.6;">
+          Please review this job and approve or reject it from the admin dashboard.
+        </p>
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${reviewUrl}"
+             style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Review &amp; approve / reject
+          </a>
+        </div>
+        <p style="color: #999; font-size: 14px; margin-top: 20px;">
+          Or copy and paste this link into your browser:<br>
+          <span style="word-break: break-all; color: #007bff;">${reviewUrl}</span>
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+
+/**
  * Send email verification link to user
  */
 export async function sendVerificationEmail({
@@ -478,6 +525,96 @@ export async function sendVerificationEmail({
         </p>
         <p style="color: #999; font-size: 12px; margin-top: 30px;">
           This link will expire in 24 hours. If you didn't create an account, please ignore this email.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+
+/**
+ * Send email change verification link to the new email address
+ */
+export async function sendEmailChangeVerificationEmail({
+  to,
+  verifyLink,
+  currentEmail,
+}: {
+  to: string;
+  verifyLink: string;
+  currentEmail?: string;
+}) {
+  const subject = "Confirm your new email address - KORA";
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">Confirm Your New Email</h2>
+        <p style="color: #666; line-height: 1.6;">
+          You requested to change your account email${currentEmail ? ` from <strong>${currentEmail}</strong>` : ""} to <strong>${to}</strong>.
+        </p>
+        <p style="color: #666; line-height: 1.6;">
+          Click the button below to confirm this change. After that, you will use this email to sign in.
+        </p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verifyLink}"
+             style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Confirm new email
+          </a>
+        </div>
+        <p style="color: #666; line-height: 1.6; font-size: 14px;">
+          Or copy and paste this link into your browser:
+        </p>
+        <p style="color: #007bff; word-break: break-all; font-size: 12px;">
+          ${verifyLink}
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">
+          This link will expire in 1 hour. If you didn't request this change, please ignore this email and your email will stay the same.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+
+/**
+ * Send password reset link to user
+ */
+export async function sendPasswordResetEmail({
+  to,
+  resetLink,
+  name,
+}: {
+  to: string;
+  resetLink: string;
+  name?: string;
+}) {
+  const subject = "Reset Your Password - KORA";
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">Reset Your Password</h2>
+        <p style="color: #666; line-height: 1.6;">
+          ${name ? `Hi ${name},` : "Hi there,"}
+        </p>
+        <p style="color: #666; line-height: 1.6;">
+          We received a request to reset your password. Click the button below to set a new password:
+        </p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" 
+             style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Reset Password
+          </a>
+        </div>
+        <p style="color: #666; line-height: 1.6; font-size: 14px;">
+          Or copy and paste this link into your browser:
+        </p>
+        <p style="color: #007bff; word-break: break-all; font-size: 12px;">
+          ${resetLink}
+        </p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">
+          This link will expire in 1 hour. If you didn't request a password reset, please ignore this email and your password will stay the same.
         </p>
       </div>
     </div>

@@ -3,8 +3,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export async function getCurrentUser() {
-  const session = await auth();
-  return session?.user || null;
+  try {
+    const session = await auth();
+    return session?.user || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function requireAuth() {

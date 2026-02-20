@@ -7,9 +7,11 @@ const profileSchema = z.object({
   companyName: z.string().min(1),
   industry: z.string().optional(),
   companySize: z.string().optional(),
-  website: z.string().url().optional().nullable(),
+  website: z
+    .preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
   description: z.string().optional(),
-  companyLogo: z.string().url().optional().nullable(),
+  companyLogo: z
+    .preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
 });
 
 export async function POST(req: NextRequest) {

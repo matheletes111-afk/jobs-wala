@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { formatLocation } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
+import JobDetails from "@/components/user/JobDetails";
+import CandidateAvatar from "@/components/CandidateAvatar";
 
 export default async function EmployerJobDetailsPage({
   params,
@@ -27,6 +28,7 @@ export default async function EmployerJobDetailsPage({
   const job = await prisma.job.findUnique({
     where: { id },
     include: {
+      employer: true,
       applications: {
         include: {
           jobSeeker: {
@@ -52,64 +54,69 @@ export default async function EmployerJobDetailsPage({
         </Link>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-3xl">{job.title}</CardTitle>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Badge
-              variant={
-                job.status === "ACTIVE"
-                  ? "default"
-                  : job.status === "PENDING"
-                  ? "secondary"
-                  : "outline"
-              }
-            >
-              {job.status}
-            </Badge>
-            <Badge variant="outline">{formatLocation(job.location)}</Badge>
-            <Badge variant="outline">{job.category}</Badge>
-            <Badge variant="outline">{job.employmentType}</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h3 className="font-semibold">Job Description</h3>
-            <p className="mt-2 whitespace-pre-wrap text-gray-700">
-              {job.description}
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h3 className="font-semibold">Experience Required</h3>
-              <p className="text-gray-700">
-                {job.experienceRequired ?? 0} years
-              </p>
-            </div>
-            {job.salaryRange && (
-              <div>
-                <h3 className="font-semibold">Salary Range</h3>
-                <p className="text-gray-700">{job.salaryRange}</p>
-              </div>
-            )}
-            <div>
-              <h3 className="font-semibold">Posted On</h3>
-              <p className="text-gray-700">
-                {new Date(job.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            {job.expiresAt && (
-              <div>
-                <h3 className="font-semibold">Expires On</h3>
-                <p className="text-gray-700">
-                  {new Date(job.expiresAt).toLocaleDateString()}
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge
+            variant={
+              job.status === "ACTIVE"
+                ? "default"
+                : job.status === "PENDING"
+                ? "secondary"
+                : job.status === "PAUSED"
+                ? "outline"
+                : job.status === "CLOSED"
+                ? "destructive"
+                : "outline"
+            }
+          >
+            {job.status === "PAUSED"
+              ? "Paused (on hold)"
+              : job.status === "CLOSED"
+                ? "Closed"
+                : job.status}
+          </Badge>
+          {(job.status === "PAUSED" || job.status === "CLOSED") && (
+            <span className="text-sm text-gray-500">
+              {job.status === "PAUSED"
+                ? "Not visible to candidates. Resume from My Jobs list."
+                : "Permanently closed. Cannot be re-opened."}
+            </span>
+          )}
+        </div>
+        <JobDetails
+          job={{
+            id: job.id,
+            title: job.title,
+            description: job.description,
+            location: job.location,
+            category: job.category,
+            salaryRange: job.salaryRange,
+            salaryMin: job.salaryMin,
+            salaryMax: job.salaryMax,
+            currency: job.currency,
+            payType: job.payType,
+            employmentType: job.employmentType,
+            experienceRequired: job.experienceRequired,
+            experienceMin: job.experienceMin,
+            experienceMax: job.experienceMax,
+            requiredSkills: job.requiredSkills ?? [],
+            secondarySkills: job.secondarySkills ?? [],
+            createdAt: job.createdAt,
+            employer: {
+              companyName: job.employer.companyName,
+              companyLogo: job.employer.companyLogo,
+              website: job.employer.website,
+              description: job.employer.description,
+            },
+          }}
+        />
+        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <span>Posted: {new Date(job.createdAt).toLocaleDateString()}</span>
+          {job.expiresAt && (
+            <span>Expires: {new Date(job.expiresAt).toLocaleDateString()}</span>
+          )}
+        </div>
+      </div>
 
       <Card>
         <CardHeader>
@@ -130,6 +137,7 @@ export default async function EmployerJobDetailsPage({
                 jobSeeker: {
                   firstName: string;
                   lastName: string;
+                  profileImage?: string | null;
                   resumeUrl: string | null;
                   user: {
                     email: string;
@@ -138,8 +146,15 @@ export default async function EmployerJobDetailsPage({
               }) => (
                 <Card key={application.id}>
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                    <div className="flex items-start gap-4">
+                      <CandidateAvatar
+                        profileImage={application.jobSeeker.profileImage}
+                        firstName={application.jobSeeker.firstName}
+                        lastName={application.jobSeeker.lastName}
+                        size="md"
+                        className="shrink-0 rounded-lg"
+                      />
+                      <div className="min-w-0 flex-1">
                         <h3 className="text-xl font-semibold">
                           {application.jobSeeker.firstName}{" "}
                           {application.jobSeeker.lastName}
@@ -172,7 +187,7 @@ export default async function EmployerJobDetailsPage({
                           </a>
                         )}
                       </div>
-                      <div className="flex flex-col items-end gap-2">
+                      <div className="flex shrink-0 flex-col items-end gap-2">
                         <Badge
                           variant={
                             application.status === "SHORTLISTED"

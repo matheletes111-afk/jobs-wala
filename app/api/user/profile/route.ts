@@ -14,6 +14,7 @@ const profileSchema = z.object({
   education: z.string().optional(),
   bio: z.string().optional(),
   skills: z.array(z.string()),
+  profileImage: z.preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
   resumeUrl: z.string().url().optional().nullable(),
 });
 

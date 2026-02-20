@@ -31,8 +31,9 @@ export default async function AdminReportsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Reports & Exports</h1>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+        <h1 className="mb-6 text-3xl font-bold">Reports & Exports</h1>
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
@@ -67,6 +68,7 @@ export default async function AdminReportsPage() {
             </form>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

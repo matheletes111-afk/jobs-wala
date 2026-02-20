@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { sendNewJobPostedNotificationToAdmin } from "@/lib/email";
 import { z } from "zod";
-import { EmploymentType, JobStatus } from "@prisma/client";
+import { EmploymentType, JobStatus, UserRole } from "@prisma/client";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
+const payTypeEnum = z.enum(["HOURLY", "DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", "YEARLY"]);
 
 const jobSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -10,7 +17,15 @@ const jobSchema = z.object({
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
   experienceRequired: z.number().min(0).optional(),
+  experienceMin: z.number().min(0).optional(),
+  experienceMax: z.number().min(0).optional(),
   salaryRange: z.string().optional(),
+  salaryMin: z.number().min(0).optional(),
+  salaryMax: z.number().min(0).optional(),
+  currency: z.string().optional(),
+  payType: payTypeEnum.optional(),
+  requiredSkills: z.array(z.string()).optional(),
+  secondarySkills: z.array(z.string()).optional(),
   employmentType: z.nativeEnum(EmploymentType),
   expiresAt: z.string().datetime().optional(),
 });
@@ -34,12 +49,48 @@ export async function POST(req: NextRequest) {
 
     const job = await prisma.job.create({
       data: {
-        ...data,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        location: data.location,
+        experienceRequired: data.experienceRequired ?? data.experienceMin ?? 0,
+        experienceMin: data.experienceMin,
+        experienceMax: data.experienceMax,
+        salaryRange: data.salaryRange,
+        salaryMin: data.salaryMin,
+        salaryMax: data.salaryMax,
+        currency: data.currency,
+        payType: data.payType,
+        requiredSkills: data.requiredSkills ?? [],
+        secondarySkills: data.secondarySkills ?? [],
+        employmentType: data.employmentType,
         postedBy: profile.userId,
         status: JobStatus.PENDING,
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
       },
     });
+
+    // Notify all admins so they can review and approve or reject the job
+    try {
+      const admins = await prisma.user.findMany({
+        where: { role: UserRole.ADMIN },
+        select: { email: true },
+      });
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const reviewUrl = `${baseUrl}/admin/jobs/${job.id}`;
+      for (const admin of admins) {
+        await sendNewJobPostedNotificationToAdmin({
+          to: admin.email,
+          jobTitle: job.title,
+          companyName: profile.companyName,
+          reviewUrl,
+        });
+      }
+    } catch (emailErr) {
+      console.error("[POST /api/jobs] Admin notification email failed:", emailErr);
+      // Do not fail job creation if email fails
+    }
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {
@@ -60,27 +111,46 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const employerId = searchParams.get("employerId");
+  const category = searchParams.get("category");
+  const page = Math.max(1, parseInt(searchParams.get("page") || String(DEFAULT_PAGE), 10));
+  const limit = Math.min(
+    MAX_LIMIT,
+    Math.max(1, parseInt(searchParams.get("limit") || String(DEFAULT_LIMIT), 10))
+  );
+  const usePagination = searchParams.get("page") !== null || searchParams.get("limit") !== null;
 
-  const where: any = {};
-  if (employerId) {
-    where.postedBy = employerId;
-  }
+  const where: { postedBy?: string; category?: string; status?: JobStatus } = {};
+  // Public listing: default to ACTIVE only (no auth required)
+  where.status = JobStatus.ACTIVE;
+  if (employerId) where.postedBy = employerId;
+  if (category) where.category = category;
 
-  const jobs = await prisma.job.findMany({
-    where,
-    include: {
-      employer: {
-        include: {
-          user: true,
+  const [total, jobs] = await Promise.all([
+    prisma.job.count({ where }),
+    prisma.job.findMany({
+      where,
+      skip: usePagination ? (page - 1) * limit : 0,
+      take: usePagination ? limit : 50,
+      orderBy: { createdAt: "desc" },
+      include: {
+        employer: {
+          select: { companyName: true, companyLogo: true },
         },
       },
-      _count: {
-        select: { applications: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+    }),
+  ]);
 
-  return NextResponse.json(jobs);
+  if (!usePagination) {
+    return NextResponse.json(jobs);
+  }
+
+  const totalPages = Math.ceil(total / limit);
+  return NextResponse.json({
+    jobs,
+    total,
+    totalPages,
+    page,
+    limit,
+  });
 }
 

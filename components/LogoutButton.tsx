@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -30,7 +31,9 @@ export default function LogoutButton() {
       variant="ghost"
       size="sm"
       onClick={handleSignOut}
+      className="text-red-600 hover:bg-red-50 hover:text-red-700"
     >
+      <LogOut className="h-4 w-4 text-red-600" />
       Logout
     </Button>
   );
