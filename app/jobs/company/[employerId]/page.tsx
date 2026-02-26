@@ -21,7 +21,7 @@ export default async function JobsByCompanyPage({
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto px-4 py-4">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 md:px-8 lg:px-10">
           <Link
             href="/"
             className="text-sm text-[#2563eb] hover:underline"
@@ -30,16 +30,16 @@ export default async function JobsByCompanyPage({
           </Link>
         </div>
       </div>
-      <div className="container mx-auto px-4 pt-6">
-        <div className="mb-6 flex items-center gap-4">
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-6 flex flex-wrap items-center gap-4">
           <CompanyLogo
             companyLogo={profile.companyLogo}
             companyName={profile.companyName}
             size="lg"
             className="h-16 w-16 rounded-xl"
           />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Jobs at {profile.companyName}</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">Jobs at {profile.companyName}</h1>
           </div>
         </div>
       </div>

@@ -36,7 +36,8 @@ export default async function JobDetailsPage({
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
       <JobDetails job={job} />
       {!hasApplied && profile && (
         <div className="mt-8">
@@ -58,6 +59,7 @@ export default async function JobDetailsPage({
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }

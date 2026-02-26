@@ -31,8 +31,8 @@ export default async function AdminReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
         <h1 className="mb-6 text-3xl font-bold">Reports & Exports</h1>
 
       <div className="grid gap-6 md:grid-cols-3">

@@ -92,22 +92,22 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-r from-sky-50 via-white to-white">
-      {/* Left section - informational (same layout as register) */}
-      <div className="hidden w-[45%] flex-col justify-center px-12 xl:px-20 lg:flex">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-gradient-to-r from-sky-50 via-white to-white xl:flex-row">
+      {/* Left section - only on xl+ to avoid gap on medium screens */}
+      <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
         <Link href="/" className="mb-8 inline-flex">
           <img
             src="/images/logo.jpeg"
             alt="Jobs Portal"
             width={320}
             height={320}
-            className="h-40 w-auto rounded-lg object-contain sm:h-56"
+            className="h-40 w-auto max-w-full rounded-lg object-contain xl:h-44 2xl:h-52"
           />
         </Link>
         <p className="mb-4 text-sm font-medium uppercase tracking-wider text-sky-500">
           Sign in
         </p>
-        <h2 className="mb-4 text-3xl font-bold leading-tight text-gray-800">
+        <h2 className="mb-4 text-2xl font-bold leading-tight text-gray-800 xl:text-3xl">
           Welcome back to your account
         </h2>
         <p className="mb-8 max-w-md text-base text-gray-600">
@@ -135,20 +135,20 @@ function LoginForm() {
         </ul>
       </div>
 
-      {/* Right section - form card (same as register) */}
-      <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-[55%]">
-        <div className="mb-6 w-full lg:hidden">
+      {/* Form section - full width below xl, centered; 55% on xl+ */}
+      <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10 md:px-8 xl:min-h-0 xl:w-[55%] xl:py-12 xl:pl-10 xl:pr-12 2xl:pl-16 2xl:pr-16">
+        <div className="mb-6 w-full max-w-md xl:hidden">
           <Link href="/" className="inline-flex">
-          <img
-            src="/images/logo.jpeg"
-            alt="Jobs Portal"
-            width={240}
-            height={240}
-            className="h-32 w-auto rounded-lg object-contain sm:h-40"
-          />
-        </Link>
+            <img
+              src="/images/logo.jpeg"
+              alt="Jobs Portal"
+              width={240}
+              height={240}
+              className="h-28 w-auto max-w-full rounded-lg object-contain sm:h-32"
+            />
+          </Link>
         </div>
-        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/50">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/50 sm:p-8">
           <h1 className="text-xl font-bold text-gray-900">
             Sign in to your account
           </h1>

@@ -42,7 +42,7 @@ export default async function EmployerCandidateDetailPage({
   const initials = `${candidate.firstName?.[0] ?? ""}${candidate.lastName?.[0] ?? ""}`.toUpperCase() || "?";
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
       {/* Hero section */}
       <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-6 pb-24 pt-6 md:px-8">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.06%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" />
@@ -100,7 +100,7 @@ export default async function EmployerCandidateDetailPage({
       </div>
 
       {/* Content card */}
-      <div className="container mx-auto px-4 -mt-16 pb-12">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 -mt-16 pb-12 sm:px-6 md:px-8 lg:px-10">
         <Card className="overflow-hidden rounded-2xl border-gray-200 bg-white shadow-lg">
           <CardContent className="p-6 md:p-8">
             {/* Contact info */}

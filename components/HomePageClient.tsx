@@ -115,15 +115,15 @@ export default function HomePageClient({
     <>
       {/* Top Companies are Hiring - card grid */}
       {topCompanies.length > 0 && (
-        <section className="bg-gray-50/60 py-12">
-          <div className="container mx-auto px-4">
+        <section className="bg-gray-50/60 py-8 sm:py-10 md:py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
             <p className="text-center text-sm font-medium text-[#22c55e]">
               Here You Can See
             </p>
-            <h2 className="mb-8 text-center text-2xl font-bold text-gray-900 sm:text-3xl">
+            <h2 className="mb-6 text-center text-xl font-bold text-gray-900 sm:mb-8 sm:text-2xl md:text-3xl">
               Top Companies are Hiring
             </h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4">
               {topCompanies.map((c) => (
                 <Link
                   key={c.userId}
@@ -169,63 +169,65 @@ export default function HomePageClient({
 
       {/* Browse Jobs By Categories - horizontal scroll */}
       {categories.length > 0 && (
-        <section className="container mx-auto px-4 py-12">
-          <p className="text-center text-sm font-medium text-[#22c55e]">
-            Find Your Path
-          </p>
-          <h2 className="mb-8 text-center text-2xl font-bold text-gray-900 sm:text-3xl">
-            Browse Jobs By Categories
-          </h2>
-          <div className="relative flex justify-center">
-            <button
-              type="button"
-              onClick={() => scrollCategories("left")}
-              className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollCategories("right")}
-              className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="h-5 w-5 text-gray-600" />
-            </button>
-            <div
-              ref={categoryScrollRef}
-              className="flex justify-center gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-thin"
-              style={{ scrollbarWidth: "thin" }}
-            >
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                  className="flex min-w-[200px] flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#2563eb]/50"
-                >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-                    <LayoutGrid className="h-6 w-6" />
-                  </div>
-                  <p className="font-semibold text-gray-900">{cat.name}</p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-[#f97316]">
-                    <Briefcase className="h-4 w-4" />
-                    ({cat.jobCount}) Jobs
-                  </span>
-                </Link>
-              ))}
+        <section className="py-8 sm:py-10 md:py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+            <p className="text-center text-sm font-medium text-[#22c55e]">
+              Find Your Path
+            </p>
+            <h2 className="mb-6 text-center text-xl font-bold text-gray-900 sm:mb-8 sm:text-2xl md:text-3xl">
+              Browse Jobs By Categories
+            </h2>
+            <div className="relative flex justify-center">
+              <button
+                type="button"
+                onClick={() => scrollCategories("left")}
+                className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCategories("right")}
+                className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-600" />
+              </button>
+              <div
+                ref={categoryScrollRef}
+                className="flex justify-center gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-thin"
+                style={{ scrollbarWidth: "thin" }}
+              >
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/jobs/category/${encodeURIComponent(cat.name)}`}
+                    className="flex min-w-[200px] flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#2563eb]/50"
+                  >
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                      <LayoutGrid className="h-6 w-6" />
+                    </div>
+                    <p className="font-semibold text-gray-900">{cat.name}</p>
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-[#f97316]">
+                      <Briefcase className="h-4 w-4" />
+                      ({cat.jobCount}) Jobs
+                    </span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>
       )}
 
       {/* Latest Jobs - card grid */}
-      <section className="bg-gray-50/60 py-12">
-        <div className="container mx-auto px-4">
+      <section className="bg-gray-50/60 py-8 sm:py-10 md:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
           <p className="text-center text-sm font-medium text-[#22c55e]">
             Here You Can See
           </p>
-          <h2 className="mb-6 text-center text-2xl font-bold text-gray-900 sm:text-3xl">
+          <h2 className="mb-4 text-center text-xl font-bold text-gray-900 sm:mb-6 sm:text-2xl md:text-3xl">
             Latest Jobs
           </h2>
 
@@ -239,7 +241,7 @@ export default function HomePageClient({
             </div>
           ) : (
             <>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {jobs.map((job) => (
                   <div
                     key={job.id}

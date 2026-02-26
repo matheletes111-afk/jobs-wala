@@ -90,18 +90,27 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-white">
       {/* Header - Jobs Portal style */}
       <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
           <Link href="/" className="flex shrink-0 items-center">
+            {/* Mobile: smaller logo to avoid overflow */}
             <img
               src="/images/logo.jpeg"
               alt="Jobs Portal"
               width={64}
               height={64}
-              style={{ minWidth: "16rem", minHeight: "7rem" }}  
-              className="h-12 w-12 shrink-0 rounded-lg object-contain sm:h-14 sm:w-14"
+              className="h-10 w-auto max-w-[180px] shrink-0 rounded-lg object-contain sm:h-12 sm:max-w-[200px] md:hidden"
+            />
+            {/* Tablet/Desktop: original larger logo */}
+            <img
+              src="/images/logo.jpeg"
+              alt="Jobs Portal"
+              width={64}
+              height={64}
+              style={{ minWidth: "16rem", minHeight: "7rem" }}
+              className="hidden shrink-0 rounded-lg object-contain md:block md:h-14 md:w-14"
             />
           </Link>
           <nav className="flex items-center gap-3">
@@ -130,52 +139,52 @@ export default async function HomePage() {
       </header>
 
       <main className="flex-1">
-        {/* Hero - gradient left, search bar, image right */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-sky-100/80 via-white to-white px-4 py-10 sm:py-12">
-          <div className="container mx-auto flex flex-col items-center gap-8 lg:flex-row lg:justify-between lg:items-center lg:gap-10">
-            <div className="max-w-xl flex-1">
-              <p className="mb-2 text-sm font-medium text-[#f97316]">
+        {/* Hero / Banner - equal left & right margin on all devices */}
+        <section className="relative overflow-hidden bg-gradient-to-r from-sky-100/80 via-white to-white px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-12 lg:px-10 xl:px-12">
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 lg:flex-row lg:justify-between lg:items-center lg:gap-10">
+            <div className="min-w-0 max-w-xl flex-1">
+              <p className="mb-2 text-xs font-medium text-[#f97316] sm:text-sm">
                 READY TO FIND YOUR DREAM JOB?
               </p>
-              <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              <h1 className="mb-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl md:text-4xl">
                 Take the next step in your career journey.
               </h1>
-              <p className="mb-6 text-gray-600">
+              <p className="mb-4 text-sm text-gray-600 sm:mb-6 sm:text-base">
                 Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
               </p>
-              <form action="/user/jobs" method="get" className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="flex flex-1 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                  <span className="flex items-center px-3 text-gray-400">
-                    <Search className="h-5 w-5" />
+              <form action="/user/jobs" method="get" className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-stretch">
+                <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white shadow-sm sm:flex-row sm:overflow-hidden">
+                  <span className="flex items-center border-b border-gray-200 px-3 py-2.5 text-gray-400 sm:border-b-0 sm:border-l-0 sm:py-3">
+                    <Search className="h-5 w-5 shrink-0" />
                   </span>
                   <input
                     type="search"
                     name="search"
                     placeholder="Enter skills or job title"
-                    className="min-w-0 flex-1 py-3 px-2 text-sm outline-none"
+                    className="min-w-0 flex-1 py-2.5 px-3 text-sm outline-none sm:py-3 sm:px-2"
                   />
-                  <span className="flex items-center border-l border-gray-200 px-3 text-gray-400">
+                  <span className="hidden items-center border-t border-gray-200 px-3 text-gray-400 sm:flex sm:border-t-0 sm:border-l">
                     <FileText className="h-5 w-5" />
                   </span>
                   <input
                     type="text"
                     name="category"
-                    placeholder="Select Category"
-                    className="w-32 py-3 px-2 text-sm outline-none"
+                    placeholder="Category"
+                    className="w-full border-t border-gray-200 py-2.5 px-3 text-sm outline-none sm:w-28 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-3 sm:px-2"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f97316] px-6 py-3 text-white hover:bg-[#ea580c]"
+                  className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f97316] px-5 py-3 text-white hover:bg-[#ea580c] sm:px-6"
                 >
                   <FileText className="h-5 w-5" />
                   Search
                 </button>
               </form>
-              <div className="flex flex-wrap items-center gap-6">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                 <div>
-                  <p className="text-2xl font-bold text-[#2563eb]">{activeJobsCount.toLocaleString()}+</p>
-                  <p className="text-sm text-gray-600">Active Jobs</p>
+                  <p className="text-xl font-bold text-[#2563eb] sm:text-2xl">{activeJobsCount.toLocaleString()}+</p>
+                  <p className="text-xs text-gray-600 sm:text-sm">Active Jobs</p>
                 </div>
                 {!user && (
                   <>
@@ -207,7 +216,7 @@ export default async function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative h-80 w-full max-w-xl shrink-0 sm:h-[28rem] lg:h-[32rem] lg:max-w-2xl">
+            <div className="relative h-56 w-full min-w-0 max-w-xl shrink-0 sm:h-64 md:h-72 lg:h-[28rem] xl:h-[32rem] xl:max-w-2xl">
               <Image
                 src={HERO_IMAGE_URL}
                 alt="Find your dream job"
@@ -220,35 +229,35 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* CTA Banners - blue and green (pill style, same as reference) */}
-        <section className="container mx-auto px-4 py-5 sm:py-6">
-          <div className="flex flex-wrap items-stretch justify-center gap-6">
+        {/* CTA Banners - blue and orange (pill style) */}
+        <section className="py-5 sm:py-6">
+          <div className="mx-auto flex max-w-7xl flex-col items-stretch justify-center gap-4 px-4 sm:flex-row sm:flex-wrap sm:gap-6 sm:px-6 md:px-8 lg:px-10">
             <Link
               href="/user/jobs"
-              className="flex w-full items-center justify-between gap-6 rounded-full bg-[#2563eb] px-8 py-6 text-white shadow-lg transition hover:opacity-95 sm:w-auto sm:min-w-[480px]"
+              className="flex min-w-0 items-center justify-between gap-4 rounded-full bg-[#2563eb] px-6 py-5 text-white shadow-lg transition hover:opacity-95 sm:flex-1 sm:min-w-0 sm:px-8 sm:py-6 md:max-w-[480px]"
             >
               <div className="min-w-0 flex-1 text-left">
-                <p className="whitespace-nowrap text-lg font-bold sm:text-xl">Search your desired Job</p>
-                <p className="mt-1 whitespace-nowrap text-sm font-normal text-blue-100 sm:text-base">
+                <p className="truncate text-base font-bold sm:text-lg md:text-xl">Search your desired Job</p>
+                <p className="mt-0.5 truncate text-sm font-normal text-blue-100 sm:text-base">
                   Discover a career you are passionate about
                 </p>
               </div>
               <span className="flex shrink-0">
-                <Search className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2} />
+                <Search className="h-9 w-9 text-white sm:h-10 sm:w-10 md:h-12 md:w-12" strokeWidth={2} />
               </span>
             </Link>
             <Link
               href="/employer/jobs/new"
-              className="flex w-full items-center justify-between gap-6 rounded-full bg-[#f97316] px-8 py-6 text-white shadow-lg transition hover:opacity-95 sm:w-auto sm:min-w-[480px]"
+              className="flex min-w-0 items-center justify-between gap-4 rounded-full bg-[#f97316] px-6 py-5 text-white shadow-lg transition hover:opacity-95 sm:flex-1 sm:min-w-0 sm:px-8 sm:py-6 md:max-w-[480px]"
             >
               <div className="min-w-0 flex-1 text-left">
-                <p className="text-lg font-bold sm:text-xl">Post a Job Today</p>
-                <p className="mt-1 text-sm font-normal text-orange-100 sm:text-base">
+                <p className="truncate text-base font-bold sm:text-lg md:text-xl">Post a Job Today</p>
+                <p className="mt-0.5 truncate text-sm font-normal text-orange-100 sm:text-base">
                   Discover the ideal candidate for your team
                 </p>
               </div>
               <span className="flex shrink-0">
-                <Send className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2} />
+                <Send className="h-9 w-9 text-white sm:h-10 sm:w-10 md:h-12 md:w-12" strokeWidth={2} />
               </span>
             </Link>
           </div>

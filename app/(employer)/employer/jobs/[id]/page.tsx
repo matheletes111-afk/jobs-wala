@@ -47,7 +47,7 @@ export default async function EmployerJobDetailsPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
       <div className="mb-6">
         <Link href="/employer/jobs">
           <Button variant="outline">← Back to Jobs</Button>

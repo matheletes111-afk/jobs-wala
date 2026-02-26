@@ -25,11 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} flex min-h-screen flex-col`}>
+    <html lang="en" className="w-full overflow-x-hidden">
+      <body className={`${inter.className} flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden`}>
         <Providers>
-          <div className="flex min-h-screen flex-col">
-            <div className="flex-1">{children}</div>
+          <div className="flex min-h-screen w-full min-w-0 flex-col">
+            <div className="min-w-0 flex-1">{children}</div>
             <Footer />
           </div>
         </Providers>

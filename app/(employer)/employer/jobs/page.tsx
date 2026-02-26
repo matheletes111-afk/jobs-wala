@@ -14,8 +14,8 @@ export default async function EmployerJobsPage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
-        <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+      <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+        <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
           <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
             <p className="mb-4 text-gray-600">Please complete your profile first.</p>
             <Link href="/employer/profile">
@@ -33,8 +33,8 @@ export default async function EmployerJobsPage() {
 
   if (jobsCount === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
-        <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+      <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+        <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">My Jobs</h1>
@@ -59,7 +59,7 @@ export default async function EmployerJobsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
       <EmployerJobListClient />
     </div>
   );

@@ -67,8 +67,8 @@ export default async function UserDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8 lg:py-10">
+    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
