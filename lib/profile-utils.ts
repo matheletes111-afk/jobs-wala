@@ -81,8 +81,8 @@ export function calculateProfileCompletion(profile: JobSeekerProfile | null): {
 }
 
 /**
- * Check if profile is complete enough to apply for jobs
- * Requires: firstName, lastName, phone, location, resumeUrl, and at least one skill
+ * Check if profile is complete enough to apply for jobs.
+ * Only requires: firstName, lastName, phone, resumeUrl (CV). No location or skills required.
  */
 export function canApplyForJobs(profile: JobSeekerProfile | null): {
   canApply: boolean;
@@ -93,34 +93,25 @@ export function canApplyForJobs(profile: JobSeekerProfile | null): {
       canApply: false,
       missingRequirements: [
         "Profile not created",
-        "Resume not uploaded",
-        "Phone number not provided",
-        "Location not provided",
-        "Skills not added",
+        "Full name (first and last)",
+        "Phone number",
+        "Resume (CV)",
       ],
     };
   }
 
   const missingRequirements: string[] = [];
 
-  if (!profile.firstName || !profile.lastName) {
-    missingRequirements.push("Name not complete");
+  if (!profile.firstName?.trim() || !profile.lastName?.trim()) {
+    missingRequirements.push("Full name (first and last name)");
   }
 
-  if (!profile.phone) {
-    missingRequirements.push("Phone number not provided");
-  }
-
-  if (!profile.location) {
-    missingRequirements.push("Location not provided");
+  if (!profile.phone?.trim()) {
+    missingRequirements.push("Phone number");
   }
 
   if (!profile.resumeUrl) {
-    missingRequirements.push("Resume not uploaded");
-  }
-
-  if (!profile.skills || profile.skills.length === 0) {
-    missingRequirements.push("At least one skill is required");
+    missingRequirements.push("Resume (CV)");
   }
 
   return {

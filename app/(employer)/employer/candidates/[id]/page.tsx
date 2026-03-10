@@ -14,6 +14,8 @@ import {
   User,
   FileText,
   ArrowLeft,
+  ImageIcon,
+  Award,
 } from "lucide-react";
 
 export default async function EmployerCandidateDetailPage({
@@ -212,6 +214,59 @@ export default async function EmployerCandidateDetailPage({
                 </a>
               </div>
             )}
+
+            {/* Certificates */}
+            {(() => {
+              if (!candidate.certificates) return null;
+              let list: { url: string; type: "image" | "pdf"; description: string }[];
+              try {
+                list = JSON.parse(candidate.certificates);
+                if (!Array.isArray(list) || list.length === 0) return null;
+              } catch {
+                return null;
+              }
+              return (
+                <div className="mb-8">
+                  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
+                    <Award className="h-4 w-4 text-amber-600" />
+                    Certificates
+                  </h3>
+                  <ul className="space-y-3">
+                    {list.map((cert, idx) => (
+                      <li
+                        key={idx}
+                        className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 bg-amber-50/30 p-4"
+                      >
+                        {cert.type === "image" ? (
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-amber-700 hover:underline"
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                            View image
+                          </a>
+                        ) : (
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-amber-700 hover:underline"
+                          >
+                            <FileText className="h-4 w-4" />
+                            View PDF
+                          </a>
+                        )}
+                        {cert.description && (
+                          <span className="text-gray-600">— {cert.description}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
 
             <div className="border-t border-gray-100 pt-4 text-sm text-gray-500">
               Profile updated {new Date(candidate.updatedAt).toLocaleDateString()}

@@ -19,6 +19,7 @@ const registerSchema = z
     role: z.nativeEnum(UserRole),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
+    phone: z.string().optional(),
     companyName: z.string().optional(),
   })
   .refine(
@@ -31,6 +32,18 @@ const registerSchema = z
     {
       message: "First name and last name are required for job seekers",
       path: ["firstName"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.role === UserRole.JOB_SEEKER) {
+        return data.phone !== undefined && data.phone !== null && String(data.phone).trim().length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Phone number is required for candidates",
+      path: ["phone"],
     }
   )
   .refine(
@@ -87,10 +100,16 @@ export async function POST(req: NextRequest) {
     try {
       if (validatedData.role === UserRole.JOB_SEEKER) {
         if (!validatedData.firstName || !validatedData.lastName) {
-          // Clean up user if profile creation fails
           await prisma.user.delete({ where: { id: user.id } });
           return NextResponse.json(
             { error: "First name and last name are required for job seekers" },
+            { status: 400 }
+          );
+        }
+        if (!validatedData.phone || String(validatedData.phone).trim().length === 0) {
+          await prisma.user.delete({ where: { id: user.id } });
+          return NextResponse.json(
+            { error: "Phone number is required for candidates" },
             { status: 400 }
           );
         }
@@ -99,6 +118,7 @@ export async function POST(req: NextRequest) {
             userId: user.id,
             firstName: validatedData.firstName,
             lastName: validatedData.lastName,
+            phone: String(validatedData.phone).trim(),
           },
         });
       } else if (validatedData.role === UserRole.EMPLOYER) {

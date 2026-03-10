@@ -16,6 +16,7 @@ const profileSchema = z.object({
   skills: z.array(z.string()),
   profileImage: z.preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
   resumeUrl: z.string().url().optional().nullable(),
+  certificates: z.string().optional().nullable(), // JSON string
 });
 
 export async function GET(req: NextRequest) {
@@ -122,6 +123,37 @@ export async function PUT(req: NextRequest) {
       );
     }
     console.error("Profile update error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+const patchResumeSchema = z.object({
+  resumeUrl: z.string().url().nullable(),
+});
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const user = await requireJobSeeker();
+    const body = await req.json();
+    const data = patchResumeSchema.parse(body);
+
+    const profile = await prisma.jobSeekerProfile.update({
+      where: { userId: user.id },
+      data: { resumeUrl: data.resumeUrl },
+    });
+
+    return NextResponse.json(profile);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.issues },
+        { status: 400 }
+      );
+    }
+    console.error("Profile PATCH resume error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

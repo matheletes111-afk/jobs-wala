@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import LocationDropdown from "@/components/user/LocationDropdown";
-import { Camera } from "lucide-react";
+import { Camera, Plus, Trash2, FileText, ImageIcon } from "lucide-react";
+
+export type CertificateItem = { url: string; type: "image" | "pdf"; description: string };
 
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  phone: z.string().optional(),
+  phone: z.string().min(1, "Phone number is required"),
   location: z.string().optional(),
   jobTitle: z.string().optional(),
   experience: z.number().min(0).optional(),
@@ -40,11 +42,20 @@ interface ProfileFormProps {
     skills: string[];
     profileImage?: string | null;
     resumeUrl?: string | null;
+    certificates?: string | null;
   };
   userEmail?: string;
   emailChangeStatus?: string;
   emailChangeError?: string;
 }
+
+type CertificateEntry = {
+  id: string;
+  url?: string;
+  type?: "image" | "pdf";
+  description: string;
+  file?: File;
+};
 
 export default function ProfileForm({
   profile,
@@ -64,6 +75,17 @@ export default function ProfileForm({
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [certificateEntries, setCertificateEntries] = useState<CertificateEntry[]>(() => {
+    if (!profile?.certificates) return [];
+    try {
+      const arr = JSON.parse(profile.certificates) as CertificateItem[];
+      return Array.isArray(arr)
+        ? arr.map((c) => ({ id: crypto.randomUUID(), url: c.url, type: c.type, description: c.description || "" }))
+        : [];
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     if (emailChangeStatus === "true") {
@@ -173,19 +195,34 @@ export default function ProfileForm({
       if (resumeFile) {
         const formData = new FormData();
         formData.append("file", resumeFile);
-
         const uploadResponse = await fetch("/api/upload/resume", {
           method: "POST",
           body: formData,
         });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Failed to upload resume");
-        }
-
+        if (!uploadResponse.ok) throw new Error("Failed to upload resume");
         const uploadData = await uploadResponse.json();
         resumeUrl = uploadData.url;
       }
+
+      // Upload new certificate files and build certificates JSON
+      const certificatesList: CertificateItem[] = [];
+      for (const entry of certificateEntries) {
+        if (entry.url && entry.type) {
+          certificatesList.push({ url: entry.url, type: entry.type, description: entry.description || "" });
+        } else if (entry.file) {
+          const fd = new FormData();
+          fd.append("file", entry.file);
+          const certRes = await fetch("/api/upload/certificate", { method: "POST", body: fd });
+          if (!certRes.ok) {
+            const err = await certRes.json();
+            throw new Error(err.error || "Failed to upload certificate");
+          }
+          const certData = await certRes.json();
+          const type = entry.file.type.startsWith("image/") ? "image" as const : "pdf" as const;
+          certificatesList.push({ url: certData.url, type, description: entry.description || "" });
+        }
+      }
+      const certificatesJson = certificatesList.length > 0 ? JSON.stringify(certificatesList) : null;
 
       // Save profile
       const response = await fetch("/api/user/profile", {
@@ -198,6 +235,7 @@ export default function ProfileForm({
             : [],
           profileImage,
           resumeUrl,
+          certificates: certificatesJson,
         }),
       });
 
@@ -218,9 +256,29 @@ export default function ProfileForm({
     (document.getElementById("profilePhoto") as HTMLInputElement)?.click();
   };
 
+  const addCertificate = () => {
+    setCertificateEntries((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), description: "" },
+    ]);
+  };
+  const removeCertificate = (id: string) => {
+    setCertificateEntries((prev) => prev.filter((e) => e.id !== id));
+  };
+  const setCertificateFile = (id: string, file: File | undefined) => {
+    setCertificateEntries((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, file } : e))
+    );
+  };
+  const setCertificateDescription = (id: string, description: string) => {
+    setCertificateEntries((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, description } : e))
+    );
+  };
+
   return (
-    <Card className="max-w-2xl overflow-hidden rounded-2xl border-gray-200 shadow-sm">
-      <CardHeader className="border-b bg-gradient-to-br from-blue-50/50 to-violet-50/50">
+    <Card className="w-full overflow-hidden rounded-2xl border-gray-200 shadow-md">
+      <CardHeader className="border-b bg-gradient-to-br from-blue-50/50 to-violet-50/50 px-6 py-6 sm:px-8 sm:py-6 lg:px-10">
         <div className="flex items-center gap-6">
           <div
             className="relative flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100"
@@ -263,8 +321,8 @@ export default function ProfileForm({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <CardContent className="px-6 pt-6 pb-8 sm:px-8 lg:px-10 lg:pb-10">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {error && (
             <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
               {error}
@@ -325,7 +383,7 @@ export default function ProfileForm({
             </>
           )}
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">First Name *</Label>
               <Input
@@ -350,26 +408,30 @@ export default function ProfileForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              type="tel"
-              {...register("phone")}
-              placeholder="+1234567890"
-            />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                {...register("phone")}
+                placeholder="+1234567890"
+              />
+              {errors.phone && (
+                <p className="text-sm text-red-600">{errors.phone.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Location</Label>
+              <LocationDropdown
+                value={locationValue}
+                onChange={(value) => setValue("location", value)}
+                error={errors.location?.message}
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Location</Label>
-            <LocationDropdown
-              value={locationValue}
-              onChange={(value) => setValue("location", value)}
-              error={errors.location?.message}
-            />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="jobTitle">Job Title</Label>
               <Input
@@ -389,22 +451,23 @@ export default function ProfileForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="education">Education</Label>
-            <Input
-              id="education"
-              {...register("education")}
-              placeholder="Bachelor's in Computer Science"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="skills">Skills (comma-separated)</Label>
-            <Input
-              id="skills"
-              {...register("skills")}
-              placeholder="React, Node.js, TypeScript"
-            />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="education">Education</Label>
+              <Input
+                id="education"
+                {...register("education")}
+                placeholder="Bachelor's in Computer Science"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="skills">Skills (comma-separated)</Label>
+              <Input
+                id="skills"
+                {...register("skills")}
+                placeholder="React, Node.js, TypeScript"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -437,6 +500,94 @@ export default function ProfileForm({
                   View Resume
                 </a>
               </p>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Certificates</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCertificate}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add certificate
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Upload an image or PDF and add a short description. Visible to employers on your profile.
+            </p>
+            {certificateEntries.length > 0 && (
+              <ul className="space-y-3">
+                {certificateEntries.map((entry) => (
+                  <li
+                    key={entry.id}
+                    className="flex flex-wrap items-end gap-3 rounded-md border border-gray-200 bg-white p-3"
+                  >
+                    <div className="flex-1 min-w-[140px] space-y-1">
+                      <Label className="text-xs">File (image or PDF)</Label>
+                      {entry.url ? (
+                        <div className="flex items-center gap-2 text-sm">
+                          {entry.type === "image" ? (
+                            <a
+                              href={entry.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <ImageIcon className="h-4 w-4" />
+                              View image
+                            </a>
+                          ) : (
+                            <a
+                              href={entry.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline flex items-center gap-1"
+                            >
+                              <FileText className="h-4 w-4" />
+                              View PDF
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf,application/pdf"
+                          className="h-9"
+                          onChange={(e) =>
+                            setCertificateFile(entry.id, e.target.files?.[0])
+                          }
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-[160px] space-y-1">
+                      <Label className="text-xs">Description</Label>
+                      <Input
+                        placeholder="e.g. AWS Certified"
+                        value={entry.description}
+                        onChange={(e) =>
+                          setCertificateDescription(entry.id, e.target.value)
+                        }
+                        className="h-9"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeCertificate(entry.id)}
+                      aria-label="Remove certificate"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
 

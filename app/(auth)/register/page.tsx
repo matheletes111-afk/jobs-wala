@@ -18,6 +18,7 @@ export default function RegisterPage() {
     role: "JOB_SEEKER",
     firstName: "",
     lastName: "",
+    phone: "",
     companyName: "",
   });
   const [error, setError] = useState("");
@@ -57,9 +58,15 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.role === "JOB_SEEKER" && (!formData.firstName || !formData.lastName)) {
-      setError("First name and last name are required");
-      return;
+    if (formData.role === "JOB_SEEKER") {
+      if (!formData.firstName || !formData.lastName) {
+        setError("First name and last name are required");
+        return;
+      }
+      if (!formData.phone?.trim()) {
+        setError("Phone number is required");
+        return;
+      }
     }
 
     if (formData.role === "EMPLOYER" && !formData.companyName) {
@@ -79,6 +86,7 @@ export default function RegisterPage() {
       if (formData.role === "JOB_SEEKER") {
         payload.firstName = formData.firstName;
         payload.lastName = formData.lastName;
+        payload.phone = formData.phone.trim();
       } else if (formData.role === "EMPLOYER") {
         payload.companyName = formData.companyName;
       }
@@ -243,6 +251,20 @@ export default function RegisterPage() {
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-gray-700">
+                    Phone number *
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="e.g. +91 9876543210"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />

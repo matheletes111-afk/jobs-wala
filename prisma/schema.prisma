@@ -117,6 +117,7 @@ model JobSeekerProfile {
   jobTitle          String?
   bio               String?  @db.Text
   availabilityStatus String? @default("AVAILABLE") // AVAILABLE, UNAVAILABLE, LOOKING
+  certificates       String?  @db.Text // JSON array: [{ url, type: 'image'|'pdf', description }]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

@@ -12,6 +12,9 @@ import {
   Calendar,
   Globe,
   CheckCircle2,
+  FileText,
+  ImageIcon,
+  Award,
 } from "lucide-react";
 import { formatLocation } from "@/lib/utils";
 
@@ -159,6 +162,57 @@ export default async function AdminUserDetailPage({
                 <p className="text-gray-600">{user.jobSeekerProfile.education}</p>
               </section>
             )}
+
+            {isJobSeeker && user.jobSeekerProfile?.certificates && (() => {
+              let list: { url: string; type: "image" | "pdf"; description: string }[];
+              try {
+                list = JSON.parse(user.jobSeekerProfile.certificates);
+                if (!Array.isArray(list) || list.length === 0) return null;
+              } catch {
+                return null;
+              }
+              return (
+                <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <Award className="h-5 w-5 text-amber-600" />
+                    Certificates
+                  </h2>
+                  <ul className="space-y-3">
+                    {list.map((cert, idx) => (
+                      <li
+                        key={idx}
+                        className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 bg-amber-50/30 p-3"
+                      >
+                        {cert.type === "image" ? (
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-amber-700 hover:underline"
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                            View image
+                          </a>
+                        ) : (
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-amber-700 hover:underline"
+                          >
+                            <FileText className="h-4 w-4" />
+                            View PDF
+                          </a>
+                        )}
+                        {cert.description && (
+                          <span className="text-gray-600">— {cert.description}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })()}
           </div>
 
           <div className="space-y-6">

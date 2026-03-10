@@ -7,7 +7,7 @@ import { canApplyForJobs } from "@/lib/profile-utils";
 
 const applicationSchema = z.object({
   jobId: z.string(),
-  coverLetter: z.string().min(10),
+  coverLetter: z.string().optional().nullable().transform((v) => (v && v.trim().length >= 10 ? v.trim() : null)),
 });
 
 export async function POST(req: NextRequest) {
@@ -64,12 +64,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create application
+    // Create application (cover letter optional)
     const application = await prisma.application.create({
       data: {
         jobId: data.jobId,
         jobSeekerId: user.id,
-        coverLetter: data.coverLetter,
+        coverLetter: data.coverLetter ?? null,
       },
       include: {
         job: {
