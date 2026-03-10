@@ -13,10 +13,7 @@ import { Input } from "@/components/ui/input";
 import { FileText, MessageSquare, Upload, AlertCircle, ExternalLink } from "lucide-react";
 
 const applicationSchema = z.object({
-  coverLetter: z
-    .string()
-    .optional()
-    .transform((v) => (v && v.trim() ? v.trim() : undefined)),
+  coverLetter: z.string().default(""),
 });
 
 type ApplicationFormData = z.infer<typeof applicationSchema>;
