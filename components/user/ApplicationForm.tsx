@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export default function ApplicationForm({ jobId, currentResumeUrl }: Application
     handleSubmit,
     formState: { errors },
   } = useForm<ApplicationFormData>({
-    resolver: zodResolver(applicationSchema),
+    resolver: zodResolver(applicationSchema) as Resolver<ApplicationFormData>,
     defaultValues: { coverLetter: "" },
   });
 
