@@ -111,6 +111,7 @@ model JobSeekerProfile {
   location          String?
   profileImage      String?
   resumeUrl         String?
+  resumeUpdatedAt   DateTime? // when CV was last uploaded/updated
   skills            String[] @default([])
   experience        Int?     @default(0) // years of experience
   education         String?

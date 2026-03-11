@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatResumeUpdatedAt } from "@/lib/utils";
 import {
   Mail,
   Phone,
@@ -212,6 +212,11 @@ export default async function EmployerCandidateDetailPage({
                   <FileText className="h-5 w-5" />
                   View / Download Resume
                 </a>
+                {candidate.resumeUpdatedAt && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Resume last updated: {formatResumeUpdatedAt(candidate.resumeUpdatedAt)}
+                  </p>
+                )}
               </div>
             )}
 

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import LocationDropdown from "@/components/user/LocationDropdown";
+import { formatResumeUpdatedAt } from "@/lib/utils";
 import { Camera, Plus, Trash2, FileText, ImageIcon } from "lucide-react";
 
 export type CertificateItem = { url: string; type: "image" | "pdf"; description: string };
@@ -42,6 +43,7 @@ interface ProfileFormProps {
     skills: string[];
     profileImage?: string | null;
     resumeUrl?: string | null;
+    resumeUpdatedAt?: Date | string | null;
     certificates?: string | null;
   };
   userEmail?: string;
@@ -489,17 +491,24 @@ export default function ProfileForm({
               onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
             />
             {profile?.resumeUrl && (
-              <p className="text-sm text-gray-600">
-                Current resume:{" "}
-                <a
-                  href={profile.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  View Resume
-                </a>
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-gray-600">
+                  Current resume:{" "}
+                  <a
+                    href={profile.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Resume
+                  </a>
+                </p>
+                {profile?.resumeUpdatedAt && (
+                  <p className="text-sm text-gray-500">
+                    Resume last updated: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}
+                  </p>
+                )}
+              </div>
             )}
           </div>
 

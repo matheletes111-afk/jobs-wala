@@ -41,7 +41,7 @@ export default async function JobDetailsPage({
       <JobDetails job={job} />
       {!hasApplied && profile && (
         <div className="mt-8">
-          <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} />
+          <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} currentResumeUpdatedAt={profile.resumeUpdatedAt} />
         </div>
       )}
       {hasApplied && (

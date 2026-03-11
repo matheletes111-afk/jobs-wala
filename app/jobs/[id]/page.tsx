@@ -77,7 +77,7 @@ export default async function PublicJobPage({
         <JobDetails job={jobForDetails} />
         {!hasApplied && profile && (
           <div className="mt-8">
-            <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} />
+            <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} currentResumeUpdatedAt={profile.resumeUpdatedAt} />
           </div>
         )}
         {hasApplied && (

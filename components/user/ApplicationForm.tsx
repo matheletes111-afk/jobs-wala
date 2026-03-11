@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { formatResumeUpdatedAt } from "@/lib/utils";
 import { FileText, MessageSquare, Upload, AlertCircle, ExternalLink } from "lucide-react";
 
 const applicationSchema = z.object({
@@ -22,9 +23,11 @@ interface ApplicationFormProps {
   jobId: string;
   /** Current resume URL from profile (optional). Shown so user can update CV from this page. */
   currentResumeUrl?: string | null;
+  /** When the CV was last updated (for display). */
+  currentResumeUpdatedAt?: Date | string | null;
 }
 
-export default function ApplicationForm({ jobId, currentResumeUrl }: ApplicationFormProps) {
+export default function ApplicationForm({ jobId, currentResumeUrl, currentResumeUpdatedAt }: ApplicationFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [missingRequirements, setMissingRequirements] = useState<string[]>([]);
@@ -156,17 +159,24 @@ export default function ApplicationForm({ jobId, currentResumeUrl }: Application
             Applications use your profile CV. You can update it here before submitting.
           </p>
           {currentResumeUrl && (
-            <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-gray-50/80 px-4 py-3">
-              <FileText className="h-4 w-4 shrink-0 text-gray-500" />
-              <span className="text-sm text-gray-600">Current CV:</span>
-              <a
-                href={currentResumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium text-[#2563eb] hover:underline"
-              >
-                View current resume
-              </a>
+            <div className="mb-3 space-y-1 rounded-lg border border-gray-200 bg-gray-50/80 px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <FileText className="h-4 w-4 shrink-0 text-gray-500" />
+                <span className="text-sm text-gray-600">Current CV:</span>
+                <a
+                  href={currentResumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-[#2563eb] hover:underline"
+                >
+                  View current resume
+                </a>
+              </div>
+              {currentResumeUpdatedAt && (
+                <p className="text-sm text-gray-500">
+                  Resume last updated: {formatResumeUpdatedAt(currentResumeUpdatedAt)}
+                </p>
+              )}
             </div>
           )}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">

@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user.id,
         ...data,
+        ...(data.resumeUrl != null && { resumeUpdatedAt: new Date() }),
       },
     });
 
@@ -93,10 +94,12 @@ export async function PUT(req: NextRequest) {
     const user = await requireJobSeeker();
     const body = await req.json();
     const data = profileSchema.parse(body);
-
     const profile = await prisma.jobSeekerProfile.update({
       where: { userId: user.id },
-      data,
+      data: {
+        ...data,
+        ...(data.resumeUrl != null && { resumeUpdatedAt: new Date() }),
+      },
     });
 
     const completion = calculateProfileCompletion(profile);
@@ -142,7 +145,10 @@ export async function PATCH(req: NextRequest) {
 
     const profile = await prisma.jobSeekerProfile.update({
       where: { userId: user.id },
-      data: { resumeUrl: data.resumeUrl },
+      data: {
+        resumeUrl: data.resumeUrl,
+        resumeUpdatedAt: data.resumeUrl ? new Date() : null,
+      },
     });
 
     return NextResponse.json(profile);
