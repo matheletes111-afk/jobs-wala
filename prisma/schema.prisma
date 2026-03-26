@@ -146,6 +146,7 @@ model EmployerProfile {
   companySize         String?
   website             String?
   description         String?  @db.Text
+  resumeSearchEnabled Boolean  @default(false)
   subscriptionId      String?
   subscriptionStatus  SubscriptionStatus? @default(EXPIRED)
   subscriptionExpiry  DateTime?

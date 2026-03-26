@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import EmployerNavLinks from "@/components/employer/EmployerNavLinks";
 import LogoutButton from "@/components/LogoutButton";
 
-export default function EmployerHeaderNav() {
+export default function EmployerHeaderNav({
+  canAccessResumeSearch,
+}: {
+  canAccessResumeSearch: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -26,7 +30,7 @@ export default function EmployerHeaderNav() {
     <>
       {/* Desktop nav: visible from md up */}
       <div className="hidden items-center gap-2 sm:gap-3 md:flex">
-        <EmployerNavLinks />
+        <EmployerNavLinks canAccessResumeSearch={canAccessResumeSearch} />
         <div className="flex items-center gap-2 border-l border-gray-200 pl-3 sm:pl-4">
           <LogoutButton />
           <span className="rounded bg-[#f97316] px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
@@ -61,7 +65,11 @@ export default function EmployerHeaderNav() {
         >
           <div className="flex-1 overflow-y-auto px-4 py-4">
             <nav className="flex flex-col gap-1">
-              <EmployerNavLinks vertical onLinkClick={() => setOpen(false)} />
+              <EmployerNavLinks
+                vertical
+                canAccessResumeSearch={canAccessResumeSearch}
+                onLinkClick={() => setOpen(false)}
+              />
             </nav>
             <div className="mt-6 border-t border-gray-200 pt-4 [&_button]:w-full [&_button]:justify-center">
               <LogoutButton />

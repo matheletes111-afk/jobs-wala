@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
               industry: true,
               companySize: true,
               description: true,
+              resumeSearchEnabled: true,
             },
           },
         },

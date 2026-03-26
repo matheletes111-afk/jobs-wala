@@ -36,6 +36,7 @@ interface UserItem {
     industry?: string | null;
     companySize?: string | null;
     description?: string | null;
+    resumeSearchEnabled?: boolean;
   } | null;
 }
 
@@ -68,6 +69,7 @@ export default function AdminUsersClient() {
   const [appliedRole, setAppliedRole] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [sort, setSort] = useState("recent");
+  const [updatingAccessFor, setUpdatingAccessFor] = useState<string | null>(null);
 
   const limit = 12;
 
@@ -130,11 +132,39 @@ export default function AdminUsersClient() {
   const containerClass =
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
+  const toggleEmployerResumeAccess = async (userId: string, enabled: boolean) => {
+    if (updatingAccessFor) return;
+    setUpdatingAccessFor(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeSearchEnabled: enabled }),
+      });
+      if (!res.ok) throw new Error("Failed to update access");
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === userId && item.employerProfile
+            ? {
+                ...item,
+                employerProfile: {
+                  ...item.employerProfile,
+                  resumeSearchEnabled: enabled,
+                },
+              }
+            : item
+        )
+      );
+    } finally {
+      setUpdatingAccessFor(null);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
       <div className={containerClass}>
         {/* Hero / Search Section */}
-        <div className="rounded-b-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
+        <div className="rounded-b-2xl bg-linear-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
           Manage Users & Profiles
         </p>
@@ -275,7 +305,12 @@ export default function AdminUsersClient() {
               className={`grid gap-6 ${viewMode === "list" ? "grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-3"}`}
             >
               {sortedUsers.map((user) => (
-                <UserCard key={user.id} user={user} />
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  onToggleResumeAccess={toggleEmployerResumeAccess}
+                  isUpdating={updatingAccessFor === user.id}
+                />
               ))}
             </div>
           )}
@@ -310,7 +345,15 @@ export default function AdminUsersClient() {
   );
 }
 
-function UserCard({ user }: { user: UserItem }) {
+function UserCard({
+  user,
+  onToggleResumeAccess,
+  isUpdating,
+}: {
+  user: UserItem;
+  onToggleResumeAccess: (userId: string, enabled: boolean) => Promise<void>;
+  isUpdating: boolean;
+}) {
   const isEmployer = user.role === "EMPLOYER";
   const isJobSeeker = user.role === "JOB_SEEKER";
 
@@ -394,11 +437,38 @@ function UserCard({ user }: { user: UserItem }) {
           <Briefcase className="h-4 w-4" />
           {user.role.replace("_", " ")}
         </span>
-        <Link href={`/admin/users/${user.id}`}>
-          <Button variant="outline" size="sm" className="border-[#2563eb] text-[#2563eb] hover:bg-blue-50">
-            View profile
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {isEmployer && user.employerProfile ? (
+            <Button
+              type="button"
+              size="sm"
+              variant={user.employerProfile.resumeSearchEnabled ? "default" : "outline"}
+              disabled={isUpdating}
+              onClick={() =>
+                onToggleResumeAccess(
+                  user.id,
+                  !Boolean(user.employerProfile?.resumeSearchEnabled)
+                )
+              }
+              className={
+                user.employerProfile.resumeSearchEnabled
+                  ? "bg-emerald-600 hover:bg-emerald-700"
+                  : "border-amber-600 text-amber-700 hover:bg-amber-50"
+              }
+            >
+              {isUpdating
+                ? "Saving..."
+                : user.employerProfile.resumeSearchEnabled
+                  ? "Resume DB: ON"
+                  : "Resume DB: OFF"}
+            </Button>
+          ) : null}
+          <Link href={`/admin/users/${user.id}`}>
+            <Button variant="outline" size="sm" className="border-[#2563eb] text-[#2563eb] hover:bg-blue-50">
+              View profile
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
