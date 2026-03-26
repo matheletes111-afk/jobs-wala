@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma, ResumeParseStatus } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { deleteFileFromS3 } from "@/lib/s3";
 
 export async function GET(req: NextRequest) {
   try {
@@ -112,6 +113,44 @@ export async function GET(req: NextRequest) {
     console.error("[GET /api/admin/resume-database]", error);
     return NextResponse.json(
       { error: "Failed to fetch resume database." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE() {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const failedResumes = await prisma.resumeDocument.findMany({
+      where: { parseStatus: ResumeParseStatus.FAILED },
+      select: { id: true, r2Key: true },
+    });
+
+    const s3Keys = failedResumes
+      .map((item) => item.r2Key)
+      .filter((key) => key.includes("/") && !key.startsWith("upload-failed") && !key.startsWith("invalid-file-type"));
+
+    await Promise.allSettled(s3Keys.map((key) => deleteFileFromS3(key)));
+
+    const { count } = await prisma.resumeDocument.deleteMany({
+      where: { parseStatus: ResumeParseStatus.FAILED },
+    });
+
+    return NextResponse.json({
+      deletedCount: count,
+      deletedS3Objects: s3Keys.length,
+    });
+  } catch (error) {
+    console.error("[DELETE /api/admin/resume-database]", error);
+    return NextResponse.json(
+      { error: "Failed to delete failed resumes." },
       { status: 500 }
     );
   }

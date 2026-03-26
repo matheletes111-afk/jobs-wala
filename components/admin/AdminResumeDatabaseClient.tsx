@@ -228,6 +228,44 @@ export default function AdminResumeDatabaseClient() {
     }
   };
 
+  const onDeleteFailed = async () => {
+    if (loading || uploading) return;
+    const confirmed = window.confirm(
+      "Delete all FAILED resumes from database? This action cannot be undone."
+    );
+    if (!confirmed) return;
+
+    setMessage("");
+    try {
+      const res = await fetch("/api/admin/resume-database", {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        throw new Error(await readApiError(res));
+      }
+      const data = (await res.json()) as {
+        deletedCount: number;
+        deletedS3Objects: number;
+      };
+      setMessage(
+        `Deleted ${data.deletedCount} failed resumes (${data.deletedS3Objects} file objects removed from storage).`
+      );
+      await fetchResumes(
+        1,
+        appliedKeyword,
+        appliedSkills,
+        appliedLocation,
+        appliedParseStatus,
+        appliedMinExperience
+      );
+      setPage(1);
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Failed to delete failed resumes."
+      );
+    }
+  };
+
   const rangeText = useMemo(() => {
     if (total === 0) return "Showing 0 results";
     const start = (page - 1) * limit + 1;
@@ -354,6 +392,13 @@ export default function AdminResumeDatabaseClient() {
             </Button>
             <Button variant="outline" onClick={onClearFilters}>
               Clear
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={onDeleteFailed}
+              disabled={loading || uploading}
+            >
+              Delete failed resumes
             </Button>
             <span className="text-sm text-gray-500">{rangeText}</span>
           </div>
