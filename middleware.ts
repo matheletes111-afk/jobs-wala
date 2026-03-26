@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  const isApiRoute = path.startsWith("/api");
 
   // Public routes
   const publicRoutes = ["/", "/login", "/register", "/api/auth"];
@@ -18,6 +19,9 @@ export async function middleware(req: NextRequest) {
 
   // Protected routes require authentication
   if (!token) {
+    if (isApiRoute) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -26,6 +30,9 @@ export async function middleware(req: NextRequest) {
   // Admin routes
   if (path.startsWith("/admin")) {
     if (role !== "ADMIN") {
+      if (isApiRoute) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
@@ -33,6 +40,9 @@ export async function middleware(req: NextRequest) {
   // Employer routes
   if (path.startsWith("/employer")) {
     if (role !== "EMPLOYER" && role !== "ADMIN") {
+      if (isApiRoute) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
@@ -40,6 +50,9 @@ export async function middleware(req: NextRequest) {
   // User/Job Seeker routes
   if (path.startsWith("/user")) {
     if (role !== "JOB_SEEKER" && role !== "ADMIN") {
+      if (isApiRoute) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
   }
