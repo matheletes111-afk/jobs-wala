@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@/types";
 import Link from "next/link";
 import EmployerHeaderNav from "@/components/employer/EmployerHeaderNav";
+import { prisma } from "@/lib/prisma";
 
 export default async function EmployerLayout({
   children,
@@ -13,6 +14,15 @@ export default async function EmployerLayout({
 
   if (!user || (user.role !== UserRole.EMPLOYER && user.role !== UserRole.ADMIN)) {
     redirect("/login");
+  }
+
+  let canAccessResumeSearch = user.role === UserRole.ADMIN;
+  if (user.role === UserRole.EMPLOYER) {
+    const profile = await prisma.employerProfile.findUnique({
+      where: { userId: user.id },
+      select: { resumeSearchEnabled: true },
+    });
+    canAccessResumeSearch = Boolean(profile?.resumeSearchEnabled);
   }
 
   return (
@@ -39,7 +49,7 @@ export default async function EmployerLayout({
             />
           </Link>
           <nav className="flex items-center">
-            <EmployerHeaderNav />
+            <EmployerHeaderNav canAccessResumeSearch={canAccessResumeSearch} />
           </nav>
         </div>
       </header>

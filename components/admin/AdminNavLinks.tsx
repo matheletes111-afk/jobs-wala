@@ -8,12 +8,14 @@ import {
   Briefcase,
   FolderTree,
   BarChart3,
+  FileText,
 } from "lucide-react";
 
 export const adminNavLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/admin/resume-database", label: "Resume DB", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];

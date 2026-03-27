@@ -65,6 +65,12 @@ enum CategoryStatus {
   INACTIVE
 }
 
+enum ResumeParseStatus {
+  PENDING
+  PARSED
+  FAILED
+}
+
 model Category {
   id        String         @id @default(cuid())
   name      String
@@ -140,6 +146,7 @@ model EmployerProfile {
   companySize         String?
   website             String?
   description         String?  @db.Text
+  resumeSearchEnabled Boolean  @default(false)
   subscriptionId      String?
   subscriptionStatus  SubscriptionStatus? @default(EXPIRED)
   subscriptionExpiry  DateTime?
@@ -239,5 +246,38 @@ model SavedCandidate {
   @@unique([employerId, jobSeekerId])
   @@index([employerId])
   @@index([jobSeekerId])
+}
+
+model ResumeDocument {
+  id               String           @id @default(cuid())
+  originalFileName String
+  mimeType         String
+  sizeBytes        Int
+
+  r2Key String
+  r2Url String
+
+  parseStatus ResumeParseStatus @default(PENDING)
+  parseError  String?          @db.Text
+
+  extractedText     String?  @db.Text
+  extractedName     String?
+  extractedEmail    String?
+  extractedPhone    String?
+  extractedLocation String?
+  extractedData     Json?
+  experienceYears   Int?
+  currentTitle      String?
+  skills            String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([parseStatus])
+  @@index([extractedEmail])
+  @@index([extractedLocation])
+  @@index([experienceYears])
+  @@index([skills])
 }
 

@@ -23,10 +23,25 @@ interface EmployerNavLinksProps {
   vertical?: boolean;
   /** Optional: close mobile menu after navigation (call in onClick) */
   onLinkClick?: () => void;
+  canAccessResumeSearch: boolean;
 }
 
-export default function EmployerNavLinks({ vertical, onLinkClick }: EmployerNavLinksProps) {
+export default function EmployerNavLinks({
+  vertical,
+  onLinkClick,
+  canAccessResumeSearch,
+}: EmployerNavLinksProps) {
   const pathname = usePathname();
+  const links = canAccessResumeSearch
+    ? [
+        ...employerNavLinks,
+        {
+          href: "/employer/resume-search",
+          label: "Resume Search",
+          icon: Search,
+        },
+      ]
+    : employerNavLinks;
 
   const linkClass = vertical
     ? (isActive: boolean) =>
@@ -48,7 +63,7 @@ export default function EmployerNavLinks({ vertical, onLinkClick }: EmployerNavL
 
   return (
     <div className={wrapperClass}>
-      {employerNavLinks.map(({ href, label, icon: Icon }) => {
+      {links.map(({ href, label, icon: Icon }) => {
         const isActive =
           href === pathname ||
           (href !== "/employer/dashboard" && pathname.startsWith(href + "/"));

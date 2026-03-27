@@ -108,8 +108,8 @@ export async function deleteFileFromS3(key: string): Promise<void> {
 }
 
 export function extractS3KeyFromUrl(url: string): string {
-  // Extract key from URL (handles both resumes/ and logos/ folders)
-  const match = url.match(/(resumes|logos)\/(.+)$/);
+  // Extract key from URL for known upload folders.
+  const match = url.match(/(resumes|logos|resume-database)\/(.+)$/);
   return match ? `${match[1]}/${match[2]}` : "";
 }
 
