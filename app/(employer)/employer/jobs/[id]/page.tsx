@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import ApplicationActions from "@/components/employer/ApplicationActions";
+import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import JobDetails from "@/components/user/JobDetails";
 import CandidateAvatar from "@/components/CandidateAvatar";
+import { computeSkillMatch } from "@/lib/skill-match";
 
 export default async function EmployerJobDetailsPage({
   params,
@@ -129,21 +131,12 @@ export default async function EmployerJobDetailsPage({
             <p className="text-gray-500">No applications yet.</p>
           ) : (
             <div className="space-y-4">
-              {job.applications.map((application: {
-                id: string;
-                status: string;
-                appliedAt: Date;
-                coverLetter: string | null;
-                jobSeeker: {
-                  firstName: string;
-                  lastName: string;
-                  profileImage?: string | null;
-                  resumeUrl: string | null;
-                  user: {
-                    email: string;
-                  };
-                };
-              }) => (
+              {job.applications.map((application) => {
+                const skillMatch = computeSkillMatch(
+                  job.requiredSkills ?? [],
+                  application.jobSeeker.skills ?? []
+                );
+                return (
                 <Card key={application.id}>
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
@@ -166,6 +159,14 @@ export default async function EmployerJobDetailsPage({
                           Applied on{" "}
                           {new Date(application.appliedAt).toLocaleDateString()}
                         </p>
+                        <div className="mt-3 max-w-md">
+                          <SkillMatchBar
+                            percent={skillMatch.percent}
+                            matched={skillMatch.matched}
+                            total={skillMatch.total}
+                            matchedLabels={skillMatch.matchedLabels}
+                          />
+                        </div>
                         {application.coverLetter && (
                           <div className="mt-3">
                             <h4 className="text-sm font-semibold">
@@ -207,7 +208,8 @@ export default async function EmployerJobDetailsPage({
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              );
+              })}
             </div>
           )}
         </CardContent>

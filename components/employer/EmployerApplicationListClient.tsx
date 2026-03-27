@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { formatLocation } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
+import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import CandidateAvatar from "@/components/CandidateAvatar";
 import { Search, FileText, MapPin, User } from "lucide-react";
 import Link from "next/link";
@@ -26,8 +27,25 @@ interface ApplicationItem {
   status: string;
   appliedAt: string;
   coverLetter: string | null;
-  job: { id: string; title: string; location: string; category: string };
-  jobSeeker: { id: string; firstName: string; lastName: string; profileImage?: string | null; resumeUrl: string | null };
+  job: {
+    id: string;
+    title: string;
+    location: string;
+    category: string;
+    requiredSkills: string[];
+  };
+  jobSeeker: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: string | null;
+    resumeUrl: string | null;
+    skills: string[];
+  };
+  skillMatchPercent: number | null;
+  skillMatchMatched: number;
+  skillMatchTotal: number;
+  skillMatchLabels: string[];
 }
 
 interface FetchResult {
@@ -317,6 +335,14 @@ export default function EmployerApplicationListClient({
                           <p className="mt-1 text-xs text-gray-400">
                             Applied {new Date(app.appliedAt).toLocaleDateString()}
                           </p>
+                          <div className="mt-3">
+                            <SkillMatchBar
+                              percent={app.skillMatchPercent}
+                              matched={app.skillMatchMatched}
+                              total={app.skillMatchTotal}
+                              matchedLabels={app.skillMatchLabels}
+                            />
+                          </div>
                           {app.coverLetter && (
                             <p className="mt-2 line-clamp-2 text-sm text-gray-600">
                               {app.coverLetter}

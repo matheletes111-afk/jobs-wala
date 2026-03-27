@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { computeSkillMatch } from "@/lib/skill-match";
 
 /**
  * GET /api/employer/applications
@@ -56,7 +57,15 @@ export async function GET(req: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
         include: {
-          job: { select: { id: true, title: true, location: true, category: true } },
+          job: {
+            select: {
+              id: true,
+              title: true,
+              location: true,
+              category: true,
+              requiredSkills: true,
+            },
+          },
           jobSeeker: {
             select: {
               id: true,
@@ -64,6 +73,7 @@ export async function GET(req: NextRequest) {
               lastName: true,
               profileImage: true,
               resumeUrl: true,
+              skills: true,
             },
           },
         },
@@ -73,14 +83,37 @@ export async function GET(req: NextRequest) {
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
-      applications: applications.map((a) => ({
-        id: a.id,
-        status: a.status,
-        appliedAt: a.appliedAt,
-        coverLetter: a.coverLetter,
-        job: a.job,
-        jobSeeker: a.jobSeeker,
-      })),
+      applications: applications.map((a) => {
+        const match = computeSkillMatch(
+          a.job.requiredSkills ?? [],
+          a.jobSeeker.skills ?? []
+        );
+        return {
+          id: a.id,
+          status: a.status,
+          appliedAt: a.appliedAt,
+          coverLetter: a.coverLetter,
+          job: {
+            id: a.job.id,
+            title: a.job.title,
+            location: a.job.location,
+            category: a.job.category,
+            requiredSkills: a.job.requiredSkills ?? [],
+          },
+          jobSeeker: {
+            id: a.jobSeeker.id,
+            firstName: a.jobSeeker.firstName,
+            lastName: a.jobSeeker.lastName,
+            profileImage: a.jobSeeker.profileImage,
+            resumeUrl: a.jobSeeker.resumeUrl,
+            skills: a.jobSeeker.skills ?? [],
+          },
+          skillMatchPercent: match.percent,
+          skillMatchMatched: match.matched,
+          skillMatchTotal: match.total,
+          skillMatchLabels: match.matchedLabels,
+        };
+      }),
       total,
       totalPages,
       page,
