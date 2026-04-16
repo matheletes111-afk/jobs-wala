@@ -9,7 +9,7 @@ import HomePageClient from "@/components/HomePageClient";
 import { formatLocation } from "@/lib/utils";
 import { Briefcase, FileText, Search, Send } from "lucide-react";
 
-const HERO_IMAGE_URL = "https://sharjeelanjum.com/html/jobs-portal/images/hero-image.png";
+const HERO_IMAGE_URL = "/images/home_img.png";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
