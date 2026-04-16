@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
         if (c.jobTitle?.toLowerCase().includes(kw)) return true;
         if (c.bio?.toLowerCase().includes(kw)) return true;
         if (c.education?.toLowerCase().includes(kw)) return true;
+        if (c.user?.email?.toLowerCase().includes(kw)) return true;
         if (c.skills.some((s) => s.toLowerCase().includes(kw) || kw.includes(s.toLowerCase()))) return true;
         if (c.location) {
           try {

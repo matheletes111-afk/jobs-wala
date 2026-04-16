@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 
@@ -131,127 +131,176 @@ export default function JobSearch() {
   const end = Math.min(page * 10, total);
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row">
-      <aside className="w-full shrink-0 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:w-72">
-        <h2 className="mb-4 font-semibold text-gray-900">Filter jobs</h2>
-        <div className="space-y-4">
+    <div className="flex flex-col gap-10 lg:flex-row">
+      <aside className="w-full shrink-0 lg:w-80">
+        <div className="linear-card sticky top-28 rounded-[2.5rem] p-10 space-y-10 animate-in slide-in-from-left-4 duration-700">
           <div>
-            <label className="mb-1 block text-sm text-gray-600">Search</label>
-            <Input
-              placeholder="Title or description..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
-            />
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Search Filters</h2>
+            </div>
+            
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Keyword Search</label>
+                <Input
+                  placeholder="Search keywords..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+                  className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Category</label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:border-primary/40 transition-all">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background/95 backdrop-blur-3xl border-white/10 rounded-2xl">
+                    <SelectItem value="all" className="text-xs font-bold uppercase tracking-widest">All Categories</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.name} className="text-xs font-bold uppercase tracking-widest">
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-3">
+                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Location</label>
+                <div className="relative">
+                  <LocationDropdown value={location} onChange={setLocation} />
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-gray-600">Category</label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-3 pt-10 border-t border-white/5">
+            <Button onClick={handleSearch} disabled={loading} className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-blue-500/20">
+              Search Jobs
+            </Button>
+            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-white/5 transition-all">
+              Clear Filters
+            </Button>
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-gray-600">Location</label>
-            <LocationDropdown value={location} onChange={setLocation} />
-          </div>
-          <Button onClick={handleSearch} disabled={loading} className="w-full bg-[#2563eb] hover:bg-[#1d4ed8]">
-            Apply filters
-          </Button>
-          <Button variant="outline" onClick={handleClear} disabled={loading} className="w-full border-gray-300">
-            Clear filters
-          </Button>
         </div>
       </aside>
 
       <div className="flex-1">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-gray-600">
-            <span className="font-semibold text-gray-900">{total} Jobs Found</span>
-            <span className="ml-2 text-sm">Showing {start} - {end}</span>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+            <span className="font-black text-foreground">{total}</span> Jobs Found
+            <span className="mx-4 text-white/10">/</span>
+            Showing {start} - {end}
           </p>
         </div>
+        
         {loading ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-            Loading jobs...
+          <div className="linear-card rounded-[2.5rem] p-24 text-center">
+            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mb-6" />
+            <p className="text-muted-foreground font-bold uppercase tracking-widest">Searching Jobs...</p>
           </div>
         ) : jobs.length === 0 ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-            No jobs found. Try adjusting filters or clear filters.
+          <div className="linear-card rounded-[3rem] p-24 text-center border-dashed border-white/5 bg-white/[0.01]">
+            <div className="mx-auto h-20 w-20 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/5">
+               <Search className="size-8 text-muted-foreground/20" />
+            </div>
+            <p className="text-2xl font-black text-foreground tracking-tighter mb-4 uppercase italic">No Jobs Found</p>
+            <p className="text-muted-foreground font-medium italic mb-10 max-w-sm mx-auto opacity-40">No jobs matched your search. Try adjusting your filters.</p>
+            <Button variant="outline" onClick={handleClear} className="h-14 px-10 rounded-2xl border-white/10 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02]">
+              Reset Filters
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
-            {jobs.map((job) => (
-              <div key={job.id} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                <div className="flex items-start gap-4">
+            {jobs.map((job, idx) => (
+              <div key={job.id} 
+                className="linear-card group rounded-[2.5rem] p-10 animate-in slide-in-from-right-10 duration-700 hover:border-primary/30 transition-all shadow-2xl hover:shadow-primary/5 relative overflow-hidden"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <div className="h-1 w-20 bg-gradient-to-r from-transparent via-primary/20 to-transparent blur-sm" />
+                </div>
+
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
                   <CompanyLogo
                     companyLogo={job.employer.companyLogo}
                     companyName={job.employer.companyName}
-                    size="md"
-                    className="shrink-0 rounded-lg"
+                    size="lg"
+                    className="shrink-0 rounded-2xl border-2 border-white/10 bg-background/50 group-hover:border-primary/20 shadow-2xl transition-transform group-hover:scale-105 md:scale-110"
                   />
-                  <div className="min-w-0 flex-1">
-                      <Link href={`/user/jobs/${job.id}`}>
-                        <h3 className="text-xl font-semibold hover:text-blue-600">
-                          {job.title}
-                        </h3>
-                      </Link>
-                      <p className="mt-1 text-gray-600">{job.employer.companyName}</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="min-w-0 flex-1 text-center md:text-left">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <Link href={`/jobs/${job.id}`}>
+                          <h3 className="text-3xl font-black text-foreground group-hover:text-primary transition-colors tracking-tight">
+                            {job.title}
+                          </h3>
+                        </Link>
                         {appliedSet.has(job.id) && (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-                            <CheckCircle2 className="size-4 shrink-0" aria-hidden />
-                            Already applied
+                          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] flex items-center gap-2 mx-auto md:mx-0">
+                            <CheckCircle2 className="size-3.5" />
+                            Applied
                           </span>
                         )}
-                        <Badge variant="outline">
+                      </div>
+                      <p className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">{job.employer.companyName}</p>
+                      
+                      <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
                           {formatLocation(job.location)}
-                        </Badge>
-                        <Badge variant="outline">{job.category}</Badge>
-                        <Badge variant="outline">{job.employmentType}</Badge>
+                        </span>
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                          {job.category}
+                        </span>
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                          {job.employmentType}
+                        </span>
                         {job.salaryRange && (
-                          <Badge variant="outline">{job.salaryRange}</Badge>
+                          <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary whitespace-nowrap shadow-xl shadow-primary/10">
+                            {job.salaryRange}
+                          </span>
                         )}
                       </div>
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                        {job.description}
+                      <p className="mt-8 line-clamp-2 text-base font-medium text-muted-foreground/60 italic leading-relaxed">
+                        &quot;{job.description}&quot;
                       </p>
+                      
+                      <div className="mt-10 pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8">
+                        <div className="flex items-center gap-6">
+                          <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-12 w-12 rounded-xl bg-white/5 border-white/5 hover:bg-primary/10 hover:text-primary transition-all active:scale-90" />
+                          <div className="hidden sm:block">
+                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 italic">Listing Status</p>
+                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/40">Verified Active</p>
+                          </div>
+                        </div>
+                        <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
+                          <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
+                            Apply Now
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9" />
-                    <Link href={`/user/jobs/${job.id}`}>
-                      <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">View Details</Button>
-                    </Link>
-                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
         {!loading && totalPages > 1 && (
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-all"
           >
-            Previous
+            ← Previous Page
           </Button>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {(() => {
               const pages: (number | "ellipsis")[] = [];
-              const show = 3;
-              if (totalPages <= 7) {
+              const show = 2;
+              if (totalPages <= 5) {
                 for (let i = 1; i <= totalPages; i++) pages.push(i);
               } else {
                 if (page <= show) {
@@ -273,30 +322,35 @@ export default function JobSearch() {
               }
               return pages.map((p, i) =>
                 p === "ellipsis" ? (
-                  <span key={`e-${i}`} className="px-2 text-gray-400">
+                  <span key={`e-${i}`} className="px-3 text-white/10">
                     …
                   </span>
                 ) : (
                   <Button
                     key={p}
-                    variant={page === p ? "default" : "outline"}
+                    variant="ghost"
                     size="sm"
-                    className="min-w-[2.25rem]"
+                    className={`h-10 w-10 p-0 rounded-xl text-[10px] font-black transition-all ${
+                      page === p 
+                        ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40" 
+                        : "text-muted-foreground/40 hover:bg-white/5 hover:text-foreground"
+                    }`}
                     onClick={() => setPage(p)}
                   >
-                    {p}
+                    {p.toString().padStart(2, '0')}
                   </Button>
                 )
               );
             })()}
           </div>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-all"
           >
-            Next
+            Next Page →
           </Button>
         </div>
         )}

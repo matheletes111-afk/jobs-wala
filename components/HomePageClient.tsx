@@ -43,12 +43,12 @@ interface HomePageClientProps {
 }
 
 const EMPLOYMENT_BADGE_COLORS: Record<string, string> = {
-  FULL_TIME: "bg-emerald-100 text-emerald-800",
-  PART_TIME: "bg-teal-100 text-teal-800",
-  CONTRACT: "bg-amber-100 text-amber-800",
-  FREELANCE: "bg-violet-100 text-violet-800",
-  INTERNSHIP: "bg-sky-100 text-sky-800",
-  REMOTE: "bg-blue-100 text-blue-800",
+  FULL_TIME: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  PART_TIME: "bg-teal-500/10 text-teal-400 border border-teal-500/20",
+  CONTRACT: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+  FREELANCE: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+  INTERNSHIP: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+  REMOTE: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
 };
 
 function getEmploymentBadgeClass(type: string): string {
@@ -115,52 +115,52 @@ export default function HomePageClient({
     <>
       {/* Top Companies are Hiring - card grid */}
       {topCompanies.length > 0 && (
-        <section className="bg-gray-50/60 py-8 sm:py-10 md:py-12">
+        <section className="bg-background py-16 sm:py-20 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-            <p className="text-center text-sm font-medium text-[#22c55e]">
-              Here You Can See
+            <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
+              Our Partners
             </p>
-            <h2 className="mb-6 text-center text-xl font-bold text-gray-900 sm:mb-8 sm:text-2xl md:text-3xl">
-              Top Companies are Hiring
+            <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
+              Top Companies are <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Hiring</span>
             </h2>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3 md:grid-cols-4">
               {topCompanies.map((c) => (
                 <Link
                   key={c.userId}
                   href={`/jobs/company/${c.userId}`}
-                  className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-all hover:shadow-md hover:border-[#2563eb]/50"
+                  className="linear-card group flex flex-col items-center p-8 text-center animate-premium-hover"
                 >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-sky-100 text-xl font-bold text-[#2563eb]">
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-blue-500/5 border border-blue-500/10 text-2xl font-black text-[#2563eb] transition-all group-hover:bg-blue-500/10 group-hover:scale-110">
                     {c.companyLogo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={c.companyLogo}
                         alt=""
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-opacity opacity-80 group-hover:opacity-100"
                       />
                     ) : (
                       (c.companyName[0] ?? "?").toUpperCase()
                     )}
                   </div>
-                  <p className="font-semibold text-gray-900">{c.companyName}</p>
-                  <p className="mt-1 flex items-center justify-center gap-1 text-xs text-gray-500">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-[#22c55e]" />
+                  <p className="font-bold text-foreground sm:text-lg">{c.companyName}</p>
+                  <p className="mt-2 flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-[#22c55e]/70" />
                     {c.location}
                   </p>
-                  <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-[#f97316]">
-                    <Briefcase className="h-4 w-4" />
-                    {c.openJobsCount} Open Job{c.openJobsCount !== 1 ? "s" : ""}
+                  <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-orange-500/5 border border-orange-500/10 px-4 py-1.5 text-xs font-bold text-[#f97316] uppercase tracking-wide">
+                    <Briefcase className="h-3.5 w-3.5" />
+                    {c.openJobsCount} Open Jobs
                   </span>
                 </Link>
               ))}
             </div>
-            <div className="mt-8 flex justify-center">
+            <div className="mt-12 flex justify-center">
               <Button
                 variant="outline"
-                className="border-[#2563eb] text-[#2563eb] hover:bg-[#2563eb]/5"
+                className="rounded-full border-white/10 hover:bg-white/5 transition-all hover:scale-105 active:scale-95"
                 asChild
               >
-                <Link href="/user/jobs">View All Featured Companies</Link>
+                <Link href="/user/jobs">View Featured Companies</Link>
               </Button>
             </div>
           </div>
@@ -169,49 +169,47 @@ export default function HomePageClient({
 
       {/* Browse Jobs By Categories - horizontal scroll */}
       {categories.length > 0 && (
-        <section className="py-8 sm:py-10 md:py-12">
+        <section className="py-16 sm:py-20 bg-white/[0.02]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-            <p className="text-center text-sm font-medium text-[#22c55e]">
-              Find Your Path
+            <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
+              Explore Opportunities
             </p>
-            <h2 className="mb-6 text-center text-xl font-bold text-gray-900 sm:mb-8 sm:text-2xl md:text-3xl">
-              Browse Jobs By Categories
+            <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
+              Browse By <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-500">Categories</span>
             </h2>
-            <div className="relative flex justify-center">
+            <div className="relative">
               <button
                 type="button"
                 onClick={() => scrollCategories("left")}
-                className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+                className="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-background/80 backdrop-blur-md shadow-xl transition-all hover:bg-white/10 hover:scale-110 active:scale-95 disabled:opacity-0"
                 aria-label="Scroll left"
               >
-                <ChevronLeft className="h-5 w-5 text-gray-600" />
+                <ChevronLeft className="h-6 w-6 text-foreground" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollCategories("right")}
-                className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white shadow-md hover:bg-gray-50"
+                className="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-background/80 backdrop-blur-md shadow-xl transition-all hover:bg-white/10 hover:scale-110 active:scale-95 disabled:opacity-0"
                 aria-label="Scroll right"
               >
-                <ChevronRight className="h-5 w-5 text-gray-600" />
+                <ChevronRight className="h-6 w-6 text-foreground" />
               </button>
               <div
                 ref={categoryScrollRef}
-                className="flex justify-center gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-thin"
-                style={{ scrollbarWidth: "thin" }}
+                className="flex gap-6 overflow-x-auto pb-6 pt-2 scroll-smooth scrollbar-none"
               >
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                    className="flex min-w-[200px] flex-col items-center rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-[#2563eb]/50"
+                    className="linear-card group flex min-w-[240px] flex-col items-center p-8 text-center animate-premium-hover"
                   >
-                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-                      <LayoutGrid className="h-6 w-6" />
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-indigo-400 font-bold transition-all group-hover:bg-indigo-500/10 group-hover:scale-110 group-hover:rotate-3">
+                      <LayoutGrid className="h-8 w-8" />
                     </div>
-                    <p className="font-semibold text-gray-900">{cat.name}</p>
-                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-[#f97316]">
-                      <Briefcase className="h-4 w-4" />
-                      ({cat.jobCount}) Jobs
+                    <p className="font-bold text-foreground mb-1">{cat.name}</p>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-1 rounded-full group-hover:bg-white/10 transition-colors">
+                      {cat.jobCount} Jobs
                     </span>
                   </Link>
                 ))}
@@ -222,97 +220,99 @@ export default function HomePageClient({
       )}
 
       {/* Latest Jobs - card grid */}
-      <section className="bg-gray-50/60 py-8 sm:py-10 md:py-12">
+      <section className="bg-background py-16 sm:py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-          <p className="text-center text-sm font-medium text-[#22c55e]">
-            Here You Can See
+          <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
+            New Opportunities
           </p>
-          <h2 className="mb-4 text-center text-xl font-bold text-gray-900 sm:mb-6 sm:text-2xl md:text-3xl">
-            Latest Jobs
+          <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
+            Latest Jobs <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#2563eb]">Feed</span>
           </h2>
 
           {loading ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4" />
               Loading jobs...
             </div>
           ) : jobs.length === 0 ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-600 shadow-sm">
+            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
               No jobs available right now. Check back later.
             </div>
           ) : (
             <>
-              <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job) => (
+              <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {jobs.map((job, idx) => (
                   <div
                     key={job.id}
-                    className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                    className="linear-card group flex flex-col p-8 animate-premium-hover animate-in fade-in slide-in-from-bottom-4 duration-500"
+                    style={{ animationDelay: `${idx * 100}ms` }}
                   >
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start justify-between gap-4">
                       <span
-                        className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${getEmploymentBadgeClass(
+                        className={`rounded-full px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold shadow-sm ${getEmploymentBadgeClass(
                           job.employmentType
                         )}`}
                       >
                         {job.employmentType.replace("_", " ")}
                       </span>
-                      <div className="flex items-center gap-1">
-                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-8 w-8" />
+                      <div className="flex items-center gap-2">
+                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors" />
                         <CompanyLogo
-                        companyLogo={job.employer.companyLogo}
-                        companyName={job.employer.companyName}
-                        size="md"
-                        className="rounded-lg"
-                      />
+                          companyLogo={job.employer.companyLogo}
+                          companyName={job.employer.companyName}
+                          size="md"
+                          className="rounded-xl border border-white/10"
+                        />
                       </div>
                     </div>
                     <Link
                       href={`/jobs/${job.id}`}
-                      className="mt-3 block text-lg font-bold text-gray-900 hover:text-[#2563eb]"
+                      className="mt-6 block text-xl font-bold text-foreground decoration-primary/30 decoration-2 underline-offset-4 transition-all hover:text-primary hover:underline"
                     >
                       {job.title}
                     </Link>
-                    <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
-                      {job.employer.companyName}
-                      <span className="inline-flex items-center text-[#2563eb]">
-                        <MapPin className="h-3.5 w-3.5" />
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+                        {job.employer.companyName}
+                      </p>
+                      <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 text-[#2563eb]/70" />
                         {formatLocation(job.location)}
-                      </span>
-                    </p>
-                    <p className="mt-2 text-xs text-gray-400">
-                      Posted on {formatDate(job.createdAt)}
-                    </p>
-                    <div className="mt-4">
-                      {isEmployer ? (
-                        <Link href={`/jobs/${job.id}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full rounded-full border-sky-200 bg-sky-50/50 text-[#2563eb] hover:bg-sky-100"
-                          >
-                            View Details
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Link href={session ? `/jobs/${job.id}` : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full rounded-full border-sky-200 bg-sky-50/50 text-[#2563eb] hover:bg-sky-100"
-                          >
-                            Apply Now
-                          </Button>
-                        </Link>
-                      )}
+                      </p>
+                    </div>
+                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                        Posted {formatDate(job.createdAt)}
+                      </p>
+                      <div className="w-1/2">
+                        {isEmployer ? (
+                          <Link href={`/jobs/${job.id}`}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="w-full text-foreground/70 hover:text-foreground hover:bg-white/5"
+                            >
+                              Details
+                            </Button>
+                          </Link>
+                        ) : (
+                            <Button
+                              className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                            >
+                              Apply Now
+                            </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-10 flex justify-center">
+              <div className="mt-16 flex justify-center">
                 <Button
-                  className="rounded-full bg-[#2563eb] px-8 text-white hover:bg-[#1d4ed8]"
+                  className="rounded-full bg-white/5 border border-white/10 px-10 py-6 text-foreground font-bold hover:bg-white/10 hover:scale-105 active:scale-95 transition-all"
                   asChild
                 >
-                  <Link href="/user/jobs">View All Latest Jobs</Link>
+                  <Link href="/user/jobs">Explore All Jobs</Link>
                 </Button>
               </div>
             </>

@@ -23,12 +23,12 @@ type JobItem = {
 };
 
 const EMPLOYMENT_BADGE_COLORS: Record<string, string> = {
-  FULL_TIME: "bg-emerald-100 text-emerald-800",
-  PART_TIME: "bg-teal-100 text-teal-800",
-  CONTRACT: "bg-amber-100 text-amber-800",
-  FREELANCE: "bg-violet-100 text-violet-800",
-  INTERNSHIP: "bg-sky-100 text-sky-800",
-  REMOTE: "bg-blue-100 text-blue-800",
+  FULL_TIME: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  PART_TIME: "bg-teal-500/10 text-teal-400 border border-teal-500/20",
+  CONTRACT: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+  FREELANCE: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
+  INTERNSHIP: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
+  REMOTE: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
 };
 
 function getEmploymentBadgeClass(type: string): string {
@@ -93,28 +93,29 @@ export default function JobsFilterPageClient({
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{title}</h1>
+        <h1 className="text-xl font-bold text-white sm:text-3xl">{title}</h1>
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
+        <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#f97316] border-t-transparent mb-4" />
           Loading jobs...
         </div>
       ) : (
         <>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-gray-600">
-              <span className="font-semibold text-gray-900">{total} Jobs Found</span>
-              <span className="ml-2 text-sm">
+            <p className="text-foreground/70">
+              <span className="font-bold text-[#f97316]">{total} Jobs Found</span>
+              <span className="ml-2 text-sm text-white/50">
                 Showing {start} - {end} of {total} results
               </span>
             </p>
-            <div className="flex items-center gap-3">
-              <div className="flex rounded-lg border border-gray-200 bg-white p-0.5">
+            <div className="flex items-center gap-4">
+              <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
                 <button
                   type="button"
                   onClick={() => setViewMode("grid")}
-                  className={`rounded-md p-2 ${viewMode === "grid" ? "bg-[#2563eb] text-white" : "text-gray-600 hover:bg-gray-100"}`}
+                  className={`rounded-lg p-2 transition-all duration-200 ${viewMode === "grid" ? "toggle-active scale-110" : "text-muted-foreground hover:bg-white/10"}`}
                   aria-label="Grid view"
                 >
                   <LayoutGrid className="h-5 w-5" />
@@ -122,29 +123,32 @@ export default function JobsFilterPageClient({
                 <button
                   type="button"
                   onClick={() => setViewMode("list")}
-                  className={`rounded-md p-2 ${viewMode === "list" ? "bg-[#2563eb] text-white" : "text-gray-600 hover:bg-gray-100"}`}
+                  className={`rounded-lg p-2 transition-all duration-200 ${viewMode === "list" ? "toggle-active scale-110" : "text-muted-foreground hover:bg-white/10"}`}
                   aria-label="List view"
                 >
                   <List className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Sort by</span>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as "recent" | "oldest")}
-                  className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                >
-                  <option value="recent">Most recent</option>
-                  <option value="oldest">Oldest first</option>
-                </select>
-                <ChevronDown className="h-4 w-4 text-gray-500" />
+              
+              <div className="relative flex items-center gap-3">
+                <span className="text-sm font-bold text-white/40 uppercase tracking-widest">Sort by</span>
+                <div className="relative group">
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as "recent" | "oldest")}
+                    className="appearance-none rounded-xl border border-white/10 bg-white/5 pl-4 pr-10 py-2.5 text-sm text-white transition-all hover:bg-white/10 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/40 cursor-pointer"
+                  >
+                    <option value="recent" className="bg-[#0a0a0a] text-white">Most recent</option>
+                    <option value="oldest" className="bg-[#0a0a0a] text-white">Oldest first</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none group-hover:text-white transition-colors" />
+                </div>
               </div>
             </div>
           </div>
 
           {jobs.length === 0 ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-600 shadow-sm">
+            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
               No jobs found in this category.
             </div>
           ) : (
@@ -200,7 +204,7 @@ function JobCard({
   job: JobItem;
   isEmployer: boolean;
   isJobSeeker: boolean;
-  session: unknown;
+  session: any;
 }) {
   const formatDate = (dateStr: string) => {
     try {
@@ -215,68 +219,72 @@ function JobCard({
   };
 
   return (
-    <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-2">
+    <div className="linear-card group flex flex-col p-8 animate-premium-hover animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-start justify-between gap-4">
         <span
-          className={`rounded-lg px-2.5 py-1 text-xs font-semibold ${getEmploymentBadgeClass(job.employmentType)}`}
+          className={`rounded-full px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold shadow-sm ${getEmploymentBadgeClass(
+            job.employmentType
+          )}`}
         >
           {job.employmentType.replace("_", " ")}
         </span>
-        <div className="flex items-center gap-1">
-          <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-8 w-8" />
+        <div className="flex items-center gap-2">
+          <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors" />
           <CompanyLogo
-          companyLogo={job.employer.companyLogo}
-          companyName={job.employer.companyName}
-          size="md"
-          className="rounded-lg"
-        />
+            companyLogo={job.employer.companyLogo}
+            companyName={job.employer.companyName}
+            size="md"
+            className="rounded-xl border border-white/10"
+          />
         </div>
       </div>
       <Link
         href={`/jobs/${job.id}`}
-        className="mt-3 block text-lg font-bold text-gray-900 hover:text-[#2563eb]"
+        className="mt-6 block text-xl font-bold text-foreground decoration-primary/30 decoration-2 underline-offset-4 transition-all hover:text-primary hover:underline"
       >
         {job.title}
       </Link>
-      {job.salaryRange && (
-        <p className="mt-1 text-sm text-gray-600">Salary: {job.salaryRange}</p>
-      )}
-      <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
-        {job.employer.companyName}
-        <span className="inline-flex items-center text-[#2563eb]">
-          <MapPin className="h-3.5 w-3.5" />
+      <div className="mt-2 flex flex-col gap-1.5">
+        <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+          {job.employer.companyName}
+        </p>
+        <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5 text-[#2563eb]/70" />
           {formatLocation(job.location)}
-        </span>
-      </p>
-      <p className="mt-2 text-xs text-gray-400">Posted on {formatDate(job.createdAt)}</p>
-      <div className="mt-4">
-        {isEmployer ? (
-          <Link href={`/jobs/${job.id}`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full rounded-full border-sky-200 bg-sky-50/50 text-[#2563eb] hover:bg-sky-100"
+        </p>
+      </div>
+      <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+          Posted {formatDate(job.createdAt)}
+        </p>
+        <div className="w-1/2">
+          {isEmployer ? (
+            <Link href={`/jobs/${job.id}`} className="w-full">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-foreground/70 hover:text-foreground hover:bg-white/5"
+              >
+                Details
+              </Button>
+            </Link>
+          ) : (
+            <Link
+              href={
+                session
+                  ? `/jobs/${job.id}`
+                  : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
+              }
+              className="w-full"
             >
-              View Details
-            </Button>
-          </Link>
-        ) : (
-          <Link
-            href={
-              session
-                ? `/jobs/${job.id}`
-                : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
-            }
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full rounded-full border-sky-200 bg-sky-50/50 text-[#2563eb] hover:bg-sky-100"
-            >
-              Apply Now
-            </Button>
-          </Link>
-        )}
+              <Button
+                className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
+              >
+                Apply Now
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

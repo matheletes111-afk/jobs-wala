@@ -38,61 +38,76 @@ export default async function AdminDashboardPage() {
       value: usersCount,
       icon: Users,
       href: "/admin/users",
-      className: "bg-blue-600 text-white hover:bg-blue-700",
+      accent: "blue",
     },
     {
       label: "Open Jobs",
       value: activeJobsCount,
       icon: Clock,
       href: "/admin/jobs",
-      className: "bg-violet-600 text-white hover:bg-violet-700",
+      accent: "violet",
     },
     {
       label: "Employers",
       value: employersCount,
       icon: UserCheck,
       href: "/admin/users",
-      className: "bg-amber-500 text-white hover:bg-amber-600",
+      accent: "amber",
     },
     {
       label: "Applications",
       value: applicationsCount,
       icon: FileText,
       href: "/admin/reports",
-      className: "bg-emerald-600 text-white hover:bg-emerald-700",
+      accent: "emerald",
     },
   ];
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
+    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
-              Welcome to Admin Dashboard
-            </h1>
-            <p className="mt-1 text-gray-600">
-              Track users, jobs, and applications in one place.
-            </p>
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-4">
+             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Admin Dashboard</p>
           </div>
+          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+            Platform <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Overview</span>
+          </h1>
+          <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+            Monitor system metrics, user engagement, and platform activity.
+          </p>
         </div>
 
-        {/* Color cards */}
-        <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {colorCards.map((card) => {
+        {/* Intelligence Nodes - Color cards */}
+        <div className="mb-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {colorCards.map((card, idx) => {
             const Icon = card.icon;
+            const accentColors = {
+              blue: "bg-blue-500/5 text-blue-400 border-blue-500/10 hover:bg-blue-500/10 hover:border-blue-500/20 shadow-blue-500/5",
+              violet: "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
+              amber: "bg-amber-500/5 text-amber-400 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20 shadow-amber-500/5",
+              emerald: "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
+            };
+            const colorClass = accentColors[card.accent as keyof typeof accentColors];
+
             return (
-              <Link key={card.label} href={card.href}>
+              <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`flex items-center gap-5 rounded-2xl p-6 shadow-md transition-all ${card.className}`}
+                  className={`relative flex flex-col justify-between h-48 rounded-[2rem] p-8 border transition-all duration-500 animate-in zoom-in-95 cursor-pointer ${colorClass}`}
+                  style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                    <Icon className="h-7 w-7" />
+                  <div className="flex items-start justify-between">
+                    <div className="rounded-2xl bg-white/5 p-3 group-hover:scale-110 transition-transform">
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium opacity-90">{card.label}</p>
-                    <p className="text-3xl font-bold">{card.value}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{card.label}</p>
+                    <p className="text-4xl font-black tracking-tighter text-foreground">{card.value}</p>
+                    <p className="text-[10px] font-bold opacity-40 mt-1 italic uppercase tracking-widest">Metric</p>
                   </div>
                 </div>
               </Link>
@@ -101,75 +116,92 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Recent jobs list */}
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Recent Jobs</h2>
-                <p className="text-sm text-gray-500">Latest job postings</p>
-              </div>
-              <Link href="/admin/jobs">
-                <Button variant="outline" size="sm" className="gap-1">
-                  View all
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
+        <section className="space-y-10">
+          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-white/5 pb-10">
+            <div className="space-y-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">
+                Recent Activity
+              </p>
+              <h2 className="text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+                Latest Jobs
+              </h2>
             </div>
-            <div className="divide-y divide-gray-100">
-              {recentJobs.length === 0 ? (
-                <div className="px-6 py-12 text-center text-gray-500">
-                  No jobs posted yet.
-                </div>
-              ) : (
-                recentJobs.map((job) => (
+            <Link href="/admin/jobs">
+              <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 group">
+                View All Jobs
+                <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid gap-6">
+            {recentJobs.length === 0 ? (
+              <div className="linear-card rounded-[2.5rem] px-6 py-24 text-center border-dashed border-white/10">
+                <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic" >
+                  No recent job activity detected.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {recentJobs.map((job, idx) => (
                   <Link
                     key={job.id}
                     href={`/admin/jobs/${job.id}`}
-                    className="flex flex-wrap items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50"
+                    className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border-white/5 p-8 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700 h-full"
+                    style={{ animationDelay: `${idx * 150}ms` }}
                   >
-                    <CompanyLogo
-                      companyLogo={job.employer.companyLogo}
-                      companyName={job.employer.companyName}
-                      size="sm"
-                      className="shrink-0 rounded-lg"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                      <p className="text-sm text-gray-500">
+                    <div className="flex items-start justify-between gap-4 mb-6">
+                      <CompanyLogo
+                        companyLogo={job.employer.companyLogo}
+                        companyName={job.employer.companyName}
+                        size="md"
+                        className="shrink-0 rounded-2xl border border-white/10 transition-transform group-hover:scale-110"
+                      />
+                      <span
+                        className={`shrink-0 rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border ${
+                          job.status === "ACTIVE"
+                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            : job.status === "PENDING"
+                              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                              : "bg-white/5 text-muted-foreground border-white/10"
+                        }`}
+                      >
+                        {job.status}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-4">
+                      <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
+                        {job.title}
+                      </h3>
+                      <p className="text-sm font-bold text-muted-foreground/60 italic">
                         {job.employer.companyName}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <span className="rounded-xl bg-white/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-foreground/40">
                           {formatLocation(job.location)}
                         </span>
-                        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="rounded-xl bg-blue-500/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-blue-500 border border-blue-500/20">
                           {job.category}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-gray-400">
-                        Posted {new Date(job.createdAt).toLocaleDateString()} ·{" "}
-                        {job._count.applications} applications
-                      </p>
+
+                      <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">
+                          Date {new Date(job.createdAt).toLocaleDateString("en-GB")}
+                        </p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                          {job._count.applications} Applications
+                        </p>
+                      </div>
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                        job.status === "ACTIVE"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : job.status === "PENDING"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {job.status === "PAUSED"
-                        ? "Paused"
-                        : job.status === "CLOSED"
-                          ? "Closed"
-                          : job.status}
-                    </span>
                   </Link>
-                ))
-              )}
-            </div>
-          </section>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import {
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobStatusActions from "@/components/employer/JobStatusActions";
-import { Search, Briefcase, MapPin, Calendar, Plus } from "lucide-react";
+import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 
@@ -56,6 +56,7 @@ export default function EmployerJobListClient() {
   const [appliedCategory, setAppliedCategory] = useState("all");
   const [appliedLocation, setAppliedLocation] = useState("");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const limit = 12;
 
   const fetchJobs = useCallback(
@@ -127,254 +128,366 @@ export default function EmployerJobListClient() {
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-black">
       <div className={containerClass}>
         {/* Hero / Search Section */}
-        <div className="rounded-b-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            My Job Postings
+        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-10 sm:p-12 mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+            Job Management
           </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Manage your jobs
+          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+            Job <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-purple-400">Postings</span>
           </h1>
-          <p className="mb-6 text-gray-600">
-            Search and filter your job postings. Edit status or view applications.
+          <p className="mb-10 text-muted-foreground font-medium italic">
+            Monitor, update, and manage your active and past job opportunities from this centralized hub.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-            <div className="relative flex-1 min-w-[180px]">
-              <Briefcase className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/5 bg-black/20 p-4 shadow-2xl">
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
               <Input
-                placeholder="Job title or keyword"
+                placeholder="Search by job title, description, or keywords..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-9"
+                className="h-12 pl-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground font-medium"
               />
             </div>
-            <div className="w-[180px]">
+            <div className="w-[200px]">
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Category" />
+                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                  <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All categories</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
+                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Categories</SelectItem>
                   {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.name}>
+                    <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest">
                       {c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              onClick={handleSearch}
-              disabled={loading}
-              className="bg-[#2563eb] hover:bg-[#1d4ed8]"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleClear}
-              disabled={loading}
-              className="border-gray-300"
-            >
-              Clear filters
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleSearch}
+                disabled={loading}
+                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+              >
+                Search
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleClear}
+                disabled={loading}
+                className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10"
+              >
+                Clear
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 flex items-end justify-between gap-4">
-          <Link href="/employer/jobs/new">
-            <Button className="gap-2 bg-[#2563eb] hover:bg-[#1d4ed8]">
-              <Plus className="h-4 w-4" />
-              Post New Job
-            </Button>
-          </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 animate-in fade-in duration-1000">
+           <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                Live Updates
+              </p>
+              <p className="mt-1 text-sm font-bold text-muted-foreground uppercase tracking-widest">{total} Job{total !== 1 && "s"} Found</p>
+           </div>
+           <Link href="/employer/jobs/new">
+             <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 gap-3">
+               <Plus className="h-5 w-5" />
+               Post a Job
+             </Button>
+           </Link>
         </div>
 
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
           {/* Left Filter Panel */}
-          <aside className="w-full shrink-0 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:w-72">
-            <h2 className="mb-4 font-semibold text-gray-900">Search jobs</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">
-                  Job title or keyword
-                </label>
-                <Input
-                  placeholder="Search..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
+          <aside className="w-full shrink-0 lg:w-80 space-y-8 animate-in slide-in-from-left-10 duration-1000">
+            <div className="linear-card rounded-[2rem] p-8 space-y-8 border-white/5 bg-white/[0.02]">
+              <div className="flex items-center gap-3 border-b border-white/5 pb-6">
+                <Search className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-black uppercase tracking-widest text-foreground">Advanced Filters</h2>
               </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">
-                  Location
-                </label>
-                <LocationDropdown value={location} onChange={setLocation} />
+              
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Search Key</label>
+                  <Input
+                    placeholder="Refine search..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Location Hub</label>
+                  <LocationDropdown value={location} onChange={setLocation} />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Category</label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Categories</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest">
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="pt-4 space-y-3">
+                  <Button
+                    onClick={handleSearch}
+                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95"
+                  >
+                    Apply Filters
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleClear}
+                    disabled={loading}
+                    className="w-full h-12 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+                  >
+                    Reset All
+                  </Button>
+                </div>
               </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">
-                  Category
-                </label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All categories</SelectItem>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={handleSearch}
-                className="w-full bg-[#2563eb] hover:bg-[#1d4ed8]"
-              >
-                Apply filters
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleClear}
-                disabled={loading}
-                className="w-full border-gray-300"
-              >
-                Clear filters
-              </Button>
+            </div>
+
+            <div className="linear-card rounded-[2rem] p-8 bg-primary/5 border-primary/20">
+               <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-4">Job Status Tip</h3>
+               <p className="text-xs text-muted-foreground leading-loose font-medium italic">
+                 "Keep your job postings up to date. Active jobs are visible to candidates, while closed jobs are archived for your records."
+               </p>
             </div>
           </aside>
 
           {/* Right Content */}
-          <div className="flex-1">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-900">{total} Jobs Found</span>
-                <span className="ml-2 text-sm">
-                  Showing {start} - {end}
-                </span>
-              </p>
-            </div>
-
-            {loading ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-                Loading jobs...
-              </div>
-            ) : jobs.length === 0 ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-                No jobs match your filters. Try adjusting search or clear filters.
-              </div>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {jobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-                  >
-                    <div className="flex items-start gap-4">
-                      <CompanyLogo
-                        companyLogo={job.employer?.companyLogo}
-                        companyName={job.employer?.companyName ?? job.title}
-                        size="lg"
-                        className="h-14 w-14 rounded-xl"
-                      />
-                      <div className="min-w-0 flex-1">
-                        {job.status === "ACTIVE" && (
-                          <span className="mb-1 inline-block rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-                            ACTIVE
-                          </span>
-                        )}
-                        <Link href={`/employer/jobs/${job.id}`}>
-                          <h3 className="font-semibold text-gray-900 hover:text-[#2563eb]">
-                            {job.title}
-                          </h3>
-                        </Link>
-                        <p className="mt-1 flex items-center gap-1 text-sm text-gray-600">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {formatLocation(job.location)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#2563eb]">
-                        {job.category}
-                      </span>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          job.status === "ACTIVE"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : job.status === "PENDING"
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {job.status === "PAUSED"
-                          ? "Paused"
-                          : job.status === "CLOSED"
-                            ? "Closed"
-                            : job.status}
-                      </span>
-                    </div>
-
-                    <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                      <span className="flex items-center gap-1 text-sm text-gray-500">
-                        <Calendar className="h-4 w-4" />
-                        {job._count.applications} applications
-                      </span>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-8 w-8" />
-                        <JobStatusActions
-                          jobId={job.id}
-                          jobTitle={job.title}
-                          currentStatus={job.status}
+            <div className="flex-1">
+              {!loading && jobs.length > 0 && (
+                <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-right-5 duration-700">
+                  <div className="flex items-center gap-3">
+                    <div className="h-1 w-8 rounded-full bg-primary/30" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                      Showing {jobs.length} Jobs
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 rounded-xl bg-white/5 p-1 border border-white/10">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setViewMode("grid")}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setViewMode("table")}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "table" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {loading ? (
+                <div className="linear-card rounded-[2.5rem] p-24 text-center animate-pulse border-white/5">
+                   <p className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">Loading Jobs...</p>
+                </div>
+              ) : jobs.length === 0 ? (
+                <div className="linear-card rounded-[2.5rem] p-24 text-center border-white/5">
+                   <p className="text-lg font-black uppercase tracking-[0.2em] text-muted-foreground/60">No matching jobs found.</p>
+                </div>
+              ) : viewMode === "grid" ? (
+                <div className="grid gap-8 sm:grid-cols-1 lg:grid-cols-2">
+                  {jobs.map((job, idx) => (
+                    <div
+                      key={job.id}
+                      className="group flex flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02] p-8 transition-all hover:bg-white/5 hover:border-primary/30 animate-in slide-in-from-bottom-10 duration-700 fill-mode-both"
+                      style={{ animationDelay: `${idx * 100}ms` }}
+                    >
+                      <div className="flex items-start gap-6">
+                        <CompanyLogo
+                          companyLogo={job.employer?.companyLogo}
+                          companyName={job.employer?.companyName ?? job.title}
+                          size="lg"
+                          className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-105 transition-transform"
                         />
-                        <Link href={`/employer/jobs/${job.id}`}>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
+                              {job.status}
+                            </span>
+                          </div>
+                          <Link href={`/employer/jobs/${job.id}`}>
+                            <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                              {job.title}
+                            </h3>
+                          </Link>
+                          <p className="mt-2 flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                            <MapPin className="h-3 w-3 text-primary" />
+                            {formatLocation(job.location)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary">
+                          {job.category}
+                        </span>
+                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                          {job.status === "PAUSED" ? "Paused" : job.status === "CLOSED" ? "Closed" : job.status}
+                        </span>
+                      </div>
+
+                      <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5">
+                        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                          <FileText className="h-3.5 w-3.5 text-primary" />
+                          {job._count.applications} Applications Received
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <ShareJobButton 
+                            jobId={job.id} 
+                            jobTitle={job.title} 
+                            className="h-10 w-10 bg-white/5 border-white/10 hover:bg-white/10 text-foreground rounded-xl" 
+                          />
+                          <div className="h-10 px-3 rounded-xl bg-white/5 border border-white/10 flex items-center">
+                            <JobStatusActions
+                              jobId={job.id}
+                              jobTitle={job.title}
+                              currentStatus={job.status}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <Link href={`/employer/jobs/${job.id}`} className="w-full">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-[#2563eb] text-[#2563eb] hover:bg-blue-50"
+                            variant="default"
+                            className="w-full h-12 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary/20"
                           >
-                            View details
+                            Manage Job Details
                           </Button>
                         </Link>
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] overflow-hidden animate-in fade-in duration-700">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 bg-white/5">
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Job Title</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Applicants</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {jobs.map((job) => (
+                          <tr key={job.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                            <td className="p-6">
+                              <div className="flex items-center gap-4">
+                                <CompanyLogo
+                                  companyLogo={job.employer?.companyLogo}
+                                  companyName={job.employer?.companyName ?? job.title}
+                                  size="sm"
+                                  className="h-10 w-10 rounded-lg bg-white/5 border border-white/10"
+                                />
+                                <div className="min-w-0">
+                                  <Link href={`/employer/jobs/${job.id}`}>
+                                    <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{job.title}</p>
+                                  </Link>
+                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{formatLocation(job.location)}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center gap-2">
+                                <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
+                                  {job.status}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{job.category}</span>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground">
+                                <FileText className="h-3 w-3 text-primary" />
+                                {job._count.applications}
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center justify-end gap-2">
+                                <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-8 w-8 bg-white/5 border-white/10 hover:bg-white/10" />
+                                <div className="h-8 px-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center">
+                                  <JobStatusActions
+                                    jobId={job.id}
+                                    jobTitle={job.title}
+                                    currentStatus={job.status}
+                                  />
+                                </div>
+                                <Link href={`/employer/jobs/${job.id}`}>
+                                  <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                    Manage
+                                  </Button>
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
 
-            {!loading && totalPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Previous
-                </Button>
-                <span className="text-sm text-gray-600">
-                  Page {page} of {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+              {!loading && totalPages > 1 && (
+                <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                  >
+                    Previous Page
+                  </Button>
+                  <span className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Page {page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                  >
+                    Next Page
+                  </Button>
+                </div>
+              )}
           </div>
         </div>
       </div>

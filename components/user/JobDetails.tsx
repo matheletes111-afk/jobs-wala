@@ -56,85 +56,131 @@ export default function JobDetails({ job }: { job: Job }) {
     : `${job.experienceRequired ?? 0} years`;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start gap-4">
-          <CompanyLogo
-            companyLogo={job.employer.companyLogo}
-            companyName={job.employer.companyName}
-            size="lg"
-            className="shrink-0 rounded-xl"
-          />
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-3xl">{job.title}</CardTitle>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <Badge variant="outline">{job.employer.companyName}</Badge>
-              <Badge variant="outline">{formatLocation(job.location)}</Badge>
-              <Badge variant="outline">{job.category}</Badge>
-              <Badge variant="outline">{job.employmentType}</Badge>
+    <div className="linear-card rounded-[2.5rem] p-10 sm:p-14 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-10 border-b border-white/5 pb-10 mb-10">
+        <CompanyLogo
+          companyLogo={job.employer.companyLogo}
+          companyName={job.employer.companyName}
+          size="lg"
+          className="shrink-0 rounded-[1.5rem] border border-white/10 shadow-2xl scale-125 md:scale-100 bg-white/5"
+        />
+        <div className="min-w-0 flex-1 text-center md:text-left">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-3">Job Listing</p>
+          <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-6xl mb-6">
+            {job.title}
+          </h1>
+          <div className="flex flex-wrap justify-center md:justify-start gap-3">
+            <span className="inline-flex items-center px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground">
+              {job.employer.companyName}
+            </span>
+            <span className="inline-flex items-center px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest text-blue-400">
+              {formatLocation(job.location)}
+            </span>
+            <span className="inline-flex items-center px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-widest text-indigo-400">
+              {job.category}
+            </span>
+            <span className="inline-flex items-center px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest text-emerald-400">
+              {job.employmentType.replace("_", " ")}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-16 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-16">
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Job Description</h3>
+            </div>
+            <div className="prose prose-invert max-w-none">
+              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed font-medium text-lg">
+                {job.description}
+              </p>
             </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <h3 className="font-semibold">Job Description</h3>
-          <p className="mt-2 whitespace-pre-wrap text-gray-700">{job.description}</p>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <h3 className="font-semibold">Experience</h3>
-            <p className="text-gray-700">{experienceStr}</p>
-          </div>
-          {salaryStr && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 py-10 border-y border-white/5">
             <div>
-              <h3 className="font-semibold">Salary Range</h3>
-              <p className="text-gray-700">{salaryStr}</p>
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Experience Required</h3>
+              <p className="text-2xl font-black text-foreground">{experienceStr}</p>
+            </div>
+            {salaryStr && (
+              <div>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-primary mb-3">Compensation</h3>
+                <p className="text-2xl font-black text-foreground">{salaryStr}</p>
+              </div>
+            )}
+          </div>
+
+          {(job.requiredSkills?.length ?? 0) > 0 && (
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Required Skills</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {job.requiredSkills!.map((s) => (
+                  <span key={s} className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-black uppercase tracking-widest text-emerald-400 shadow-xl shadow-emerald-500/5">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(job.secondarySkills?.length ?? 0) > 0 && (
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Optional Skills</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {job.secondarySkills!.map((s) => (
+                  <span key={s} className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-muted-foreground">
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {(job.requiredSkills?.length ?? 0) > 0 && (
-          <div>
-            <h3 className="font-semibold">Required Skills</h3>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {job.requiredSkills!.map((s) => (
-                <Badge key={s} variant="secondary">{s}</Badge>
-              ))}
+        <div className="space-y-10 lg:pl-10 lg:border-l border-white/5">
+          <div className="linear-card rounded-[2rem] p-8 border-white/5 bg-white/[0.02]">
+            <h3 className="text-sm font-black uppercase tracking-widest text-foreground mb-6">About Company</h3>
+            <div className="space-y-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Company Name</p>
+                <p className="text-sm font-bold text-foreground">{job.employer.companyName}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Overview</p>
+                <p className="text-sm leading-relaxed text-muted-foreground font-medium italic">
+                  &quot;{job.employer.description || "Analytical data pending."}&quot;
+                </p>
+              </div>
+              {job.employer.website && (
+                <a
+                  href={job.employer.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 group text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:text-blue-400 transition-colors"
+                >
+                  Visit Company Website <span className="group-hover:translate-x-1 transition-transform">→</span>
+                </a>
+              )}
             </div>
           </div>
-        )}
-
-        {(job.secondarySkills?.length ?? 0) > 0 && (
-          <div>
-            <h3 className="font-semibold">Secondary Skills</h3>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {job.secondarySkills!.map((s) => (
-                <Badge key={s} variant="outline">{s}</Badge>
-              ))}
-            </div>
+          
+          <div className="linear-card rounded-[2rem] p-8 bg-blue-500/5 border-blue-500/20">
+            <h3 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-4">Job Insights</h3>
+            <p className="text-xs text-muted-foreground leading-loose font-medium">
+              This job listing is directly from the employer. Candidates with matching profiles and relevant skills are highly encouraged to apply.
+            </p>
           </div>
-        )}
-
-        <div>
-          <h3 className="font-semibold">About {job.employer.companyName}</h3>
-          <p className="mt-2 text-gray-700">
-            {job.employer.description || "No company description available."}
-          </p>
-          {job.employer.website && (
-            <a
-              href={job.employer.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 text-blue-600 hover:underline"
-            >
-              Visit Company Website
-            </a>
-          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-

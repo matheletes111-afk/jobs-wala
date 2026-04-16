@@ -45,21 +45,21 @@ export default function EmployerNavLinks({
 
   const linkClass = vertical
     ? (isActive: boolean) =>
-        `flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+        `flex w-full items-center gap-4 rounded-xl px-5 py-4 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${
           isActive
-            ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-            : "text-gray-700 hover:bg-gray-100"
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
+            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
         }`
     : (isActive: boolean) =>
-        `flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+        `flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${
           isActive
-            ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
         }`;
 
   const wrapperClass = vertical
-    ? "flex flex-col gap-1"
-    : "flex items-center gap-2 sm:gap-3";
+    ? "flex flex-col gap-2"
+    : "flex items-center gap-1";
 
   return (
     <div className={wrapperClass}>
@@ -74,7 +74,7 @@ export default function EmployerNavLinks({
             onClick={onLinkClick}
             className={linkClass(isActive)}
           >
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className={`h-4 w-4 shrink-0 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110 opacity-60"}`} />
             {label}
           </Link>
         );

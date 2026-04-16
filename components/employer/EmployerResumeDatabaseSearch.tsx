@@ -136,126 +136,142 @@ export default function EmployerResumeDatabaseSearch({
   }, [limit, page, total]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="rounded-b-2xl bg-linear-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Resume Database Search
-          </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Search parsed resumes
-          </h1>
-          <p className="mb-6 text-gray-600">
-            Filter by keyword, skills, location and experience from admin resume database records.
-          </p>
+    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
+        <div className="mb-16 border-b border-white/5 pb-10">
+           <div className="flex items-center gap-3 mb-4">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500">Talent Database</p>
+           </div>
+           <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-gradient leading-tight">
+             Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-600">Library</span>
+           </h1>
+           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic max-w-2xl">
+             Access the central resume database. Filter by candidate information, location, and key skills.
+           </p>
 
-          <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm md:grid-cols-5">
-            <Input
-              placeholder="Name, email, title, keyword"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && apply()}
-              className="md:col-span-2"
-            />
-            <Input
-              placeholder="Skills (comma)"
-              value={skills}
-              onChange={(e) => setSkills(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && apply()}
-            />
-            <Input
-              placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && apply()}
-            />
-            <Input
-              type="number"
-              min={0}
-              placeholder="Min exp"
-              value={minExperience}
-              onChange={(e) => setMinExperience(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && apply()}
-            />
-          </div>
+           <div className="mt-12 grid gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl md:grid-cols-5">
+              <div className="md:col-span-2">
+                <Input
+                  placeholder="Search candidates (Name, Email, etc)..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && apply()}
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                />
+              </div>
+              <Input
+                placeholder="Skills..."
+                value={skills}
+                onChange={(e) => setSkills(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+              />
+              <Input
+                placeholder="Location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+              />
+              <Input
+                type="number"
+                min={0}
+                placeholder="Years Exp..."
+                value={minExperience}
+                onChange={(e) => setMinExperience(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+              />
+           </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Button onClick={apply} className="bg-[#2563eb] hover:bg-[#1d4ed8]">
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-            <Button variant="outline" onClick={clear}>
-              Clear
-            </Button>
-            <span className="text-sm text-gray-500">{rangeText}</span>
-          </div>
+           <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Button onClick={apply} className="h-12 px-10 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">
+                <Search className="mr-2 h-4 w-4" />
+                Search Database
+              </Button>
+              <Button variant="ghost" onClick={clear} className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all">
+                Clear Filters
+              </Button>
+              <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest italic ml-auto">{rangeText}</span>
+           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {loading ? (
-            <div className="col-span-full rounded-2xl border border-gray-200 bg-white p-10 text-center text-gray-500 shadow-sm">
-              Loading resumes...
+            <div className="col-span-full linear-card rounded-[3rem] p-32 text-center animate-pulse">
+               <p className="text-sm font-black uppercase tracking-[0.5em] text-emerald-500">Accessing Resume Archives...</p>
             </div>
           ) : error ? (
-            <div className="col-span-full rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
-              {error}
+            <div className="col-span-full p-8 rounded-[2rem] bg-red-500/10 border border-red-500/20 text-red-400 text-center font-bold italic">
+               &lt;Error: {error}&gt;
             </div>
           ) : resumes.length === 0 ? (
-            <div className="col-span-full rounded-2xl border border-gray-200 bg-white p-10 text-center text-gray-500 shadow-sm">
-              No parsed resumes found.
+            <div className="col-span-full linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
+               <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+                  No records match your search criteria.
+               </p>
             </div>
           ) : (
-            resumes.map((resume) => (
+            resumes.map((resume, idx) => (
               <div
                 key={resume.id}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+                className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-8 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <p className="flex items-center gap-2 text-sm text-gray-500">
-                  <FileText className="h-4 w-4" />
-                  {resume.originalFileName}
-                </p>
-                <h3 className="mt-1 text-lg font-semibold text-gray-900">
-                  {resume.extractedName || "Unknown Candidate"}
-                </h3>
-                <div className="mt-2 space-y-1 text-sm text-gray-600">
-                  <p className="inline-flex items-center gap-1">
-                    <Mail className="h-4 w-4" />
-                    {resume.extractedEmail || "No email"}
-                  </p>
-                  <p className="inline-flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    {resume.extractedLocation || "No location"}
-                  </p>
-                  <p className="inline-flex items-center gap-1">
-                    <Briefcase className="h-4 w-4" />
-                    {resume.currentTitle || "No title"} ·{" "}
-                    {resume.experienceYears != null ? `${resume.experienceYears} yrs` : "Exp n/a"}
-                  </p>
-                  <p className="inline-flex items-center gap-1">
-                    <CalendarDays className="h-4 w-4" />
-                    {new Date(resume.createdAt).toLocaleString()}
-                  </p>
+                <div className="flex items-center gap-4 mb-6">
+                   <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                      <FileText className="h-6 w-6 text-emerald-400" />
+                   </div>
+                   <div className="min-w-0 flex-1">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 truncate">{resume.originalFileName}</p>
+                      <h3 className="text-lg font-black text-foreground tracking-tight line-clamp-1 group-hover:text-emerald-400 transition-colors">
+                        {resume.extractedName || "Unknown Subject"}
+                      </h3>
+                   </div>
                 </div>
-                {resume.skills.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {resume.skills.slice(0, 8).map((skill) => (
-                      <span
-                        key={`${resume.id}-${skill}`}
-                        className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#2563eb]"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-4 border-t border-gray-100 pt-4">
-                  <a
+
+                <div className="flex-1 space-y-4">
+                   <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
+                        <Mail className="h-3.5 w-3.5 text-emerald-500/50" />
+                        {resume.extractedEmail || "DATA ENCRYPTED"}
+                      </p>
+                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
+                        <MapPin className="h-3.5 w-3.5 text-emerald-500/50" />
+                        {resume.extractedLocation || "ORBITAL / REMOTE"}
+                      </p>
+                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
+                        <Briefcase className="h-3.5 w-3.5 text-emerald-500/50" />
+                        {resume.currentTitle || "UNDEFINED ROLE"} · {resume.experienceYears != null ? `${resume.experienceYears} YRS` : "N/A"}
+                      </p>
+                   </div>
+
+                   {resume.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {resume.skills.slice(0, 5).map((skill) => (
+                          <span
+                            key={`${resume.id}-${skill}`}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500/5 border border-emerald-500/10 text-[8px] font-black uppercase tracking-widest text-emerald-400"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
+                     ARCHIVED: {new Date(resume.createdAt).toLocaleDateString("en-GB")}
+                   </p>
+                   <a
                     href={resume.r2Url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-[#2563eb] hover:underline"
+                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 flex items-center text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-emerald-500 hover:text-white transition-all active:scale-95"
                   >
-                    Open Resume
+                    SYNC PDF
                   </a>
                 </div>
               </div>
@@ -264,25 +280,26 @@ export default function EmployerResumeDatabaseSearch({
         </div>
 
         {!loading && totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-4">
+           <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
               disabled={page <= 1}
               onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             >
-              Previous
+              Previous Set
             </Button>
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages}
-            </span>
+            <div className="px-8 flex flex-col items-center">
+               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500">Query Page</p>
+               <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
+            </div>
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
               disabled={page >= totalPages}
               onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
             >
-              Next
+              Next Set
             </Button>
           </div>
         )}

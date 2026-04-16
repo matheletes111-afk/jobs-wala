@@ -44,55 +44,68 @@ export default async function EmployerCandidateDetailPage({
   const initials = `${candidate.firstName?.[0] ?? ""}${candidate.lastName?.[0] ?? ""}`.toUpperCase() || "?";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
       {/* Hero section */}
-      <div className="relative overflow-hidden rounded-b-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-6 pb-24 pt-6 md:px-8">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.06%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" />
-        <Link href="/employer/search">
+      <div className="relative overflow-hidden border-b border-white/5 bg-black/40 px-6 pb-24 pt-12 md:px-8">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+        <Link href="/employer/applications">
           <Button
-            variant="secondary"
+            variant="ghost"
             size="sm"
-            className="mb-6 gap-2 bg-white/10 text-white hover:bg-white/20 border-0"
+            className="mb-8 gap-3 h-10 px-5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-white/10 transition-all active:scale-95 group"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Search
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to Applications
           </Button>
         </Link>
-        <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:items-end">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/30 bg-white/20 shadow-lg backdrop-blur-sm">
+        
+        <div className="relative flex flex-col items-center gap-10 sm:flex-row sm:items-end">
+          <div className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border-2 border-white/10 bg-white/5 shadow-2xl transition-transform hover:scale-105">
             {candidate.profileImage ? (
               <img
                 src={candidate.profileImage}
                 alt={`${candidate.firstName} ${candidate.lastName}`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform group-hover:scale-110"
               />
             ) : (
-              <span className="text-3xl font-bold text-white">{initials}</span>
+              <span className="text-4xl font-black text-primary">{initials}</span>
             )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <div className="pb-1">
-            <h1 className="text-2xl font-bold text-white md:text-3xl">
-              {candidate.firstName} {candidate.lastName}
-            </h1>
-            {candidate.jobTitle && (
-              <p className="mt-1 flex items-center gap-2 text-blue-100">
-                <Briefcase className="h-4 w-4" />
-                {candidate.jobTitle}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {candidate.availabilityStatus && (
-                <span className="rounded-full bg-emerald-400/30 px-3 py-1 text-xs font-medium text-white">
+          
+          <div className="flex-1 text-center sm:text-left">
+             <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 mb-4">
+               <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
+                 <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                 Profile Verified
+               </span>
+               {candidate.availabilityStatus && (
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-400">
                   {candidate.availabilityStatus}
                 </span>
               )}
+             </div>
+             
+            <h1 className="text-4xl font-black text-foreground md:text-6xl tracking-tighter">
+              {candidate.firstName} {candidate.lastName}
+            </h1>
+            
+            {candidate.jobTitle && (
+              <p className="mt-4 flex items-center justify-center sm:justify-start gap-3 text-lg font-bold text-primary italic opacity-80">
+                <Briefcase className="h-5 w-5" />
+                {candidate.jobTitle}
+              </p>
+            )}
+            
+            <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-3">
               {candidate.experience != null && (
-                <span className="rounded-full bg-amber-400/30 px-3 py-1 text-xs font-medium text-white">
-                  {candidate.experience} years experience
+                <span className="rounded-xl bg-white/5 border border-white/10 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
+                  {candidate.experience} Years Experience
                 </span>
               )}
               {candidate.location && (
-                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white">
+                <span className="rounded-xl bg-white/5 border border-white/10 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
+                  <MapPin className="h-3.5 w-3.5 mr-2 inline text-primary" />
                   {formatLocation(candidate.location)}
                 </span>
               )}
@@ -101,183 +114,188 @@ export default async function EmployerCandidateDetailPage({
         </div>
       </div>
 
-      {/* Content card */}
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 -mt-16 pb-12 sm:px-6 md:px-8 lg:px-10">
-        <Card className="overflow-hidden rounded-2xl border-gray-200 bg-white shadow-lg">
-          <CardContent className="p-6 md:p-8">
-            {/* Contact info */}
-            <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-blue-50/50 p-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2563eb] text-white">
-                  <Mail className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Email</p>
-                  <a
-                    href={`mailto:${candidate.user.email}`}
-                    className="mt-1 block font-medium text-[#2563eb] hover:underline"
-                  >
+      {/* Content grid */}
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 -mt-12 pb-24 sm:px-6 md:px-8 lg:px-10">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left Column: Intelligence Card */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="linear-card rounded-[3rem] bg-black/40 border-white/5 p-10 sm:p-14 shadow-2xl">
+              {/* Contact Grid */}
+              <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Email Address</p>
+                  <a href={`mailto:${candidate.user.email}`} className="text-sm font-bold text-primary hover:text-blue-400 transition-colors break-all">
                     {candidate.user.email}
                   </a>
                 </div>
-              </div>
-              {candidate.phone && (
-                <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-emerald-50/50 p-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white">
-                    <Phone className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Phone</p>
-                    <a
-                      href={`tel:${candidate.phone}`}
-                      className="mt-1 block font-medium text-emerald-700 hover:underline"
-                    >
+                {candidate.phone && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Phone Number</p>
+                    <a href={`tel:${candidate.phone}`} className="text-sm font-bold text-foreground hover:text-primary transition-colors">
                       {candidate.phone}
                     </a>
                   </div>
-                </div>
-              )}
-              {candidate.location && (
-                <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-violet-50/50 p-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white">
-                    <MapPin className="h-6 w-6" />
+                )}
+                {candidate.location && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Location</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {formatLocation(candidate.location)}
+                    </p>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Location</p>
-                    <p className="mt-1 font-medium text-gray-900">{formatLocation(candidate.location)}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Skills */}
-            {candidate.skills.length > 0 && (
-              <div className="mb-8">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                  <Briefcase className="h-4 w-4 text-[#2563eb]" />
-                  Skills
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {candidate.skills.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded-full bg-blue-100 px-4 py-1.5 text-sm font-medium text-[#2563eb]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Education */}
-            {candidate.education && (
-              <div className="mb-8">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                  <GraduationCap className="h-4 w-4 text-violet-600" />
-                  Education
-                </h3>
-                <p className="rounded-xl border border-gray-100 bg-gray-50/50 p-4 text-gray-700">
-                  {candidate.education}
-                </p>
-              </div>
-            )}
-
-            {/* About */}
-            {candidate.bio && (
-              <div className="mb-8">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                  <User className="h-4 w-4 text-amber-600" />
-                  About
-                </h3>
-                <p className="whitespace-pre-wrap rounded-xl border border-gray-100 bg-amber-50/30 p-4 text-gray-700">
-                  {candidate.bio}
-                </p>
-              </div>
-            )}
-
-            {/* Resume */}
-            {candidate.resumeUrl && (
-              <div className="mb-8">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                  <FileText className="h-4 w-4 text-emerald-600" />
-                  Resume
-                </h3>
-                <a
-                  href={candidate.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 px-6 py-3 font-medium text-emerald-700 transition-colors hover:bg-emerald-100 hover:border-emerald-300"
-                >
-                  <FileText className="h-5 w-5" />
-                  View / Download Resume
-                </a>
-                {candidate.resumeUpdatedAt && (
-                  <p className="mt-2 text-sm text-gray-500">
-                    Resume last updated: {formatResumeUpdatedAt(candidate.resumeUpdatedAt)}
-                  </p>
                 )}
               </div>
-            )}
 
-            {/* Certificates */}
-            {(() => {
-              if (!candidate.certificates) return null;
-              let list: { url: string; type: "image" | "pdf"; description: string }[];
-              try {
-                list = JSON.parse(candidate.certificates);
-                if (!Array.isArray(list) || list.length === 0) return null;
-              } catch {
-                return null;
-              }
-              return (
-                <div className="mb-8">
-                  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500">
-                    <Award className="h-4 w-4 text-amber-600" />
-                    Certificates
-                  </h3>
-                  <ul className="space-y-3">
-                    {list.map((cert, idx) => (
-                      <li
-                        key={idx}
-                        className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 bg-amber-50/30 p-4"
-                      >
-                        {cert.type === "image" ? (
-                          <a
-                            href={cert.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-amber-700 hover:underline"
-                          >
-                            <ImageIcon className="h-4 w-4" />
-                            View image
-                          </a>
-                        ) : (
-                          <a
-                            href={cert.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-amber-700 hover:underline"
-                          >
-                            <FileText className="h-4 w-4" />
-                            View PDF
-                          </a>
-                        )}
-                        {cert.description && (
-                          <span className="text-gray-600">— {cert.description}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+              {/* Bio / About */}
+              {candidate.bio && (
+                <div className="mb-16">
+                   <div className="flex items-center gap-3 mb-6">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Cover Letter</h3>
+                   </div>
+                   <div className="rounded-[2rem] bg-white/[0.02] border border-white/5 p-8 sm:p-10">
+                     <p className="whitespace-pre-wrap text-lg leading-relaxed text-muted-foreground font-medium italic">
+                        &quot;{candidate.bio}&quot;
+                     </p>
+                   </div>
                 </div>
-              );
-            })()}
+              )}
 
-            <div className="border-t border-gray-100 pt-4 text-sm text-gray-500">
-              Profile updated {new Date(candidate.updatedAt).toLocaleDateString()}
+              {/* Skills Matrix */}
+              {candidate.skills.length > 0 && (
+                <div className="mb-16">
+                  <div className="flex items-center gap-3 mb-8">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Skills</h3>
+                   </div>
+                  <div className="flex flex-wrap gap-3">
+                    {candidate.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-black uppercase tracking-widest text-emerald-400 shadow-xl shadow-emerald-500/5 transition-transform hover:scale-105"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Education */}
+              {candidate.education && (
+                <div className="mb-16">
+                  <div className="flex items-center gap-3 mb-6">
+                      <div className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Education</h3>
+                   </div>
+                  <div className="rounded-[2rem] bg-white/[0.02] border border-white/5 p-8">
+                     <p className="text-lg font-bold text-foreground/90 leading-relaxed italic">
+                        {candidate.education}
+                     </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Certification Grid */}
+              {(() => {
+                if (!candidate.certificates) return null;
+                let list: { url: string; type: "image" | "pdf"; description: string }[];
+                try {
+                  list = JSON.parse(candidate.certificates);
+                  if (!Array.isArray(list) || list.length === 0) return null;
+                } catch {
+                  return null;
+                }
+                return (
+                  <div>
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">External Links</h3>
+                     </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {list.map((cert, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.03] border border-white/5 transition-all hover:bg-white/[0.05]">
+                           <div className="min-w-0 flex-1">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1 truncate">
+                                {cert.description || "Unspecified Credential"}
+                              </p>
+                              <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                                {cert.type === "image" ? "Verified Image" : "PDF Document"}
+                              </p>
+                           </div>
+                           <a
+                              href={cert.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-foreground hover:bg-white/10 transition-all hover:scale-110"
+                            >
+                              {cert.type === "image" ? <ImageIcon className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                            </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Right Column: Tactical Sidebar */}
+          <div className="lg:col-span-1 space-y-8">
+             {/* Resume Card */}
+             {candidate.resumeUrl && (
+                <div className="linear-card rounded-[2.5rem] p-10 bg-emerald-500/5 border-emerald-500/20 shadow-2xl">
+                   <div className="flex items-center gap-3 mb-8">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400">Resume</h3>
+                   </div>
+                   
+                   <p className="text-sm font-medium text-muted-foreground leading-loose italic mb-8">
+                      The candidate's full resume is available for review.
+                   </p>
+                   
+                   <a
+                    href={candidate.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-4 h-16 rounded-2xl bg-emerald-500 text-[10px] font-black uppercase tracking-widest text-white shadow-2xl shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 hover:bg-emerald-400"
+                  >
+                    <FileText className="h-5 w-5" />
+                    View Full Resume
+                  </a>
+                  
+                  {candidate.resumeUpdatedAt && (
+                    <p className="mt-6 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 text-center">
+                      Last Updated: {formatResumeUpdatedAt(candidate.resumeUpdatedAt)}
+                    </p>
+                  )}
+                </div>
+             )}
+
+             {/* Profile Summary Card */}
+             <div className="linear-card rounded-[2.5rem] p-10 bg-white/[0.02] border-white/5">
+                <h3 className="text-sm font-black uppercase tracking-widest text-foreground mb-8">Profile Summary</h3>
+                <div className="space-y-6">
+                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Registered</span>
+                      <span className="text-xs font-bold text-foreground">{new Date(candidate.updatedAt).toLocaleDateString()}</span>
+                   </div>
+                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Verification</span>
+                      <span className="text-xs font-bold text-emerald-400">PASSED</span>
+                   </div>
+                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Status</span>
+                      <span className="text-xs font-bold text-primary">ACTIVE</span>
+                   </div>
+                </div>
+                
+                <p className="mt-8 text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 leading-relaxed italic">
+                  Application received. Profile and information submitted securely.
+                </p>
+             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

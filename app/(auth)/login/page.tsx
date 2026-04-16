@@ -92,84 +92,79 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-gradient-to-r from-sky-50 via-white to-white xl:flex-row">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background xl:flex-row divide-x divide-white/5">
       {/* Left section - only on xl+ to avoid gap on medium screens */}
       <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
-        <Link href="/" className="mb-8 inline-flex">
+        <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">
           <img
             src="/images/logo.jpeg"
             alt="Jobs Portal"
             width={320}
             height={320}
-            className="h-40 w-auto max-w-full rounded-lg object-contain xl:h-44 2xl:h-52"
+            className="h-32 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
           />
         </Link>
-        <p className="mb-4 text-sm font-medium uppercase tracking-wider text-sky-500">
-          Sign in
+        <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary">
+          Sign In
         </p>
-        <h2 className="mb-4 text-2xl font-bold leading-tight text-gray-800 xl:text-3xl">
-          Welcome back to your account
+        <h2 className="mb-6 text-3xl font-black leading-tight text-foreground xl:text-4xl 2xl:text-5xl">
+          Welcome back to the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Future of Work</span>
         </h2>
-        <p className="mb-8 max-w-md text-base text-gray-600">
-          Sign in to access your account, continue your job search, or manage your listings and applications.
+        <p className="mb-10 max-w-md text-lg text-muted-foreground leading-relaxed">
+          Sign in to access your dashboard, discover personalized job matches, and manage your professional journey.
         </p>
-        <ul className="space-y-3">
-          <li className="flex items-center gap-3 text-gray-700">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-              <Check className="h-4 w-4" strokeWidth={2.5} />
-            </span>
-            Access curated jobs from verified companies
-          </li>
-          <li className="flex items-center gap-3 text-gray-700">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-              <Check className="h-4 w-4" strokeWidth={2.5} />
-            </span>
-            Showcase your portfolio and skill badges
-          </li>
-          <li className="flex items-center gap-3 text-gray-700">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-              <Check className="h-4 w-4" strokeWidth={2.5} />
-            </span>
-            Collaborate with hiring teams in real time
-          </li>
+        <ul className="space-y-4">
+          {[
+            "Access curated jobs from verified companies",
+            "Showcase your portfolio and skill badges",
+            "Collaborate with hiring teams in real time"
+          ].map((text) => (
+            <li key={text} className="flex items-center gap-4 text-foreground/80 font-medium">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
+                <Check className="h-4 w-4" strokeWidth={3} />
+              </span>
+              {text}
+            </li>
+          ))}
         </ul>
       </div>
 
-      {/* Form section - full width below xl, centered; 55% on xl+ */}
-      <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10 md:px-8 xl:min-h-0 xl:w-[55%] xl:py-12 xl:pl-10 xl:pr-12 2xl:pl-16 2xl:pr-16">
-        <div className="mb-6 w-full max-w-md xl:hidden">
+      {/* Form section */}
+      <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10 md:px-8 xl:min-h-0 xl:w-[55%] xl:py-12 xl:pl-10 xl:pr-12 2xl:pl-16 2xl:pr-16 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.03),transparent)] pointer-events-none" />
+        <div className="mb-8 w-full max-w-md xl:hidden">
           <Link href="/" className="inline-flex">
             <img
               src="/images/logo.jpeg"
               alt="Jobs Portal"
               width={240}
               height={240}
-              className="h-28 w-auto max-w-full rounded-lg object-contain sm:h-32"
+              className="h-20 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
             />
           </Link>
         </div>
-        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/50 sm:p-8">
-          <h1 className="text-xl font-bold text-gray-900">
-            Sign in to your account
+        <div className="linear-card w-full max-w-md rounded-[2.5rem] p-10 sm:p-12 animate-in zoom-in-95 duration-500">
+          <h1 className="text-2xl font-black text-foreground mb-2">
+            Sign In
           </h1>
-          <p className="mt-1 mb-6 text-sm text-gray-500">
-            Enter your email and password to access your account
+          <p className="text-sm text-muted-foreground mb-8">
+            Access your professional dashboard
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {success && (
-              <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-400">
                 {success}
               </div>
             )}
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-400">
                 {error}
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">
-                Email
+            <div className="space-y-3">
+              <Label htmlFor="email" className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                Email Address
               </Label>
               <Input
                 id="email"
@@ -177,18 +172,18 @@ function LoginForm() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-700">
+                <Label htmlFor="password" className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
                   Password
                 </Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                  className="text-xs font-bold text-primary hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -197,23 +192,23 @@ function LoginForm() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
                 required
               />
             </div>
             <Button
               type="submit"
-              className="h-11 w-full rounded-lg bg-blue-600 font-semibold hover:bg-blue-700"
+              className="h-14 w-full rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Verifying..." : "Sign In"}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700 hover:underline">
-              Register
+          <p className="mt-10 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            New here?{" "}
+            <Link href="/register" className="text-primary hover:underline">
+              Create an account
             </Link>
           </p>
         </div>
@@ -226,13 +221,13 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-sky-50 to-white px-4">
-          <div className="w-full max-w-md animate-pulse space-y-4 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-            <div className="h-8 w-32 rounded bg-gray-200" />
-            <div className="h-4 w-48 rounded bg-gray-200" />
-            <div className="h-10 rounded-lg bg-gray-200" />
-            <div className="h-10 rounded-lg bg-gray-200" />
-            <div className="h-10 rounded-lg bg-gray-200" />
+        <div className="flex min-h-screen items-center justify-center bg-background px-4">
+          <div className="w-full max-w-md animate-pulse space-y-6 rounded-[2.5rem] border border-white/5 bg-white/2 p-12">
+            <div className="h-8 w-32 rounded-lg bg-white/5" />
+            <div className="h-4 w-48 rounded-lg bg-white/5" />
+            <div className="h-14 rounded-xl bg-white/5" />
+            <div className="h-14 rounded-xl bg-white/5" />
+            <div className="h-14 rounded-xl bg-white/5" />
           </div>
         </div>
       }

@@ -20,25 +20,27 @@ export default async function EmployerProfilePage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="rounded-b-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8 mb-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Account
+    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
+        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-10 sm:p-12 mb-12 border-white/5 animate-in slide-in-from-top-10 duration-1000">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+            Company Settings
           </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Company Profile
+          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+            Company <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Profile</span>
           </h1>
-          <p className="text-gray-600">
-            Manage your company information and settings.
+          <p className="text-muted-foreground font-medium italic">
+            Manage your organizational details and contact information.
           </p>
         </div>
-        <EmployerProfileForm
-        profile={profile}
-        userEmail={user.email ?? undefined}
-        emailChangeStatus={params.email_changed as string | undefined}
-        emailChangeError={params.error as string | undefined}
-      />
+        <div className="linear-card rounded-[3rem] p-1 shadow-2xl bg-gradient-to-br from-white/5 to-transparent border-white/5 overflow-hidden">
+          <EmployerProfileForm
+            profile={profile}
+            userEmail={user.email ?? undefined}
+            emailChangeStatus={params.email_changed as string | undefined}
+            emailChangeError={params.error as string | undefined}
+          />
+        </div>
       </div>
     </div>
   );

@@ -16,34 +16,31 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-gray-50">
-      <header className="sticky top-0 z-50 overflow-hidden border-b border-gray-200 bg-white">
-        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
-          <Link href="/admin/dashboard" className="flex shrink-0 items-center">
-            {/* Mobile: smaller logo */}
-            <img
-              src="/images/logo.jpeg"
-              alt="Jobs Portal"
-              width={64}
-              height={64}
-              className="h-10 w-auto max-w-[180px] shrink-0 rounded-lg object-contain sm:h-12 sm:max-w-[200px] md:hidden"
-            />
-            {/* Tablet/Desktop: original larger logo */}
-            <img
-              src="/images/logo.jpeg"
-              alt="Jobs Portal"
-              width={64}
-              height={64}
-              style={{ minWidth: "16rem", minHeight: "7rem" }}
-              className="hidden shrink-0 rounded-lg object-contain md:block md:h-14 md:w-14"
-            />
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-black text-white animate-in fade-in duration-1000">
+      <header className="sticky top-0 z-50 w-full glass border-b border-white/5 shadow-2xl">
+        <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between gap-6 px-4 sm:px-6 md:px-8 lg:px-10">
+          <Link href="/admin/dashboard" className="flex shrink-0 items-center gap-3 transition-transform hover:scale-105 active:scale-95">
+            <div className="bg-white rounded-lg shadow-xl flex items-center justify-center shrink-0 p-1 px-2 transition-transform duration-200">
+               <img
+                 src="/images/logo.jpeg"
+                 alt="Jobs Portal"
+                 className="h-7 md:h-9 object-contain"
+               />
+            </div>
+            <div className="hidden flex-col md:flex -space-y-1">
+                <span className="text-base font-black tracking-tighter text-foreground">JOBS<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">DADDY</span></span>
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-500 opacity-80">Admin</span>
+            </div>
           </Link>
           <nav className="flex items-center">
             <AdminHeaderNav />
           </nav>
         </div>
       </header>
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 relative">
+         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-full max-w-7xl bg-linear-to-r from-transparent via-blue-500/50 to-transparent opacity-30" />
+         {children}
+      </main>
     </div>
   );
 }

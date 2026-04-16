@@ -135,62 +135,70 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
     }
   };
 
+
   return (
-    <div className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-      <div className="mb-6 flex flex-col gap-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-          Job details
+    <div className="w-full bg-black/40 backdrop-blur-3xl p-8 sm:p-12">
+      <div className="mb-10 border-b border-white/5 pb-10">
+        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">
+          Job Details
         </p>
-        <h2 className="mt-1 text-xl font-bold text-gray-900">
-          {jobId ? "Edit Job" : "Create New Job"}
+        <h2 className="text-3xl font-black text-foreground tracking-tight">
+          {jobId ? "Edit Job" : "Create Job"}
         </h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Fill in the role details so candidates can find and apply.
+        <p className="mt-3 text-sm text-muted-foreground font-semibold leading-relaxed">
+          Fill in the details below to create your job listing.
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
         {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 font-bold animate-in slide-in-from-top-4">
             {error}
           </div>
         )}
 
-        <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50/50 p-4 md:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Role & location</p>
-          <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        {/* Section 1: Role & Location */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-3">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Job Category & Title</p>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="title">Job Title *</Label>
+              <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Title *</Label>
               <Input
                 id="title"
                 {...register("title")}
                 placeholder="Software Engineer"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
               {errors.title && (
-                <p className="text-sm text-red-600">{errors.title.message}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.title.message}</p>
               )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Category *</Label>
               {categories.length > 0 ? (
                 <Select
                   value={categoryValue || ""}
                   onValueChange={(value) => setValue("category", value)}
                 >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select category" />
+                  <SelectTrigger id="category" className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                    <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
                     {initialData?.category &&
                       !categories.some(
                         (c) => c.name === initialData?.category
                       ) && (
-                        <SelectItem value={initialData.category}>
+                        <SelectItem value={initialData.category} className="text-[10px] font-black uppercase tracking-widest text-foreground">
                           {initialData.category}
                         </SelectItem>
                       )}
                     {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
+                      <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest text-foreground">
                         {c.name}
                       </SelectItem>
                     ))}
@@ -200,171 +208,194 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 <Input
                   id="category"
                   {...register("category")}
-                  placeholder="Technology"
+                  placeholder="IT Department"
+                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
                 />
               )}
               {errors.category && (
-                <p className="text-sm text-red-600">{errors.category.message}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.category.message}</p>
               )}
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Job Description *</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder="Describe the role, responsibilities, and requirements..."
-              rows={6}
-            />
-            {errors.description && (
-              <p className="text-sm text-red-600">{errors.description.message}</p>
-            )}
-          </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Description *</Label>
+              <Textarea
+                id="description"
+                {...register("description")}
+                placeholder="Outline the responsibilities, expected outcomes, and requirements..."
+                rows={8}
+                className="rounded-[2rem] bg-white/5 border-white/10 focus:ring-primary/20 p-6 font-semibold leading-relaxed"
+              />
+              {errors.description && (
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.description.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label>Location *</Label>
-            <LocationDropdown
-              value={locationValue}
-              onChange={(value) => setValue("location", value)}
-              error={errors.location?.message}
-            />
-          </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Location *</Label>
+              <div className="p-1 rounded-[1.5rem] bg-white/5 border border-white/5">
+                <LocationDropdown
+                  value={locationValue}
+                  onChange={(value) => setValue("location", value)}
+                  error={errors.location?.message}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50/50 p-4 md:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Type, experience & pay</p>
-          <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        {/* Section 2: Compensation & Experience */}
+        <div className="space-y-8 pt-12 border-t border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Experience & Salary</p>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="employmentType">Employment Type *</Label>
+              <Label htmlFor="employmentType" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Employment Type *</Label>
               <Select
                 value={employmentType}
                 onValueChange={(value) => setValue("employmentType", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FULL_TIME">Full Time</SelectItem>
-                  <SelectItem value="PART_TIME">Part Time</SelectItem>
-                  <SelectItem value="CONTRACT">Contract</SelectItem>
-                  <SelectItem value="INTERNSHIP">Internship</SelectItem>
-                  <SelectItem value="FREELANCE">Freelance</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                  <SelectItem value="FULL_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Full Time</SelectItem>
+                  <SelectItem value="PART_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Part Time</SelectItem>
+                  <SelectItem value="CONTRACT" className="text-[10px] font-black uppercase tracking-widest text-foreground">Contract</SelectItem>
+                  <SelectItem value="INTERNSHIP" className="text-[10px] font-black uppercase tracking-widest text-foreground">Internship</SelectItem>
+                  <SelectItem value="FREELANCE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Freelance</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="experienceMin">Experience Min (years)</Label>
+              <Label htmlFor="experienceMin" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Min Experience (Years)</Label>
               <Input
                 id="experienceMin"
                 type="number"
                 min={0}
                 {...register("experienceMin", { valueAsNumber: true })}
                 placeholder="0"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="experienceMax">Experience Max (years)</Label>
+              <Label htmlFor="experienceMax" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Max Experience (Years)</Label>
               <Input
                 id="experienceMax"
                 type="number"
                 min={0}
                 {...register("experienceMax", { valueAsNumber: true })}
-                placeholder="5"
+                placeholder="10"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="salaryMin">Salary Min</Label>
+              <Label htmlFor="salaryMin" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Minimum Salary</Label>
               <Input
                 id="salaryMin"
                 type="number"
                 min={0}
                 step={100}
                 {...register("salaryMin", { valueAsNumber: true })}
-                placeholder="30000"
+                placeholder="50000"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="salaryMax">Salary Max</Label>
+              <Label htmlFor="salaryMax" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Maximum Salary</Label>
               <Input
                 id="salaryMax"
                 type="number"
                 min={0}
                 step={100}
                 {...register("salaryMax", { valueAsNumber: true })}
-                placeholder="60000"
+                placeholder="150000"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
             </div>
+
             <div className="space-y-2">
-              <Label>Currency</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Currency</Label>
               <Select
                 value={watch("currency") || "INR"}
                 onValueChange={(value) => setValue("currency", value)}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
+                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                  <SelectValue placeholder="Select Currency" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INR">INR</SelectItem>
-                  <SelectItem value="USD">USD</SelectItem>
-                  <SelectItem value="EUR">EUR</SelectItem>
-                  <SelectItem value="GBP">GBP</SelectItem>
-                  <SelectItem value="AED">AED</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                  <SelectItem value="INR" className="text-[10px] font-black uppercase tracking-widest text-foreground">INR</SelectItem>
+                  <SelectItem value="USD" className="text-[10px] font-black uppercase tracking-widest text-foreground">USD</SelectItem>
+                  <SelectItem value="EUR" className="text-[10px] font-black uppercase tracking-widest text-foreground">EUR</SelectItem>
+                  <SelectItem value="GBP" className="text-[10px] font-black uppercase tracking-widest text-foreground">GBP</SelectItem>
+                  <SelectItem value="AED" className="text-[10px] font-black uppercase tracking-widest text-foreground">AED</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Pay Type</Label>
-              <Select
-                value={watch("payType") || "MONTHLY"}
-                onValueChange={(value) => setValue("payType", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select pay type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="HOURLY">Hourly</SelectItem>
-                  <SelectItem value="DAILY">Daily</SelectItem>
-                  <SelectItem value="WEEKLY">Weekly</SelectItem>
-                  <SelectItem value="BIWEEKLY">Biweekly</SelectItem>
-                  <SelectItem value="MONTHLY">Monthly</SelectItem>
-                  <SelectItem value="YEARLY">Yearly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
           </div>
         </div>
 
-        <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50/50 p-4 md:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Skills</p>
-          <div className="grid gap-4 sm:grid-cols-2">
+        {/* Section 3: Skills */}
+        <div className="space-y-8 pt-12 border-t border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Skills & Expertise</p>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="requiredSkills">Required Skills (comma-separated)</Label>
+              <Label htmlFor="requiredSkills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Required Skills *</Label>
               <Input
                 id="requiredSkills"
                 {...register("requiredSkills")}
-                placeholder="React, Node.js, TypeScript"
+                placeholder="React, Next.js, Node.js"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
+              <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2 italic">Comma-separated list (e.g., React, Next.js, Node.js)</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="secondarySkills">Secondary Skills (comma-separated)</Label>
+              <Label htmlFor="secondarySkills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Optional Skills</Label>
               <Input
                 id="secondarySkills"
                 {...register("secondarySkills")}
-                placeholder="Git, AWS, Docker"
+                placeholder="Docker, Kubernetes, AWS"
+                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
               />
+              <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2 italic">Additional skills that are preferred but not mandatory</p>
             </div>
           </div>
         </div>
 
-        <Button type="submit" disabled={loading} className="bg-[#2563eb] hover:bg-[#1d4ed8]">
-            {loading ? "Saving..." : jobId ? "Update Job" : "Post Job"}
-          </Button>
-        </form>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-white/5">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Please review all fields before posting your job.</p>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.back()}
+              className="h-14 px-10 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-14 px-12 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+            >
+              {loading ? "Saving..." : jobId ? "Update Job" : "Post Job"}
+            </Button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
+
 

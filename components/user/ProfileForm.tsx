@@ -279,20 +279,22 @@ export default function ProfileForm({
   };
 
   return (
-    <Card className="w-full overflow-hidden rounded-2xl border-gray-200 shadow-md">
-      <CardHeader className="border-b bg-gradient-to-br from-blue-50/50 to-violet-50/50 px-6 py-6 sm:px-8 sm:py-6 lg:px-10">
-        <div className="flex items-center gap-6">
+    <div className="linear-card w-full overflow-hidden rounded-[2.5rem] p-10 sm:p-12 animate-in fade-in slide-in-from-bottom-5 duration-700">
+      <div className="mb-12 flex flex-col sm:flex-row items-center gap-10">
           <div
-            className="relative flex h-20 w-20 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-gray-200 bg-gray-100"
+            className="group relative flex h-28 w-28 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-white/10 bg-white/5 transition-all hover:border-primary/50"
             onClick={triggerPhotoUpload}
           >
             {photoPreview ? (
-              <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
+              <img src={photoPreview} alt="Profile" className="h-full w-full object-cover transition-transform group-hover:scale-110" />
             ) : (
-              <span className="text-2xl font-bold text-gray-500">
+              <span className="text-3xl font-black text-white/20">
                 {profile?.firstName?.[0] ?? "?"}{profile?.lastName?.[0] ?? ""}
               </span>
             )}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Camera className="h-6 w-6 text-white" />
+            </div>
             <input
               id="profilePhoto"
               type="file"
@@ -307,124 +309,120 @@ export default function ProfileForm({
               }}
             />
           </div>
-          <div>
-            <CardTitle>{profile ? "Edit Profile" : "Create Profile"}</CardTitle>
-            <CardDescription>
-              Fill in your details to complete your profile
-            </CardDescription>
-            <button
-              type="button"
-              onClick={triggerPhotoUpload}
-              className="mt-2 flex items-center gap-2 text-sm font-medium text-[#2563eb] hover:underline"
-            >
-              <Camera className="h-4 w-4" />
-              {photoPreview ? "Change photo" : "Upload photo"}
-            </button>
+          <div className="text-center sm:text-left">
+            <h2 className="text-2xl font-black text-foreground">{profile ? "My Profile" : "Create Profile"}</h2>
+            <p className="text-sm font-medium text-muted-foreground mt-1">
+              Manage your personal and professional information
+            </p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="px-6 pt-6 pb-8 sm:px-8 lg:px-10 lg:pb-10">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
           {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-400">
               {error}
             </div>
           )}
 
           {userEmail !== undefined && (
-            <>
-              <div className="space-y-2">
-                <Label>Email (login)</Label>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Email Address</Label>
                 <Input
                   id="currentEmail"
                   type="email"
                   value={userEmail}
                   disabled
-                  className="bg-muted"
+                  className="h-14 rounded-xl bg-white/5 border-white/10 text-muted-foreground font-bold cursor-not-allowed"
                 />
-                <p className="text-xs text-muted-foreground">
-                  To change your email, use the section below. We will send a verification link to your new address.
-                </p>
               </div>
-              <div className="rounded-lg border p-4 space-y-3">
-                <h3 className="font-medium">Change email</h3>
+              <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Change Email</h3>
+                </div>
                 {emailChangeMessage && (
                   <div
-                    className={`rounded-md p-3 text-sm ${
+                    className={`rounded-xl p-4 text-sm font-semibold border ${
                       emailChangeMessage.type === "success"
-                        ? "bg-green-50 text-green-800"
-                        : "bg-red-50 text-red-800"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-red-500/10 text-red-400 border-red-500/20"
                     }`}
                   >
                     {emailChangeMessage.text}
                   </div>
                 )}
-                <div className="flex flex-wrap items-end gap-2">
-                  <div className="flex-1 min-w-[200px] space-y-2">
-                    <Label htmlFor="newEmail" className="sr-only">New email</Label>
+                <div className="flex flex-col sm:flex-row gap-4 items-end">
+                  <div className="flex-1 w-full space-y-3">
+                    <Label htmlFor="newEmail" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Email</Label>
                     <Input
                       id="newEmail"
                       type="email"
-                      placeholder="New email address"
+                      placeholder="Enter new email address"
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleRequestEmailChange())}
                       disabled={emailChangeLoading}
+                      className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground"
                     />
                   </div>
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant="ghost"
                     onClick={() => handleRequestEmailChange()}
                     disabled={emailChangeLoading || !newEmail.trim()}
+                    className="h-12 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 whitespace-nowrap px-6 transition-all"
                   >
-                    {emailChangeLoading ? "Sending…" : "Send verification link"}
+                    {emailChangeLoading ? "Sending..." : "Send Verification"}
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">First Name</Label>
               <Input
                 id="firstName"
                 {...register("firstName")}
                 placeholder="John"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
               {errors.firstName && (
-                <p className="text-sm text-red-600">{errors.firstName.message}</p>
+                <p className="text-xs font-bold text-red-400">{errors.firstName.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
+            <div className="space-y-3">
+              <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Last Name</Label>
               <Input
                 id="lastName"
                 {...register("lastName")}
                 placeholder="Doe"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
               {errors.lastName && (
-                <p className="text-sm text-red-600">{errors.lastName.message}</p>
+                <p className="text-xs font-bold text-red-400">{errors.lastName.message}</p>
               )}
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone *</Label>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
                 {...register("phone")}
                 placeholder="+1234567890"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
               {errors.phone && (
-                <p className="text-sm text-red-600">{errors.phone.message}</p>
+                <p className="text-xs font-bold text-red-400">{errors.phone.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label>Location</Label>
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</Label>
               <LocationDropdown
                 value={locationValue}
                 onChange={(value) => setValue("location", value)}
@@ -433,179 +431,180 @@ export default function ProfileForm({
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="jobTitle">Job Title</Label>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label htmlFor="jobTitle" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Job Title</Label>
               <Input
                 id="jobTitle"
                 {...register("jobTitle")}
                 placeholder="Software Engineer"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="experience">Years of Experience</Label>
+            <div className="space-y-3">
+              <Label htmlFor="experience" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Years of Experience</Label>
               <Input
                 id="experience"
                 type="number"
                 {...register("experience", { valueAsNumber: true })}
                 placeholder="5"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="education">Education</Label>
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label htmlFor="education" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Education</Label>
               <Input
                 id="education"
                 {...register("education")}
-                placeholder="Bachelor's in Computer Science"
+                placeholder="Bachelor's in CS"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
+            <div className="space-y-3">
+              <Label htmlFor="skills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Skills</Label>
               <Input
                 id="skills"
                 {...register("skills")}
                 placeholder="React, Node.js, TypeScript"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+          <div className="space-y-3">
+            <Label htmlFor="bio" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Bio / Summary</Label>
             <Textarea
               id="bio"
               {...register("bio")}
-              placeholder="Tell us about yourself..."
-              rows={4}
+              placeholder="Write a professional summary..."
+              rows={5}
+              className="rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground resize-none p-6"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="resume">Resume (PDF)</Label>
-            <Input
-              id="resume"
-              type="file"
-              accept=".pdf"
-              onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-            />
-            {profile?.resumeUrl && (
-              <div className="space-y-1">
-                <p className="text-sm text-gray-600">
-                  Current resume:{" "}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 rounded-full bg-violet-400" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Resume / CV</h3>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+              <Input
+                id="resume"
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-[10px] file:font-black file:uppercase file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
+              />
+              {profile?.resumeUrl && (
+                <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-4">
+                    <FileText className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm font-black text-foreground">Current Resume</p>
+                      {profile?.resumeUpdatedAt && (
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Synced: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}</p>
+                      )}
+                    </div>
+                  </div>
                   <a
                     href={profile.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="h-10 px-6 rounded-lg bg-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all flex items-center"
                   >
-                    View Resume
+                    View File
                   </a>
-                </p>
-                {profile?.resumeUpdatedAt && (
-                  <p className="text-sm text-gray-500">
-                    Resume last updated: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}
-                  </p>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">Certificates</h3>
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-emerald-400" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Certifications</h3>
+              </div>
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={addCertificate}
-                className="gap-2"
+                className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
               >
-                <Plus className="h-4 w-4" />
-                Add certificate
+                <Plus className="h-3 w-3 mr-2" />
+                Add Certificate
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Upload an image or PDF and add a short description. Visible to employers on your profile.
-            </p>
-            {certificateEntries.length > 0 && (
-              <ul className="space-y-3">
-                {certificateEntries.map((entry) => (
-                  <li
-                    key={entry.id}
-                    className="flex flex-wrap items-end gap-3 rounded-md border border-gray-200 bg-white p-3"
-                  >
-                    <div className="flex-1 min-w-[140px] space-y-1">
-                      <Label className="text-xs">File (image or PDF)</Label>
-                      {entry.url ? (
-                        <div className="flex items-center gap-2 text-sm">
-                          {entry.type === "image" ? (
-                            <a
-                              href={entry.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline flex items-center gap-1"
-                            >
-                              <ImageIcon className="h-4 w-4" />
-                              View image
-                            </a>
-                          ) : (
-                            <a
-                              href={entry.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline flex items-center gap-1"
-                            >
-                              <FileText className="h-4 w-4" />
-                              View PDF
-                            </a>
-                          )}
-                        </div>
-                      ) : (
-                        <Input
-                          type="file"
-                          accept="image/*,.pdf,application/pdf"
-                          className="h-9"
-                          onChange={(e) =>
-                            setCertificateFile(entry.id, e.target.files?.[0])
-                          }
-                        />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-[160px] space-y-1">
-                      <Label className="text-xs">Description</Label>
-                      <Input
-                        placeholder="e.g. AWS Certified"
-                        value={entry.description}
-                        onChange={(e) =>
-                          setCertificateDescription(entry.id, e.target.value)
-                        }
-                        className="h-9"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => removeCertificate(entry.id)}
-                      aria-label="Remove certificate"
+            
+            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+              {certificateEntries.length === 0 ? (
+                <p className="text-center py-4 text-xs font-medium text-muted-foreground italic">No certifications indexed.</p>
+              ) : (
+                <ul className="space-y-4">
+                  {certificateEntries.map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex flex-col sm:flex-row items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-6 animate-in slide-in-from-right-4"
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                      <div className="flex-1 w-full space-y-3">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Certificate File</Label>
+                        {entry.url ? (
+                          <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-white/5 border border-white/10">
+                            {entry.type === "image" ? <ImageIcon className="h-4 w-4 text-primary" /> : <FileText className="h-4 w-4 text-primary" />}
+                            <a href={entry.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-foreground hover:text-primary transition-colors underline decoration-primary/30">
+                              View Certificate
+                            </a>
+                          </div>
+                        ) : (
+                          <Input
+                            type="file"
+                            accept="image/*,.pdf,application/pdf"
+                            className="h-12 rounded-xl bg-white/5 border-white/10"
+                            onChange={(e) => setCertificateFile(entry.id, e.target.files?.[0])}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-[2] w-full space-y-3">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Description</Label>
+                        <Input
+                          placeholder="e.g. AWS Certified Solutions Architect"
+                          value={entry.description}
+                          onChange={(e) => setCertificateDescription(entry.id, e.target.value)}
+                          className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 h-10 w-10 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl"
+                        onClick={() => removeCertificate(entry.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
-          <Button type="submit" disabled={loading}>
-            {loading ? "Saving..." : profile ? "Update Profile" : "Create Profile"}
-          </Button>
+          <div className="pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">Save Profile Information</p>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="w-full sm:w-64 h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
+            >
+              {loading ? "Saving..." : profile ? "Update Profile" : "Create Profile"}
+            </Button>
+          </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
   );
 }
 

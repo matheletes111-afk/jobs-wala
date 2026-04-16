@@ -2,6 +2,7 @@ import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { FileText } from "lucide-react";
 import EmployerApplicationListClient from "@/components/employer/EmployerApplicationListClient";
 
 export default async function EmployerApplicationsPage({
@@ -18,12 +19,17 @@ export default async function EmployerApplicationsPage({
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50/50">
-        <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
-            <p className="mb-4 text-gray-600">Please complete your profile first.</p>
+      <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+        <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-24">
+          <div className="linear-card rounded-[2.5rem] p-12 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/20">
+               <FileText className="h-10 w-10 text-amber-500 animate-pulse" />
+            </div>
+            <p className="mb-8 text-xl font-bold text-muted-foreground italic">Operation Pending: Identity Authentication Required</p>
             <Link href="/employer/profile">
-              <Button className="bg-[#2563eb] hover:bg-[#1d4ed8]">Complete Profile</Button>
+              <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+                Establish Corporate Presence
+              </Button>
             </Link>
           </div>
         </div>

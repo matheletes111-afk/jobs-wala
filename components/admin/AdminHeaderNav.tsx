@@ -25,46 +25,53 @@ export default function AdminHeaderNav() {
   return (
     <>
       {/* Desktop nav: visible from md up */}
-      <div className="hidden items-center gap-2 sm:gap-3 md:flex">
+      <div className="hidden items-center gap-6 md:flex">
         <AdminNavLinks />
-        <div className="flex items-center gap-2 border-l border-gray-200 pl-3 sm:pl-4">
+        <div className="flex items-center gap-4 h-10 border-l border-white/10 pl-6">
           <LogoutButton />
-          <span className="rounded bg-[#2563eb] px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
+          <span className="flex h-8 items-center rounded-full bg-blue-600/10 border border-blue-600/20 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-[#2563eb] shadow-lg shadow-blue-500/5">
             Admin
           </span>
         </div>
       </div>
 
-      {/* Mobile: hamburger + full-width panel (like 2nd ss view) */}
-      <div className="flex items-center gap-2 md:hidden">
+      {/* Mobile: hamburger + badge */}
+      <div className="flex items-center gap-3 md:hidden">
+        <span className="rounded-full bg-blue-600/10 border border-blue-600/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[#2563eb]">
+          Admin
+        </span>
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="h-9 w-9 shrink-0"
+          className="h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 transition-all active:scale-90"
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
-        <span className="rounded bg-[#2563eb] px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
-          Admin
-        </span>
       </div>
 
-      {/* Full-width mobile menu panel below header - visible in "2nd ss" view */}
+      {/* Full-width mobile menu panel below header */}
       {open && (
         <div
-          className="fixed inset-x-0 top-16 z-40 flex flex-col bg-gray-50/95 shadow-lg md:hidden"
-          style={{ height: "calc(100vh - 4rem)" }}
+          className="fixed inset-x-0 top-20 z-40 flex flex-col bg-background/95 backdrop-blur-2xl md:hidden animate-in slide-in-from-top duration-500"
+          style={{ height: "calc(100vh - 5rem)" }}
         >
-          <div className="flex-1 overflow-y-auto px-4 py-4">
-            <nav className="flex flex-col gap-1">
+          <div className="flex-1 overflow-y-auto px-6 py-10">
+            <nav className="flex flex-col gap-4">
+               <div className="mb-6 flex items-center gap-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground opacity-40">Admin Menu</span>
+               </div>
               <AdminNavLinks vertical onLinkClick={() => setOpen(false)} />
             </nav>
-            <div className="mt-6 border-t border-gray-200 pt-4 [&_button]:w-full [&_button]:justify-center">
+            <div className="mt-12 border-t border-white/5 pt-10 flex flex-col gap-6">
               <LogoutButton />
+              <div className="flex items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/5">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Admin Dashboard</p>
+              </div>
             </div>
           </div>
         </div>

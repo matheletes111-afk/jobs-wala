@@ -31,14 +31,14 @@ export default function CandidateAvatar({
     <Avatar
       className={cn(
         sizeClasses[size],
-        "shrink-0 rounded-lg bg-violet-50 font-bold text-violet-600",
+        "shrink-0 rounded-[1.2rem] border-2 border-white/10 bg-white/5 font-black uppercase text-foreground shadow-2xl",
         className
       )}
     >
       {profileImage ? (
-        <AvatarImage src={profileImage} alt={`${firstName} ${lastName}`} className="object-cover" />
+        <AvatarImage src={profileImage} alt={`${firstName} ${lastName}`} className="object-cover transition-transform hover:scale-110" />
       ) : null}
-      <AvatarFallback className="rounded-lg bg-violet-50 text-violet-600">
+      <AvatarFallback className="rounded-[1.2rem] bg-white/5 text-primary/60 font-black">
         {fallbackChar !== "?" ? (
           fallbackChar
         ) : (

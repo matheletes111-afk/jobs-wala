@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireJobSeeker } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
@@ -40,66 +39,81 @@ export default async function UserDashboardPage() {
     redirect("/user/profile/create");
   }
 
-  const colorCards = [
-    {
-      label: "Profile Status",
-      value: profile.resumeUrl ? "Complete" : "Incomplete",
-      icon: User,
-      href: "/user/profile",
-      className: profile.resumeUrl
-        ? "bg-emerald-600 text-white hover:bg-emerald-700"
-        : "bg-amber-500 text-white hover:bg-amber-600",
-    },
-    {
-      label: "Applications",
-      value: applicationsCount,
-      icon: FileText,
-      href: "/user/applications",
-      className: "bg-blue-600 text-white hover:bg-blue-700",
-    },
-    {
-      label: "Browse Jobs",
-      value: "Find Jobs",
-      icon: Briefcase,
-      href: "/user/jobs",
-      className: "bg-violet-600 text-white hover:bg-violet-700",
-    },
-  ];
-
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen w-full min-w-0 bg-background">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
+        <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
-              Welcome to Your Dashboard
+            <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl lg:text-5xl">
+              User Dashboard
             </h1>
-            <p className="mt-1 text-gray-600">
-              Track your applications and discover new opportunities.
+            <p className="mt-2 text-muted-foreground font-medium">
+              Manage your job search, track applications, and update your profile.
             </p>
           </div>
           <Link href="/user/jobs">
-            <Button className="gap-2 bg-[#2563eb] hover:bg-[#1d4ed8]">
-              <Plus className="h-4 w-4" />
+            <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
+              <Plus className="h-5 w-5 mr-2" />
               Browse Jobs
             </Button>
           </Link>
         </div>
 
-        <div className="mb-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {colorCards.map((card) => {
+        <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              label: "Profile Status",
+              value: profile.resumeUrl ? "Complete" : "Action Needed",
+              subValue: profile.resumeUrl ? "Resume Ready" : "Upload Resume",
+              icon: User,
+              href: "/user/profile",
+              color: profile.resumeUrl ? "emerald" : "amber",
+            },
+            {
+              label: "Applications",
+              value: applicationsCount,
+              subValue: "Active Proposals",
+              icon: FileText,
+              href: "/user/applications",
+              color: "blue",
+            },
+            {
+              label: "Browse Jobs",
+              value: "Discover",
+              subValue: "New Daily Feed",
+              icon: Briefcase,
+              href: "/user/jobs",
+              color: "violet",
+            },
+          ].map((card, idx) => {
             const Icon = card.icon;
+            const colors: Record<string, string> = {
+              emerald:
+                "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
+              amber:
+                "bg-amber-500/5 text-amber-400 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20 shadow-amber-500/5",
+              blue: "bg-blue-500/5 text-blue-400 border-blue-500/10 hover:bg-blue-500/10 hover:border-blue-500/20 shadow-blue-500/5",
+              violet:
+                "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
+            };
             return (
-              <Link key={card.label} href={card.href}>
+              <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`flex items-center gap-5 rounded-2xl p-6 shadow-md transition-all ${card.className}`}
+                  className={`relative overflow-hidden flex flex-col justify-between h-48 rounded-[2rem] p-8 border transition-all duration-500 animate-in zoom-in-95 ${colors[card.color]}`}
+                  style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                    <Icon className="h-7 w-7" />
+                  <div className="flex items-start justify-between">
+                    <div className="rounded-2xl bg-white/5 p-3 group-hover:scale-110 transition-transform">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium opacity-90">{card.label}</p>
-                    <p className="text-3xl font-bold">{card.value}</p>
+                    <p className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1">
+                      {card.label}
+                    </p>
+                    <p className="text-3xl font-black text-foreground">{card.value}</p>
+                    <p className="text-xs font-bold opacity-60 mt-1">{card.subValue}</p>
                   </div>
                 </div>
               </Link>
@@ -107,78 +121,74 @@ export default async function UserDashboardPage() {
           })}
         </div>
 
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+        <section className="linear-card rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-1000">
+          <div className="flex items-center justify-between border-b border-white/5 px-8 py-8">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
-              <p className="text-sm text-gray-500">Your latest job applications</p>
+              <h2 className="text-xl font-bold text-foreground">Recent Applications</h2>
+              <p className="text-sm font-medium text-muted-foreground mt-1">
+                Status and tracking for your latest submissions
+              </p>
             </div>
             <Link href="/user/applications">
-              <Button variant="outline" size="sm" className="gap-1">
-                View all
-                <ChevronRight className="h-4 w-4" />
+              <Button className="text-xs font-black uppercase tracking-widest text-blue-500 hover:bg-blue-500/5 px-4 h-10 rounded-xl transition-all">
+                View All Applications
+                <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             </Link>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-white/5 overflow-x-auto">
             {recentApplications.length === 0 ? (
-              <div className="px-6 py-12 text-center text-gray-500">
-                No applications yet. Start applying to jobs!
+              <div className="px-8 py-20 text-center text-muted-foreground font-medium">
+                No active applications. Your future starts with the next submission!
               </div>
             ) : (
-              recentApplications.map((application: {
-                id: string;
-                status: string;
-                appliedAt: Date;
-                job: {
-                  title: string;
-                  location: string | null;
-                  category: string;
-                  employer: {
-                    companyName: string;
-                    companyLogo?: string | null;
-                  };
-                };
-              }) => (
+              recentApplications.map((application, idx) => (
                 <Link
                   key={application.id}
                   href="/user/applications"
-                  className="flex items-center gap-4 px-6 py-5 transition-colors hover:bg-gray-50"
+                  className="flex items-center gap-6 px-8 py-6 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   <CompanyLogo
                     companyLogo={application.job.employer.companyLogo}
                     companyName={application.job.employer.companyName}
-                    size="sm"
-                    className="shrink-0 rounded-lg"
+                    size="md"
+                    className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-gray-900">{application.job.title}</h3>
-                    <p className="text-sm text-gray-500">
-                      {application.job.employer.companyName}
-                    </p>
-                    <div className="mt-1 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                        {formatLocation(application.job.location)}
-                      </span>
-                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                      {application.job.title}
+                    </h3>
+                    <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                      <span>{application.job.employer.companyName}</span>
+                      <span className="text-white/10">|</span>
+                      <span>{formatLocation(application.job.location)}</span>
+                    </div>
+                    <div className="mt-3 flex items-center gap-4">
+                      <span className="text-[10px] font-bold uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full text-foreground/40 leading-none">
                         {application.job.category}
                       </span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 leading-none">
+                        Applied {new Date(application.appliedAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Applied {new Date(application.appliedAt).toLocaleDateString()}
-                    </p>
                   </div>
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
-                      application.status === "SHORTLISTED"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : application.status === "REJECTED"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {application.status}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-widest shadow-xl transition-all ${
+                        application.status === "SHORTLISTED"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : application.status === "REJECTED"
+                            ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                      }`}
+                    >
+                      {application.status}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground/40 group-hover:text-foreground transition-colors mr-2">
+                      Review Pending
+                    </span>
+                  </div>
                 </Link>
               ))
             )}

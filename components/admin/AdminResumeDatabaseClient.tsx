@@ -274,252 +274,275 @@ export default function AdminResumeDatabaseClient() {
   }, [limit, page, total]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="rounded-b-2xl bg-linear-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Admin Resume Database
-          </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Review and search uploaded resumes
-          </h1>
-          <p className="mb-6 text-gray-600">
-            Bulk upload resumes, then filter by keyword, skills, location, and parse status.
-          </p>
+    <div className="min-h-screen w-full bg-background text-foreground animate-in fade-in duration-1000">
+      <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-20">
+        {/* Intelligence Header */}
+        <div className="mb-20 border-b border-white/5 pb-12">
+           <div className="flex items-center gap-3 mb-4">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Resume Database</p>
+           </div>
+           <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+             Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Database</span>
+           </h1>
+           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+             Bulk upload and parse candidate resumes. Automatically extract contact information and skills.
+           </p>
 
-          <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <Input
-                type="file"
-                multiple
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                onChange={(e) => {
-                  setFiles(Array.from(e.target.files ?? []));
-                }}
-                className="flex-1"
-              />
-              <Button
-                onClick={onUpload}
-                disabled={uploading || files.length === 0}
-                className="bg-[#2563eb] hover:bg-[#1d4ed8]"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                {uploading ? "Uploading..." : "Bulk Upload"}
-              </Button>
-            </div>
-            {files.length > 0 ? (
-              <p className="text-sm text-gray-600">{files.length} file(s) selected</p>
-            ) : null}
-            {message ? (
-              <div className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-                {message}
+           <div className="mt-12 flex flex-col gap-6 p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                <div className="relative flex-1">
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+                    className="h-14 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                  />
+                  <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-white/5 group hover:bg-white/10 transition-all">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 group-hover:text-blue-500">
+                      {files.length > 0 ? `${files.length} FILES SELECTED` : "SELECT RESUMES TO UPLOAD"}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={onUpload}
+                  disabled={uploading || files.length === 0}
+                  className="h-14 px-10 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Upload className="mr-3 h-4 w-4" />
+                  {uploading ? "Uploading..." : "Upload & Parse"}
+                </Button>
               </div>
-            ) : null}
-          </div>
+              
+              {message && (
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase tracking-widest italic animate-in slide-in-from-top-2">
+                  <span className="opacity-60">Log:</span> {message}
+                </div>
+              )}
+           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-            <div className="xl:col-span-2">
-              <label className="mb-1 block text-sm text-gray-600">Keyword</label>
-              <Input
-                placeholder="File name, name, email, text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onApplyFilters();
-                }}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">Skills (comma)</label>
-              <Input
-                placeholder="react,node.js"
-                value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onApplyFilters();
-                }}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">Location</label>
-              <Input
-                placeholder="Bengaluru"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onApplyFilters();
-                }}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">Parse status</label>
-              <Select
-                value={parseStatus}
-                onValueChange={(val) => setParseStatus(val as ParseStatus)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="PARSED">Parsed</SelectItem>
-                  <SelectItem value="FAILED">Failed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">Min exp (years)</label>
-              <Input
-                type="number"
-                min={0}
-                placeholder="0"
-                value={minExperience}
-                onChange={(e) => setMinExperience(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") onApplyFilters();
-                }}
-              />
-            </div>
-          </div>
+        {/* Tactical Filters */}
+        <div className="linear-card mb-12 rounded-[2.5rem] p-10 bg-white/[0.02] border border-white/5 shadow-2xl">
+           <div className="flex items-center gap-3 mb-10">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Search Filters</h2>
+           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Button onClick={onApplyFilters} className="bg-[#2563eb] hover:bg-[#1d4ed8]">
-              <Search className="mr-2 h-4 w-4" />
-              Apply filters
-            </Button>
-            <Button variant="outline" onClick={onClearFilters}>
-              Clear
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={onDeleteFailed}
-              disabled={loading || uploading}
-            >
-              Delete failed resumes
-            </Button>
-            <span className="text-sm text-gray-500">{rangeText}</span>
-          </div>
+           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              <div className="space-y-4">
+                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <Search className="h-3 w-3" /> Keyword
+                </label>
+                <Input
+                  placeholder="Search name, email or title..."
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onApplyFilters()}
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <FileText className="h-3 w-3" /> Skills
+                </label>
+                <Input
+                  placeholder="React, Java, Python..."
+                  value={skills}
+                  onChange={(e) => setSkills(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onApplyFilters()}
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                />
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <MapPin className="h-3 w-3" /> Location
+                </label>
+                <Input
+                  placeholder="Search by location..."
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onApplyFilters()}
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                />
+              </div>
+              <div className="space-y-4">
+                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  Parsing Status
+                </label>
+                <Select
+                  value={parseStatus}
+                  onValueChange={(val) => setParseStatus(val as ParseStatus)}
+                >
+                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-white/10">
+                    <SelectItem value="all">All Resumes</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="PARSED">Parsed</SelectItem>
+                    <SelectItem value="FAILED">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+           </div>
+
+           <div className="mt-10 pt-10 border-t border-white/5 flex flex-wrap items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <Button onClick={onApplyFilters} className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all">
+                  Apply Filters
+                </Button>
+                <Button variant="ghost" onClick={onClearFilters} className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5">
+                  Reset
+                </Button>
+              </div>
+              <div className="flex items-center gap-6">
+                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 tabular-nums italic">{rangeText}</p>
+                 <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onDeleteFailed}
+                    disabled={loading || uploading}
+                    className="h-10 px-6 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all"
+                  >
+                    Delete Failed Resumes
+                  </Button>
+              </div>
+           </div>
         </div>
 
-        <div className="mt-6 grid gap-4">
+        {/* Dossier Grid */}
+        <div className="grid gap-6">
           {loading ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-500 shadow-sm">
-              Loading resumes...
+            <div className="linear-card rounded-[3rem] p-32 text-center animate-pulse">
+               <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Loading Resumes...</p>
             </div>
           ) : resumes.length === 0 ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-500 shadow-sm">
-              No resumes found for current filters.
+            <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
+                 <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+                    No resumes found matching your filters.<br />Try adjusting your search criteria.
+                 </p>
             </div>
           ) : (
-            resumes.map((resume) => (
+            resumes.map((resume, idx) => (
               <div
                 key={resume.id}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+                className="linear-card group group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+                style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-2 text-sm text-gray-500">
-                      <FileText className="h-4 w-4" />
-                      {resume.originalFileName}
+                <div className="flex-1 min-w-0 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-500/40 group-hover:text-blue-500 transition-colors">
+                       <FileText className="h-5 w-5" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic tabular-nums truncate">
+                       {resume.originalFileName} // {formatBytes(resume.sizeBytes)}
                     </p>
-                    <h3 className="mt-1 text-lg font-semibold text-gray-900">
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-2xl font-black text-foreground tracking-tighter group-hover:text-blue-500 transition-colors">
                       {resume.extractedName || "Unknown Candidate"}
                     </h3>
-                    <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-600">
-                      <span className="inline-flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
-                        {resume.extractedEmail || "No email"}
+                    <div className="mt-4 flex flex-wrap items-center gap-6">
+                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic">
+                        <Mail className="h-3.5 w-3.5" />
+                        {resume.extractedEmail || "N/A"}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {resume.extractedLocation || "No location"}
+                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic">
+                        <MapPin className="h-3.5 w-3.5" />
+                        {resume.extractedLocation || "N/A"}
                       </span>
-                      <span>{resume.currentTitle || "No title"}</span>
-                      <span>{resume.experienceYears != null ? `${resume.experienceYears} yrs` : "Exp n/a"}</span>
-                      <span className="inline-flex items-center gap-1">
-                        <CalendarDays className="h-4 w-4" />
-                        {new Date(resume.createdAt).toLocaleString()}
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-500/80 px-3 py-1 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                        {resume.currentTitle || "N/A"}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
+                        {resume.experienceYears != null ? `${resume.experienceYears}Y EXP` : "N/A"}
                       </span>
                     </div>
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-                        resume.parseStatus === "PARSED"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : resume.parseStatus === "FAILED"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {resume.parseStatus === "PARSED" ? (
-                        <CircleCheckBig className="h-3.5 w-3.5" />
-                      ) : resume.parseStatus === "FAILED" ? (
-                        <CircleX className="h-3.5 w-3.5" />
-                      ) : null}
-                      {resume.parseStatus}
-                    </span>
-                    <Link
-                      href={resume.r2Url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="text-sm font-medium text-[#2563eb] hover:underline"
-                    >
-                      Open file
-                    </Link>
-                    <p className="text-xs text-gray-500">{formatBytes(resume.sizeBytes)}</p>
-                  </div>
+
+                  {resume.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {resume.skills.map((skill) => (
+                        <span key={skill} className="px-3 py-1 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                           {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {resume.parseStatus === "FAILED" && resume.parseError && (
+                    <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500 text-[10px] font-bold tracking-tight italic">
+                       {resume.parseError}
+                    </div>
+                  )}
                 </div>
 
-                {resume.skills.length > 0 ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {resume.skills.map((skill) => (
-                      <span
-                        key={`${resume.id}-${skill}`}
-                        className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#2563eb]"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                <div className="flex flex-col items-end gap-6 shrink-0">
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
+                      resume.parseStatus === "PARSED"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                        : resume.parseStatus === "FAILED"
+                          ? "bg-red-500/10 text-red-400 border-red-500/20"
+                          : "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                    }`}
+                  >
+                    {resume.parseStatus === "PARSED" ? (
+                      <CircleCheckBig className="h-3.5 w-3.5" />
+                    ) : resume.parseStatus === "FAILED" ? (
+                      <CircleX className="h-3.5 w-3.5" />
+                    ) : null}
+                    {resume.parseStatus === "PARSED" ? "PARSED" : resume.parseStatus}
+                  </span>
+                  
+                  <div className="flex flex-col items-end gap-2">
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
+                       UPLOADED {new Date(resume.createdAt).toLocaleDateString()}
+                     </p>
+                     <Link
+                       href={resume.r2Url}
+                       target="_blank"
+                       rel="noreferrer noopener"
+                       className="group/link flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 hover:text-blue-400 transition-colors"
+                     >
+                       VIEW RESUME
+                       <Upload className="h-3.5 w-3.5 rotate-45 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
+                     </Link>
                   </div>
-                ) : null}
-
-                {resume.parseStatus === "FAILED" && resume.parseError ? (
-                  <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                    {resume.parseError}
-                  </p>
-                ) : null}
+                </div>
               </div>
             ))
           )}
         </div>
 
-        {!loading && totalPages > 1 ? (
-          <div className="mt-8 flex items-center justify-center gap-4">
+        {/* Pagination Console */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-20 flex flex-wrap items-center justify-center gap-6">
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
               disabled={page <= 1}
               onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             >
-              Previous
+              Previous Page
             </Button>
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages}
-            </span>
+            <div className="px-8 flex flex-col items-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Page</p>
+                <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
+            </div>
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
               disabled={page >= totalPages}
               onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
             >
-              Next
+              Next Page
             </Button>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

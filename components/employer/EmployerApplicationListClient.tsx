@@ -14,7 +14,7 @@ import { formatLocation } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import CandidateAvatar from "@/components/CandidateAvatar";
-import { Search, FileText, MapPin, User } from "lucide-react";
+import { Search, FileText, MapPin, User, LayoutGrid, List } from "lucide-react";
 import Link from "next/link";
 
 interface JobOption {
@@ -78,6 +78,7 @@ export default function EmployerApplicationListClient({
   const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedJobId, setAppliedJobId] = useState(initialJobId ?? "all");
   const [appliedStatus, setAppliedStatus] = useState(initialStatus ?? "all");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const limit = 12;
 
   const fetchApplications = useCallback(
@@ -144,278 +145,414 @@ export default function EmployerApplicationListClient({
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-black">
       <div className={containerClass}>
         {/* Hero / Search Section */}
-        <div className="rounded-b-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Review Applications
+        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-10 sm:p-12 mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+            Candidate Applications
           </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Applications
+          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+            Application <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">Hub</span>
           </h1>
-          <p className="mb-6 text-gray-600">
-            Filter by job, status, or search applicants. Shortlist or reject candidates.
+          <p className="mb-10 text-muted-foreground font-medium italic">
+            Review applicant details, manage application statuses, and track your recruitment pipeline.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
-            <div className="relative flex-1 min-w-[180px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/5 bg-black/20 p-4 shadow-2xl">
+            <div className="relative flex-1 min-w-[280px]">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
               <Input
-                placeholder="Search by name, job title, cover letter..."
+                placeholder="Search by name, email, or application ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-9"
+                className="h-12 pl-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground font-medium"
               />
             </div>
             <div className="w-[180px]">
               <Select value={jobId} onValueChange={setJobId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Job" />
+                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                  <SelectValue placeholder="All Missions" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All jobs</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
+                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Jobs</SelectItem>
                   {jobs.map((j) => (
-                    <SelectItem key={j.id} value={j.id}>
+                    <SelectItem key={j.id} value={j.id} className="text-[10px] font-black uppercase tracking-widest">
                       {j.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-[140px]">
+            <div className="w-[160px]">
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                  <SelectValue placeholder="All Status" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="REVIEWED">Reviewed</SelectItem>
-                  <SelectItem value="SHORTLISTED">Shortlisted</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
+                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Status</SelectItem>
+                  <SelectItem value="PENDING" className="text-[10px] font-black uppercase tracking-widest">Pending</SelectItem>
+                  <SelectItem value="REVIEWED" className="text-[10px] font-black uppercase tracking-widest">Reviewed</SelectItem>
+                  <SelectItem value="SHORTLISTED" className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Shortlisted</SelectItem>
+                  <SelectItem value="REJECTED" className="text-[10px] font-black uppercase tracking-widest text-red-400">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              onClick={handleSearch}
-              disabled={loading}
-              className="bg-[#2563eb] hover:bg-[#1d4ed8]"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Search
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleClear}
-              disabled={loading}
-              className="border-gray-300"
-            >
-              Clear filters
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleSearch}
+                disabled={loading}
+                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+              >
+                Search
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleClear}
+                disabled={loading}
+                className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10"
+              >
+                Reset
+              </Button>
+            </div>
           </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-6 lg:flex-row">
           {/* Left Filter Panel */}
-          <aside className="w-full shrink-0 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm lg:w-72">
-            <h2 className="mb-4 font-semibold text-gray-900">Search applications</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">
-                  Search
-                </label>
-                <Input
-                  placeholder="Search..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
+          <aside className="w-full shrink-0 lg:w-80 space-y-8 animate-in slide-in-from-left-10 duration-1000">
+            <div className="linear-card rounded-[2rem] p-8 space-y-8 border-white/5 bg-white/[0.02]">
+              <div className="flex items-center gap-3 border-b border-white/5 pb-6">
+                <Search className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-black uppercase tracking-widest text-foreground">Filter Results</h2>
               </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">Job</label>
-                <Select value={jobId} onValueChange={setJobId}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All jobs</SelectItem>
-                    {jobs.map((j) => (
-                      <SelectItem key={j.id} value={j.id}>
-                        {j.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Applicant Name</label>
+                  <Input
+                    placeholder="Search applicants..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Selection</label>
+                  <Select value={jobId} onValueChange={setJobId}>
+                    <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Postings</SelectItem>
+                      {jobs.map((j) => (
+                        <SelectItem key={j.id} value={j.id} className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                          {j.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Application Status</label>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Statuses</SelectItem>
+                      <SelectItem value="PENDING" className="text-[10px] font-black uppercase tracking-widest">Pending</SelectItem>
+                      <SelectItem value="REVIEWED" className="text-[10px] font-black uppercase tracking-widest">Reviewed</SelectItem>
+                      <SelectItem value="SHORTLISTED" className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Shortlisted</SelectItem>
+                      <SelectItem value="REJECTED" className="text-[10px] font-black uppercase tracking-widest text-red-400">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="pt-4 space-y-3">
+                  <Button
+                    onClick={handleSearch}
+                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95"
+                  >
+                    Update View
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleClear}
+                    disabled={loading}
+                    className="w-full h-12 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
               </div>
-              <div>
-                <label className="mb-1 block text-sm text-gray-600">Status</label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="PENDING">Pending</SelectItem>
-                    <SelectItem value="REVIEWED">Reviewed</SelectItem>
-                    <SelectItem value="SHORTLISTED">Shortlisted</SelectItem>
-                    <SelectItem value="REJECTED">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={handleSearch}
-                className="w-full bg-[#2563eb] hover:bg-[#1d4ed8]"
-              >
-                Apply filters
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleClear}
-                disabled={loading}
-                className="w-full border-gray-300"
-              >
-                Clear filters
-              </Button>
+            </div>
+
+            <div className="linear-card rounded-[2rem] p-8 bg-emerald-500/5 border-emerald-500/20">
+               <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-4">Candidate Tip</h3>
+               <p className="text-xs text-muted-foreground leading-loose font-medium italic">
+                 "Review each candidate's skill match percentage to see how well they fit the requirements of your job posting."
+               </p>
             </div>
           </aside>
 
           {/* Right Content */}
-          <div className="flex-1">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-900">{total} Applications Found</span>
-                <span className="ml-2 text-sm">
-                  Showing {start} - {end}
-                </span>
-              </p>
-            </div>
-
-            {loading ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-                Loading applications...
-              </div>
-            ) : applications.length === 0 ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
-                No applications match your filters. Try adjusting search or clear filters.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {applications.map((app) => (
-                  <div
-                    key={app.id}
-                    className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-start sm:justify-between"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start gap-4">
-                        <CandidateAvatar
-                          profileImage={app.jobSeeker.profileImage}
-                          firstName={app.jobSeeker.firstName}
-                          lastName={app.jobSeeker.lastName}
-                          size="md"
-                          className="rounded-lg"
-                        />
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            {app.jobSeeker.firstName} {app.jobSeeker.lastName}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            Applied for: {app.job.title}
-                          </p>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                              <MapPin className="h-3 w-3" />
-                              {formatLocation(app.job.location)}
-                            </span>
-                            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-[#2563eb]">
-                              {app.job.category}
-                            </span>
+            <div className="flex-1">
+              {!loading && applications.length > 0 && (
+                <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-right-5 duration-700">
+                  <div className="flex items-center gap-3">
+                    <div className="h-1 w-8 rounded-full bg-primary/30" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                      Discovered {applications.length} Candidate Profiles
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 rounded-xl bg-white/5 p-1 border border-white/10">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      onClick={() => setViewMode("grid")}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      type="button"
+                      onClick={() => setViewMode("table")}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "table" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {loading ? (
+                <div className="linear-card rounded-[2.5rem] p-24 text-center animate-pulse border-white/5">
+                   <p className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">Loading Applications...</p>
+                </div>
+              ) : applications.length === 0 ? (
+                <div className="linear-card rounded-[2.5rem] p-24 text-center border-white/5">
+                   <p className="text-lg font-black uppercase tracking-[0.2em] text-muted-foreground/60">No matching applications found.</p>
+                </div>
+              ) : viewMode === "grid" ? (
+                <div className="space-y-8">
+                  {applications.map((app, idx) => (
+                    <div
+                      key={app.id}
+                      className="group flex flex-col gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.02] p-8 transition-all hover:bg-white/5 hover:border-primary/30 animate-in slide-in-from-right-10 duration-700 fill-mode-both sm:flex-row sm:items-start sm:justify-between"
+                      style={{ animationDelay: `${idx * 100}ms` }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start gap-8">
+                          <CandidateAvatar
+                            profileImage={app.jobSeeker.profileImage}
+                            firstName={app.jobSeeker.firstName}
+                            lastName={app.jobSeeker.lastName}
+                            size="lg"
+                            className="group-hover:scale-105 transition-transform"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1 italic">Applicant ID: {app.jobSeeker.id.slice(0,8)}</p>
+                            <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
+                              {app.jobSeeker.firstName} {app.jobSeeker.lastName}
+                            </h3>
+                            <p className="mt-1 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                              Applied for: {app.job.title}
+                            </p>
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                                <MapPin className="h-3 w-3 text-primary" />
+                                {formatLocation(app.job.location)}
+                              </span>
+                              <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary">
+                                {app.job.category}
+                              </span>
+                              <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest">
+                                Date: {new Date(app.appliedAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            
+                            <div className="mt-8 p-6 rounded-[1.5rem] bg-black/20 border border-white/5">
+                              <SkillMatchBar
+                                percent={app.skillMatchPercent}
+                                matched={app.skillMatchMatched}
+                                total={app.skillMatchTotal}
+                                matchedLabels={app.skillMatchLabels}
+                              />
+                            </div>
+                            
+                            {app.coverLetter && (
+                              <div className="mt-6 p-6 rounded-[1.5rem] bg-white/[0.02] border-l-4 border-primary">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 italic">Cover Letter:</p>
+                                <p className="text-sm text-muted-foreground leading-relaxed font-medium line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
+                                  {app.coverLetter}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {app.jobSeeker.resumeUrl && (
+                              <a
+                                href={app.jobSeeker.resumeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-6 inline-flex items-center gap-3 h-10 px-6 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+                              >
+                                <FileText className="h-4 w-4" />
+                                View Resume
+                              </a>
+                            )}
                           </div>
-                          <p className="mt-1 text-xs text-gray-400">
-                            Applied {new Date(app.appliedAt).toLocaleDateString()}
-                          </p>
-                          <div className="mt-3">
-                            <SkillMatchBar
-                              percent={app.skillMatchPercent}
-                              matched={app.skillMatchMatched}
-                              total={app.skillMatchTotal}
-                              matchedLabels={app.skillMatchLabels}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 flex-col items-center sm:items-end gap-6">
+                        <span
+                          className={`h-10 px-6 rounded-xl border flex items-center justify-center text-[10px] font-black uppercase tracking-widest shadow-xl ${
+                            app.status === "SHORTLISTED"
+                              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-500/5"
+                              : app.status === "REJECTED"
+                                ? "bg-red-500/10 border-red-500/30 text-red-400 shadow-red-500/5"
+                                : "bg-blue-500/10 border-blue-500/30 text-blue-400 shadow-blue-500/5"
+                          }`}
+                        >
+                          {app.status}
+                        </span>
+                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                          <div className="h-10 px-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                            <ApplicationActions
+                              applicationId={app.id}
+                              currentStatus={app.status}
+                              onSuccess={handleApplicationUpdated}
                             />
                           </div>
-                          {app.coverLetter && (
-                            <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                              {app.coverLetter}
-                            </p>
-                          )}
-                          {app.jobSeeker.resumeUrl && (
-                            <a
-                              href={app.jobSeeker.resumeUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center gap-1 text-sm text-[#2563eb] hover:underline"
-                            >
-                              <FileText className="h-4 w-4" />
-                              View Resume
-                            </a>
-                          )}
+                          <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 gap-2 transition-all">
+                              <User className="h-3.5 w-3.5" />
+                              View Profile
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
-                    <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          app.status === "SHORTLISTED"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : app.status === "REJECTED"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {app.status}
-                      </span>
-                      <div className="flex gap-2">
-                        <ApplicationActions
-                          applicationId={app.id}
-                          currentStatus={app.status}
-                          onSuccess={handleApplicationUpdated}
-                        />
-                        <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
-                          <Button variant="outline" size="sm" className="gap-1 border-[#2563eb] text-[#2563eb] hover:bg-blue-50">
-                            <User className="h-3.5 w-3.5" />
-                            View profile
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] overflow-hidden animate-in fade-in duration-700">
+                   <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-white/5 bg-white/5">
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Candidate</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Applied For</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Skill Match</th>
+                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {applications.map((app) => (
+                          <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                            <td className="p-6">
+                              <div className="flex items-center gap-4">
+                                <CandidateAvatar
+                                  profileImage={app.jobSeeker.profileImage}
+                                  firstName={app.jobSeeker.firstName}
+                                  lastName={app.jobSeeker.lastName}
+                                  size="sm"
+                                  className="h-10 w-10"
+                                />
+                                <div className="min-w-0">
+                                  <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                                    <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{app.jobSeeker.firstName} {app.jobSeeker.lastName}</p>
+                                  </Link>
+                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">ID: {app.jobSeeker.id.slice(0,8)}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                               <span
+                                className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                  app.status === "SHORTLISTED"
+                                    ? "bg-emerald-500/10 text-emerald-400"
+                                    : app.status === "REJECTED"
+                                      ? "bg-red-500/10 text-red-400"
+                                      : "bg-blue-500/10 text-blue-400"
+                                }`}
+                              >
+                                {app.status}
+                              </span>
+                            </td>
+                            <td className="p-6">
+                              <div className="min-w-0">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-foreground line-clamp-1">{app.job.title}</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{app.job.category}</p>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center gap-2">
+                                <div className="h-1 w-16 rounded-full bg-white/10 overflow-hidden">
+                                  <div 
+                                    className="h-full bg-primary" 
+                                    style={{ width: `${app.skillMatchPercent ?? 0}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] font-black text-primary">{Math.round(app.skillMatchPercent ?? 0)}%</span>
+                              </div>
+                            </td>
+                            <td className="p-6">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="h-8 px-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center">
+                                  <ApplicationActions
+                                    applicationId={app.id}
+                                    currentStatus={app.status}
+                                    onSuccess={handleApplicationUpdated}
+                                  />
+                                </div>
+                                <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                                  <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                    View
+                                  </Button>
+                                </Link>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
 
-            {!loading && totalPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Previous
-                </Button>
-                <span className="text-sm text-gray-600">
-                  Page {page} of {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+              {!loading && totalPages > 1 && (
+                <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                  >
+                    Previous
+                  </Button>
+                  <span className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Page {page} / {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
           </div>
         </div>
       </div>

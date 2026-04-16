@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryStatus } from "@prisma/client";
-import { FolderTree, Plus, Pencil, Trash2 } from "lucide-react";
+import { FolderTree, Pencil, Trash2, FolderPlus, Info, Search } from "lucide-react";
 
 export interface CategoryRow {
   id: string;
@@ -34,6 +34,7 @@ export default function CategoryManager({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +118,7 @@ export default function CategoryManager({
     setEditingId(c.id);
     setName(c.name);
     setStatus(c.status);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const cancelEdit = () => {
@@ -126,131 +128,173 @@ export default function CategoryManager({
     setError("");
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
-          <FolderTree className="h-5 w-5 text-[#2563eb]" />
-          {editingId ? "Edit Category" : "Add Category"}
-        </h2>
-        {error && (
-          <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
-          </p>
-        )}
-        <form
-          onSubmit={editingId ? handleUpdate : handleCreate}
-          className="flex flex-wrap items-end gap-4"
-        >
-          <div className="space-y-2">
-            <Label htmlFor="cat-name" className="text-gray-600">
-              Name
-            </Label>
-            <Input
-              id="cat-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Technology"
-              className="w-48 rounded-lg border-gray-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cat-status" className="text-gray-600">
-              Status
-            </Label>
-            <Select
-              value={status}
-              onValueChange={(v) => setStatus(v as CategoryStatus)}
-            >
-              <SelectTrigger id="cat-status" className="w-36 rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={CategoryStatus.ACTIVE}>Active</SelectItem>
-                <SelectItem value={CategoryStatus.INACTIVE}>Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="bg-[#2563eb] hover:bg-[#1d4ed8]"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {editingId ? "Update" : "Create"}
-          </Button>
-          {editingId && (
-            <Button type="button" variant="outline" onClick={cancelEdit}>
-              Cancel
-            </Button>
-          )}
-        </form>
-      </div>
+  const filteredCategories = initialCategories.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 p-4">
-          <h2 className="font-semibold text-gray-900">Categories</h2>
-          <p className="text-sm text-gray-500">
-            {initialCategories.length} categor
-            {initialCategories.length === 1 ? "y" : "ies"}
-          </p>
-        </div>
-        <div className="divide-y divide-gray-100">
-          {initialCategories.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-              No categories yet. Create one above.
+  return (
+    <div className="flex flex-col gap-10 lg:flex-row animate-in fade-in duration-1000">
+      {/* Category Management Sidebar */}
+      <aside className="w-full shrink-0 lg:w-80">
+        <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-white/[0.02] border-white/5 shadow-2xl">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+              {editingId ? "Edit Category" : "Add Category"}
+            </h2>
+          </div>
+
+          <form onSubmit={editingId ? handleUpdate : handleCreate} className="space-y-8">
+            {error && (
+              <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest italic animate-in slide-in-from-top-2">
+                Log: {error}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                 <FolderPlus className="h-3 w-3" /> Category Name
+              </label>
+              <Input
+                id="cat-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter name..."
+                className="h-12 bg-white/5 border-white/5 focus:border-blue-500/50 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
+              />
             </div>
-          ) : (
-            initialCategories.map((c) => (
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                 <Info className="h-3 w-3" /> Status
+              </label>
+              <Select
+                value={status}
+                onValueChange={(v) => setStatus(v as CategoryStatus)}
+              >
+                <SelectTrigger id="cat-status" className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-white/10">
+                  <SelectItem value={CategoryStatus.ACTIVE}>Active</SelectItem>
+                  <SelectItem value={CategoryStatus.INACTIVE}>Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="pt-4 flex flex-col gap-3">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] transition-all"
+              >
+                {loading ? "Processing..." : editingId ? "Update Category" : "Add Category"}
+              </Button>
+              {editingId && (
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={cancelEdit}
+                  className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5"
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+
+          <div className="mt-12 p-6 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10">
+             <p className="text-[9px] leading-relaxed text-muted-foreground/60 font-medium italic">
+                Manage your catalog categories. These appear in job creation and filtering across the platform.
+             </p>
+          </div>
+        </div>
+      </aside>
+
+      {/* Categories Main List Area */}
+      <div className="flex-1 space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
+          <div className="space-y-3">
+             <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
+               {initialCategories.length} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Available</span>
+             </p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
+                Category Master Grid
+             </p>
+          </div>
+          
+          {/* Quick Search Card */}
+          <div className="relative w-full md:w-80">
+             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
+             <Input
+               placeholder="Search categories..."
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               className="h-12 pl-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
+             />
+          </div>
+        </div>
+
+        {filteredCategories.length === 0 ? (
+          <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
+             <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+               {searchTerm ? "No categories found matching your search." : "No categories found."}<br />
+               {searchTerm ? "Try a different keyword." : "Add a new category in the sidebar."}
+             </p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredCategories.map((c, idx) => (
               <div
                 key={c.id}
-                className="flex flex-wrap items-center justify-between gap-4 p-4 transition-colors hover:bg-gray-50"
+                className="linear-card group flex flex-wrap items-center justify-between gap-6 rounded-[2.5rem] bg-white/[0.01] border border-white/5 p-8 transition-all hover:bg-white/[0.04] animate-in fade-in slide-in-from-right-4 duration-500"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[#2563eb]">
-                    <FolderTree className="h-5 w-5" />
+                <div className="flex items-center gap-8 min-w-0 flex-1">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.25rem] bg-white/5 border border-white/5 group-hover:bg-blue-500/10 group-hover:border-blue-500/20 transition-all">
+                     <FolderTree className="h-6 w-6 text-blue-500 scale-90 group-hover:scale-110 transition-transform" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{c.name}</p>
-                    <p className="text-xs text-gray-500">
-                      Created {new Date(c.createdAt).toLocaleDateString()}
-                    </p>
+                  <div className="min-w-0">
+                    <h3 className="text-2xl font-black text-foreground tracking-tighter group-hover:text-blue-500 transition-colors truncate">
+                      {c.name}
+                    </h3>
+                    <div className="flex items-center gap-4 mt-2 tabular-nums">
+                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">Created {new Date(c.createdAt).toLocaleDateString()}</span>
+                       <span className="h-1.5 w-1.5 rounded-full bg-white/5" />
+                       <div className="flex items-center gap-2">
+                          <span className={`h-1.5 w-1.5 rounded-full ${c.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                          <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${c.status === "ACTIVE" ? "text-emerald-400" : "text-amber-400"}`}>
+                            {c.status}
+                          </span>
+                       </div>
+                    </div>
                   </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                      c.status === CategoryStatus.ACTIVE
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {c.status}
-                  </span>
                 </div>
-                <div className="flex gap-2">
+
+                <div className="flex items-center gap-3 shrink-0">
                   <Button
+                    variant="ghost"
                     size="sm"
-                    variant="outline"
                     onClick={() => startEdit(c)}
-                    disabled={loading}
-                    className="border-gray-300"
+                    className="h-12 w-12 rounded-2xl bg-white/5 border border-white/5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95"
+                    title="Edit"
                   >
-                    <Pencil className="mr-1 h-3.5 w-3.5" />
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
+                    variant="ghost"
                     size="sm"
-                    variant="destructive"
                     onClick={() => handleDelete(c.id)}
-                    disabled={loading}
+                    className="h-12 w-12 rounded-2xl bg-white/5 border border-white/5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all active:scale-95"
+                    title="Delete"
                   >
-                    <Trash2 className="mr-1 h-3.5 w-3.5" />
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

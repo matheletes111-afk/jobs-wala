@@ -36,29 +36,48 @@ export default async function JobDetailsPage({
   });
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
-      <JobDetails job={job} />
-      {!hasApplied && profile && (
-        <div className="mt-8">
-          <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} currentResumeUpdatedAt={profile.resumeUpdatedAt} />
+    <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
+        <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
+          <JobDetails job={job} />
+          
+          {!hasApplied && profile && (
+            <div className="mt-12">
+              <ApplicationForm 
+                jobId={job.id} 
+                currentResumeUrl={profile.resumeUrl} 
+                currentResumeUpdatedAt={profile.resumeUpdatedAt} 
+              />
+            </div>
+          )}
+          
+          {hasApplied && (
+            <div className="mt-12 linear-card rounded-[2rem] p-8 border-primary/20 bg-primary/5">
+              <p className="text-lg font-black text-primary uppercase tracking-widest flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                Application Active
+              </p>
+              <p className="mt-2 text-muted-foreground font-medium">
+                Your credentials have been transmitted to the employer. 
+                <span className="ml-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-widest">
+                  Status: {job.applications[0].status}
+                </span>
+              </p>
+            </div>
+          )}
+          
+          {!profile && (
+            <div className="mt-12 linear-card rounded-[2rem] p-8 border-amber-500/20 bg-amber-500/5">
+              <p className="text-lg font-black text-amber-400 uppercase tracking-widest flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-amber-400" />
+                Profile Incomplete
+              </p>
+              <p className="mt-2 text-muted-foreground font-medium">
+                Establish your professional identity before initiating an application.
+              </p>
+            </div>
+          )}
         </div>
-      )}
-      {hasApplied && (
-        <div className="mt-8 rounded-md bg-blue-50 p-4">
-          <p className="text-blue-800">
-            You have already applied for this job. Status:{" "}
-            {job.applications[0].status}
-          </p>
-        </div>
-      )}
-      {!profile && (
-        <div className="mt-8 rounded-md bg-yellow-50 p-4">
-          <p className="text-yellow-800">
-            Please complete your profile before applying to jobs.
-          </p>
-        </div>
-      )}
       </div>
     </div>
   );

@@ -74,19 +74,19 @@ export default async function Footer() {
   }[];
 
   return (
-    <footer className="mt-auto">
-      {/* Main footer - dark grayish blue */}
-      <div className="bg-[#1e293b] text-white">
+    <footer className="mt-auto border-t border-white/5">
+      {/* Main footer - Deep Black */}
+      <div className="bg-background text-foreground/90">
         <div className="container mx-auto px-4 py-10 sm:py-12">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {/* Quick Links */}
             <div>
-              <h3 className="mb-4 text-base font-semibold">Quick Links</h3>
-              <ul className="space-y-2">
+              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Quick Links</h3>
+              <ul className="space-y-3">
                 <li>
                   <Link
                     href="/employer/jobs/new"
-                    className="text-sm text-white/90 transition hover:text-white hover:underline"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Post Job
                   </Link>
@@ -94,7 +94,7 @@ export default async function Footer() {
                 <li>
                   <Link
                     href="/user/jobs"
-                    className="text-sm text-white/90 transition hover:text-white hover:underline"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     Search Jobs
                   </Link>
@@ -102,7 +102,7 @@ export default async function Footer() {
                 <li>
                   <Link
                     href="/"
-                    className="text-sm text-white/90 transition hover:text-white hover:underline"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                    Home
                   </Link>
@@ -111,7 +111,7 @@ export default async function Footer() {
                   <li>
                     <Link
                       href="/dashboard"
-                      className="text-sm text-white/90 transition hover:text-white hover:underline"
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       Dashboard
                     </Link>
@@ -121,7 +121,7 @@ export default async function Footer() {
                     <li>
                       <Link
                         href="/login"
-                        className="text-sm text-white/90 transition hover:text-white hover:underline"
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         Login
                       </Link>
@@ -129,7 +129,7 @@ export default async function Footer() {
                     <li>
                       <Link
                         href="/register"
-                        className="text-sm text-white/90 transition hover:text-white hover:underline"
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                       >
                         Register
                       </Link>
@@ -139,126 +139,107 @@ export default async function Footer() {
               </ul>
             </div>
 
-            {/* Jobs By Category - latest 8 */}
+            {/* Jobs By Category */}
             <div>
-              <h3 className="mb-4 text-base font-semibold">Jobs By Category</h3>
-              <ul className="space-y-2">
+              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Jobs By Category</h3>
+              <ul className="space-y-3">
                 {categoriesRaw.map((cat) => (
                   <li key={cat.id}>
                     <Link
                       href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                      className="text-sm text-white/90 transition hover:text-white hover:underline"
+                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {cat.name}
                     </Link>
                   </li>
                 ))}
                 {categoriesRaw.length === 0 && (
-                  <li className="text-sm text-white/70">No categories yet</li>
+                  <li className="text-sm text-muted-foreground/60">No categories yet</li>
                 )}
               </ul>
             </div>
 
             {/* Top Company Latest */}
             <div>
-              <h3 className="mb-4 text-base font-semibold">Top Company Latest</h3>
-              <ul className="space-y-2">
+              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Top Company Latest</h3>
+              <ul className="space-y-4">
                 {topCompanies.map((c) => (
                   <li key={c.userId}>
                     <Link
                       href={`/jobs/company/${c.userId}`}
-                      className="flex items-center gap-2 text-sm text-white/90 transition hover:text-white hover:underline"
+                      className="group flex items-center gap-3 text-sm text-muted-foreground transition-all hover:text-foreground hover:translate-x-1"
                     >
                       <CompanyLogo
                         companyLogo={c.companyLogo}
                         companyName={c.companyName}
-                        className="h-6 w-6 shrink-0"
+                        className="h-8 w-8 shrink-0 rounded-lg border border-white/5 bg-white/5 transition-all group-hover:border-white/20"
                       />
-                      <span>{c.companyName}</span>
+                      <span className="font-medium">{c.companyName}</span>
                     </Link>
                   </li>
                 ))}
                 {topCompanies.length === 0 && (
-                  <li className="text-sm text-white/70">No companies yet</li>
+                  <li className="text-sm text-muted-foreground/60">No companies yet</li>
                 )}
               </ul>
             </div>
 
             {/* Contact Us */}
             <div>
-              <h3 className="mb-4 text-base font-semibold">Contact Us</h3>
-              <div className="space-y-3 text-sm text-white/90">
-                <p className="flex items-start gap-2">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Contact Us</h3>
+              <div className="space-y-4 text-sm text-muted-foreground">
+                <p className="flex items-start gap-3">
+                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" />
                   <span>
                     651 N Broad St, Suite 201, Middletown, Zip Code 19709, New
                     Castle, Delaware, USA
                   </span>
                 </p>
-                <p className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 shrink-0" />
+                <p className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 shrink-0 text-primary" />
                   <a
                     href="mailto:info@jobsdaddy.com"
-                    className="hover:text-white hover:underline"
+                    className="transition-colors hover:text-foreground"
                   >
                     info@jobsdaddy.com
                   </a>
                 </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 shrink-0" />
+                <p className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 shrink-0 text-primary" />
                   <a
                     href="tel:+13025550123"
-                    className="hover:text-white hover:underline"
+                    className="transition-colors hover:text-foreground"
                   >
                     +1 (302) 555-0123
                   </a>
                 </p>
               </div>
-              <div className="mt-4 flex items-center gap-2">
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#334155] text-white transition hover:bg-[#475569]"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#334155] text-white transition hover:bg-[#475569]"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#334155] text-white transition hover:bg-[#475569]"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#334155] text-white transition hover:bg-[#475569]"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[#334155] text-white transition hover:bg-[#475569]"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="h-4 w-4" />
-                </a>
+              <div className="mt-8 flex items-center gap-3">
+                {[
+                  { icon: Facebook, label: "Facebook" },
+                  { icon: Twitter, label: "Twitter" },
+                  { icon: Instagram, label: "Instagram" },
+                  { icon: Linkedin, label: "LinkedIn" },
+                  { icon: Youtube, label: "YouTube" },
+                ].map(({ icon: Icon, label }) => (
+                  <a
+                    key={label}
+                    href="#"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-muted-foreground transition-all hover:bg-white/10 hover:text-foreground hover:-translate-y-1"
+                    aria-label={label}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* White copyright bar */}
-      <div className="border-t border-gray-200 bg-white py-4">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-600">
+      {/* Bottom Copyright Bar */}
+      <div className="border-t border-white/5 bg-background py-6">
+        <div className="container mx-auto px-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground/60">
           Copyright © 2026 Jobs Daddy. All rights reserved. Design by: SRV
           Technology
         </div>

@@ -20,25 +20,25 @@ export default async function ProfilePage({
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-8 rounded-2xl border border-gray-100 bg-white px-6 py-6 shadow-sm sm:px-8 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Account
+    <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
+        <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+          <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-primary">
+            Settings & Identity
           </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Profile
+          <h1 className="mb-4 text-3xl font-black tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            Professional <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Profile</span>
           </h1>
-          <p className="text-gray-600">
-            Manage your profile and keep your information up to date.
+          <p className="text-lg text-muted-foreground font-medium max-w-2xl">
+            Maintain your professional identity and account credentials.
           </p>
         </div>
         <ProfileForm
-        profile={profile}
-        userEmail={user.email ?? undefined}
-        emailChangeStatus={params.email_changed as string | undefined}
-        emailChangeError={params.error as string | undefined}
-      />
+          profile={profile}
+          userEmail={user.email ?? undefined}
+          emailChangeStatus={params.email_changed as string | undefined}
+          emailChangeError={params.error as string | undefined}
+        />
       </div>
     </div>
   );

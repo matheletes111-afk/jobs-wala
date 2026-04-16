@@ -90,45 +90,36 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-white">
-      {/* Header - Jobs Portal style */}
-      <header className="border-b border-gray-200 bg-white">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background selection:bg-primary/20">
+      {/* Header - Premium Glassmorphism */}
+      <header className="sticky top-0 z-50 glass border-b border-white/5">
         <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
-          <Link href="/" className="flex shrink-0 items-center">
-            {/* Mobile: smaller logo to avoid overflow */}
-            <img
-              src="/images/logo.jpeg"
-              alt="Jobs Portal"
-              width={64}
-              height={64}
-              className="h-10 w-auto max-w-[180px] shrink-0 rounded-lg object-contain sm:h-12 sm:max-w-[200px] md:hidden"
-            />
-            {/* Tablet/Desktop: original larger logo */}
-            <img
-              src="/images/logo.jpeg"
-              alt="Jobs Portal"
-              width={64}
-              height={64}
-              style={{ minWidth: "16rem", minHeight: "7rem" }}
-              className="hidden shrink-0 rounded-lg object-contain md:block md:h-14 md:w-14"
-            />
+          <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
+            {/* Mobile: smaller logo */}
+            <div className="bg-white rounded-lg shadow-2xl flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
+               <img
+                 src="/images/logo.jpeg"
+                 alt="Jobs Portal"
+                 className="h-8 md:h-10 object-contain"
+               />
+            </div>
           </Link>
           <nav className="flex items-center gap-3">
             {user ? (
               <Link href="/dashboard">
-                <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white">
+                <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
                   Dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="outline" className="border-[#2563eb] text-[#2563eb] hover:bg-[#2563eb]/5">
+                  <Button variant="ghost" className="text-foreground hover:bg-white/10">
                     Sign in
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white">
+                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
                     Register
                   </Button>
                 </Link>
@@ -138,77 +129,79 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="flex-1">
-        {/* Hero / Banner - equal left & right margin on all devices */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-sky-100/80 via-white to-white px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-12 lg:px-10 xl:px-12">
-          <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 lg:flex-row lg:justify-between lg:items-center lg:gap-10">
-            <div className="min-w-0 max-w-xl flex-1">
-              <p className="mb-2 text-xs font-medium text-[#f97316] sm:text-sm">
-                READY TO FIND YOUR DREAM JOB?
+      <main className="flex-1 relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-full max-w-7xl bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-30 z-10" />
+
+        {/* Hero / Banner - Premium Dark Style */}
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.08),transparent_50%),radial-gradient(circle_at_center,rgba(59,130,246,0.03),transparent_70%)] px-4 py-12 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-10 xl:px-12">
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:justify-between lg:items-center">
+            <div className="min-w-0 max-w-2xl flex-1 text-center lg:text-left">
+              <p className="mb-4 inline-flex items-center rounded-full bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-[#f97316] uppercase sm:text-sm">
+                Ready to find your dream job?
               </p>
-              <h1 className="mb-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl md:text-4xl">
-                Take the next step in your career journey.
+              <h1 className="mb-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+                Take the next step in your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563eb] to-[#f97316]">career journey.</span>
               </h1>
-              <p className="mb-4 text-sm text-gray-600 sm:mb-6 sm:text-base">
+              <p className="mb-8 text-base text-muted-foreground sm:mb-10 sm:text-lg">
                 Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
               </p>
-              <form action="/user/jobs" method="get" className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-stretch">
-                <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white shadow-sm sm:flex-row sm:overflow-hidden">
-                  <span className="flex items-center border-b border-gray-200 px-3 py-2.5 text-gray-400 sm:border-b-0 sm:border-l-0 sm:py-3">
+              <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-stretch">
+                <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
+                  <span className="flex items-center border-b border-white/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r">
                     <Search className="h-5 w-5 shrink-0" />
                   </span>
                   <input
                     type="search"
                     name="search"
                     placeholder="Enter skills or job title"
-                    className="min-w-0 flex-1 py-2.5 px-3 text-sm outline-none sm:py-3 sm:px-2"
+                    className="min-w-0 flex-1 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:py-4"
                   />
-                  <span className="hidden items-center border-t border-gray-200 px-3 text-gray-400 sm:flex sm:border-t-0 sm:border-l">
+                  <span className="hidden items-center border-l border-white/10 px-4 text-muted-foreground sm:flex">
                     <FileText className="h-5 w-5" />
                   </span>
                   <input
                     type="text"
                     name="category"
                     placeholder="Category"
-                    className="w-full border-t border-gray-200 py-2.5 px-3 text-sm outline-none sm:w-28 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-3 sm:px-2"
+                    className="w-full border-t border-white/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:w-32 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f97316] px-5 py-3 text-white hover:bg-[#ea580c] sm:px-6"
+                  className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-8 py-4 text-white font-bold shadow-lg shadow-orange-500/20 transition-all hover:bg-[#ea580c] hover:scale-[1.02] active:scale-95 sm:px-10"
                 >
-                  <FileText className="h-5 w-5" />
-                  Search
+                  <Search className="h-5 w-5" />
+                  Search Jobs
                 </button>
               </form>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                <div>
-                  <p className="text-xl font-bold text-[#2563eb] sm:text-2xl">{activeJobsCount.toLocaleString()}+</p>
-                  <p className="text-xs text-gray-600 sm:text-sm">Active Jobs</p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8">
+                <div className="animate-premium-hover">
+                  <p className="text-2xl font-bold text-[#2563eb] sm:text-3xl">{activeJobsCount.toLocaleString()}+</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider sm:text-sm">Active Jobs</p>
                 </div>
                 {!user && (
                   <>
                     <Link
                       href="/employer/jobs/new"
-                      className="flex items-center gap-2 text-sm font-medium text-[#f97316] hover:underline"
+                      className="flex items-center gap-2 text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all"
                     >
                       <Briefcase className="h-4 w-4" />
                       Post Your Job
                     </Link>
-                    <Link href="/user/jobs" className="text-sm font-medium text-gray-700 hover:underline">
+                    <Link href="/user/jobs" className="text-sm font-semibold text-foreground/80 hover:text-foreground hover:underline hover:scale-105 transition-all">
                       Search Jobs
                     </Link>
                   </>
                 )}
                 {isCandidate && (
-                  <Link href="/user/jobs" className="text-sm font-medium text-[#f97316] hover:underline">
+                  <Link href="/user/jobs" className="text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all">
                     Search Jobs
                   </Link>
                 )}
                 {isEmployer && (
                   <Link
                     href="/employer/jobs/new"
-                    className="flex items-center gap-2 text-sm font-medium text-[#f97316] hover:underline"
+                    className="flex items-center gap-2 text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all"
                   >
                     <Briefcase className="h-4 w-4" />
                     Post Your Job
@@ -216,12 +209,13 @@ export default async function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative h-56 w-full min-w-0 max-w-xl shrink-0 sm:h-64 md:h-72 lg:h-[28rem] xl:h-[32rem] xl:max-w-2xl">
+            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-80 md:h-96 lg:h-[30rem] xl:h-[34rem] xl:max-w-2xl animate-in fade-in slide-in-from-right-10 duration-1000">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#2563eb]/10 to-transparent rounded-full blur-3xl" />
               <Image
                 src={HERO_IMAGE_URL}
                 alt="Find your dream job"
                 fill
-                className="object-contain object-right"
+                className="object-contain object-right drop-shadow-2xl"
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 512px, 576px"
                 unoptimized
               />
@@ -229,35 +223,37 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* CTA Banners - blue and orange (pill style) */}
-        <section className="py-5 sm:py-6">
-          <div className="mx-auto flex max-w-7xl flex-col items-stretch justify-center gap-4 px-4 sm:flex-row sm:flex-wrap sm:gap-6 sm:px-6 md:px-8 lg:px-10">
+        {/* CTA Banners - Premium Pill Style */}
+        <section className="py-12 sm:py-16 bg-white/2">
+          <div className="mx-auto flex max-w-7xl flex-col items-stretch justify-center gap-6 px-4 sm:flex-row sm:flex-wrap sm:px-6 md:px-8 lg:px-10">
             <Link
               href="/user/jobs"
-              className="flex min-w-0 items-center justify-between gap-4 rounded-full bg-[#2563eb] px-6 py-5 text-white shadow-lg transition hover:opacity-95 sm:flex-1 sm:min-w-0 sm:px-8 sm:py-6 md:max-w-[480px]"
+              className="group relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-[2rem] bg-[#2563eb] px-8 py-8 text-white shadow-2xl transition-all hover:scale-[1.02] hover:shadow-blue-500/20 active:scale-95 sm:flex-1 md:max-w-[520px]"
             >
-              <div className="min-w-0 flex-1 text-left">
-                <p className="truncate text-base font-bold sm:text-lg md:text-xl">Search your desired Job</p>
-                <p className="mt-0.5 truncate text-sm font-normal text-blue-100 sm:text-base">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative min-w-0 flex-1 text-left">
+                <p className="truncate text-xl font-bold sm:text-2xl">Search your desired Job</p>
+                <p className="mt-1 truncate text-sm font-medium text-blue-100/80 sm:text-base">
                   Discover a career you are passionate about
                 </p>
               </div>
-              <span className="flex shrink-0">
-                <Search className="h-9 w-9 text-white sm:h-10 sm:w-10 md:h-12 md:w-12" strokeWidth={2} />
+              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110">
+                <Search className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2.5} />
               </span>
             </Link>
             <Link
               href="/employer/jobs/new"
-              className="flex min-w-0 items-center justify-between gap-4 rounded-full bg-[#f97316] px-6 py-5 text-white shadow-lg transition hover:opacity-95 sm:flex-1 sm:min-w-0 sm:px-8 sm:py-6 md:max-w-[480px]"
+              className="group relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-[2rem] bg-[#f97316] px-8 py-8 text-white shadow-2xl transition-all hover:scale-[1.02] hover:shadow-orange-500/20 active:scale-95 sm:flex-1 md:max-w-[520px]"
             >
-              <div className="min-w-0 flex-1 text-left">
-                <p className="truncate text-base font-bold sm:text-lg md:text-xl">Post a Job Today</p>
-                <p className="mt-0.5 truncate text-sm font-normal text-orange-100 sm:text-base">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative min-w-0 flex-1 text-left">
+                <p className="truncate text-xl font-bold sm:text-2xl">Post a Job Today</p>
+                <p className="mt-1 truncate text-sm font-medium text-orange-100/80 sm:text-base">
                   Discover the ideal candidate for your team
                 </p>
               </div>
-              <span className="flex shrink-0">
-                <Send className="h-9 w-9 text-white sm:h-10 sm:w-10 md:h-12 md:w-12" strokeWidth={2} />
+              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110">
+                <Send className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2.5} />
               </span>
             </Link>
           </div>

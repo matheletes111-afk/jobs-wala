@@ -32,21 +32,21 @@ export default function AdminNavLinks({ vertical, onLinkClick }: AdminNavLinksPr
 
   const linkClass = vertical
     ? (isActive: boolean) =>
-        `flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
+        `flex w-full items-center gap-4 rounded-xl px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
           isActive
-            ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-            : "text-gray-700 hover:bg-gray-100"
+            ? "bg-gradient-to-r from-blue-600 to-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
+            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
         }`
     : (isActive: boolean) =>
-        `flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+        `flex items-center gap-2 rounded-xl px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
           isActive
-            ? "bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            ? "bg-gradient-to-r from-blue-600 to-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.05]"
+            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
         }`;
 
   const wrapperClass = vertical
-    ? "flex flex-col gap-1"
-    : "flex items-center gap-2 sm:gap-3";
+    ? "flex flex-col gap-2"
+    : "flex items-center gap-2 sm:gap-4";
 
   return (
     <div className={wrapperClass}>
@@ -61,8 +61,8 @@ export default function AdminNavLinks({ vertical, onLinkClick }: AdminNavLinksPr
             onClick={onLinkClick}
             className={linkClass(isActive)}
           >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
+            <Icon className={`h-4 w-4 shrink-0 transition-transform ${isActive ? "scale-110" : "opacity-60"}`} />
+            <span>{label}</span>
           </Link>
         );
       })}

@@ -10,32 +10,35 @@ export default async function AdminCategoriesPage() {
   });
 
   const containerClass =
-    "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
+    "mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-20";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-gray-50/50">
+    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
-        <div className="rounded-b-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 px-6 pb-8 pt-6 md:px-8">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#2563eb]">
-            Category CRUD
-          </p>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900 md:text-3xl">
-            Category Management
-          </h1>
-          <p className="text-gray-600">
-            Create, edit, and manage job categories.
-          </p>
+        {/* Header Section */}
+        <div className="mb-16 border-b border-white/5 pb-10">
+           <div className="flex items-center gap-3 mb-4">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Category Management</p>
+           </div>
+           <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+             Job <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Categories</span>
+           </h1>
+           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+             Create, edit, and manage job categories for the platform.
+           </p>
         </div>
+
         <div className="mt-8">
-        <CategoryManager
-          initialCategories={categories.map((c) => ({
-            id: c.id,
-            name: c.name,
-            status: c.status,
-            createdAt: c.createdAt,
-            updatedAt: c.updatedAt,
-          }))}
-        />
+          <CategoryManager
+            initialCategories={categories.map((c) => ({
+              id: c.id,
+              name: c.name,
+              status: c.status,
+              createdAt: c.createdAt,
+              updatedAt: c.updatedAt,
+            }))}
+          />
         </div>
       </div>
     </div>
