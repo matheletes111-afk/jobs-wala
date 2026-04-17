@@ -145,9 +145,9 @@ export default async function HomePage() {
               <p className="mb-8 text-base text-muted-foreground sm:mb-10 sm:text-lg">
                 Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
               </p>
-              <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-stretch">
-                <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
-                  <span className="flex items-center border-b border-white/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r">
+              <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-4 sm:mb-10 items-center lg:items-start">
+                <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
+                  <span className="flex items-center border-b border-white/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r sm:py-4">
                     <Search className="h-5 w-5 shrink-0" />
                   </span>
                   <input
@@ -163,12 +163,12 @@ export default async function HomePage() {
                     type="text"
                     name="category"
                     placeholder="Category"
-                    className="w-full border-t border-white/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:w-32 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
+                    className="w-full border-t border-white/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:w-48 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-8 py-4 text-white font-bold shadow-lg shadow-orange-500/20 transition-all hover:bg-[#ea580c] hover:scale-[1.02] active:scale-95 sm:px-10"
+                  className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-12 py-4 text-white font-bold shadow-lg shadow-orange-500/20 transition-all hover:bg-[#ea580c] hover:scale-[1.02] active:scale-95"
                 >
                   <Search className="h-5 w-5" />
                   Search Jobs
@@ -209,14 +209,14 @@ export default async function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-80 md:h-96 lg:h-[30rem] xl:h-[34rem] xl:max-w-2xl animate-in fade-in slide-in-from-right-10 duration-1000">
+            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[24.5rem] md:h-[29rem] lg:h-[35rem] xl:h-[43.5rem] lg:max-w-[45rem] xl:max-w-[52rem] lg:-mr-12 xl:-mr-18 lg:-my-7 xl:-my-9 animate-in fade-in slide-in-from-right-10 duration-1000">
               <div className="absolute inset-0 bg-gradient-to-tr from-[#2563eb]/10 to-transparent rounded-full blur-3xl" />
               <Image
                 src={HERO_IMAGE_URL}
                 alt="Find your dream job"
                 fill
                 className="object-contain object-right drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 512px, 576px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 720px, 832px"
                 unoptimized
               />
             </div>
