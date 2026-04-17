@@ -296,11 +296,20 @@ export default function HomePageClient({
                             </Button>
                           </Link>
                         ) : (
-                            <Button
-                              className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                            >
-                              Apply Now
-                            </Button>
+                        <Link
+                          href={
+                            session
+                              ? `/jobs/${job.id}`
+                              : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
+                          }
+                          className="w-full"
+                        >
+                          <Button
+                            className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Apply Now
+                          </Button>
+                        </Link>
                         )}
                       </div>
                     </div>
