@@ -97,11 +97,11 @@ export default async function HomePage() {
           <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
             {/* Mobile: smaller logo */}
             <div className="bg-white rounded-lg shadow-2xl flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
-               <img
-                 src="/images/logo.jpeg"
-                 alt="Jobs Portal"
-                 className="h-8 md:h-10 object-contain"
-               />
+              <img
+                src="/images/logo.jpeg"
+                alt="Jobs Portal"
+                className="h-8 md:h-10 object-contain"
+              />
             </div>
           </Link>
           <nav className="flex items-center gap-3">
@@ -139,10 +139,12 @@ export default async function HomePage() {
               <p className="mb-4 inline-flex items-center rounded-full bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-[#f97316] uppercase sm:text-sm">
                 Ready to find your dream job?
               </p>
-              <h1 className="mb-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-                Take the next step in your <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563eb] to-[#f97316]">career journey.</span>
+              <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl leading-tight">
+                Take the next step <br />
+                in your <span className="text-[#3b82f6]">career</span> <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f97316] to-[#ec4899]">journey.</span>
               </h1>
-              <p className="mb-8 text-base text-muted-foreground sm:mb-10 sm:text-lg">
+              <p className="mb-8 text-sm text-muted-foreground sm:mb-10 sm:text-base">
                 Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
               </p>
               <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-4 sm:mb-10 items-center lg:items-start">
@@ -209,14 +211,14 @@ export default async function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[24.5rem] md:h-[29rem] lg:h-[35rem] xl:h-[43.5rem] lg:max-w-[45rem] xl:max-w-[52rem] lg:-mr-12 xl:-mr-18 lg:-my-7 xl:-my-9 animate-in fade-in slide-in-from-right-10 duration-1000">
+            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[24rem] md:h-[28rem] lg:h-[34.5rem] xl:h-[42.5rem] lg:max-w-[44rem] xl:max-w-[50rem] lg:-my-6 xl:-my-8 animate-in fade-in slide-in-from-right-10 duration-1000">
               <div className="absolute inset-0 bg-gradient-to-tr from-[#2563eb]/10 to-transparent rounded-full blur-3xl" />
               <Image
                 src={HERO_IMAGE_URL}
                 alt="Find your dream job"
                 fill
                 className="object-contain object-right drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 720px, 832px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 704px, 800px"
                 unoptimized
               />
             </div>
