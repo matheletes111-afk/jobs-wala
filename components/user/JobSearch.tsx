@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatSalary } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -25,6 +25,10 @@ interface Job {
   location: string;
   category: string;
   salaryRange?: string | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  payType?: string | null;
   employmentType: string;
   experienceRequired?: number | null;
   employer: { companyName: string; companyLogo?: string | null };
@@ -255,9 +259,9 @@ export default function JobSearch() {
                         <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
                           {job.employmentType}
                         </span>
-                        {job.salaryRange && (
+                        {formatSalary(job) && (
                           <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary whitespace-nowrap shadow-xl shadow-primary/10">
-                            {job.salaryRange}
+                            {formatSalary(job)}
                           </span>
                         )}
                       </div>

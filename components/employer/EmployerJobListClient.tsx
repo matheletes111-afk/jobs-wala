@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatSalary } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobStatusActions from "@/components/employer/JobStatusActions";
 import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText } from "lucide-react";
@@ -24,6 +24,10 @@ interface EmployerJob {
   description: string;
   location: string;
   category: string;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  payType?: string | null;
   status: string;
   employer?: { companyName: string; companyLogo?: string | null };
   _count: { applications: number };
@@ -353,6 +357,11 @@ export default function EmployerJobListClient() {
                         <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
                           {job.status === "PAUSED" ? "Paused" : job.status === "CLOSED" ? "Closed" : job.status}
                         </span>
+                        {formatSalary(job) && (
+                          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary shadow-lg shadow-primary/5">
+                            {formatSalary(job)}
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-white/5">

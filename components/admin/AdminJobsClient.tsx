@@ -204,7 +204,7 @@ export default function AdminJobsClient() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold uppercase tracking-widest text-[10px]"
+                  className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold tracking-widest text-[10px]"
                 />
               </div>
               <div className="w-[180px]">
@@ -267,7 +267,7 @@ export default function AdminJobsClient() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20"
                   />
                 </div>
                 

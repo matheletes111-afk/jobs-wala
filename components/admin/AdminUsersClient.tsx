@@ -121,9 +121,9 @@ export default function AdminUsersClient() {
   const sortedUsers =
     sort === "oldest"
       ? [...users].sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
       : users;
 
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
@@ -146,12 +146,12 @@ export default function AdminUsersClient() {
         prev.map((item) =>
           item.id === userId && item.employerProfile
             ? {
-                ...item,
-                employerProfile: {
-                  ...item.employerProfile,
-                  resumeSearchEnabled: enabled,
-                },
-              }
+              ...item,
+              employerProfile: {
+                ...item.employerProfile,
+                resumeSearchEnabled: enabled,
+              },
+            }
             : item
         )
       );
@@ -165,49 +165,49 @@ export default function AdminUsersClient() {
       <div className={containerClass}>
         {/* Registry Access Header */}
         <div className="mb-16 border-b border-white/5 pb-12">
-           <div className="flex items-center gap-3 mb-4">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">User Management</p>
-           </div>
-            <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
-              User <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Management</span>
-            </h1>
-           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
-             Manage system users, view profiles, and update access permissions.
-           </p>
-           
-           <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
-              <div className="relative flex-1 min-w-[280px]">
-                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
-                <Input
-                  placeholder="Search name, email or ID..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold uppercase tracking-widest text-[10px]"
-                />
-              </div>
-              <div className="w-[180px]">
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
-                    <SelectValue placeholder="All Roles" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border-white/10">
-                    <SelectItem value="all">All Roles</SelectItem>
-                    <SelectItem value="JOB_SEEKER">Job Seeker</SelectItem>
-                    <SelectItem value="EMPLOYER">Employer</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={handleSearch}
-                disabled={loading}
-                className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
-              >
-                Search Users
-              </Button>
-           </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">User Management</p>
+          </div>
+          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+            User <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Management</span>
+          </h1>
+          <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+            Manage system users, view profiles, and update access permissions.
+          </p>
+
+          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+            <div className="relative flex-1 min-w-[280px]">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
+              <Input
+                placeholder="Search name, email or ID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold tracking-widest text-[10px]"
+              />
+            </div>
+            <div className="w-[180px]">
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-white/10">
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="JOB_SEEKER">Job Seeker</SelectItem>
+                  <SelectItem value="EMPLOYER">Employer</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              onClick={handleSearch}
+              disabled={loading}
+              className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              Search Users
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-10 lg:flex-row">
@@ -218,7 +218,7 @@ export default function AdminUsersClient() {
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Filters</h2>
               </div>
-              
+
               <div className="space-y-10">
                 <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
@@ -230,10 +230,10 @@ export default function AdminUsersClient() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20"
                   />
                 </div>
-                
+
                 <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
                     <Briefcase className="h-3 w-3" />
@@ -251,9 +251,9 @@ export default function AdminUsersClient() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="pt-6 flex flex-col gap-3">
-                   <Button
+                  <Button
                     onClick={handleSearch}
                     className="h-14 w-full rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
                   >
@@ -268,11 +268,11 @@ export default function AdminUsersClient() {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="mt-12 p-6 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10">
-                 <p className="text-[9px] leading-relaxed text-muted-foreground/60 font-medium italic">
-                    Use filters to easily find specific users in the platform.
-                 </p>
+                <p className="text-[9px] leading-relaxed text-muted-foreground/60 font-medium italic">
+                  Use filters to easily find specific users in the platform.
+                </p>
               </div>
             </div>
           </aside>
@@ -281,14 +281,14 @@ export default function AdminUsersClient() {
           <div className="flex-1 space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
               <div className="flex flex-col gap-1">
-                 <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
-                   {total} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Found</span>
-                 </p>
-                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
-                    Showing {start} - {end} users
-                 </p>
+                <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
+                  {total} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Found</span>
+                </p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
+                  Showing {start} - {end} users
+                </p>
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <div className="flex p-1 rounded-xl bg-white/5 border border-white/5">
                   <button
@@ -308,20 +308,20 @@ export default function AdminUsersClient() {
                     <List className="h-5 w-5" />
                   </button>
                 </div>
-                
+
                 <div className="relative group">
-                   <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all cursor-pointer">
-                      <span className="opacity-40">SORT:</span> {sort === "recent" ? "LATEST" : "OLDEST"}
-                      <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
-                   </div>
-                   <select
-                      value={sort}
-                      onChange={(e) => setSort(e.target.value)}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    >
-                      <option value="recent">LATEST</option>
-                      <option value="oldest">OLDEST</option>
-                    </select>
+                  <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all cursor-pointer">
+                    <span className="opacity-40">SORT:</span> {sort === "recent" ? "LATEST" : "OLDEST"}
+                    <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
+                  </div>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  >
+                    <option value="recent">LATEST</option>
+                    <option value="oldest">OLDEST</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -363,8 +363,8 @@ export default function AdminUsersClient() {
                   Previous Page
                 </Button>
                 <div className="px-8 flex flex-col items-center">
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Page</p>
-                   <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Page</p>
+                  <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -405,17 +405,17 @@ function UserCard({
 
   const subtitle = isJobSeeker && user.jobSeekerProfile
     ? [
-        user.jobSeekerProfile.jobTitle,
-        user.jobSeekerProfile.experience != null && `${user.jobSeekerProfile.experience} YRS`,
-        user.jobSeekerProfile.location ? displayLocation(user.jobSeekerProfile.location) : null,
-      ]
-        .filter(Boolean)
-        .join(" // ")
+      user.jobSeekerProfile.jobTitle,
+      user.jobSeekerProfile.experience != null && `${user.jobSeekerProfile.experience} YRS`,
+      user.jobSeekerProfile.location ? displayLocation(user.jobSeekerProfile.location) : null,
+    ]
+      .filter(Boolean)
+      .join(" // ")
     : isEmployer && user.employerProfile
       ? [
-          user.employerProfile.industry,
-          user.employerProfile.companySize,
-        ]
+        user.employerProfile.industry,
+        user.employerProfile.companySize,
+      ]
         .filter(Boolean)
         .join(" // ")
       : user.email;
@@ -425,9 +425,9 @@ function UserCard({
     : null;
 
   return (
-    <div 
-       className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
-       style={{ animationDelay: `${index * 100}ms` }}
+    <div
+      className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+      style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-start justify-between gap-4 mb-10">
         <div className="flex items-center gap-6">
@@ -440,47 +440,47 @@ function UserCard({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-             <div className="flex items-center gap-3 mb-2">
-                <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-emerald-400" : isEmployer ? "bg-blue-400" : "bg-blue-500"}`} />
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{user.role.replace("_", " ")}</p>
-             </div>
-             <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
-             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">{subtitle}</p>
+            <div className="flex items-center gap-3 mb-2">
+              <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-emerald-400" : isEmployer ? "bg-blue-400" : "bg-blue-500"}`} />
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{user.role.replace("_", " ")}</p>
+            </div>
+            <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">{subtitle}</p>
           </div>
         </div>
-        
+
         {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
-           <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-400">
-             {user.jobSeekerProfile.availabilityStatus}
-           </span>
+          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+            {user.jobSeekerProfile.availabilityStatus}
+          </span>
         )}
       </div>
 
       <div className="flex-1 space-y-8">
-         <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/5">
-            <p className="text-sm leading-relaxed text-muted-foreground font-medium italic line-clamp-2">
-               {isJobSeeker && user.jobSeekerProfile?.bio 
-                 ? `&quot;${user.jobSeekerProfile.bio}&quot;`
-                 : isEmployer && user.employerProfile?.description
-                   ? `&quot;${user.employerProfile.description}&quot;`
-                   : "Transmission historical data pending verification..."}
-            </p>
-         </div>
+        <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/5">
+          <p className="text-sm leading-relaxed text-muted-foreground font-medium italic line-clamp-2">
+            {isJobSeeker && user.jobSeekerProfile?.bio
+              ? `&quot;${user.jobSeekerProfile.bio}&quot;`
+              : isEmployer && user.employerProfile?.description
+                ? `&quot;${user.employerProfile.description}&quot;`
+                : "Transmission historical data pending verification..."}
+          </p>
+        </div>
 
-         {isJobSeeker && user.jobSeekerProfile?.skills && user.jobSeekerProfile.skills.length > 0 && (
-           <div className="flex flex-wrap gap-2">
-              {user.jobSeekerProfile.skills.slice(0, 4).map((s) => (
-                <span key={s} className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-[9px] font-black uppercase tracking-widest text-blue-500/80">
-                  {s}
-                </span>
-              ))}
-              {user.jobSeekerProfile.skills.length > 4 && (
-                <span className="px-4 py-1.5 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">
-                  +{user.jobSeekerProfile.skills.length - 4} MORE
-                </span>
-              )}
-           </div>
-         )}
+        {isJobSeeker && user.jobSeekerProfile?.skills && user.jobSeekerProfile.skills.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {user.jobSeekerProfile.skills.slice(0, 4).map((s) => (
+              <span key={s} className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-[9px] font-black uppercase tracking-widest text-blue-500/80">
+                {s}
+              </span>
+            ))}
+            {user.jobSeekerProfile.skills.length > 4 && (
+              <span className="px-4 py-1.5 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">
+                +{user.jobSeekerProfile.skills.length - 4} MORE
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-6 border-t border-white/5 pt-10">
@@ -489,11 +489,10 @@ function UserCard({
           {isEmployer && user.employerProfile ? (
             <Button
               type="button"
-              className={`h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                user.employerProfile.resumeSearchEnabled 
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
+              className={`h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${user.employerProfile.resumeSearchEnabled
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
                   : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10"
-              }`}
+                }`}
               disabled={isUpdating}
               onClick={() =>
                 onToggleResumeAccess(

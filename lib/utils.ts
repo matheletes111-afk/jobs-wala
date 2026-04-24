@@ -37,8 +37,48 @@ export function formatLocation(location: string | null | undefined): string {
     if (country) parts.push(country);
     
     return parts.length > 0 ? parts.join(", ") : location;
-  } catch (e) {
+  } catch (_e) {
     // If it's not JSON, return as is (for backward compatibility)
     return location;
   }
+}
+
+export const PAY_TYPE_LABELS: Record<string, string> = {
+  HOURLY: "Hourly",
+  DAILY: "Daily",
+  WEEKLY: "Weekly",
+  BIWEEKLY: "Biweekly",
+  MONTHLY: "Monthly",
+  YEARLY: "Yearly",
+};
+
+interface SalaryInfo {
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  payType?: string | null;
+  salaryRange?: string | null;
+}
+
+export function formatSalary(job: SalaryInfo): string | null {
+  const curr = job.currency || "";
+  const pay = job.payType ? PAY_TYPE_LABELS[job.payType] || job.payType : "";
+  const paySuffix = pay ? ` (${pay})` : "";
+
+  if (job.salaryMin != null && job.salaryMax != null) {
+    return `${curr} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}${paySuffix}`.trim();
+  }
+  if (job.salaryMin != null) {
+    return `${curr} ${job.salaryMin.toLocaleString()}+ ${paySuffix}`.trim();
+  }
+  if (job.salaryMax != null) {
+    return `Up to ${curr} ${job.salaryMax.toLocaleString()}${paySuffix}`.trim();
+  }
+  if (job.salaryRange) {
+    return `${job.salaryRange}${paySuffix}`.trim();
+  }
+  if (pay) {
+    return pay;
+  }
+  return null;
 }

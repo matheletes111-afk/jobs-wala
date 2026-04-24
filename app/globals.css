@@ -312,3 +312,9 @@
 .text-muted-foreground\/20 {
   color: rgb(245, 142, 7) !important;
 }
+
+.italic,
+i,
+em {
+  font-style: normal !important;
+}

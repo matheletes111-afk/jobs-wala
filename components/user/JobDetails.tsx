@@ -1,16 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatSalary, PAY_TYPE_LABELS } from "@/lib/utils";
 import CompanyLogo from "@/components/CompanyLogo";
-
-const PAY_TYPE_LABELS: Record<string, string> = {
-  HOURLY: "Hourly",
-  DAILY: "Daily",
-  WEEKLY: "Weekly",
-  BIWEEKLY: "Biweekly",
-  MONTHLY: "Monthly",
-  YEARLY: "Yearly",
-};
 
 interface Job {
   id: string;
@@ -38,15 +29,7 @@ interface Job {
   };
 }
 
-function formatSalary(job: Job): string | null {
-  if (job.salaryMin != null && job.salaryMax != null) {
-    const curr = job.currency || "";
-    const pay = job.payType ? PAY_TYPE_LABELS[job.payType] || job.payType : "";
-    return `${curr} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}${pay ? ` (${pay})` : ""}`.trim();
-  }
-  if (job.salaryRange) return job.salaryRange;
-  return null;
-}
+
 
 export default function JobDetails({ job }: { job: Job }) {
   const salaryStr = formatSalary(job);

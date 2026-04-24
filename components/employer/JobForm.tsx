@@ -339,6 +339,26 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Pay Type</Label>
+              <Select
+                value={watch("payType") || "MONTHLY"}
+                onValueChange={(value) => setValue("payType", value)}
+              >
+                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                  <SelectValue placeholder="Select Pay Type" />
+                </SelectTrigger>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                  <SelectItem value="HOURLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hourly</SelectItem>
+                  <SelectItem value="DAILY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Daily</SelectItem>
+                  <SelectItem value="WEEKLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Weekly</SelectItem>
+                  <SelectItem value="BIWEEKLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Biweekly</SelectItem>
+                  <SelectItem value="MONTHLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Monthly</SelectItem>
+                  <SelectItem value="YEARLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 

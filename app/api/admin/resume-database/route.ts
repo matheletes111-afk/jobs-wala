@@ -31,10 +31,17 @@ export async function GET(req: NextRequest) {
     if (keyword) {
       whereAnd.push({
         OR: [
+          { id: { contains: keyword, mode: "insensitive" } },
           { originalFileName: { contains: keyword, mode: "insensitive" } },
           { extractedName: { contains: keyword, mode: "insensitive" } },
           { extractedEmail: { contains: keyword, mode: "insensitive" } },
+          { extractedPhone: { contains: keyword, mode: "insensitive" } },
           { extractedText: { contains: keyword, mode: "insensitive" } },
+          { extractedLocation: { contains: keyword, mode: "insensitive" } },
+          { currentTitle: { contains: keyword, mode: "insensitive" } },
+          { parseError: { contains: keyword, mode: "insensitive" } },
+          // Partial match on skills array elements via OR
+          { skills: { hasSome: [keyword] } },
         ],
       });
     }
@@ -57,11 +64,35 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // Skills specific filter
+    const requestedSkills = skillsParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (requestedSkills.length > 0) {
+      whereAnd.push({
+        AND: requestedSkills.map((s) => ({
+          OR: [
+            { skills: { hasSome: [s] } },
+            { extractedText: { contains: s, mode: "insensitive" } },
+          ],
+        })),
+      });
+    }
+
     const where = whereAnd.length > 0 ? { AND: whereAnd } : {};
 
-    const rawResumes = await prisma.resumeDocument.findMany({
+    // Get total count for pagination
+    const total = await prisma.resumeDocument.count({ where });
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const skip = (page - 1) * limit;
+
+    const resumes = await prisma.resumeDocument.findMany({
       where,
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
       select: {
         id: true,
         originalFileName: true,
@@ -80,27 +111,6 @@ export async function GET(req: NextRequest) {
         createdAt: true,
       },
     });
-
-    const requestedSkills = skillsParam
-      .split(",")
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean);
-
-    const filteredResumes =
-      requestedSkills.length === 0
-        ? rawResumes
-        : rawResumes.filter((resume) =>
-            requestedSkills.every((requestedSkill) =>
-              resume.skills.some((resumeSkill) =>
-                resumeSkill.toLowerCase().includes(requestedSkill)
-              )
-            )
-          );
-
-    const total = filteredResumes.length;
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    const start = (page - 1) * limit;
-    const resumes = filteredResumes.slice(start, start + limit);
 
     return NextResponse.json({
       resumes,

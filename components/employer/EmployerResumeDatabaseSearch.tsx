@@ -157,7 +157,7 @@ export default function EmployerResumeDatabaseSearch({
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && apply()}
-                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
                 />
               </div>
               <Input
@@ -165,14 +165,14 @@ export default function EmployerResumeDatabaseSearch({
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
               />
               <Input
                 placeholder="Location..."
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
               />
               <Input
                 type="number"
@@ -181,7 +181,7 @@ export default function EmployerResumeDatabaseSearch({
                 value={minExperience}
                 onChange={(e) => setMinExperience(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
               />
            </div>
 
