@@ -154,6 +154,7 @@ model EmployerProfile {
   website             String?
   description         String?  @db.Text
   resumeSearchEnabled Boolean  @default(false)
+  savedXRayQueries    Json?    // Array of objects { query: string, label: string, createdAt: date }
   subscriptionId      String?
   subscriptionStatus  SubscriptionStatus? @default(EXPIRED)
   subscriptionExpiry  DateTime?

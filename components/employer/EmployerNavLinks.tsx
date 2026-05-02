@@ -17,6 +17,7 @@ export const employerNavLinks = [
   { href: "/employer/applications", label: "Applications", icon: FileText },
   { href: "/employer/search", label: "Search Candidates", icon: Search },
   { href: "/employer/subscription", label: "Subscription", icon: Zap },
+  { href: "/employer/xray-search", label: "X-Ray Search", icon: Search },
   { href: "/employer/profile", label: "Profile", icon: User },
 ];
 
