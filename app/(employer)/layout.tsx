@@ -20,9 +20,11 @@ export default async function EmployerLayout({
   if (user.role === UserRole.EMPLOYER) {
     const profile = await prisma.employerProfile.findUnique({
       where: { userId: user.id },
-      select: { resumeSearchEnabled: true },
+      select: { resumeSearchEnabled: true, subscriptionExpiry: true },
     });
-    canAccessResumeSearch = Boolean(profile?.resumeSearchEnabled);
+    
+    const isNotExpired = profile?.subscriptionExpiry ? new Date(profile.subscriptionExpiry) >= new Date() : false;
+    canAccessResumeSearch = Boolean(profile?.resumeSearchEnabled) && isNotExpired;
   }
 
   return (

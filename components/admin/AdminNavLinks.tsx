@@ -17,6 +17,7 @@ export const adminNavLinks = [
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
   { href: "/admin/resume-database", label: "Resume DB", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
+  { href: "/admin/plans", label: "Plans", icon: BarChart3 },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
 

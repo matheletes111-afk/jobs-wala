@@ -11,10 +11,12 @@ export default async function EmployerResumeSearchPage({
   const user = await requireEmployer();
   const employerProfile = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
-    select: { resumeSearchEnabled: true },
+    select: { resumeSearchEnabled: true, subscriptionExpiry: true },
   });
 
-  if (!employerProfile?.resumeSearchEnabled) {
+  const isNotExpired = employerProfile?.subscriptionExpiry ? new Date(employerProfile.subscriptionExpiry) >= new Date() : false;
+
+  if (!employerProfile?.resumeSearchEnabled || !isNotExpired) {
     redirect("/employer/dashboard");
   }
 

@@ -8,6 +8,7 @@ import {
   FileText,
   Search,
   User,
+  Zap,
 } from "lucide-react";
 
 export const employerNavLinks = [
@@ -15,6 +16,7 @@ export const employerNavLinks = [
   { href: "/employer/jobs", label: "My Jobs", icon: Briefcase },
   { href: "/employer/applications", label: "Applications", icon: FileText },
   { href: "/employer/search", label: "Search Candidates", icon: Search },
+  { href: "/employer/subscription", label: "Subscription", icon: Zap },
   { href: "/employer/profile", label: "Profile", icon: User },
 ];
 
@@ -34,28 +36,26 @@ export default function EmployerNavLinks({
   const pathname = usePathname();
   const links = canAccessResumeSearch
     ? [
-        ...employerNavLinks,
-        {
-          href: "/employer/resume-search",
-          label: "Resume Search",
-          icon: Search,
-        },
-      ]
+      ...employerNavLinks,
+      {
+        href: "/employer/resume-search",
+        label: "Resume Search",
+        icon: Search,
+      },
+    ]
     : employerNavLinks;
 
   const linkClass = vertical
     ? (isActive: boolean) =>
-        `flex w-full items-center gap-4 rounded-xl px-5 py-4 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${
-          isActive
-            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
-            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-        }`
+      `flex w-full items-center gap-4 rounded-xl px-5 py-4 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
+        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
+        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+      }`
     : (isActive: boolean) =>
-        `flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${
-          isActive
-            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-        }`;
+      `flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
+        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+      }`;
 
   const wrapperClass = vertical
     ? "flex flex-col gap-2"

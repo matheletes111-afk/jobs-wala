@@ -38,12 +38,45 @@ export async function POST(req: NextRequest) {
 
     const profile = await prisma.employerProfile.findUnique({
       where: { userId: user.id },
+      include: {
+        subscriptions: {
+          where: { status: "ACTIVE" },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          include: { plan: true },
+        },
+      },
     });
 
     if (!profile) {
       return NextResponse.json(
         { error: "Please complete your company profile first" },
         { status: 400 }
+      );
+    }
+
+    const activeSubscription = profile.subscriptions[0];
+
+    // Check if subscription exists and is not expired
+    if (!activeSubscription || new Date(activeSubscription.endDate) < new Date()) {
+      return NextResponse.json(
+        { error: "NO_ACTIVE_PLAN", message: "Please subscribe to a plan to post jobs" },
+        { status: 403 }
+      );
+    }
+
+    // Count jobs posted within the current subscription period
+    const jobCount = await prisma.job.count({
+      where: {
+        postedBy: user.id,
+        createdAt: { gte: activeSubscription.startDate },
+      },
+    });
+
+    if (activeSubscription.plan.jobLimit !== -1 && jobCount >= activeSubscription.plan.jobLimit) {
+      return NextResponse.json(
+        { error: "PLAN_LIMIT_REACHED", message: `You have reached your limit of ${activeSubscription.plan.jobLimit} jobs for this plan.` },
+        { status: 403 }
       );
     }
 

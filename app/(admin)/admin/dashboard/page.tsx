@@ -8,6 +8,7 @@ import {
   UserCheck,
   ChevronRight,
   Clock,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CompanyLogo from "@/components/CompanyLogo";
@@ -22,6 +23,12 @@ export default async function AdminDashboardPage() {
       prisma.user.count({ where: { role: "EMPLOYER" } }),
       prisma.job.count({ where: { status: "ACTIVE" } }),
     ]);
+
+  // Actually, simpler to just get all subscriptions and sum in JS for accuracy across plans
+  const allSubscribers = await prisma.subscription.findMany({
+    include: { plan: true }
+  });
+  const totalRevenue = allSubscribers.reduce((sum, sub) => sum + sub.plan.amount, 0);
 
   const recentJobs = await prisma.job.findMany({
     take: 6,
@@ -61,6 +68,13 @@ export default async function AdminDashboardPage() {
       href: "/admin/reports",
       accent: "emerald",
     },
+    {
+      label: "Total Revenue",
+      value: `${totalRevenue.toLocaleString()} INR`,
+      icon: Zap,
+      href: "/admin/plans",
+      accent: "orange",
+    },
   ];
 
   return (
@@ -89,6 +103,7 @@ export default async function AdminDashboardPage() {
               violet: "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
               amber: "bg-amber-500/5 text-amber-400 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20 shadow-amber-500/5",
               emerald: "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
+              orange: "bg-orange-500/5 text-orange-400 border-orange-500/10 hover:bg-orange-500/10 hover:border-orange-500/20 shadow-orange-500/5",
             };
             const colorClass = accentColors[card.accent as keyof typeof accentColors];
 

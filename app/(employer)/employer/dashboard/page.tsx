@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ApplicationActions from "@/components/employer/ApplicationActions";
-import { Briefcase, Clock, FileText, ChevronRight, Plus } from "lucide-react";
+import { Briefcase, Clock, FileText, ChevronRight, Plus, Zap } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
 
 export default async function EmployerDashboardPage() {
@@ -11,6 +11,13 @@ export default async function EmployerDashboardPage() {
 
   const profile = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
+    include: {
+      subscriptions: {
+        where: { status: "ACTIVE" },
+        orderBy: { endDate: "desc" },
+        take: 1,
+      },
+    },
   });
 
     if (!profile) {
@@ -93,6 +100,43 @@ export default async function EmployerDashboardPage() {
               Manage your job listings, track candidate applications, and oversee your recruitment process from one place.
             </p>
           </div>
+
+        {/* Subscription Warning Banner */}
+        {(!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
+          <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+            <div className="flex items-center gap-6">
+              <div className="h-16 w-16 shrink-0 rounded-3xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
+                <Zap className="h-8 w-8 text-orange-500 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white tracking-tight">Active Plan Required</h3>
+                <p className="mt-1 text-sm font-medium text-white/50 italic">You don't have an active subscription. Subscribe now to post jobs and search candidates.</p>
+              </div>
+            </div>
+            <Link href="/employer/subscription">
+              <Button className="h-12 px-8 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
+                Browse Plans
+              </Button>
+            </Link>
+          </div>
+        ) : new Date(profile.subscriptions[0].endDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+          <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+             <div className="flex items-center gap-6">
+              <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                <Clock className="h-8 w-8 text-blue-500 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white tracking-tight">Plan Expiring Soon</h3>
+                <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
+              </div>
+            </div>
+            <Link href="/employer/subscription">
+              <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
+                Renew Plan
+              </Button>
+            </Link>
+          </div>
+        )}
           <Link href="/employer/jobs/new">
             <Button className="h-14 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 gap-3">
               <Plus className="h-5 w-5" />

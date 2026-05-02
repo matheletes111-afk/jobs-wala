@@ -41,6 +41,13 @@ enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+  SCHEDULED
+}
+
+enum PlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
 }
 
 enum EmploymentType {
@@ -214,22 +221,43 @@ model Application {
   @@index([appliedAt])
 }
 
+model Plan {
+  id                  String   @id @default(cuid())
+  name                String
+  description         String?  @db.Text
+  amount              Float    // In INR
+  currency            String   @default("INR")
+  durationDays        Int      @default(30)
+  razorpayPlanId      String?  
+  jobLimit            Int      @default(0) 
+  resumeSearchEnabled Boolean  @default(false)
+  status              PlanStatus @default(ACTIVE)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  subscriptions       Subscription[]
+}
+
 model Subscription {
   id                  String              @id @default(cuid())
   employerId          String
-  planType            SubscriptionPlanType @default(TRIAL)
+  planId              String
   status              SubscriptionStatus  @default(ACTIVE)
   startDate           DateTime            @default(now())
   endDate             DateTime
-  razorpayOrderId     String?
+  razorpaySubscriptionId String?          
+  razorpayOrderId     String?             
   razorpayPaymentId   String?
   razorpaySignature   String?
+  scheduledPlanId     String?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
   employer EmployerProfile @relation(fields: [employerId], references: [userId], onDelete: Cascade)
+  plan     Plan            @relation(fields: [planId], references: [id])
 
   @@index([employerId])
+  @@index([planId])
   @@index([status])
   @@index([endDate])
 }
