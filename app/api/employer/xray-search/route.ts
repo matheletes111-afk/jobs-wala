@@ -13,7 +13,7 @@ const GOOGLE_CX = process.env.GOOGLE_SEARCH_CX;
 export async function GET(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "EMPLOYER") {
+    if (!session || (session.user?.role !== "EMPLOYER" && session.user?.role !== "ADMIN")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
-    if (!session || session.user?.role !== "EMPLOYER") {
+    if (!session || (session.user?.role !== "EMPLOYER" && session.user?.role !== "ADMIN")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

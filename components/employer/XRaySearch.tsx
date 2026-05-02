@@ -25,7 +25,8 @@ import {
   List,
   MessageSquare,
   Mail,
-  RefreshCw
+  RefreshCw,
+  FileText
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -941,11 +942,10 @@ export default function XRaySearch() {
                       <button
                         key={r.value}
                         onClick={() => setRegion(r.value)}
-                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-md border transition-all ${
-                          region === r.value
-                            ? "bg-blue-600 border-blue-500 text-white"
-                            : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
-                        }`}
+                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-md border transition-all ${region === r.value
+                          ? "bg-blue-600 border-blue-500 text-white"
+                          : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                          }`}
                         title={`Search in ${r.label}`}
                       >
                         {r.value || "GL"}
@@ -960,11 +960,10 @@ export default function XRaySearch() {
                       <button
                         key={i}
                         onClick={() => setPlatform(p.value)}
-                        className={`text-[8px] font-black uppercase tracking-widest px-2 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
-                          xrayQuery.includes(p.value)
-                            ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                            : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
-                        }`}
+                        className={`text-[8px] font-black uppercase tracking-widest px-2 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${xrayQuery.includes(p.value)
+                          ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
+                          : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                          }`}
                       >
                         {p.icon}
                         {p.label}
@@ -1109,446 +1108,443 @@ export default function XRaySearch() {
             </div>
           </aside>
 
-            {/* Results/Shortlist Section */}
-            <div className="flex-1 min-w-0">
-              <Tabs defaultValue="results" className="w-full">
-                <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-2">
-                  <TabsList className="bg-transparent h-auto p-0 gap-8">
-                    <TabsTrigger
-                      value="results"
-                      className="data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+          {/* Results/Shortlist Section */}
+          <div className="flex-1 min-w-0">
+            <Tabs defaultValue="results" className="w-full">
+              <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-2">
+                <TabsList className="bg-transparent h-auto p-0 gap-8">
+                  <TabsTrigger
+                    value="results"
+                    className="data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                  >
+                    Search Results
+                    {results.length > 0 && (
+                      <Badge className="ml-2 bg-blue-500/10 text-blue-500 border-none text-[8px]">
+                        {results.length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="shortlist"
+                    className="data-[state=active]:bg-transparent data-[state=active]:text-amber-500 data-[state=active]:border-b-2 data-[state=active]:border-amber-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                  >
+                    Shortlisted
+                    {shortlist.length > 0 && (
+                      <Badge className="ml-2 bg-amber-500/10 text-amber-500 border-none text-[8px]">
+                        {shortlist.length}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                </TabsList>
+
+                {results.length > 0 && (
+                  <div className="hidden sm:flex items-center gap-3">
+                    <div className="relative w-48 lg:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-blue-500/50" />
+                      <Input
+                        placeholder="Filter candidates..."
+                        value={localFilter}
+                        onChange={(e) => setLocalFilter(e.target.value)}
+                        className="h-9 pl-9 bg-white/5 border-white/10 rounded-xl text-[10px] font-medium focus-visible:ring-blue-500/50"
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={copyJSON}
+                      className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
+                      title="Copy Results as JSON"
                     >
-                      Search Results
-                      {results.length > 0 && (
-                        <Badge className="ml-2 bg-blue-500/10 text-blue-500 border-none text-[8px]">
-                          {results.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="shortlist"
-                      className="data-[state=active]:bg-transparent data-[state=active]:text-amber-500 data-[state=active]:border-b-2 data-[state=active]:border-amber-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                      {copyJSONFeedback ? <Check className="h-4 w-4 text-emerald-500" /> : <Code className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => downloadCSV(results, "xray-search-results")}
+                      className="h-9 w-9 rounded-xl bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
+                      title="Download CSV"
                     >
-                      Shortlisted
-                      {shortlist.length > 0 && (
-                        <Badge className="ml-2 bg-amber-500/10 text-amber-500 border-none text-[8px]">
-                          {shortlist.length}
-                        </Badge>
-                      )}
-                    </TabsTrigger>
-                  </TabsList>
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-                  {results.length > 0 && (
-                    <div className="hidden sm:flex items-center gap-3">
-                      <div className="relative w-48 lg:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-blue-500/50" />
-                        <Input
-                          placeholder="Filter candidates..."
-                          value={localFilter}
-                          onChange={(e) => setLocalFilter(e.target.value)}
-                          className="h-9 pl-9 bg-white/5 border-white/10 rounded-xl text-[10px] font-medium focus-visible:ring-blue-500/50"
-                        />
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={copyJSON}
-                        className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
-                        title="Copy Results as JSON"
-                      >
-                        {copyJSONFeedback ? <Check className="h-4 w-4 text-emerald-500" /> : <Code className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => downloadCSV(results, "xray-search-results")}
-                        className="h-9 w-9 rounded-xl bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
-                        title="Download CSV"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
+              <TabsContent value="results" className="mt-0 border-none p-0">
+                {loading ? (
+                  <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
+                    <div className="inline-block p-4 rounded-full bg-blue-500/10 mb-6">
+                      <Globe className="h-8 w-8 text-blue-500 animate-pulse" />
                     </div>
-                  )}
-                </div>
-
-                <TabsContent value="results" className="mt-0 border-none p-0">
-                  {loading ? (
-                    <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
-                      <div className="inline-block p-4 rounded-full bg-blue-500/10 mb-6">
-                        <Globe className="h-8 w-8 text-blue-500 animate-pulse" />
-                      </div>
-                      <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Searching the Web...</p>
-                      <p className="mt-2 text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">Accessing Google Custom Search API</p>
+                    <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Searching the Web...</p>
+                    <p className="mt-2 text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">Accessing Google Custom Search API</p>
+                  </div>
+                ) : results.length === 0 ? (
+                  <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
+                    <div className="inline-block p-4 rounded-full bg-white/5 mb-6">
+                      <Search className="h-8 w-8 text-muted-foreground/20" />
                     </div>
-                  ) : results.length === 0 ? (
-                    <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
-                      <div className="inline-block p-4 rounded-full bg-white/5 mb-6">
-                        <Search className="h-8 w-8 text-muted-foreground/20" />
-                      </div>
-                      <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
-                        No global results to display. <br />Generate a query to start searching.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between px-4 pb-4 border-b border-white/5">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">
-                            {localFilter ? `${filteredResults.length.toLocaleString()} / ` : ""}{Number(totalResults).toLocaleString()} Candidates Discovered
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-2 h-9">
-                            <Star className={`h-3 w-3 mr-2 ${scoreThreshold > 0 ? "text-amber-500" : "text-muted-foreground/30"}`} />
-                            <select
-                              value={scoreThreshold}
-                              onChange={(e) => setScoreThreshold(Number(e.target.value))}
-                              className="bg-transparent text-[9px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
-                            >
-                              <option value="0" className="bg-black">All Scores</option>
-                              <option value="50" className="bg-black">50% +</option>
-                              <option value="70" className="bg-black">70% +</option>
-                              <option value="80" className="bg-black">80% +</option>
-                              <option value="90" className="bg-black">90% +</option>
-                            </select>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
-                            className={`h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                              sortBy === "score"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : "text-muted-foreground hover:bg-white/5"
-                            }`}
-                          >
-                            <ArrowUp className={`mr-2 h-3.5 w-3.5 transition-transform ${sortBy === "score" ? "" : "opacity-20"}`} />
-                            Sort by Match
-                          </Button>
-                          {filteredResults.some(item => !shortlist.some(s => s.link === item.link)) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleBatchShortlist}
-                              className="h-9 px-4 rounded-xl bg-amber-500/10 border-amber-500/20 text-amber-500 hover:bg-amber-500/20 text-[10px] font-black uppercase tracking-widest transition-all"
-                            >
-                              <Star className="mr-2 h-3.5 w-3.5" />
-                              Shortlist All
-                            </Button>
-                          )}
-                          {filteredResults.some(item => !summaries[item.link]) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleBatchSummarize}
-                              disabled={batchSummarizing || loading}
-                              className="h-9 px-4 rounded-xl bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 text-[10px] font-black uppercase tracking-widest transition-all"
-                            >
-                              {batchSummarizing ? (
-                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                              ) : (
-                                <Wand2 className="mr-2 h-3.5 w-3.5" />
-                              )}
-                              Batch AI Insight
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={bulkCopyLinks}
-                            className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
-                            title="Bulk copy all links"
-                          >
-                            {bulkCopyFeedback ? <Check className="h-4 w-4 text-emerald-500" /> : <List className="h-4 w-4" />}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-4">
-                        {filteredResults.length === 0 && results.length > 0 ? (
-                          <div className="p-20 text-center rounded-[2.5rem] bg-white/[0.02] border border-white/5 border-dashed">
-                            <p className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-6">
-                              No results match your local filter.
-                            </p>
-                            <Button
-                              variant="ghost"
-                              onClick={() => setLocalFilter("")}
-                              className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest"
-                            >
-                              Reset Local Filter
-                            </Button>
-                          </div>
-                        ) : (
-                          filteredResults.map((item, idx) => (
-                            <CandidateCard
-                              key={idx}
-                              item={item}
-                              idx={idx}
-                              summaries={summaries}
-                              summarizing={summarizing}
-                              onSummarize={handleSummarize}
-                              onCopy={handleCopy}
-                              copiedIndex={copiedIndex}
-                              isShortlisted={shortlist.some(s => s.link === item.link)}
-                              onToggleShortlist={() => toggleShortlist(item)}
-                              isContacted={contacted.includes(item.link)}
-                              onToggleContacted={() => toggleContacted(item.link)}
-                              onFindSimilar={() => handleFindSimilar(item)}
-                              onCopySummary={() => handleCopySummary(item)}
-                              draft={drafts[item.link] || null}
-                              isDrafting={drafting === item.link}
-                              onDraftEmail={handleDraftEmail}
-                              note={notes[item.link] || ""}
-                              onSaveNote={(note) => handleSaveNote(item.link, note)}
-                            />
-                          ))
-                        )}
-                      </div>
-
-                      {hasMore && (
-                        <div className="mt-12 flex justify-center">
-                          <Button
-                            onClick={() => handleSearch(true)}
-                            disabled={loading}
-                            variant="ghost"
-                            className="h-14 px-12 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all group"
-                          >
-                            {loading ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <Globe className="mr-2 h-4 w-4 text-blue-500 group-hover:animate-pulse" />
-                            )}
-                            Discover More Candidates
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="shortlist" className="mt-0 border-none p-0">
-                  {shortlist.length === 0 ? (
-                    <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
-                      <div className="inline-block p-4 rounded-full bg-amber-500/5 mb-6">
-                        <Star className="h-8 w-8 text-amber-500/20" />
-                      </div>
-                      <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
-                        Your shortlist is empty. <br />Star candidates to save them here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between px-4 pb-4 border-b border-white/5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">
-                          {shortlist.length} Candidates Shortlisted
+                    <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
+                      No global results to display. <br />Generate a query to start searching.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between px-4 pb-4 border-b border-white/5">
+                      <div className="flex flex-col gap-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">
+                          {localFilter ? `${filteredResults.length.toLocaleString()} / ` : ""}{Number(totalResults).toLocaleString()} Candidates Discovered
                         </p>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-2 h-8">
-                            <Star className={`h-2.5 w-2.5 mr-1.5 ${scoreThreshold > 0 ? "text-amber-500" : "text-muted-foreground/30"}`} />
-                            <select
-                              value={scoreThreshold}
-                              onChange={(e) => setScoreThreshold(Number(e.target.value))}
-                              className="bg-transparent text-[8px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
-                            >
-                              <option value="0" className="bg-black">All</option>
-                              <option value="50" className="bg-black">50%+</option>
-                              <option value="80" className="bg-black">80%+</option>
-                            </select>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
-                            className={`h-8 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                              sortBy === "score"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : "text-muted-foreground hover:bg-white/5"
-                            }`}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-2 h-9">
+                          <Star className={`h-3 w-3 mr-2 ${scoreThreshold > 0 ? "text-amber-500" : "text-muted-foreground/30"}`} />
+                          <select
+                            value={scoreThreshold}
+                            onChange={(e) => setScoreThreshold(Number(e.target.value))}
+                            className="bg-transparent text-[9px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
                           >
-                            <ArrowUp className={`mr-2 h-3 w-3 transition-transform ${sortBy === "score" ? "" : "opacity-20"}`} />
-                            Sort by Match
-                          </Button>
-                          {shortlist.length > 0 && shortlist.some(item => !contacted.includes(item.link)) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleBatchContacted}
-                              className="h-8 px-4 rounded-xl bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
-                            >
-                              <UserCheck className="mr-2 h-3 w-3" />
-                              Mark All Contacted
-                            </Button>
-                          )}
-                          {shortlist.length > 0 && shortlist.some(item => !summaries[item.link]) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleBatchSummarize}
-                              disabled={batchSummarizing}
-                              className="h-8 px-4 rounded-xl bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
-                            >
-                              {batchSummarizing ? (
-                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                              ) : (
-                                <Wand2 className="mr-2 h-3 w-3" />
-                              )}
-                              Analyze All
-                            </Button>
-                          )}
-                          {shortlist.length > 0 && shortlist.some(item => !drafts[item.link]) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={handleBatchDraftOutreach}
-                              disabled={batchDrafting}
-                              className="h-8 px-4 rounded-xl bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
-                            >
-                              {batchDrafting ? (
-                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                              ) : (
-                                <Mail className="mr-2 h-3 w-3" />
-                              )}
-                              Draft All
-                            </Button>
-                          )}
-                          {shortlist.length > 0 && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={copyShortlistEmails}
-                              className={`h-8 px-4 rounded-xl transition-all text-[9px] font-black uppercase tracking-widest ${
-                                copyEmailsFeedback
-                                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
-                                  : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400"
-                              }`}
-                            >
-                              {copyEmailsFeedback ? <Check className="h-3 w-3 mr-2" /> : <Mail className="h-3 w-3 mr-2" />}
-                              Copy Emails
-                            </Button>
-                          )}
+                            <option value="0" className="bg-black">All Scores</option>
+                            <option value="50" className="bg-black">50% +</option>
+                            <option value="70" className="bg-black">70% +</option>
+                            <option value="80" className="bg-black">80% +</option>
+                            <option value="90" className="bg-black">90% +</option>
+                          </select>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
+                          className={`h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${sortBy === "score"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "text-muted-foreground hover:bg-white/5"
+                            }`}
+                        >
+                          <ArrowUp className={`mr-2 h-3.5 w-3.5 transition-transform ${sortBy === "score" ? "" : "opacity-20"}`} />
+                          Sort by Match
+                        </Button>
+                        {filteredResults.some(item => !shortlist.some(s => s.link === item.link)) && (
                           <Button
                             variant="outline"
-                            size="icon"
-                            onClick={() => downloadCSV(shortlist, "xray-shortlist")}
-                            className="h-8 w-8 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-amber-500 shrink-0"
-                            title="Download Shortlist CSV"
+                            size="sm"
+                            onClick={handleBatchShortlist}
+                            className="h-9 px-4 rounded-xl bg-amber-500/10 border-amber-500/20 text-amber-500 hover:bg-amber-500/20 text-[10px] font-black uppercase tracking-widest transition-all"
                           >
-                            <Download className="h-3.5 w-3.5" />
+                            <Star className="mr-2 h-3.5 w-3.5" />
+                            Shortlist All
                           </Button>
+                        )}
+                        {filteredResults.some(item => !summaries[item.link]) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleBatchSummarize}
+                            disabled={batchSummarizing || loading}
+                            className="h-9 px-4 rounded-xl bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 text-[10px] font-black uppercase tracking-widest transition-all"
+                          >
+                            {batchSummarizing ? (
+                              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Wand2 className="mr-2 h-3.5 w-3.5" />
+                            )}
+                            Batch AI Insight
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={bulkCopyLinks}
+                          className="h-9 w-9 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400 shrink-0"
+                          title="Bulk copy all links"
+                        >
+                          {bulkCopyFeedback ? <Check className="h-4 w-4 text-emerald-500" /> : <List className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4">
+                      {filteredResults.length === 0 && results.length > 0 ? (
+                        <div className="p-20 text-center rounded-[2.5rem] bg-white/[0.02] border border-white/5 border-dashed">
+                          <p className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-6">
+                            No results match your local filter.
+                          </p>
+                          <Button
+                            variant="ghost"
+                            onClick={() => setLocalFilter("")}
+                            className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Reset Local Filter
+                          </Button>
+                        </div>
+                      ) : (
+                        filteredResults.map((item, idx) => (
+                          <CandidateCard
+                            key={idx}
+                            item={item}
+                            idx={idx}
+                            summaries={summaries}
+                            summarizing={summarizing}
+                            onSummarize={handleSummarize}
+                            onCopy={handleCopy}
+                            copiedIndex={copiedIndex}
+                            isShortlisted={shortlist.some(s => s.link === item.link)}
+                            onToggleShortlist={() => toggleShortlist(item)}
+                            isContacted={contacted.includes(item.link)}
+                            onToggleContacted={() => toggleContacted(item.link)}
+                            onFindSimilar={() => handleFindSimilar(item)}
+                            onCopySummary={() => handleCopySummary(item)}
+                            draft={drafts[item.link] || null}
+                            isDrafting={drafting === item.link}
+                            onDraftEmail={handleDraftEmail}
+                            note={notes[item.link] || ""}
+                            onSaveNote={(note) => handleSaveNote(item.link, note)}
+                          />
+                        ))
+                      )}
+                    </div>
+
+                    {hasMore && (
+                      <div className="mt-12 flex justify-center">
+                        <Button
+                          onClick={() => handleSearch(true)}
+                          disabled={loading}
+                          variant="ghost"
+                          className="h-14 px-12 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all group"
+                        >
+                          {loading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Globe className="mr-2 h-4 w-4 text-blue-500 group-hover:animate-pulse" />
+                          )}
+                          Discover More Candidates
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="shortlist" className="mt-0 border-none p-0">
+                {shortlist.length === 0 ? (
+                  <div className="rounded-[3rem] p-32 text-center bg-white/[0.02] border border-white/5 border-dashed">
+                    <div className="inline-block p-4 rounded-full bg-amber-500/5 mb-6">
+                      <Star className="h-8 w-8 text-amber-500/20" />
+                    </div>
+                    <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
+                      Your shortlist is empty. <br />Star candidates to save them here.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between px-4 pb-4 border-b border-white/5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">
+                        {shortlist.length} Candidates Shortlisted
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-2 h-8">
+                          <Star className={`h-2.5 w-2.5 mr-1.5 ${scoreThreshold > 0 ? "text-amber-500" : "text-muted-foreground/30"}`} />
+                          <select
+                            value={scoreThreshold}
+                            onChange={(e) => setScoreThreshold(Number(e.target.value))}
+                            className="bg-transparent text-[8px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
+                          >
+                            <option value="0" className="bg-black">All</option>
+                            <option value="50" className="bg-black">50%+</option>
+                            <option value="80" className="bg-black">80%+</option>
+                          </select>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
+                          className={`h-8 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === "score"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "text-muted-foreground hover:bg-white/5"
+                            }`}
+                        >
+                          <ArrowUp className={`mr-2 h-3 w-3 transition-transform ${sortBy === "score" ? "" : "opacity-20"}`} />
+                          Sort by Match
+                        </Button>
+                        {shortlist.length > 0 && shortlist.some(item => !contacted.includes(item.link)) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleBatchContacted}
+                            className="h-8 px-4 rounded-xl bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
+                          >
+                            <UserCheck className="mr-2 h-3 w-3" />
+                            Mark All Contacted
+                          </Button>
+                        )}
+                        {shortlist.length > 0 && shortlist.some(item => !summaries[item.link]) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleBatchSummarize}
+                            disabled={batchSummarizing}
+                            className="h-8 px-4 rounded-xl bg-blue-500/10 border-blue-500/20 text-blue-400 hover:bg-blue-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
+                          >
+                            {batchSummarizing ? (
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Wand2 className="mr-2 h-3 w-3" />
+                            )}
+                            Analyze All
+                          </Button>
+                        )}
+                        {shortlist.length > 0 && shortlist.some(item => !drafts[item.link]) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleBatchDraftOutreach}
+                            disabled={batchDrafting}
+                            className="h-8 px-4 rounded-xl bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 text-[9px] font-black uppercase tracking-widest transition-all"
+                          >
+                            {batchDrafting ? (
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Mail className="mr-2 h-3 w-3" />
+                            )}
+                            Draft All
+                          </Button>
+                        )}
+                        {shortlist.length > 0 && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={copyShortlistEmails}
+                            className={`h-8 px-4 rounded-xl transition-all text-[9px] font-black uppercase tracking-widest ${copyEmailsFeedback
+                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                              : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-blue-400"
+                              }`}
+                          >
+                            {copyEmailsFeedback ? <Check className="h-3 w-3 mr-2" /> : <Mail className="h-3 w-3 mr-2" />}
+                            Copy Emails
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => downloadCSV(shortlist, "xray-shortlist")}
+                          className="h-8 w-8 rounded-xl bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-amber-500 shrink-0"
+                          title="Download Shortlist CSV"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsImporting(!isImporting)}
+                          className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 hover:bg-blue-500/5 rounded-xl transition-all"
+                        >
+                          <Download className="h-3 w-3 mr-2 rotate-180" />
+                          Import
+                        </Button>
+                        {shortlist.some(item => contacted.includes(item.link)) && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setIsImporting(!isImporting)}
-                            className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 hover:bg-blue-500/5 rounded-xl transition-all"
-                          >
-                            <Download className="h-3 w-3 mr-2 rotate-180" />
-                            Import
-                          </Button>
-                          {shortlist.some(item => contacted.includes(item.link)) && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={handleBulkRemoveContacted}
-                              className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/5 rounded-xl transition-all"
-                            >
-                              <Trash2 className="h-3 w-3 mr-2" />
-                              Remove Contacted
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            onClick={() => {
-                              setShortlist([]);
-                              localStorage.removeItem("xray_shortlist");
-                            }}
-                            className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
+                            onClick={handleBulkRemoveContacted}
+                            className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/5 rounded-xl transition-all"
                           >
                             <Trash2 className="h-3 w-3 mr-2" />
-                            Clear All
+                            Remove Contacted
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setShortlist([]);
+                            localStorage.removeItem("xray_shortlist");
+                          }}
+                          className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
+                        >
+                          <Trash2 className="h-3 w-3 mr-2" />
+                          Clear All
+                        </Button>
+                      </div>
+                    </div>
+
+                    {isImporting && (
+                      <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-blue-500/20 border-dashed animate-in fade-in slide-in-from-top-2">
+                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-4">
+                          Paste LinkedIn/GitHub URLs (one per line)
+                        </p>
+                        <textarea
+                          value={importText}
+                          onChange={(e) => setImportText(e.target.value)}
+                          className="w-full min-h-[120px] bg-white/5 border border-white/10 rounded-2xl p-4 text-xs font-mono text-blue-400 mb-4 focus:outline-none focus:border-blue-500/50"
+                          placeholder="https://www.linkedin.com/in/username"
+                        />
+                        <div className="flex justify-end gap-3">
+                          <Button
+                            variant="ghost"
+                            onClick={() => setIsImporting(false)}
+                            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleBulkImport}
+                            disabled={!importText.trim()}
+                            className="h-10 px-8 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Add to Shortlist
                           </Button>
                         </div>
                       </div>
+                    )}
 
-                      {isImporting && (
-                        <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-blue-500/20 border-dashed animate-in fade-in slide-in-from-top-2">
-                          <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-4">
-                            Paste LinkedIn/GitHub URLs (one per line)
-                          </p>
-                          <textarea
-                            value={importText}
-                            onChange={(e) => setImportText(e.target.value)}
-                            className="w-full min-h-[120px] bg-white/5 border border-white/10 rounded-2xl p-4 text-xs font-mono text-blue-400 mb-4 focus:outline-none focus:border-blue-500/50"
-                            placeholder="https://www.linkedin.com/in/username"
+                    <div className="grid gap-4">
+                      {shortlist
+                        .filter(item => {
+                          const searchStr = (item.title + item.snippet).toLowerCase();
+                          const matchesText = searchStr.includes(localFilter.toLowerCase());
+
+                          if (scoreThreshold > 0) {
+                            const score = summaries[item.link]?.score || 0;
+                            return matchesText && score >= scoreThreshold;
+                          }
+
+                          return matchesText;
+                        })
+                        .sort((a, b) => {
+                          if (sortBy === "score") {
+                            const scoreA = summaries[a.link]?.score || 0;
+                            const scoreB = summaries[b.link]?.score || 0;
+                            return scoreB - scoreA;
+                          }
+                          return 0;
+                        })
+                        .map((item, idx) => (
+                          <CandidateCard
+                            key={idx}
+                            item={item}
+                            idx={idx}
+                            summaries={summaries}
+                            summarizing={summarizing}
+                            onSummarize={handleSummarize}
+                            onCopy={handleCopy}
+                            copiedIndex={copiedIndex}
+                            isShortlisted={true}
+                            onToggleShortlist={() => toggleShortlist(item)}
+                            isContacted={contacted.includes(item.link)}
+                            onToggleContacted={() => toggleContacted(item.link)}
+                            onFindSimilar={() => handleFindSimilar(item)}
+                            onCopySummary={() => handleCopySummary(item)}
+                            draft={drafts[item.link] || null}
+                            isDrafting={drafting === item.link}
+                            onDraftEmail={handleDraftEmail}
+                            note={notes[item.link] || ""}
+                            onSaveNote={(note) => handleSaveNote(item.link, note)}
                           />
-                          <div className="flex justify-end gap-3">
-                            <Button
-                              variant="ghost"
-                              onClick={() => setIsImporting(false)}
-                              className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              onClick={handleBulkImport}
-                              disabled={!importText.trim()}
-                              className="h-10 px-8 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest"
-                            >
-                              Add to Shortlist
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid gap-4">
-                        {shortlist
-                          .filter(item => {
-                            const searchStr = (item.title + item.snippet).toLowerCase();
-                            const matchesText = searchStr.includes(localFilter.toLowerCase());
-
-                            if (scoreThreshold > 0) {
-                              const score = summaries[item.link]?.score || 0;
-                              return matchesText && score >= scoreThreshold;
-                            }
-
-                            return matchesText;
-                          })
-                          .sort((a, b) => {
-                            if (sortBy === "score") {
-                              const scoreA = summaries[a.link]?.score || 0;
-                              const scoreB = summaries[b.link]?.score || 0;
-                              return scoreB - scoreA;
-                            }
-                            return 0;
-                          })
-                          .map((item, idx) => (
-                            <CandidateCard
-                              key={idx}
-                              item={item}
-                              idx={idx}
-                              summaries={summaries}
-                              summarizing={summarizing}
-                              onSummarize={handleSummarize}
-                              onCopy={handleCopy}
-                              copiedIndex={copiedIndex}
-                              isShortlisted={true}
-                              onToggleShortlist={() => toggleShortlist(item)}
-                              isContacted={contacted.includes(item.link)}
-                              onToggleContacted={() => toggleContacted(item.link)}
-                              onFindSimilar={() => handleFindSimilar(item)}
-                              onCopySummary={() => handleCopySummary(item)}
-                              draft={drafts[item.link] || null}
-                              isDrafting={drafting === item.link}
-                              onDraftEmail={handleDraftEmail}
-                              note={notes[item.link] || ""}
-                              onSaveNote={(note) => handleSaveNote(item.link, note)}
-                            />
-                          ))}
-                      </div>
+                        ))}
                     </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
 
@@ -1636,14 +1632,14 @@ function CandidateCard({
 
   const borderColor = insight
     ? (insight.score >= 80 ? "border-emerald-500/30 group-hover:border-emerald-500/50" :
-       insight.score >= 50 ? "border-amber-500/30 group-hover:border-amber-500/50" :
-       "border-red-500/30 group-hover:border-red-500/50")
+      insight.score >= 50 ? "border-amber-500/30 group-hover:border-amber-500/50" :
+        "border-red-500/30 group-hover:border-red-500/50")
     : (isContacted ? "border-emerald-500/10" : "border-white/5 group-hover:border-white/10");
 
   const bgColor = insight
     ? (insight.score >= 80 ? "bg-emerald-500/[0.01] hover:bg-emerald-500/[0.03]" :
-       insight.score >= 50 ? "bg-amber-500/[0.01] hover:bg-amber-500/[0.03]" :
-       "bg-red-500/[0.01] hover:bg-red-500/[0.03]")
+      insight.score >= 50 ? "bg-amber-500/[0.01] hover:bg-amber-500/[0.03]" :
+        "bg-red-500/[0.01] hover:bg-red-500/[0.03]")
     : (isContacted ? "bg-emerald-500/[0.01]" : "bg-white/[0.02] hover:bg-white/[0.04]");
 
   return (
@@ -1679,22 +1675,20 @@ function CandidateCard({
           <div className="flex flex-col gap-2">
             <button
               onClick={onToggleShortlist}
-              className={`p-2.5 rounded-xl border transition-all ${
-                isShortlisted
-                  ? "bg-amber-500/20 border-amber-500/40 text-amber-500"
-                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-amber-500/40 hover:text-amber-500"
-              }`}
+              className={`p-2.5 rounded-xl border transition-all ${isShortlisted
+                ? "bg-amber-500/20 border-amber-500/40 text-amber-500"
+                : "bg-white/5 border-white/10 text-muted-foreground hover:border-amber-500/40 hover:text-amber-500"
+                }`}
               title={isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
             >
               <Star className={`h-4 w-4 ${isShortlisted ? "fill-amber-500" : ""}`} />
             </button>
             <button
               onClick={onToggleContacted}
-              className={`p-2.5 rounded-xl border transition-all ${
-                isContacted
-                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-500"
-                  : "bg-white/5 border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-500"
-              }`}
+              className={`p-2.5 rounded-xl border transition-all ${isContacted
+                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-500"
+                : "bg-white/5 border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-500"
+                }`}
               title={isContacted ? "Mark as uncontacted" : "Mark as contacted"}
             >
               <UserCheck className="h-4 w-4" />
@@ -1717,11 +1711,10 @@ function CandidateCard({
                 </Badge>
               )}
               {insight && (
-                <Badge className={`${
-                  insight.score >= 80 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                <Badge className={`${insight.score >= 80 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                   insight.score >= 50 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                  "bg-red-500/10 text-red-400 border-red-500/20"
-                } text-[9px] font-black uppercase tracking-widest px-2`}>
+                    "bg-red-500/10 text-red-400 border-red-500/20"
+                  } text-[9px] font-black uppercase tracking-widest px-2`}>
                   {insight.score}% Match
                 </Badge>
               )}
@@ -1809,11 +1802,10 @@ function CandidateCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowNotes(!showNotes)}
-                  className={`h-9 w-9 p-0 rounded-xl transition-all ${
-                    note
-                      ? "bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20"
-                      : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-amber-500"
-                  }`}
+                  className={`h-9 w-9 p-0 rounded-xl transition-all ${note
+                    ? "bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20"
+                    : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-amber-500"
+                    }`}
                   title="Add candidate notes"
                 >
                   <FileText className="h-4 w-4" />
@@ -1827,11 +1819,10 @@ function CandidateCard({
                   else onDraftEmail(item);
                 }}
                 disabled={isDrafting}
-                className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
-                  draft
-                    ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20"
-                    : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-indigo-400"
-                }`}
+                className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${draft
+                  ? "bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20"
+                  : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10 hover:text-indigo-400"
+                  }`}
               >
                 {isDrafting ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />

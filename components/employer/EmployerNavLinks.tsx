@@ -8,6 +8,7 @@ import {
   FileText,
   Search,
   User,
+  UserCheck,
   Zap,
 } from "lucide-react";
 
@@ -41,7 +42,7 @@ export default function EmployerNavLinks({
       {
         href: "/employer/resume-search",
         label: "Resume Search",
-        icon: Search,
+        icon: UserCheck,
       },
     ]
     : employerNavLinks;
