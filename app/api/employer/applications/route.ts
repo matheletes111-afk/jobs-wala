@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { computeSkillMatch } from "@/lib/skill-match";

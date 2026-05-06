@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { requireAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";

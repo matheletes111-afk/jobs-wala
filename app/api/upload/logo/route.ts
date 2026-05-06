@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 import { requireEmployer } from "@/lib/auth-utils";
 import { uploadFileToS3 } from "@/lib/s3";
 
