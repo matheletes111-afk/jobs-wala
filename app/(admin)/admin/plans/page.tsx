@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Plus, Search, Edit2, Trash2, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,22 +19,36 @@ interface Plan {
   createdAt: string;
 }
 
+interface Subscriber {
+  id: string;
+  employer: {
+    companyName: string;
+    user: {
+      email: string;
+    };
+  };
+  plan: {
+    name: string;
+    amount: number;
+    currency: string;
+  };
+  endDate: string;
+  status: string;
+}
+
 export default function AdminPlansPage() {
   const [activeTab, setActiveTab] = useState<"plans" | "subscribers">("plans");
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchQueryRef = useRef(searchQuery);
 
   useEffect(() => {
-    if (activeTab === "plans") {
-      fetchPlans();
-    } else {
-      fetchSubscribers();
-    }
-  }, [activeTab]);
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
 
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/admin/plans");
@@ -45,12 +59,12 @@ export default function AdminPlansPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchSubscribers = async () => {
+  const fetchSubscribers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/subscriptions?query=${searchQuery}`);
+      const response = await fetch(`/api/admin/subscriptions?query=${searchQueryRef.current}`);
       const data = await response.json();
       setSubscribers(data);
     } catch (error) {
@@ -58,7 +72,17 @@ export default function AdminPlansPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "plans") {
+      fetchPlans();
+    } else {
+      fetchSubscribers();
+    }
+  }, [activeTab, fetchSubscribers, fetchPlans]);
+
+
 
   const toggleStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";

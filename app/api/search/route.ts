@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { formatLocation } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
     const skillsParam = searchParams.get("skills") || "";
     const location = searchParams.get("location") || "";
 
-    const where: any = {};
+    const where: Prisma.JobSeekerProfileWhereInput = {};
     const hasKeyword = keyword.trim().length > 0;
 
     // When keyword is used we filter in memory so one search matches name, skill, location, jobTitle, bio, education

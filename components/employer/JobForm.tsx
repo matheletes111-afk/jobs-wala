@@ -101,7 +101,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
       const url = jobId ? `/api/jobs/${jobId}` : "/api/jobs";
       const method = jobId ? "PUT" : "POST";
 
-      const cleanNumber = (val: any) => {
+      const cleanNumber = (val: string | number | null | undefined) => {
         if (val === "" || val === null || val === undefined) return null;
         const num = Number(val);
         return isNaN(num) ? null : num;

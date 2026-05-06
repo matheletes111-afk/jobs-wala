@@ -273,7 +273,7 @@ export default function EmployerJobListClient() {
             <div className="linear-card rounded-[2rem] p-8 bg-primary/5 border-primary/20">
                <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-4">Job Status Tip</h3>
                <p className="text-xs text-muted-foreground leading-loose font-medium italic">
-                 "Keep your job postings up to date. Active jobs are visible to candidates, while closed jobs are archived for your records."
+                 &quot;Keep your job postings up to date. Active jobs are visible to candidates, while closed jobs are archived for your records.&quot;
                </p>
             </div>
           </aside>

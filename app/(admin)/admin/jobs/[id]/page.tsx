@@ -131,7 +131,7 @@ export default async function AdminJobDetailsPage({
                   {job.title}
                 </h1>
                 <p className="text-lg font-medium text-muted-foreground italic mb-6">
-                  {job.employer.companyName} // {job.employer.industry || "Industry Information"}
+                  {job.employer.companyName} {" // "} {job.employer.industry || "Industry Information"}
                 </p>
                 
                 <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
@@ -263,7 +263,7 @@ export default async function AdminJobDetailsPage({
                       {app.jobSeeker.jobTitle && (
                         <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5">
                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 italic">
-                             {app.jobSeeker.jobTitle} // {app.jobSeeker.experience != null ? `${app.jobSeeker.experience}Y Experience` : "N/A Experience"}
+                             {app.jobSeeker.jobTitle} {" // "} {app.jobSeeker.experience != null ? `${app.jobSeeker.experience}Y Experience` : "N/A Experience"}
                            </p>
                         </div>
                       )}

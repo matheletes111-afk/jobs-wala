@@ -449,7 +449,7 @@ function JobCard({
              </div>
              <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{job.title}</h3>
              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">
-                 {job.employer.companyName} // {job.employer.industry || "General Exploration"}
+                 {job.employer.companyName} {" // "} {job.employer.industry || "General Exploration"}
              </p>
           </div>
         </div>

@@ -135,7 +135,7 @@ export default function SkillTagInput({
             </div>
           ) : inputValue.trim() ? (
             <div className="p-4 text-sm font-medium text-muted-foreground/60 text-center italic">
-              Press Enter to add "{inputValue}"
+              Press Enter to add &quot;{inputValue}&quot;
             </div>
           ) : null}
         </div>

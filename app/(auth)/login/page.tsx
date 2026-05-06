@@ -25,21 +25,21 @@ function LoginForm() {
     const registered = searchParams.get("registered");
 
     if (verified === "true") {
-      setSuccess("Email verified successfully! You can now login.");
+      Promise.resolve().then(() => setSuccess("Email verified successfully! You can now login."));
     } else if (registered === "true") {
-      setSuccess("Registration successful! Please check your email to verify your account.");
+      Promise.resolve().then(() => setSuccess("Registration successful! Please check your email to verify your account."));
     } else if (errorParam === "invalid_token") {
-      setError("Invalid verification token. Please request a new verification email.");
+      Promise.resolve().then(() => setError("Invalid verification token. Please request a new verification email."));
     } else if (errorParam === "token_expired") {
-      setError("Verification token has expired. Please request a new verification email.");
+      Promise.resolve().then(() => setError("Verification token has expired. Please request a new verification email."));
     } else if (errorParam === "verification_failed") {
-      setError("Email verification failed. Please try again.");
+      Promise.resolve().then(() => setError("Email verification failed. Please try again."));
     } else if (errorParam === "EMAIL_NOT_VERIFIED") {
-      setError("Please verify your email address before logging in. Check your inbox for the verification link.");
+      Promise.resolve().then(() => setError("Please verify your email address before logging in. Check your inbox for the verification link."));
     }
     const resetSuccess = searchParams.get("reset");
     if (resetSuccess === "success") {
-      setSuccess("Your password has been reset. You can now log in with your new password.");
+      Promise.resolve().then(() => setSuccess("Your password has been reset. You can now log in with your new password."));
     }
   }, [searchParams]);
 

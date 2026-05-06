@@ -251,7 +251,7 @@ export default async function EmployerCandidateDetailPage({
                    </div>
                    
                    <p className="text-sm font-medium text-muted-foreground leading-loose italic mb-8">
-                      The candidate's full resume is available for review.
+                      The candidate&apos;s full resume is available for review.
                    </p>
                    
                    <a

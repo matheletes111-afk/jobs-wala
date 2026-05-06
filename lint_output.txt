@@ -1,0 +1,323 @@
+
+> job-portal@0.1.0 lint F:\react\jobsDaddy\jobs-wala
+> eslint
+
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\jobs\[id]\page.tsx
+   19:12  warning  'ImageIcon' is defined but never used                                   @typescript-eslint/no-unused-vars
+  134:45  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+  266:54  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\plans\[id]\edit\page.tsx
+  115:26  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\plans\page.tsx
+   5:39  warning  'CheckCircle' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+   5:52  warning  'XCircle' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  25:50  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  35:6   warning  React Hook useEffect has a missing dependency: 'fetchSubscribers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  63:9   warning  'toggleStatus' is assigned a value but never used                                                                    @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\reports\page.tsx
+  2:10  warning  'prisma' is defined but never used       @typescript-eslint/no-unused-vars
+  4:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  4:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  4:29  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  4:41  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\users\[id]\page.tsx
+  14:3  warning  'CheckCircle2' is defined but never used      @typescript-eslint/no-unused-vars
+  41:9  warning  'profile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\layout.tsx
+  24:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\forgot-password\page.tsx
+  52:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  76:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\login\page.tsx
+   28:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\login\page.tsx:28:7
+  26 |
+  27 |     if (verified === "true") {
+> 28 |       setSuccess("Email verified successfully! You can now login.");
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |     } else if (registered === "true") {
+  30 |       setSuccess("Registration successful! Please check your email to verify your account.");
+  31 |     } else if (errorParam === "invalid_token") {  react-hooks/set-state-in-effect
+   99:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @next/next/no-img-element
+  137:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\register\page.tsx
+  122:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  161:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\candidates\[id]\page.tsx
+    4:10  warning  'Card' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    4:16  warning  'CardContent' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    9:3   warning  'Mail' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   10:3   warning  'Phone' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   13:3   warning  'GraduationCap' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   14:3   warning  'User' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   18:3   warning  'Award' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   65:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  254:36  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\dashboard\page.tsx
+  113:85  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react/no-unescaped-entities
+  122:67  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\dashboard\page.tsx:122:67
+  120 |             </Link>
+  121 |           </div>
+> 122 |         ) : new Date(profile.subscriptions[0].endDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+      |                                                                   ^^^^^^^^^^ Cannot call impure function
+  123 |           <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+  124 |              <div className="flex items-center gap-6">
+  125 |               <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">  react-hooks/purity
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\jobs\[id]\edit\page.tsx
+  61:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\jobs\[id]\page.tsx
+  4:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  4:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  4:29  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  4:41  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+  6:10  warning  'Button' is defined but never used       @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\subscription\page.tsx
+    5:10  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
+   27:44  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  114:44  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:34  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\layout.tsx
+   6:10  warning  'prisma' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  25:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(user)\layout.tsx
+  24:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\categories\route.ts
+  12:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\applications\route.ts
+  40:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\jobs\route.ts
+  37:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\users\route.ts
+  34:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\plans\[id]\route.ts
+  21:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  54:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  77:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\plans\route.ts
+  5:10  warning  'PlanStatus' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\users\[id]\route.ts
+  29:23  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\employer\plans\route.ts
+  55:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\employer\subscribe\route.ts
+  65:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\api\employer\xray-search\route.ts
+   13:27  warning  'req' is defined but never used           @typescript-eslint/no-unused-vars
+   26:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   39:47  warning  'gl' is assigned a value but never used   @typescript-eslint/no-unused-vars
+   49:61  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   68:53  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  174:52  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  225:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\api\search\route.ts
+  15:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\api\user\profile\completion\route.ts
+  6:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\user\profile\route.ts
+  22:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\verify-email\route.ts
+  24:14  warning  'decodeError' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\jobs\category\[category]\page.tsx
+  22:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\jobs\company\[employerId]\page.tsx
+  31:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\not-found.tsx
+  11:23  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  11:44  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\app\page.tsx
+  100:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\unauthorized\page.tsx
+   8:18  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                        react/no-unescaped-entities
+  10:9   error  Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+F:\react\jobsDaddy\jobs-wala\components\HomePageClient.tsx
+  102:9  warning  'isJobSeeker' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\JobsFilterPageClient.tsx
+  207:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\components\ShareJobButton.tsx
+  29:35  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `getShareUrl`, but the source dependencies were [jobId, jobTitle]. Inferred different dependency than source.
+
+F:\react\jobsDaddy\jobs-wala\components\ShareJobButton.tsx:29:35
+  27 |   };
+  28 |
+> 29 |   const handleShare = useCallback(async () => {
+     |                                   ^^^^^^^^^^^^^
+> 30 |     const url = getShareUrl();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 31 |     try {
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 51 |     }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 52 |   }, [jobId, jobTitle]);
+     | ^^^^ Could not preserve existing manual memoization
+  53 |
+  54 |   return (
+  55 |     <Button  react-hooks/preserve-manual-memoization
+  52:6   warning  React Hook useCallback has a missing dependency: 'getShareUrl'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+
+F:\react\jobsDaddy\jobs-wala\components\admin\AdminJobsClient.tsx
+  452:44  error  Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+F:\react\jobsDaddy\jobs-wala\components\admin\AdminResumeDatabaseClient.tsx
+   20:3   warning  'CalendarDays' is defined but never used                                @typescript-eslint/no-unused-vars
+  443:48  error    Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+F:\react\jobsDaddy\jobs-wala\components\admin\CategoryManager.tsx
+  7:10  warning  'Label' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\common\SkillTagInput.tsx
+    4:13  warning  'Search' is defined but never used                               @typescript-eslint/no-unused-vars
+  138:34  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  138:47  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerApplicationListClient.tsx
+  142:9    warning  'start' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  143:9    warning  'end' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+  298:18   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  298:40   error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  298:128  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerJobListClient.tsx
+   17:18   warning  'Briefcase' is defined but never used                            @typescript-eslint/no-unused-vars
+   17:37   warning  'Calendar' is defined but never used                             @typescript-eslint/no-unused-vars
+  129:9    warning  'start' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  130:9    warning  'end' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+  276:18   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  276:141  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerProfileForm.tsx
+   13:36  warning  'Upload' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  182:19  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  208:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerResumeDatabaseSearch.tsx
+  6:42  warning  'Briefcase' is defined but never used     @typescript-eslint/no-unused-vars
+  6:53  warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\JobFilterDropdown.tsx
+  30:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+F:\react\jobsDaddy\jobs-wala\components\employer\JobFilterDropdown.tsx:30:5
+  28 |
+  29 |   useEffect(() => {
+> 30 |     setIsLoading(false);
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |   }, [currentJobId]);
+  32 |
+  33 |   const handleValueChange = (value: string) => {  react-hooks/set-state-in-effect
+
+F:\react\jobsDaddy\jobs-wala\components\employer\JobForm.tsx
+  104:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\components\employer\ResumeSearch.tsx
+  9:18  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\XRaySearch.tsx
+    14:3    warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    57:10   warning  'searchTime' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+    62:10   warning  'shareFeedback' is assigned a value but never used                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+    69:10   warning  'language' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+    69:20   warning  'setLanguage' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    73:52   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+    80:48   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   126:47   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   153:44   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   395:19   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   452:19   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   491:19   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   631:9    warning  'shareResults' is assigned a value but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  1091:96   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1091:112  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1097:101  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1097:111  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1097:166  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1097:173  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  1654:15   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\components\user\ApplicationSearch.tsx
+  7:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\JobDetails.tsx
+  1:10  warning  'Card' is defined but never used             @typescript-eslint/no-unused-vars
+  1:16  warning  'CardContent' is defined but never used      @typescript-eslint/no-unused-vars
+  1:29  warning  'CardHeader' is defined but never used       @typescript-eslint/no-unused-vars
+  1:41  warning  'CardTitle' is defined but never used        @typescript-eslint/no-unused-vars
+  2:10  warning  'Badge' is defined but never used            @typescript-eslint/no-unused-vars
+  3:40  warning  'PAY_TYPE_LABELS' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\JobSearch.tsx
+  7:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\ProfileForm.tsx
+   12:10  warning  'Card' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   12:16  warning  'CardContent' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   12:29  warning  'CardDescription' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   12:46  warning  'CardHeader' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   12:58  warning  'CardTitle' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  251:19  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  289:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\lib\utils.ts
+  40:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 144 problems (52 errors, 92 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

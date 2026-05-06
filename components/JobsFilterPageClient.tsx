@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -204,7 +205,7 @@ function JobCard({
   job: JobItem;
   isEmployer: boolean;
   isJobSeeker: boolean;
-  session: any;
+  session: Session | null;
 }) {
   const formatDate = (dateStr: string) => {
     try {

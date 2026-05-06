@@ -17,6 +17,24 @@ interface Plan {
   xraySearchEnabled: boolean;
 }
 
+interface Payment {
+  id: string;
+  plan: {
+    name: string;
+    amount: number;
+    currency: string;
+  };
+  status: string;
+  startDate: string;
+  endDate: string;
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
+  razorpay_signature: string;
+}
+
 export default function EmployerSubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
@@ -24,7 +42,7 @@ export default function EmployerSubscriptionPage() {
   const [activePlanEndDate, setActivePlanEndDate] = useState<string | null>(null);
   const [activePlanDetails, setActivePlanDetails] = useState<{name: string, amount: number, currency: string} | null>(null);
   const [scheduledPlanDetails, setScheduledPlanDetails] = useState<{name: string, amount: number, currency: string} | null>(null);
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [activeTab, setActiveTab] = useState<"plans" | "history">("plans");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -111,7 +129,7 @@ export default function EmployerSubscriptionPage() {
         subscription_id: data.subscriptionId,
         name: "JobsDaddy",
         description: `Subscription for ${plan.name}`,
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           const verifyRes = await fetch("/api/employer/subscribe/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -141,10 +159,11 @@ export default function EmployerSubscriptionPage() {
         },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new (window as unknown as { Razorpay: new (options: unknown) => { open: () => void } }).Razorpay(options);
       rzp.open();
-    } catch (error: any) {
-      alert(error.message || "Failed to initiate subscription");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to initiate subscription";
+      alert(errorMessage);
     } finally {
       setProcessingId(null);
     }

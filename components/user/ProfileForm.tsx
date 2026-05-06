@@ -248,8 +248,9 @@ export default function ProfileForm({
 
       router.push("/user/dashboard");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
       setLoading(false);
     }
   };

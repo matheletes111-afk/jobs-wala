@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createRazorpayPlan } from "@/lib/razorpay";
-import { PlanStatus } from "@prisma/client";
+export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await auth();
 
   if (!session || session.user.role !== "ADMIN") {

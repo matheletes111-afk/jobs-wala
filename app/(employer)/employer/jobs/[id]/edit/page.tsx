@@ -58,7 +58,7 @@ export default async function EditJobPage({
           </p>
         </div>
         <div className="rounded-[3rem] p-1 shadow-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 overflow-hidden bg-card/40 backdrop-blur-sm">
-          <JobForm jobId={job.id} initialData={initialData as any} />
+          <JobForm jobId={job.id} initialData={initialData} />
         </div>
       </div>
     </div>

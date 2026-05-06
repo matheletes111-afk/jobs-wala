@@ -112,7 +112,7 @@ export default function EditPlanPage() {
           Edit <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Plan</span>
         </h1>
         <p className="mt-4 text-base font-medium text-white/50 leading-relaxed">
-          Update the plan's configuration. Note: Price and duration are locked as they are synced with Razorpay.
+          Update the plan&apos;s configuration. Note: Price and duration are locked as they are synced with Razorpay.
         </p>
       </div>
 

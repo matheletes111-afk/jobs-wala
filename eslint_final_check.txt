@@ -1,0 +1,196 @@
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\jobs\[id]\page.tsx
+  19:12  warning  'ImageIcon' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\plans\page.tsx
+   5:39  warning  'CheckCircle' is defined but never used            @typescript-eslint/no-unused-vars
+   5:52  warning  'XCircle' is defined but never used                @typescript-eslint/no-unused-vars
+  87:9   warning  'toggleStatus' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\reports\page.tsx
+  2:10  warning  'prisma' is defined but never used       @typescript-eslint/no-unused-vars
+  4:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  4:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  4:29  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  4:41  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\admin\users\[id]\page.tsx
+  14:3  warning  'CheckCircle2' is defined but never used      @typescript-eslint/no-unused-vars
+  41:9  warning  'profile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(admin)\layout.tsx
+  24:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\forgot-password\page.tsx
+  52:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  76:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\login\page.tsx
+   99:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  137:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(auth)\register\page.tsx
+  122:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  161:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\candidates\[id]\page.tsx
+   4:10  warning  'Card' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   4:16  warning  'CardContent' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   9:3   warning  'Mail' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  10:3   warning  'Phone' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  13:3   warning  'GraduationCap' is defined but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  14:3   warning  'User' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  18:3   warning  'Award' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  65:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\dashboard\page.tsx
+  122:67  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\dashboard\page.tsx:122:67
+  120 |             </Link>
+  121 |           </div>
+> 122 |         ) : new Date(profile.subscriptions[0].endDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+      |                                                                   ^^^^^^^^^^ Cannot call impure function
+  123 |           <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+  124 |              <div className="flex items-center gap-6">
+  125 |               <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">  react-hooks/purity
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\jobs\[id]\page.tsx
+  4:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  4:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  4:29  warning  'CardHeader' is defined but never used   @typescript-eslint/no-unused-vars
+  4:41  warning  'CardTitle' is defined but never used    @typescript-eslint/no-unused-vars
+  6:10  warning  'Button' is defined but never used       @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\employer\subscription\page.tsx
+    5:10  warning  'Button' is defined but never used        @typescript-eslint/no-unused-vars
+  162:34  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+F:\react\jobsDaddy\jobs-wala\app\(employer)\layout.tsx
+   6:10  warning  'prisma' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  25:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\(user)\layout.tsx
+  24:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\categories\route.ts
+  12:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\applications\route.ts
+  40:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\jobs\route.ts
+  37:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\export\users\route.ts
+  34:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\plans\[id]\route.ts
+  21:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  54:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  77:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\plans\route.ts
+  5:10  warning  'PlanStatus' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\admin\users\[id]\route.ts
+  29:23  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\employer\plans\route.ts
+  55:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\employer\xray-search\route.ts
+  13:27  warning  'req' is defined but never used          @typescript-eslint/no-unused-vars
+  40:47  warning  'gl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\user\profile\completion\route.ts
+  6:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\user\profile\route.ts
+  22:27  warning  'req' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\api\verify-email\route.ts
+  24:14  warning  'decodeError' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\app\jobs\category\[category]\page.tsx
+  22:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\jobs\company\[employerId]\page.tsx
+  31:16  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\app\page.tsx
+  100:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\components\HomePageClient.tsx
+  102:9  warning  'isJobSeeker' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\admin\AdminResumeDatabaseClient.tsx
+  20:3  warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\admin\CategoryManager.tsx
+  7:10  warning  'Label' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\common\SkillTagInput.tsx
+  4:13  warning  'Search' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerApplicationListClient.tsx
+  142:9  warning  'start' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  143:9  warning  'end' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerJobListClient.tsx
+   17:18  warning  'Briefcase' is defined but never used       @typescript-eslint/no-unused-vars
+   17:37  warning  'Calendar' is defined but never used        @typescript-eslint/no-unused-vars
+  129:9   warning  'start' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  130:9   warning  'end' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerProfileForm.tsx
+   13:36  warning  'Upload' is defined but never used                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  182:19  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  208:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\components\employer\EmployerResumeDatabaseSearch.tsx
+  6:42  warning  'Briefcase' is defined but never used     @typescript-eslint/no-unused-vars
+  6:53  warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\ResumeSearch.tsx
+  9:18  warning  'User' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\employer\XRaySearch.tsx
+    14:3   warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+    73:10  warning  'searchTime' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+    78:10  warning  'shareFeedback' is assigned a value but never used                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+    85:10  warning  'language' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+    85:20  warning  'setLanguage' is assigned a value but never used                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   649:9   warning  'shareResults' is assigned a value but never used                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  1672:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\components\user\ApplicationSearch.tsx
+  7:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\JobDetails.tsx
+  1:10  warning  'Card' is defined but never used             @typescript-eslint/no-unused-vars
+  1:16  warning  'CardContent' is defined but never used      @typescript-eslint/no-unused-vars
+  1:29  warning  'CardHeader' is defined but never used       @typescript-eslint/no-unused-vars
+  1:41  warning  'CardTitle' is defined but never used        @typescript-eslint/no-unused-vars
+  2:10  warning  'Badge' is defined but never used            @typescript-eslint/no-unused-vars
+  3:40  warning  'PAY_TYPE_LABELS' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\JobSearch.tsx
+  7:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+F:\react\jobsDaddy\jobs-wala\components\user\ProfileForm.tsx
+   12:10  warning  'Card' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   12:16  warning  'CardContent' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   12:29  warning  'CardDescription' is defined but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   12:46  warning  'CardHeader' is defined but never used                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+   12:58  warning  'CardTitle' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  251:19  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  289:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+F:\react\jobsDaddy\jobs-wala\lib\utils.ts
+  40:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 94 problems (4 errors, 90 warnings)
+

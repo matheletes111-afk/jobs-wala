@@ -21,13 +21,9 @@ export default function ShareJobButton({
 }: ShareJobButtonProps) {
   const [copied, setCopied] = useState(false);
 
-  const getShareUrl = () => {
-    if (typeof window === "undefined") return "";
-    return `${window.location.origin}/jobs/${jobId}`;
-  };
-
   const handleShare = useCallback(async () => {
-    const url = getShareUrl();
+    const url = typeof window !== "undefined" ? `${window.location.origin}/jobs/${jobId}` : "";
+    if (!url) return;
     try {
       if (navigator.share && jobTitle) {
         await navigator.share({

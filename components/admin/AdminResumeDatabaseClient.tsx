@@ -440,7 +440,7 @@ export default function AdminResumeDatabaseClient() {
                       <FileText className="h-5 w-5" />
                     </div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic tabular-nums truncate">
-                      {resume.originalFileName} // {formatBytes(resume.sizeBytes)}
+                      {resume.originalFileName} {" // "} {formatBytes(resume.sizeBytes)}
                     </p>
                   </div>
 

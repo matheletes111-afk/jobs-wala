@@ -62,8 +62,9 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ success: true, isUpgradeScheduled: true });
-      } catch (error: any) {
-        console.warn("Seamless update rejected by Razorpay (likely UPI mode). Falling back to new subscription creation.", error.message);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        console.warn("Seamless update rejected by Razorpay (likely UPI mode). Falling back to new subscription creation.", errorMessage);
         // Do nothing here: let the code fall through to create a NEW Razorpay subscription below.
         // The old subscription will be automatically cancelled in the /verify route once the new one is paid.
       }

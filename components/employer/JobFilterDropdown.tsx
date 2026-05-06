@@ -27,7 +27,7 @@ export default function JobFilterDropdown({ jobs, currentJobId }: JobFilterDropd
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(false);
+    Promise.resolve().then(() => setIsLoading(false));
   }, [currentJobId]);
 
   const handleValueChange = (value: string) => {

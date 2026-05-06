@@ -43,6 +43,22 @@ interface GoogleSearchResult {
   };
 }
 
+interface SavedQuery {
+  id: string;
+  label: string;
+  query: string;
+  createdAt: string;
+}
+
+interface ActiveJob {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  location?: string;
+  requiredSkills?: string[];
+}
+
 export default function XRaySearch() {
   const [prompt, setPrompt] = useState("");
   const [xrayQuery, setXrayQuery] = useState("");
@@ -70,14 +86,14 @@ export default function XRaySearch() {
   const [summaries, setSummaries] = useState<Record<string, { summary: string, score: number }>>({});
   const [summarizing, setSummarizing] = useState<string | null>(null);
   const [shortlist, setShortlist] = useState<GoogleSearchResult[]>([]);
-  const [savedQueries, setSavedQueries] = useState<any[]>([]);
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([]);
   const [savingQuery, setSavingQuery] = useState(false);
   const [batchSummarizing, setBatchSummarizing] = useState(false);
   const [sessionInsightsCount, setSessionInsightsCount] = useState(0);
   const [importText, setImportText] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [copyEmailsFeedback, setCopyEmailsFeedback] = useState(false);
-  const [activeJobs, setActiveJobs] = useState<any[]>([]);
+  const [activeJobs, setActiveJobs] = useState<ActiveJob[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [showJobContext, setShowJobContext] = useState(false);
   const [refinements, setRefinements] = useState<string[]>([]);
@@ -123,7 +139,7 @@ export default function XRaySearch() {
     if (savedNotes) setNotes(JSON.parse(savedNotes));
 
     const savedSortBy = localStorage.getItem("xray_sort_by");
-    if (savedSortBy) setSortBy(savedSortBy as any);
+    if (savedSortBy) setSortBy(savedSortBy as "none" | "score");
 
     fetchSavedQueries();
     fetchActiveJobs();
@@ -150,7 +166,7 @@ export default function XRaySearch() {
       const res = await fetch("/api/employer/jobs?limit=50");
       const data = await res.json();
       if (data.jobs) {
-        setActiveJobs(data.jobs.filter((j: any) => j.status === "ACTIVE"));
+        setActiveJobs(data.jobs.filter((j: ActiveJob) => j.status === "ACTIVE"));
       }
     } catch (err) {
       console.error("Failed to fetch active jobs", err);
@@ -392,8 +408,9 @@ export default function XRaySearch() {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setXrayQuery(data.query || "");
-    } catch (err: any) {
-      setError(err.message || "Failed to generate X-Ray string");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate X-Ray string";
+      setError(errorMessage);
     } finally {
       setExtracting(false);
     }
@@ -449,8 +466,9 @@ export default function XRaySearch() {
           setTimeout(() => handleRefine(), 1000);
         }
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch candidates from Google");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch candidates from Google";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -488,7 +506,7 @@ export default function XRaySearch() {
         }
       }));
       setSessionInsightsCount(prev => prev + 1);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("AI Summary Error:", err);
     } finally {
       setSummarizing(null);
@@ -1088,13 +1106,13 @@ export default function XRaySearch() {
                   <li className="flex gap-3">
                     <div className="h-1 w-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                     <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
-                      Use quotes for exact matches: <code className="text-blue-400 not-italic">"React Developer"</code>
+                      Use quotes for exact matches: <code className="text-blue-400 not-italic">&quot;React Developer&quot;</code>
                     </p>
                   </li>
                   <li className="flex gap-3">
                     <div className="h-1 w-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                     <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
-                      Add locations for better accuracy: <code className="text-blue-400 not-italic">"Bangalore"</code> or <code className="text-blue-400 not-italic">"Remote"</code>
+                      Add locations for better accuracy: <code className="text-blue-400 not-italic">&quot;Bangalore&quot;</code> or <code className="text-blue-400 not-italic">&quot;Remote&quot;</code>
                     </p>
                   </li>
                   <li className="flex gap-3">

@@ -23,8 +23,9 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ queries: profile?.savedXRayQueries || [] });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
         where: { userId: session.user.id }
       });
 
-      const existingQueries = (profile?.savedXRayQueries as any[]) || [];
+      const existingQueries = (profile?.savedXRayQueries as { query: string; label: string; createdAt: string }[]) || [];
       const newQuery = { query, label, createdAt: new Date().toISOString() };
 
       await prisma.employerProfile.update({
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
         where: { userId: session.user.id }
       });
 
-      const queries = (profile?.savedXRayQueries as any[]) || [];
+      const queries = (profile?.savedXRayQueries as { query: string; label: string; createdAt: string }[]) || [];
       queries.splice(index, 1);
 
       await prisma.employerProfile.update({
@@ -171,7 +172,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Query and results are required" }, { status: 400 });
       }
 
-      const snippets = results.slice(0, 5).map((r: any) => r.snippet).join("\n");
+      const snippets = results.slice(0, 5).map((r: { snippet: string }) => r.snippet).join("\n");
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -222,8 +223,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[xray-search-api] Error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

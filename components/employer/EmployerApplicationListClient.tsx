@@ -295,7 +295,7 @@ export default function EmployerApplicationListClient({
             <div className="linear-card rounded-[2rem] p-8 bg-emerald-500/5 border-emerald-500/20">
                <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-4">Candidate Tip</h3>
                <p className="text-xs text-muted-foreground leading-loose font-medium italic">
-                 "Review each candidate's skill match percentage to see how well they fit the requirements of your job posting."
+                 &quot;Review each candidate&apos;s skill match percentage to see how well they fit the requirements of your job posting.&quot;
                </p>
             </div>
           </aside>
