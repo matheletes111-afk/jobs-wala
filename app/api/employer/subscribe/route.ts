@@ -118,8 +118,15 @@ export async function POST(req: Request) {
     }
 
     const startAt = existingSubscription 
-      ? Math.floor(new Date(existingSubscription.endDate).getTime() / 1000) 
+      ? Math.max(Math.floor(new Date(existingSubscription.endDate).getTime() / 1000) + 60, Math.floor(Date.now() / 1000) + 60)
       : undefined;
+
+    console.log("Initiating Razorpay Subscription:", {
+      userId,
+      planId: plan.id,
+      razorpayPlanId: plan.razorpayPlanId,
+      startAt
+    });
 
     const razorpaySubscription = await createRazorpaySubscription({
       planId: plan.razorpayPlanId,
@@ -131,14 +138,22 @@ export async function POST(req: Request) {
       },
     });
 
+    console.log("Razorpay Subscription Created:", razorpaySubscription.id);
+
     return NextResponse.json({
       success: true,
       subscriptionId: razorpaySubscription.id,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-      // We do NOT return isUpgradeScheduled here because the user still needs to pay via the popup.
     });
   } catch (error) {
-    console.error("Subscription error:", error);
-    return NextResponse.json({ error: "Failed to initiate subscription" }, { status: 500 });
+    console.error("Subscription initiation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorDetails = error && typeof error === 'object' ? JSON.stringify(error) : "No extra details";
+    
+    return NextResponse.json({ 
+      error: "Failed to initiate subscription",
+      details: errorMessage,
+      raw: errorDetails
+    }, { status: 500 });
   }
 }
