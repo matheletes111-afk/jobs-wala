@@ -16,17 +16,6 @@ export default async function EmployerLayout({
     redirect("/login");
   }
 
-  let canAccessResumeSearch = user.role === UserRole.ADMIN;
-  if (user.role === UserRole.EMPLOYER) {
-    const profile = await prisma.employerProfile.findUnique({
-      where: { userId: user.id },
-      select: { resumeSearchEnabled: true, subscriptionExpiry: true },
-    });
-    
-    const isNotExpired = profile?.subscriptionExpiry ? new Date(profile.subscriptionExpiry) >= new Date() : false;
-    canAccessResumeSearch = Boolean(profile?.resumeSearchEnabled) && isNotExpired;
-  }
-
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-black text-white selection:bg-primary/30">
       <header className="sticky top-0 z-50 w-full glass border-b border-white/5 shadow-2xl">
@@ -44,7 +33,7 @@ export default async function EmployerLayout({
             </div>
           </Link>
           <nav className="flex items-center gap-4">
-            <EmployerHeaderNav canAccessResumeSearch={canAccessResumeSearch} />
+            <EmployerHeaderNav />
           </nav>
         </div>
       </header>

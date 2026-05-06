@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays } from "lucide-react";
+import SkillTagInput from "@/components/common/SkillTagInput";
 
 interface ResumeRecord {
   id: string;
@@ -32,14 +33,16 @@ export default function EmployerResumeDatabaseSearch({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
-  const [skills, setSkills] = useState((initialParams.skills as string) || "");
+  const [skills, setSkills] = useState<string[]>(
+    (initialParams.skills as string)?.split(",").filter(Boolean) || []
+  );
   const [location, setLocation] = useState((initialParams.location as string) || "");
   const [minExperience, setMinExperience] = useState(
     (initialParams.minExperience as string) || ""
   );
 
   const [appliedKeyword, setAppliedKeyword] = useState(keyword);
-  const [appliedSkills, setAppliedSkills] = useState(skills);
+  const [appliedSkills, setAppliedSkills] = useState<string>((initialParams.skills as string) || "");
   const [appliedLocation, setAppliedLocation] = useState(location);
   const [appliedMinExperience, setAppliedMinExperience] = useState(minExperience);
 
@@ -49,6 +52,7 @@ export default function EmployerResumeDatabaseSearch({
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshCount, setRefreshCount] = useState(0);
   const limit = 12;
 
   const fetchResumes = useCallback(
@@ -106,19 +110,21 @@ export default function EmployerResumeDatabaseSearch({
     appliedLocation,
     appliedMinExperience,
     fetchResumes,
+    refreshCount,
   ]);
 
   const apply = () => {
     setAppliedKeyword(keyword);
-    setAppliedSkills(skills);
+    setAppliedSkills(skills.join(","));
     setAppliedLocation(location);
     setAppliedMinExperience(minExperience);
     setPage(1);
+    setRefreshCount((prev) => prev + 1);
   };
 
   const clear = () => {
     setKeyword("");
-    setSkills("");
+    setSkills([]);
     setLocation("");
     setMinExperience("");
     setAppliedKeyword("");
@@ -160,13 +166,14 @@ export default function EmployerResumeDatabaseSearch({
                   className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
                 />
               </div>
-              <Input
-                placeholder="Skills..."
-                value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
-              />
+              <div className="md:col-span-1">
+                <SkillTagInput
+                  value={skills}
+                  onChange={setSkills}
+                  placeholder="Skills..."
+                  className="w-full"
+                />
+              </div>
               <Input
                 placeholder="Location..."
                 value={location}
@@ -197,7 +204,7 @@ export default function EmployerResumeDatabaseSearch({
            </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1">
           {loading ? (
             <div className="col-span-full linear-card rounded-[3rem] p-32 text-center animate-pulse">
                <p className="text-sm font-black uppercase tracking-[0.5em] text-emerald-500">Accessing Resume Archives...</p>
@@ -216,60 +223,71 @@ export default function EmployerResumeDatabaseSearch({
             resumes.map((resume, idx) => (
               <div
                 key={resume.id}
-                className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-8 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+                className="linear-card group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <div className="flex items-center gap-4 mb-6">
-                   <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                      <FileText className="h-6 w-6 text-emerald-400" />
-                   </div>
-                   <div className="min-w-0 flex-1">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 truncate">{resume.originalFileName}</p>
-                      <h3 className="text-lg font-black text-foreground tracking-tight line-clamp-1 group-hover:text-emerald-400 transition-colors">
-                        {resume.extractedName || "Unknown Subject"}
-                      </h3>
-                   </div>
-                </div>
+                <div className="flex-1 min-w-0 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic truncate tabular-nums">
+                      {resume.originalFileName}
+                    </p>
+                  </div>
 
-                <div className="flex-1 space-y-4">
-                   <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
-                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
+                  <div>
+                    <h3 className="text-2xl font-black text-foreground tracking-tighter group-hover:text-emerald-400 transition-colors">
+                      {resume.extractedName || "Unknown Subject"}
+                    </h3>
+                    <div className="mt-4 flex flex-wrap items-center gap-6">
+                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic">
                         <Mail className="h-3.5 w-3.5 text-emerald-500/50" />
                         {resume.extractedEmail || "DATA ENCRYPTED"}
-                      </p>
-                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
+                      </span>
+                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic">
                         <MapPin className="h-3.5 w-3.5 text-emerald-500/50" />
                         {resume.extractedLocation || "ORBITAL / REMOTE"}
-                      </p>
-                      <p className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate">
-                        <Briefcase className="h-3.5 w-3.5 text-emerald-500/50" />
-                        {resume.currentTitle || "UNDEFINED ROLE"} · {resume.experienceYears != null ? `${resume.experienceYears} YRS` : "N/A"}
-                      </p>
-                   </div>
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/80 px-3 py-1 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                        {resume.currentTitle || "UNDEFINED ROLE"}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
+                        {resume.experienceYears != null ? `${resume.experienceYears}YRS EXP` : "N/A"}
+                      </span>
+                    </div>
+                  </div>
 
-                   {resume.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {resume.skills.slice(0, 5).map((skill) => (
+                  {resume.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {resume.skills.map((skill) => {
+                        const isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase());
+                        return (
                           <span
                             key={`${resume.id}-${skill}`}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500/5 border border-emerald-500/10 text-[8px] font-black uppercase tracking-widest text-emerald-400"
+                            className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
+                              isMatched 
+                                ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                                : "bg-white/5 border-white/5 text-muted-foreground/60"
+                            }`}
                           >
                             {skill}
                           </span>
-                        ))}
-                      </div>
-                    )}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
-                     ARCHIVED: {new Date(resume.createdAt).toLocaleDateString("en-GB")}
-                   </p>
-                   <a
+                <div className="flex flex-col items-end gap-6 shrink-0">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 italic tabular-nums">
+                    ARCHIVED: {new Date(resume.createdAt).toLocaleDateString("en-GB")}
+                  </p>
+                  <a
                     href={resume.r2Url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 flex items-center text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-emerald-500 hover:text-white transition-all active:scale-95"
+                    className="h-12 px-8 rounded-2xl bg-white/5 border border-white/10 flex items-center text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-emerald-500 hover:text-white transition-all active:scale-95 shadow-xl hover:shadow-emerald-500/20"
                   >
                     SYNC PDF
                   </a>

@@ -21,6 +21,7 @@ import {
   CircleCheckBig,
   CircleX,
 } from "lucide-react";
+import SkillTagInput from "@/components/common/SkillTagInput";
 
 type ParseStatus = "all" | "PENDING" | "PARSED" | "FAILED";
 
@@ -93,9 +94,10 @@ export default function AdminResumeDatabaseClient() {
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const [keyword, setKeyword] = useState("");
-  const [skills, setSkills] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [parseStatus, setParseStatus] = useState<ParseStatus>("all");
   const [minExperience, setMinExperience] = useState("");
@@ -167,20 +169,22 @@ export default function AdminResumeDatabaseClient() {
     appliedParseStatus,
     appliedMinExperience,
     fetchResumes,
+    refreshCount,
   ]);
 
   const onApplyFilters = () => {
     setAppliedKeyword(keyword);
-    setAppliedSkills(skills);
+    setAppliedSkills(skills.join(","));
     setAppliedLocation(location);
     setAppliedParseStatus(parseStatus);
     setAppliedMinExperience(minExperience);
     setPage(1);
+    setRefreshCount((prev) => prev + 1);
   };
 
   const onClearFilters = () => {
     setKeyword("");
-    setSkills("");
+    setSkills([]);
     setLocation("");
     setParseStatus("all");
     setMinExperience("");
@@ -347,12 +351,11 @@ export default function AdminResumeDatabaseClient() {
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
                 <FileText className="h-3 w-3" /> Skills
               </label>
-              <Input
-                placeholder="React, Java, Python..."
+              <SkillTagInput
                 value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && onApplyFilters()}
-                className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 placeholder:text-[14px] placeholder:font-medium placeholder:tracking-normal"
+                onChange={setSkills}
+                placeholder="React, Java, Python..."
+                className="w-full"
               />
             </div>
             <div className="space-y-4">
@@ -465,11 +468,21 @@ export default function AdminResumeDatabaseClient() {
 
                   {resume.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {resume.skills.map((skill) => (
-                        <span key={skill} className="px-3 py-1 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
-                          {skill}
-                        </span>
-                      ))}
+                      {resume.skills.map((skill) => {
+                        const isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase());
+                        return (
+                          <span
+                            key={`${resume.id}-${skill}`}
+                            className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
+                              isMatched
+                                ? "bg-blue-600 text-white border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.3)]"
+                                : "bg-white/5 border-white/5 text-muted-foreground/60"
+                            }`}
+                          >
+                            {skill}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
 

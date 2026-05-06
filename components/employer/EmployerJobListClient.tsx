@@ -14,7 +14,7 @@ import {
 import { formatLocation, formatSalary } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobStatusActions from "@/components/employer/JobStatusActions";
-import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText } from "lucide-react";
+import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText, Pencil } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 
@@ -324,30 +324,41 @@ export default function EmployerJobListClient() {
                       className="group flex flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02] p-8 transition-all hover:bg-white/5 hover:border-primary/30 animate-in slide-in-from-bottom-10 duration-700 fill-mode-both"
                       style={{ animationDelay: `${idx * 100}ms` }}
                     >
-                      <div className="flex items-start gap-6">
-                        <CompanyLogo
-                          companyLogo={job.employer?.companyLogo}
-                          companyName={job.employer?.companyName ?? job.title}
-                          size="lg"
-                          className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-105 transition-transform"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
-                              {job.status}
-                            </span>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-6 min-w-0">
+                          <CompanyLogo
+                            companyLogo={job.employer?.companyLogo}
+                            companyName={job.employer?.companyName ?? job.title}
+                            size="lg"
+                            className="h-16 w-16 shrink-0 rounded-2xl bg-white/5 border border-white/10 group-hover:scale-105 transition-transform"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
+                                {job.status}
+                              </span>
+                            </div>
+                            <Link href={`/employer/jobs/${job.id}`}>
+                              <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                {job.title}
+                              </h3>
+                            </Link>
+                            <p className="mt-2 flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                              <MapPin className="h-3 w-3 text-primary" />
+                              {formatLocation(job.location)}
+                            </p>
                           </div>
-                          <Link href={`/employer/jobs/${job.id}`}>
-                            <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
-                              {job.title}
-                            </h3>
-                          </Link>
-                          <p className="mt-2 flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            <MapPin className="h-3 w-3 text-primary" />
-                            {formatLocation(job.location)}
-                          </p>
                         </div>
+                        <Link href={`/employer/jobs/${job.id}/edit`} className="shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10 bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/30 text-primary rounded-xl transition-all"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </Link>
                       </div>
 
                       <div className="mt-6 flex flex-wrap gap-2">
@@ -457,6 +468,15 @@ export default function EmployerJobListClient() {
                                     currentStatus={job.status}
                                   />
                                 </div>
+                                <Link href={`/employer/jobs/${job.id}/edit`}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/30 text-primary rounded-lg transition-all"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                </Link>
                                 <Link href={`/employer/jobs/${job.id}`}>
                                   <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
                                     Manage

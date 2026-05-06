@@ -3,7 +3,7 @@ import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { sendNewJobPostedNotificationToAdmin } from "@/lib/email";
 import { z } from "zod";
-import { EmploymentType, JobStatus, UserRole } from "@prisma/client";
+import { EmploymentType, JobStatus, UserRole, WorkMode } from "@prisma/client";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
@@ -16,18 +16,19 @@ const jobSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
-  experienceRequired: z.number().min(0).optional(),
-  experienceMin: z.number().min(0).optional(),
-  experienceMax: z.number().min(0).optional(),
-  salaryRange: z.string().optional(),
-  salaryMin: z.number().min(0).optional(),
-  salaryMax: z.number().min(0).optional(),
-  currency: z.string().optional(),
-  payType: payTypeEnum.optional(),
-  requiredSkills: z.array(z.string()).optional(),
-  secondarySkills: z.array(z.string()).optional(),
+  experienceRequired: z.number().min(0).nullish(),
+  experienceMin: z.number().min(0).nullish(),
+  experienceMax: z.number().min(0).nullish(),
+  salaryRange: z.string().nullish(),
+  salaryMin: z.number().min(0).nullish(),
+  salaryMax: z.number().min(0).nullish(),
+  currency: z.string().nullish(),
+  payType: payTypeEnum.nullish(),
+  requiredSkills: z.array(z.string()).nullish(),
+  secondarySkills: z.array(z.string()).nullish(),
   employmentType: z.nativeEnum(EmploymentType),
-  expiresAt: z.string().datetime().optional(),
+  workMode: z.nativeEnum(WorkMode).nullish(),
+  expiresAt: z.string().datetime().nullish(),
 });
 
 export async function POST(req: NextRequest) {
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
         requiredSkills: data.requiredSkills ?? [],
         secondarySkills: data.secondarySkills ?? [],
         employmentType: data.employmentType,
+        workMode: data.workMode || WorkMode.ONSITE,
         postedBy: profile.userId,
         status: JobStatus.PENDING,
         expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,

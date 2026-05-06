@@ -18,22 +18,24 @@ import {
 } from "@/components/ui/select";
 import LocationDropdown from "@/components/user/LocationDropdown";
 
+// Simplified schema to avoid TypeScript mismatches with zodResolver
 const jobSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
-  experienceRequired: z.number().min(0).optional(),
-  experienceMin: z.number().min(0).optional(),
-  experienceMax: z.number().min(0).optional(),
-  salaryRange: z.string().optional(),
-  salaryMin: z.number().min(0).optional(),
-  salaryMax: z.number().min(0).optional(),
-  currency: z.string().optional(),
-  payType: z.string().optional(),
-  requiredSkills: z.string().optional(), // comma-separated, we split on submit
-  secondarySkills: z.string().optional(),
+  experienceRequired: z.any().nullish(),
+  experienceMin: z.any().nullish(),
+  experienceMax: z.any().nullish(),
+  salaryRange: z.string().nullish(),
+  salaryMin: z.any().nullish(),
+  salaryMax: z.any().nullish(),
+  currency: z.string().nullish(),
+  payType: z.string().nullish(),
+  requiredSkills: z.string().nullish(), // comma-separated, we split on submit
+  secondarySkills: z.string().nullish(),
   employmentType: z.string(),
+  workMode: z.string(),
 });
 
 type JobFormData = z.infer<typeof jobSchema>;
@@ -65,6 +67,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
     resolver: zodResolver(jobSchema),
     defaultValues: {
       employmentType: initialData?.employmentType || "FULL_TIME",
+      workMode: initialData?.workMode || "ONSITE",
       location: initialData?.location || "",
       payType: (() => {
         const v = (initialData as Record<string, unknown>)?.payType;
@@ -86,6 +89,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
   }, []);
 
   const employmentType = watch("employmentType");
+  const workMode = watch("workMode");
   const locationValue = watch("location") as string | undefined;
   const categoryValue = watch("category");
 
@@ -96,6 +100,12 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
     try {
       const url = jobId ? `/api/jobs/${jobId}` : "/api/jobs";
       const method = jobId ? "PUT" : "POST";
+
+      const cleanNumber = (val: any) => {
+        if (val === "" || val === null || val === undefined) return null;
+        const num = Number(val);
+        return isNaN(num) ? null : num;
+      };
 
       const requiredSkillsArray = data.requiredSkills
         ? data.requiredSkills.split(",").map((s) => s.trim()).filter(Boolean)
@@ -109,13 +119,13 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          experienceRequired: data.experienceMin ?? data.experienceRequired ?? 0,
-          experienceMin: data.experienceMin,
-          experienceMax: data.experienceMax,
-          salaryMin: data.salaryMin,
-          salaryMax: data.salaryMax,
-          currency: data.currency || undefined,
-          payType: data.payType || undefined,
+          experienceRequired: cleanNumber(data.experienceMin ?? data.experienceRequired ?? 0) ?? 0,
+          experienceMin: cleanNumber(data.experienceMin),
+          experienceMax: cleanNumber(data.experienceMax),
+          salaryMin: cleanNumber(data.salaryMin),
+          salaryMax: cleanNumber(data.salaryMax),
+          currency: data.currency || null,
+          payType: data.payType || null,
           requiredSkills: requiredSkillsArray,
           secondarySkills: secondarySkillsArray,
         }),
@@ -154,6 +164,19 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         {error && (
           <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 font-bold animate-in slide-in-from-top-4">
             {error}
+          </div>
+        )}
+
+        {Object.keys(errors).length > 0 && (
+          <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 font-bold animate-in slide-in-from-top-4">
+            <p className="mb-2">Please fix the following errors to save the job:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {Object.entries(errors).map(([field, err]) => (
+                <li key={field} className="capitalize">
+                  {field}: {err?.message?.toString() || "Invalid value"}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -267,6 +290,23 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                   <SelectItem value="CONTRACT" className="text-[10px] font-black uppercase tracking-widest text-foreground">Contract</SelectItem>
                   <SelectItem value="INTERNSHIP" className="text-[10px] font-black uppercase tracking-widest text-foreground">Internship</SelectItem>
                   <SelectItem value="FREELANCE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Freelance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+ 
+            <div className="space-y-2">
+              <Label htmlFor="workMode" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Work Mode *</Label>
+              <Select
+                value={workMode}
+                onValueChange={(value) => setValue("workMode", value)}
+              >
+                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                  <SelectItem value="ONSITE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Onsite</SelectItem>
+                  <SelectItem value="HYBRID" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hybrid</SelectItem>
+                  <SelectItem value="REMOTE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Remote</SelectItem>
                 </SelectContent>
               </Select>
             </div>

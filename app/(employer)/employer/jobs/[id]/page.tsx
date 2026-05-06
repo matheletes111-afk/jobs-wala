@@ -93,6 +93,7 @@ export default async function EmployerJobDetailsPage({
                 currency: job.currency,
                 payType: job.payType,
                 employmentType: job.employmentType,
+                workMode: job.workMode,
                 experienceRequired: job.experienceRequired,
                 experienceMin: job.experienceMin,
                 experienceMax: job.experienceMax,

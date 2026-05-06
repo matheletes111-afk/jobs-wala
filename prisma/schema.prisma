@@ -154,6 +154,7 @@ model EmployerProfile {
   website             String?
   description         String?  @db.Text
   resumeSearchEnabled Boolean  @default(false)
+  xraySearchEnabled   Boolean  @default(false)
   savedXRayQueries    Json?    // Array of objects { query: string, label: string, createdAt: date }
   subscriptionId      String?
   subscriptionStatus  SubscriptionStatus? @default(EXPIRED)
@@ -168,6 +169,12 @@ model EmployerProfile {
 
   @@index([userId])
   @@index([companyName])
+}
+
+enum WorkMode {
+  ONSITE
+  HYBRID
+  REMOTE
 }
 
 model Job {
@@ -187,6 +194,7 @@ model Job {
   requiredSkills     String[]       @default([])
   secondarySkills    String[]       @default([])
   employmentType     EmploymentType @default(FULL_TIME)
+  workMode           WorkMode       @default(ONSITE)
   status             JobStatus      @default(PENDING)
   postedBy           String
   expiresAt          DateTime?
@@ -232,6 +240,7 @@ model Plan {
   razorpayPlanId      String?  
   jobLimit            Int      @default(0) 
   resumeSearchEnabled Boolean  @default(false)
+  xraySearchEnabled   Boolean  @default(false)
   status              PlanStatus @default(ACTIVE)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

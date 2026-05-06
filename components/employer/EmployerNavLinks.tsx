@@ -17,8 +17,9 @@ export const employerNavLinks = [
   { href: "/employer/jobs", label: "My Jobs", icon: Briefcase },
   { href: "/employer/applications", label: "Applications", icon: FileText },
   { href: "/employer/search", label: "Search Candidates", icon: Search },
-  { href: "/employer/subscription", label: "Subscription", icon: Zap },
+  { href: "/employer/resume-search", label: "Resume Search", icon: UserCheck },
   { href: "/employer/xray-search", label: "X-Ray Search", icon: Search },
+  { href: "/employer/subscription", label: "Subscription", icon: Zap },
   { href: "/employer/profile", label: "Profile", icon: User },
 ];
 
@@ -27,25 +28,14 @@ interface EmployerNavLinksProps {
   vertical?: boolean;
   /** Optional: close mobile menu after navigation (call in onClick) */
   onLinkClick?: () => void;
-  canAccessResumeSearch: boolean;
 }
 
 export default function EmployerNavLinks({
   vertical,
   onLinkClick,
-  canAccessResumeSearch,
 }: EmployerNavLinksProps) {
   const pathname = usePathname();
-  const links = canAccessResumeSearch
-    ? [
-      ...employerNavLinks,
-      {
-        href: "/employer/resume-search",
-        label: "Resume Search",
-        icon: UserCheck,
-      },
-    ]
-    : employerNavLinks;
+  const links = employerNavLinks;
 
   const linkClass = vertical
     ? (isActive: boolean) =>

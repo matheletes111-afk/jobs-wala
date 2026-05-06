@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { name, description, amount, durationDays, jobLimit, resumeSearchEnabled } = body;
+    const { name, description, amount, durationDays, jobLimit, resumeSearchEnabled, xraySearchEnabled } = body;
 
     let razorpayPlanId = null;
 
@@ -75,6 +75,7 @@ export async function POST(req: Request) {
         durationDays: parseInt(durationDays),
         jobLimit: parseInt(jobLimit),
         resumeSearchEnabled: !!resumeSearchEnabled,
+        xraySearchEnabled: !!xraySearchEnabled,
         razorpayPlanId,
         status: "ACTIVE",
       },

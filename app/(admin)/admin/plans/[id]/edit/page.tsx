@@ -21,6 +21,7 @@ export default function EditPlanPage() {
     durationDays: "30",
     jobLimit: "10",
     resumeSearchEnabled: false,
+    xraySearchEnabled: false,
     status: "ACTIVE",
   });
 
@@ -37,6 +38,7 @@ export default function EditPlanPage() {
             durationDays: plan.durationDays.toString(),
             jobLimit: plan.jobLimit.toString(),
             resumeSearchEnabled: plan.resumeSearchEnabled,
+            xraySearchEnabled: plan.xraySearchEnabled,
             status: plan.status,
           });
         } else {
@@ -65,6 +67,7 @@ export default function EditPlanPage() {
           description: formData.description,
           jobLimit: formData.jobLimit,
           resumeSearchEnabled: formData.resumeSearchEnabled,
+          xraySearchEnabled: formData.xraySearchEnabled,
           status: formData.status,
         }),
       });
@@ -225,6 +228,20 @@ export default function EditPlanPage() {
                   className={`h-6 w-11 rounded-full transition-all duration-500 ${formData.resumeSearchEnabled ? 'bg-blue-600' : 'bg-white/10'}`}
                >
                   <div className={`h-4 w-4 rounded-full bg-white transition-all duration-300 transform ${formData.resumeSearchEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+               </button>
+            </div>
+
+            <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
+               <div className="flex items-center gap-3">
+                  <Zap className={`h-4 w-4 transition-colors ${formData.xraySearchEnabled ? 'text-blue-500' : 'text-white/20'}`} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/60">X-Ray Search Access</span>
+               </div>
+               <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, xraySearchEnabled: !formData.xraySearchEnabled })}
+                  className={`h-6 w-11 rounded-full transition-all duration-500 ${formData.xraySearchEnabled ? 'bg-indigo-600' : 'bg-white/10'}`}
+               >
+                  <div className={`h-4 w-4 rounded-full bg-white transition-all duration-300 transform ${formData.xraySearchEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
                </button>
             </div>
           </div>

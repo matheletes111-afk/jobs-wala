@@ -15,6 +15,7 @@ interface Job {
   currency?: string | null;
   payType?: string | null;
   employmentType: string;
+  workMode: string;
   experienceRequired?: number | null;
   experienceMin?: number | null;
   experienceMax?: number | null;
@@ -63,7 +64,10 @@ export default function JobDetails({ job }: { job: Job }) {
               {job.category}
             </span>
             <span className="inline-flex items-center px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest text-emerald-400">
-              {job.employmentType.replace("_", " ")}
+              {(job.employmentType || "FULL_TIME").replace("_", " ")}
+            </span>
+            <span className="inline-flex items-center px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-black uppercase tracking-widest text-orange-400">
+              {(job.workMode || "ONSITE").replace("_", " ")}
             </span>
           </div>
         </div>
@@ -155,7 +159,7 @@ export default function JobDetails({ job }: { job: Job }) {
               )}
             </div>
           </div>
-          
+
           <div className="linear-card rounded-[2rem] p-8 bg-blue-500/5 border-blue-500/20">
             <h3 className="text-xs font-black uppercase tracking-widest text-blue-400 mb-4">Job Insights</h3>
             <p className="text-xs text-muted-foreground leading-loose font-medium">

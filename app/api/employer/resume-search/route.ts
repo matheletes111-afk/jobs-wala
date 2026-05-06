@@ -69,10 +69,10 @@ export async function GET(req: NextRequest) {
 
       if (requestedSkills.length > 0) {
         const resumeSkills = (resume.skills || []).map((s) => s.toLowerCase());
-        const allMatch = requestedSkills.every((requested) =>
-          resumeSkills.some((skill) => skill.includes(requested))
+        const anyMatch = requestedSkills.some((requested) =>
+          resumeSkills.some((skill) => skill.toLowerCase() === requested.toLowerCase())
         );
-        if (!allMatch) return false;
+        if (!anyMatch) return false;
       }
 
       if (Number.isFinite(minExperience) && minExperience > 0) {

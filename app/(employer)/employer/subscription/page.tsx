@@ -14,6 +14,7 @@ interface Plan {
   durationDays: number;
   jobLimit: number;
   resumeSearchEnabled: boolean;
+  xraySearchEnabled: boolean;
 }
 
 export default function EmployerSubscriptionPage() {
@@ -257,7 +258,9 @@ export default function EmployerSubscriptionPage() {
                 <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
                   <Check className="h-3.5 w-3.5" />
                 </div>
-                <span className="text-sm font-bold text-white/70 tracking-tight">{plan.jobLimit} Job Postings</span>
+                <span className="text-sm font-bold text-white/70 tracking-tight">
+                  {plan.jobLimit === -1 ? "Unlimited" : plan.jobLimit} Job Postings
+                </span>
               </div>
               <div className="flex items-center gap-4">
                 <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${plan.resumeSearchEnabled ? 'bg-blue-500/10 text-blue-500' : 'bg-white/5 text-white/20'}`}>
@@ -265,6 +268,14 @@ export default function EmployerSubscriptionPage() {
                 </div>
                 <span className={`text-sm font-bold tracking-tight ${plan.resumeSearchEnabled ? 'text-white/70' : 'text-white/20 line-through'}`}>
                   Resume Database Search
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${plan.xraySearchEnabled ? 'bg-blue-500/10 text-blue-500' : 'bg-white/5 text-white/20'}`}>
+                  {plan.xraySearchEnabled ? <Check className="h-3.5 w-3.5" /> : <Zap className="h-3.5 w-3.5" />}
+                </div>
+                <span className={`text-sm font-bold tracking-tight ${plan.xraySearchEnabled ? 'text-white/70' : 'text-white/20 line-through'}`}>
+                  X-Ray Search Access
                 </span>
               </div>
               <div className="flex items-start gap-4">

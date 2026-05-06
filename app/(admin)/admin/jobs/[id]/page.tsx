@@ -168,7 +168,10 @@ export default async function AdminJobDetailsPage({
                 job.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
              }`}>{statusLabel} Status</span>
              <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                Type: {job.employmentType.replace("_", " ")}
+                Type: {(job.employmentType || "FULL_TIME").replace("_", " ")}
+             </span>
+             <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                Mode: {(job.workMode || "ONSITE").replace("_", " ")}
              </span>
              <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-white/5 text-muted-foreground/60 border border-white/10 italic">
                 Category: {job.category}

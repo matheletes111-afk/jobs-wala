@@ -1,15 +1,59 @@
 import { requireEmployer } from "@/lib/auth-utils";
 import JobForm from "@/components/employer/JobForm";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 export default async function NewJobPage() {
-  await requireEmployer();
+  const user = await requireEmployer();
+
+  const profile = await prisma.employerProfile.findUnique({
+    where: { userId: user.id },
+    include: {
+      subscriptions: {
+        where: { status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        include: { plan: true },
+      },
+    },
+  });
+
+  const activeSubscription = profile?.subscriptions[0];
+  const isExpired = activeSubscription ? new Date(activeSubscription.endDate) < new Date() : true;
+  
+  let restrictionMessage = null;
+  let isRestricted = false;
+
+  if (!activeSubscription || isExpired) {
+    isRestricted = true;
+    restrictionMessage = "Please subscribe to an active plan to post new jobs.";
+  } else {
+    const jobCount = await prisma.job.count({
+      where: {
+        postedBy: user.id,
+        createdAt: { gte: activeSubscription.startDate },
+      },
+    });
+
+    if (activeSubscription.plan.jobLimit !== -1 && jobCount >= activeSubscription.plan.jobLimit) {
+      isRestricted = true;
+      restrictionMessage = `You have reached your limit of ${activeSubscription.plan.jobLimit} jobs for your current ${activeSubscription.plan.name} plan.`;
+    }
+  }
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-black text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-12">
-        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-8 sm:p-12 mb-12 border border-white/5 animate-in fade-in-up duration-500 fill-mode-both hover:scale-100 hover:border-white/5">
+        
+        {isRestricted && (
+          <div className="mb-12 linear-card rounded-[2rem] border-amber-500/20 bg-amber-500/5 p-8 flex items-center gap-4">
+            <AlertCircle className="h-6 w-6 text-amber-400 shrink-0" />
+            <p className="text-sm text-amber-400 font-bold uppercase tracking-widest">{restrictionMessage}</p>
+          </div>
+        )}
+
+        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-8 sm:p-12 mb-12 border border-white/5">
           <div className="mb-8">
             <Link
               href="/employer/jobs"
@@ -30,7 +74,13 @@ export default async function NewJobPage() {
           </p>
         </div>
         <div className="rounded-[3rem] p-1 shadow-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 overflow-hidden bg-card/40 backdrop-blur-sm">
-          <JobForm />
+          {!isRestricted ? (
+            <JobForm />
+          ) : (
+            <div className="p-20 text-center text-muted-foreground italic font-medium">
+              Job posting is currently disabled due to your subscription status.
+            </div>
+          )}
         </div>
       </div>
     </div>

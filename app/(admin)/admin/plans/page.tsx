@@ -14,6 +14,7 @@ interface Plan {
   durationDays: number;
   jobLimit: number;
   resumeSearchEnabled: boolean;
+  xraySearchEnabled: boolean;
   status: "ACTIVE" | "INACTIVE" | "ARCHIVED";
   createdAt: string;
 }

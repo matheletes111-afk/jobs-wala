@@ -72,11 +72,8 @@ export async function GET(req: NextRequest) {
 
     if (requestedSkills.length > 0) {
       whereAnd.push({
-        AND: requestedSkills.map((s) => ({
-          OR: [
-            { skills: { hasSome: [s] } },
-            { extractedText: { contains: s, mode: "insensitive" } },
-          ],
+        OR: requestedSkills.map((s) => ({
+          skills: { hasSome: [s] }
         })),
       });
     }

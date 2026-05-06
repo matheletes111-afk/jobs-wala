@@ -91,6 +91,7 @@ export async function POST(req: Request) {
               subscriptionStatus: "ACTIVE",
               subscriptionExpiry: existingSubscription.endDate,
               resumeSearchEnabled: existingSubscription.plan.resumeSearchEnabled,
+              xraySearchEnabled: existingSubscription.plan.xraySearchEnabled,
             },
           });
 
@@ -138,6 +139,7 @@ export async function POST(req: Request) {
             subscriptionStatus: "ACTIVE",
             subscriptionExpiry: newEndDate,
             resumeSearchEnabled: activePlan ? activePlan.resumeSearchEnabled : existingSubscription.plan.resumeSearchEnabled,
+            xraySearchEnabled: activePlan ? activePlan.xraySearchEnabled : existingSubscription.plan.xraySearchEnabled,
           },
         });
       }
@@ -163,7 +165,8 @@ export async function POST(req: Request) {
           where: { userId: sub.employerId },
           data: { 
             subscriptionStatus: "EXPIRED",
-            resumeSearchEnabled: false 
+            resumeSearchEnabled: false,
+            xraySearchEnabled: false 
           },
         });
       }

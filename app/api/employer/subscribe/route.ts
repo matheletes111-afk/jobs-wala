@@ -102,6 +102,7 @@ export async function POST(req: Request) {
           subscriptionStatus: "ACTIVE",
           subscriptionExpiry: subscription.endDate,
           resumeSearchEnabled: plan.resumeSearchEnabled,
+          xraySearchEnabled: plan.xraySearchEnabled,
         },
       });
 

@@ -36,7 +36,7 @@ export async function PATCH(
 
   try {
     const body = await req.json();
-    const { status, name, description, jobLimit, resumeSearchEnabled } = body;
+    const { status, name, description, jobLimit, resumeSearchEnabled, xraySearchEnabled } = body;
 
     const plan = await prisma.plan.update({
       where: { id: id },
@@ -46,6 +46,7 @@ export async function PATCH(
         description,
         jobLimit: jobLimit ? parseInt(jobLimit) : undefined,
         resumeSearchEnabled: resumeSearchEnabled !== undefined ? !!resumeSearchEnabled : undefined,
+        xraySearchEnabled: xraySearchEnabled !== undefined ? !!xraySearchEnabled : undefined,
       },
     });
 
