@@ -1,10 +1,17 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
-export const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+let _razorpay: Razorpay | null = null;
+
+function getRazorpayInstance(): Razorpay {
+  if (!_razorpay) {
+    _razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID || "",
+      key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+    });
+  }
+  return _razorpay;
+}
 
 export interface CreateOrderParams {
   amount: number; // in paise (smallest currency unit)
@@ -21,7 +28,7 @@ export async function createRazorpayOrder(params: CreateOrderParams) {
     notes: params.notes || {},
   };
 
-  return await razorpay.orders.create(options);
+  return await getRazorpayInstance().orders.create(options);
 }
 
 // Plan & Subscription support
@@ -33,7 +40,7 @@ export async function createRazorpayPlan(params: {
   period: "daily" | "weekly" | "monthly" | "yearly";
   interval: number;
 }) {
-  return await razorpay.plans.create({
+  return await getRazorpayInstance().plans.create({
     period: params.period,
     interval: params.interval,
     item: {
@@ -51,7 +58,7 @@ export async function createRazorpaySubscription(params: {
   startAt?: number; // Unix timestamp
   notes?: Record<string, string>;
 }) {
-  return await razorpay.subscriptions.create({
+  return await getRazorpayInstance().subscriptions.create({
     plan_id: params.planId,
     total_count: params.totalCount,
     quantity: 1,
@@ -90,7 +97,7 @@ export async function updateRazorpaySubscription(
 }
 
 export async function cancelRazorpaySubscription(subscriptionId: string, cancelAtCycleEnd: boolean = false) {
-  return await razorpay.subscriptions.cancel(subscriptionId, cancelAtCycleEnd);
+  return await getRazorpayInstance().subscriptions.cancel(subscriptionId, cancelAtCycleEnd);
 }
 
 export function verifyRazorpayPayment(
@@ -123,14 +130,14 @@ export function verifyRazorpaySubscription(
 }
 
 export async function getRazorpayOrder(orderId: string) {
-  return await razorpay.orders.fetch(orderId);
+  return await getRazorpayInstance().orders.fetch(orderId);
 }
 
 export async function getRazorpayPayment(paymentId: string) {
-  return await razorpay.payments.fetch(paymentId);
+  return await getRazorpayInstance().payments.fetch(paymentId);
 }
 
 export async function getRazorpaySubscription(subscriptionId: string) {
-  return await razorpay.subscriptions.fetch(subscriptionId);
+  return await getRazorpayInstance().subscriptions.fetch(subscriptionId);
 }
 
