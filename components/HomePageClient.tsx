@@ -277,7 +277,7 @@ export default function HomePageClient({
                       </p>
                       <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                         <MapPin className="h-3.5 w-3.5 text-[#2563eb]/70" />
-                        {formatLocation(job.location)}
+                        {formatLocation(job.location, true)}
                       </p>
                     </div>
                     <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">

@@ -346,7 +346,7 @@ export default function EmployerJobListClient() {
                             </Link>
                             <p className="mt-2 flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                               <MapPin className="h-3 w-3 text-primary" />
-                              {formatLocation(job.location)}
+                              {formatLocation(job.location, true)}
                             </p>
                           </div>
                         </div>
@@ -437,7 +437,7 @@ export default function EmployerJobListClient() {
                                   <Link href={`/employer/jobs/${job.id}`}>
                                     <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{job.title}</p>
                                   </Link>
-                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{formatLocation(job.location)}</p>
+                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{formatLocation(job.location, true)}</p>
                                 </div>
                               </div>
                             </td>

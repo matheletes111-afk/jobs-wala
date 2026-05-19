@@ -93,28 +93,36 @@ export async function GET(req: NextRequest) {
     if (location && isLocationJson) {
       try {
         const locationData = JSON.parse(location);
-        const hasLocationFilter =
-          (locationData.city && locationData.city.trim() !== "") ||
-          (locationData.state && locationData.state.trim() !== "") ||
-          (locationData.country && locationData.country.trim() !== "");
+        
+        let targetCountry = "";
+        let targetStates: string[] = [];
+        let targetCities: string[] = [];
+        
+        if (locationData.country) targetCountry = locationData.country.trim().toLowerCase();
+        if (locationData.state) targetStates = (Array.isArray(locationData.state) ? locationData.state : [locationData.state]).map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+        if (locationData.city) targetCities = (Array.isArray(locationData.city) ? locationData.city : [locationData.city]).map((c: string) => c.trim().toLowerCase()).filter(Boolean);
+        
+        const hasLocationFilter = targetCountry || targetStates.length > 0 || targetCities.length > 0;
+        
         if (hasLocationFilter) {
           candidates = candidates.filter((candidate) => {
             if (!candidate.location) return false;
             try {
               const candidateLocation = JSON.parse(candidate.location);
               let matches = false;
-              if (locationData.city && locationData.city.trim() !== "") {
-                matches =
-                  candidateLocation.city &&
-                  candidateLocation.city.toLowerCase() === locationData.city.toLowerCase();
-              } else if (locationData.state && locationData.state.trim() !== "") {
-                matches =
-                  candidateLocation.state &&
-                  candidateLocation.state.toLowerCase() === locationData.state.toLowerCase();
-              } else if (locationData.country && locationData.country.trim() !== "") {
-                matches =
-                  candidateLocation.country &&
-                  candidateLocation.country.toLowerCase() === locationData.country.toLowerCase();
+              
+              let candStates: string[] = [];
+              let candCities: string[] = [];
+              
+              if (candidateLocation.state) candStates = (Array.isArray(candidateLocation.state) ? candidateLocation.state : [candidateLocation.state]).map((s: string) => s.trim().toLowerCase());
+              if (candidateLocation.city) candCities = (Array.isArray(candidateLocation.city) ? candidateLocation.city : [candidateLocation.city]).map((c: string) => c.trim().toLowerCase());
+              
+              if (targetCities.length > 0) {
+                matches = targetCities.some(tc => candCities.includes(tc));
+              } else if (targetStates.length > 0) {
+                matches = targetStates.some(ts => candStates.includes(ts));
+              } else if (targetCountry) {
+                matches = candidateLocation.country && candidateLocation.country.trim().toLowerCase() === targetCountry;
               }
               return matches;
             } catch {

@@ -20,7 +20,7 @@ export function formatResumeUpdatedAt(date: Date | string | null | undefined): s
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export function formatLocation(location: string | null | undefined): string {
+export function formatLocation(location: string | null | undefined, short: boolean = false): string {
   if (!location || location.trim() === "") return "Not specified";
   
   try {
@@ -28,15 +28,31 @@ export function formatLocation(location: string | null | undefined): string {
     const parts: string[] = [];
     
     // Handle both lowercase and capitalized keys for backward compatibility
-    const city = locationData.city || locationData.City;
-    const state = locationData.state || locationData.State;
+    let city = locationData.city || locationData.City;
+    let state = locationData.state || locationData.State;
     const country = locationData.country || locationData.Country;
     
-    if (city) parts.push(city);
-    if (state) parts.push(state);
-    if (country) parts.push(country);
+    // Ensure array for consistent handling
+    const cities = Array.isArray(city) ? city : city ? [city] : [];
+    const states = Array.isArray(state) ? state : state ? [state] : [];
     
-    return parts.length > 0 ? parts.join(", ") : location;
+    if (short) {
+      if (cities.length > 0) parts.push(cities[0]);
+      if (states.length > 0) parts.push(states[0]);
+      if (country) parts.push(country);
+      
+      const moreCount = Math.max(0, cities.length - 1) + Math.max(0, states.length - 1);
+      if (moreCount > 0) {
+        return parts.join(", ") + ` and ${moreCount} more`;
+      }
+      return parts.length > 0 ? parts.join(", ") : location;
+    } else {
+      if (cities.length > 0) parts.push(cities.join(", "));
+      if (states.length > 0) parts.push(states.join(", "));
+      if (country) parts.push(country);
+      
+      return parts.length > 0 ? parts.join(" | ") : location;
+    }
   } catch (_e) {
     // If it's not JSON, return as is (for backward compatibility)
     return location;

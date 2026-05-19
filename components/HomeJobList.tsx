@@ -51,7 +51,7 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                 </Link>
                 <p className="mt-1 text-gray-600">{job.employer.companyName}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge variant="outline">{formatLocation(job.location)}</Badge>
+                  <Badge variant="outline">{formatLocation(job.location, true)}</Badge>
                   <Badge variant="outline">{job.category}</Badge>
                   <Badge variant="outline">{job.employmentType}</Badge>
                   {job.salaryRange && (

@@ -368,7 +368,7 @@ export default function EmployerApplicationListClient({
                             <div className="mt-4 flex flex-wrap items-center gap-3">
                               <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
                                 <MapPin className="h-3 w-3 text-primary" />
-                                {formatLocation(app.job.location)}
+                                {formatLocation(app.job.location, true)}
                               </span>
                               <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary">
                                 {app.job.category}

@@ -44,24 +44,29 @@ function matchLocation(locationFilter: string, jobLocation: string): boolean {
     const locationData = JSON.parse(locationFilter);
     try {
       const jobLoc = JSON.parse(jobLocation);
-      if (locationData.city?.trim()) {
-        return !!(
-          jobLoc.city &&
-          jobLoc.city.toLowerCase() === locationData.city.toLowerCase()
-        );
+      
+      let targetCountry = "";
+      let targetStates: string[] = [];
+      let targetCities: string[] = [];
+      
+      if (locationData.country) targetCountry = locationData.country.trim().toLowerCase();
+      if (locationData.state) targetStates = (Array.isArray(locationData.state) ? locationData.state : [locationData.state]).map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+      if (locationData.city) targetCities = (Array.isArray(locationData.city) ? locationData.city : [locationData.city]).map((c: string) => c.trim().toLowerCase()).filter(Boolean);
+      
+      let candStates: string[] = [];
+      let candCities: string[] = [];
+      
+      if (jobLoc.state) candStates = (Array.isArray(jobLoc.state) ? jobLoc.state : [jobLoc.state]).map((s: string) => s.trim().toLowerCase());
+      if (jobLoc.city) candCities = (Array.isArray(jobLoc.city) ? jobLoc.city : [jobLoc.city]).map((c: string) => c.trim().toLowerCase());
+      
+      if (targetCities.length > 0) {
+        return targetCities.some(tc => candCities.includes(tc));
+      } else if (targetStates.length > 0) {
+        return targetStates.some(ts => candStates.includes(ts));
+      } else if (targetCountry) {
+        return jobLoc.country && jobLoc.country.trim().toLowerCase() === targetCountry;
       }
-      if (locationData.state?.trim()) {
-        return !!(
-          jobLoc.state &&
-          jobLoc.state.toLowerCase() === locationData.state.toLowerCase()
-        );
-      }
-      if (locationData.country?.trim()) {
-        return !!(
-          jobLoc.country &&
-          jobLoc.country.toLowerCase() === locationData.country.toLowerCase()
-        );
-      }
+      return true; // if no filter provided
     } catch {
       const formatted = formatLocation(locationFilter);
       return jobLocation.toLowerCase().includes(formatted.toLowerCase());
@@ -197,7 +202,7 @@ export default function EmployerJobList({ initialJobs }: EmployerJobListProps) {
                       </Link>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Badge variant="outline">
-                          {formatLocation(job.location)}
+                          {formatLocation(job.location, true)}
                         </Badge>
                         <Badge variant="outline">{job.category}</Badge>
                         <Badge

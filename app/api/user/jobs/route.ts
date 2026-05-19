@@ -18,20 +18,20 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const search = (searchParams.get("search") || "").trim();
     const category = (searchParams.get("category") || "").trim();
-    let country = (searchParams.get("country") || "").trim();
-    let state = (searchParams.get("state") || "").trim();
-    let city = (searchParams.get("city") || "").trim();
+    let country = "";
+    let state: string[] = [];
+    let city: string[] = [];
     const locationParam = searchParams.get("location") || "";
     if (locationParam) {
       try {
         const loc = JSON.parse(decodeURIComponent(locationParam)) as {
           country?: string;
-          state?: string;
-          city?: string;
+          state?: string | string[];
+          city?: string | string[];
         };
         if (loc.country) country = loc.country.trim();
-        if (loc.state) state = loc.state.trim();
-        if (loc.city) city = loc.city.trim();
+        if (loc.state) state = Array.isArray(loc.state) ? loc.state : [loc.state.trim()];
+        if (loc.city) city = Array.isArray(loc.city) ? loc.city : [loc.city.trim()];
       } catch {
         // ignore invalid JSON
       }
@@ -57,21 +57,23 @@ export async function GET(req: NextRequest) {
         },
       });
     }
-    if (state) {
-      andParts.push({
+    if (state && state.length > 0) {
+      const stateOrs = state.filter(s => s.trim()).map(s => ({
         location: {
-          contains: `"state":"${state.replace(/"/g, '\\"')}"`,
+          contains: `"${s.trim().replace(/"/g, '\\"')}"`,
           mode: "insensitive" as const,
-        },
-      });
+        }
+      }));
+      if (stateOrs.length > 0) andParts.push({ OR: stateOrs });
     }
-    if (city) {
-      andParts.push({
+    if (city && city.length > 0) {
+      const cityOrs = city.filter(c => c.trim()).map(c => ({
         location: {
-          contains: `"city":"${city.replace(/"/g, '\\"')}"`,
+          contains: `"${c.trim().replace(/"/g, '\\"')}"`,
           mode: "insensitive" as const,
-        },
-      });
+        }
+      }));
+      if (cityOrs.length > 0) andParts.push({ OR: cityOrs });
     }
 
     const where = { AND: andParts };

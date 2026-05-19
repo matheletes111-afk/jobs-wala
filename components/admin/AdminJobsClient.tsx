@@ -468,7 +468,7 @@ function JobCard({
             </span>
             <span className="px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2 tabular-nums">
               <MapPin className="h-3 w-3" />
-              {formatLocation(job.location)}
+              {formatLocation(job.location, true)}
             </span>
          </div>
       </div>

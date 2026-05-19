@@ -251,7 +251,7 @@ export default function JobSearch() {
                       
                       <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
                         <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
-                          {formatLocation(job.location)}
+                          {formatLocation(job.location, true)}
                         </span>
                         <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
                           {job.category}

@@ -9,11 +9,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, X } from "lucide-react";
 
 interface LocationData {
   country: string;
-  state: string;
-  city: string;
+  state: string[];
+  city: string[];
 }
 
 interface LocationDropdownProps {
@@ -49,13 +57,16 @@ export default function LocationDropdown({
   const [countries, setCountries] = useState<Array<{ name: string; isoCode: string }>>([]);
   const [states, setStates] = useState<Array<{ name: string; isoCode: string }>>([]);
   const [cities, setCities] = useState<Array<{ name: string }>>([]);
+  
   const [selectedCountry, setSelectedCountry] = useState<string>("");
-  const [selectedState, setSelectedState] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const scriptLoaded = useRef(false);
   const initialLocation = useRef<LocationData | null>(null);
   const isPrefilling = useRef(false);
+  const isInternalChange = useRef(false);
 
   const prefillLocation = useCallback(() => {
     if (!initialLocation.current || !window.csc || isPrefilling.current) return;
@@ -66,7 +77,6 @@ export default function LocationDropdown({
     try {
       const loc = initialLocation.current;
       
-      // Find and set country
       const allCountries = Country.getAllCountries();
       if (loc.country) {
         const countryObj = allCountries.find(
@@ -75,8 +85,6 @@ export default function LocationDropdown({
         
         if (countryObj) {
           setSelectedCountry(countryObj.isoCode);
-          
-          // Load states for the country - the useEffect will handle setting the selected state
           const countryStates = State.getStatesOfCountry(countryObj.isoCode);
           setStates(countryStates);
         }
@@ -90,90 +98,106 @@ export default function LocationDropdown({
 
   // Parse existing location value
   useEffect(() => {
+    if (isInternalChange.current) {
+      isInternalChange.current = false;
+      return;
+    }
+
     if (value) {
       try {
-        const locationData: LocationData = JSON.parse(value);
-        initialLocation.current = locationData;
-        // If library is already loaded, trigger prefilling
+        const parsed = JSON.parse(value);
+        let sStates: string[] = [];
+        let sCities: string[] = [];
+        
+        if (parsed.state) {
+          sStates = Array.isArray(parsed.state) ? parsed.state : [parsed.state];
+        }
+        if (parsed.city) {
+          sCities = Array.isArray(parsed.city) ? parsed.city : [parsed.city];
+        }
+        
+        initialLocation.current = {
+          country: parsed.country || "",
+          state: sStates,
+          city: sCities
+        };
+        
         if (scriptLoaded.current && window.csc) {
-          // Reset selections first, then prefill after a small delay
           setSelectedCountry("");
-          setSelectedState("");
-          setSelectedCity("");
+          setSelectedStates([]);
+          setSelectedCities([]);
           setStates([]);
           setCities([]);
-          // Use a small delay to ensure state updates are processed
           setTimeout(() => {
             prefillLocation();
           }, 100);
         }
       } catch (e) {
-        console.error("Failed to parse location:", e);
         initialLocation.current = null;
         setSelectedCountry("");
-        setSelectedState("");
-        setSelectedCity("");
+        setSelectedStates([]);
+        setSelectedCities([]);
         setStates([]);
         setCities([]);
       }
     } else {
       initialLocation.current = null;
       setSelectedCountry("");
-      setSelectedState("");
-      setSelectedCity("");
+      setSelectedStates([]);
+      setSelectedCities([]);
       setStates([]);
       setCities([]);
     }
   }, [value, prefillLocation]);
 
-  // Watch for states to be loaded and prefill state if needed
+  // Watch for states to be loaded and prefill states if needed
   useEffect(() => {
     if (
       states.length > 0 &&
       initialLocation.current?.state &&
+      initialLocation.current.state.length > 0 &&
       selectedCountry &&
-      !selectedState
+      selectedStates.length === 0
     ) {
-      const stateObj = states.find(
-        (s) =>
-          s.name === initialLocation.current!.state ||
-          s.name.toLowerCase() === initialLocation.current!.state.toLowerCase()
-      );
-      if (stateObj) {
-        setSelectedState(stateObj.isoCode);
-        // Load cities for this state
-        if (window.csc) {
-          const countryObj = countries.find((c) => c.isoCode === selectedCountry);
-          if (countryObj && window.csc.City) {
-            const stateCities = window.csc.City.getCitiesOfState(
-              selectedCountry,
-              stateObj.isoCode
-            );
-            setCities(stateCities);
-          }
+      const targetStateNames = initialLocation.current.state.map(s => s.toLowerCase());
+      const matchingStates = states.filter(s => targetStateNames.includes(s.name.toLowerCase()));
+      
+      if (matchingStates.length > 0) {
+        const stateIsoCodes = matchingStates.map(s => s.isoCode);
+        setSelectedStates(stateIsoCodes);
+        
+        if (window.csc && window.csc.City) {
+          const allCities: { name: string }[] = [];
+          stateIsoCodes.forEach(iso => {
+            const stateCities = window.csc!.City.getCitiesOfState(selectedCountry, iso);
+            allCities.push(...stateCities);
+          });
+          
+          // Deduplicate cities by name
+          const uniqueCities = Array.from(new Map(allCities.map(item => [item.name, item])).values());
+          setCities(uniqueCities);
         }
       }
     }
-  }, [states, selectedCountry, selectedState, countries]);
+  }, [states, selectedCountry, selectedStates]);
 
-  // Watch for cities to be loaded and prefill city if needed
+  // Watch for cities to be loaded and prefill cities if needed
   useEffect(() => {
     if (
       cities.length > 0 &&
       initialLocation.current?.city &&
-      selectedState &&
-      !selectedCity
+      initialLocation.current.city.length > 0 &&
+      selectedStates.length > 0 &&
+      selectedCities.length === 0
     ) {
-      const cityFound = cities.find(
-        (c) =>
-          c.name === initialLocation.current!.city ||
-          c.name.toLowerCase() === initialLocation.current!.city.toLowerCase()
-      );
-      if (cityFound) {
-        setSelectedCity(cityFound.name);
+      const targetCityNames = initialLocation.current.city.map(c => c.toLowerCase());
+      const matchingCities = cities.filter(c => targetCityNames.includes(c.name.toLowerCase()));
+      
+      if (matchingCities.length > 0) {
+        setSelectedCities(matchingCities.map(c => c.name));
       }
     }
-  }, [cities, selectedState, selectedCity]);
+  }, [cities, selectedStates, selectedCities]);
 
   const loadCountries = () => {
     if (typeof window !== "undefined" && window.csc) {
@@ -183,9 +207,7 @@ export default function LocationDropdown({
         setCountries(allCountries);
         setLoading(false);
 
-        // Prefill location if we have initial location data
         if (initialLocation.current) {
-          // Use setTimeout to ensure countries state is set
           setTimeout(() => {
             prefillLocation();
           }, 50);
@@ -209,7 +231,23 @@ export default function LocationDropdown({
     }
   };
 
-  // Load the country-state-city library from CDN
+  const loadCitiesForStates = (countryIsoCode: string, stateIsoCodes: string[]) => {
+    if (typeof window !== "undefined" && window.csc) {
+      try {
+        const { City } = window.csc;
+        const allCities: { name: string }[] = [];
+        stateIsoCodes.forEach(stateIso => {
+          const stateCities = City.getCitiesOfState(countryIsoCode, stateIso);
+          allCities.push(...stateCities);
+        });
+        const uniqueCities = Array.from(new Map(allCities.map(item => [item.name, item])).values());
+        setCities(uniqueCities);
+      } catch (error) {
+        console.error("Error loading cities:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (scriptLoaded.current) return;
 
@@ -227,88 +265,88 @@ export default function LocationDropdown({
     };
     
     window.onCSCLoaded = handleLoad;
-
-    script.onerror = () => {
-      console.error("Failed to load country-state-city library");
-      setLoading(false);
-    };
-
+    script.onerror = () => setLoading(false);
     document.head.appendChild(script);
 
     return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      if (script.parentNode) script.parentNode.removeChild(script);
       delete window.onCSCLoaded;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const loadCities = (countryIsoCode: string, stateIsoCode: string) => {
-    if (typeof window !== "undefined" && window.csc) {
-      try {
-        const { City } = window.csc;
-        const stateCities = City.getCitiesOfState(countryIsoCode, stateIsoCode);
-        setCities(stateCities);
-      } catch (error) {
-        console.error("Error loading cities:", error);
-      }
-    }
-  };
 
   const handleCountryChange = (countryIsoCode: string) => {
     setSelectedCountry(countryIsoCode);
-    setSelectedState("");
-    setSelectedCity("");
+    setSelectedStates([]);
+    setSelectedCities([]);
     setStates([]);
     setCities([]);
 
     if (countryIsoCode) {
       loadStates(countryIsoCode);
       const countryObj = countries.find((c) => c.isoCode === countryIsoCode);
-      updateLocation(countryObj ? countryObj.name : "", "", "");
+      updateLocation(countryObj ? countryObj.name : "", [], []);
     } else {
-      updateLocation("", "", "");
+      updateLocation("", [], []);
     }
   };
 
-  const handleStateChange = (stateIsoCode: string) => {
-    setSelectedState(stateIsoCode);
-    setSelectedCity("");
+  const handleStateToggle = (stateIsoCode: string) => {
+    let newSelectedStates = [...selectedStates];
+    if (newSelectedStates.includes(stateIsoCode)) {
+      newSelectedStates = newSelectedStates.filter(code => code !== stateIsoCode);
+    } else {
+      newSelectedStates.push(stateIsoCode);
+    }
+    
+    setSelectedStates(newSelectedStates);
+    setSelectedCities([]); // reset cities on state change
     setCities([]);
 
-    if (stateIsoCode && selectedCountry) {
-      loadCities(selectedCountry, stateIsoCode);
-      const countryObj = countries.find((c) => c.isoCode === selectedCountry);
-      const stateObj = states.find((s) => s.isoCode === stateIsoCode);
-      updateLocation(
-        countryObj ? countryObj.name : "",
-        stateObj ? stateObj.name : "",
-        ""
-      );
-    } else {
-      const countryObj = countries.find((c) => c.isoCode === selectedCountry);
-      updateLocation(countryObj ? countryObj.name : "", "", "");
+    if (newSelectedStates.length > 0 && selectedCountry) {
+      loadCitiesForStates(selectedCountry, newSelectedStates);
     }
-  };
-
-  const handleCityChange = (cityName: string) => {
-    setSelectedCity(cityName);
+    
     const countryObj = countries.find((c) => c.isoCode === selectedCountry);
-    const stateObj = states.find((s) => s.isoCode === selectedState);
+    const selectedStateNames = newSelectedStates
+      .map(iso => states.find(s => s.isoCode === iso)?.name)
+      .filter(Boolean) as string[];
+      
     updateLocation(
       countryObj ? countryObj.name : "",
-      stateObj ? stateObj.name : "",
-      cityName
+      selectedStateNames,
+      []
     );
   };
 
-  const updateLocation = (country: string, state: string, city: string) => {
-    const locationData: LocationData = {
+  const handleCityToggle = (cityName: string) => {
+    let newSelectedCities = [...selectedCities];
+    if (newSelectedCities.includes(cityName)) {
+      newSelectedCities = newSelectedCities.filter(name => name !== cityName);
+    } else {
+      newSelectedCities.push(cityName);
+    }
+    
+    setSelectedCities(newSelectedCities);
+    
+    const countryObj = countries.find((c) => c.isoCode === selectedCountry);
+    const selectedStateNames = selectedStates
+      .map(iso => states.find(s => s.isoCode === iso)?.name)
+      .filter(Boolean) as string[];
+      
+    updateLocation(
+      countryObj ? countryObj.name : "",
+      selectedStateNames,
+      newSelectedCities
+    );
+  };
+
+  const updateLocation = (country: string, stateNames: string[], cityNames: string[]) => {
+    const locationData = {
       country: country || "",
-      state: state || "",
-      city: city || "",
+      state: stateNames,
+      city: cityNames,
     };
+    isInternalChange.current = true;
     onChange(JSON.stringify(locationData));
   };
 
@@ -336,47 +374,89 @@ export default function LocationDropdown({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="state">State</Label>
-          <Select
-            value={selectedState}
-            onValueChange={handleStateChange}
-            disabled={!selectedCountry || loading}
-          >
-            <SelectTrigger id="state" className="w-full">
-              <SelectValue placeholder="Select State" />
-            </SelectTrigger>
-            <SelectContent>
+          <Label htmlFor="state">State (Multiple)</Label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between font-normal bg-background/50"
+                disabled={!selectedCountry || loading || states.length === 0}
+              >
+                Select States
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
               {states.map((state) => (
-                <SelectItem key={state.isoCode} value={state.isoCode}>
+                <DropdownMenuCheckboxItem
+                  key={state.isoCode}
+                  checked={selectedStates.includes(state.isoCode)}
+                  onCheckedChange={() => handleStateToggle(state.isoCode)}
+                  onSelect={(e) => e.preventDefault()}
+                >
                   {state.name}
-                </SelectItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {selectedStates.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {selectedStates.map((iso) => {
+                const state = states.find((s) => s.isoCode === iso);
+                return state ? (
+                  <span key={iso} className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm">
+                    {state.name}
+                    <button type="button" onClick={(e) => { e.preventDefault(); handleStateToggle(iso); }} className="hover:text-red-400 transition-colors bg-white/10 rounded-full p-0.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="city">City</Label>
-          <Select
-            value={selectedCity}
-            onValueChange={handleCityChange}
-            disabled={!selectedState || loading}
-          >
-            <SelectTrigger id="city" className="w-full">
-              <SelectValue placeholder="Select City" />
-            </SelectTrigger>
-            <SelectContent>
+          <Label htmlFor="city">City (Multiple)</Label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between font-normal bg-background/50"
+                disabled={selectedStates.length === 0 || loading || cities.length === 0}
+              >
+                Select Cities
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
               {cities.map((city, index) => (
-                <SelectItem key={`${city.name}-${index}`} value={city.name}>
+                <DropdownMenuCheckboxItem
+                  key={`${city.name}-${index}`}
+                  checked={selectedCities.includes(city.name)}
+                  onCheckedChange={() => handleCityToggle(city.name)}
+                  onSelect={(e) => e.preventDefault()}
+                >
                   {city.name}
-                </SelectItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {selectedCities.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {selectedCities.map((cityName) => (
+                <span key={cityName} className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm">
+                  {cityName}
+                  <button type="button" onClick={(e) => { e.preventDefault(); handleCityToggle(cityName); }} className="hover:text-red-400 transition-colors bg-white/10 rounded-full p-0.5">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }
-
