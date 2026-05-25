@@ -92,41 +92,50 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background xl:flex-row divide-x divide-white/5">
-      {/* Left section - only on xl+ to avoid gap on medium screens */}
-      <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
-        <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">
-          <img
-            src="/images/logo.jpeg"
-            alt="Jobs Portal"
-            width={320}
-            height={320}
-            className="h-32 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
-          />
-        </Link>
-        <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary">
-          Sign In
-        </p>
-        <h2 className="mb-6 text-3xl font-black leading-tight text-foreground xl:text-4xl 2xl:text-5xl">
-          Welcome back to the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Future of Work</span>
-        </h2>
-        <p className="mb-10 max-w-md text-lg text-muted-foreground leading-relaxed">
-          Sign in to access your dashboard, discover personalized job matches, and manage your professional journey.
-        </p>
-        <ul className="space-y-4">
-          {[
-            "Access curated jobs from verified companies",
-            "Showcase your portfolio and skill badges",
-            "Collaborate with hiring teams in real time"
-          ].map((text) => (
-            <li key={text} className="flex items-center gap-4 text-foreground/80 font-medium">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                <Check className="h-4 w-4" strokeWidth={3} />
-              </span>
-              {text}
-            </li>
-          ))}
-        </ul>
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent xl:flex-row">
+      {/* Left panel — premium light gradient */}
+      <div className="hidden xl:flex xl:w-[45%] flex-col items-start justify-start pt-32 relative overflow-hidden linear-card border-r border-slate-200 shadow-xl">
+        {/* Glow blobs */}
+        <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] rounded-full bg-blue-400/20 blur-[120px]" />
+        <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] rounded-full bg-orange-400/20 blur-[120px]" />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "linear-gradient(to right,#000 1px,transparent 1px),linear-gradient(to bottom,#000 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+
+        <div className="relative z-10 flex flex-col items-start px-12 2xl:px-20 text-left gap-8">
+          {/* Logo */}
+          <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
+            <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-8 shadow-xl inline-block">
+              <img src="/images/logo.jpeg" alt="Jobs Portal" width={400} height={160}
+                className="h-32 w-auto object-contain mix-blend-multiply" />
+            </div>
+          </Link>
+
+          <div>
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-primary">Sign In</p>
+            <h2 className="text-4xl font-black leading-tight text-foreground xl:text-5xl 2xl:text-6xl">
+              Welcome back to the{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Future of Work</span>
+            </h2>
+            <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed font-semibold">
+              Sign in to access your dashboard, discover personalized job matches, and manage your professional journey.
+            </p>
+          </div>
+
+          <ul className="w-full max-w-xs space-y-4 text-left">
+            {[
+              "Access curated jobs from verified companies",
+              "Showcase your portfolio and skill badges",
+              "Collaborate with hiring teams in real time"
+            ].map((text) => (
+              <li key={text} className="flex items-start gap-4 text-slate-700 font-bold text-sm">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-blue-100 border border-blue-200 text-blue-600 shadow-sm">
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Form section */}
@@ -139,15 +148,15 @@ function LoginForm() {
               alt="Jobs Portal"
               width={240}
               height={240}
-              className="h-20 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
+              className="h-20 w-auto max-w-full rounded-lg object-contain mix-blend-multiply"
             />
           </Link>
         </div>
-        <div className="linear-card w-full max-w-md rounded-[2.5rem] p-10 sm:p-12 animate-in zoom-in-95 duration-500">
+        <div className="w-full max-w-lg rounded-[3rem] linear-card p-10 sm:p-14 shadow-2xl animate-in zoom-in-95 duration-500 z-10 relative mx-auto">
           <h1 className="text-2xl font-black text-foreground mb-2">
             Sign In
           </h1>
-          <p className="text-sm text-muted-foreground mb-8">
+          <p className="text-sm font-bold text-muted-foreground mb-10">
             Access your professional dashboard
           </p>
 
@@ -172,7 +181,7 @@ function LoginForm() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                 required
               />
             </div>
@@ -183,7 +192,7 @@ function LoginForm() {
                 </Label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-bold text-primary hover:underline"
+                  className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-orange-500 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -192,13 +201,13 @@ function LoginForm() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                 required
               />
             </div>
             <Button
               type="submit"
-              className="h-14 w-full rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+              className="mt-4 h-16 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all text-sm"
               disabled={loading}
             >
               {loading ? "Verifying..." : "Sign In"}
@@ -221,13 +230,13 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-          <div className="w-full max-w-md animate-pulse space-y-6 rounded-[2.5rem] border border-white/5 bg-white/2 p-12">
-            <div className="h-8 w-32 rounded-lg bg-white/5" />
-            <div className="h-4 w-48 rounded-lg bg-white/5" />
-            <div className="h-14 rounded-xl bg-white/5" />
-            <div className="h-14 rounded-xl bg-white/5" />
-            <div className="h-14 rounded-xl bg-white/5" />
+        <div className="flex min-h-screen items-center justify-center bg-transparent px-4">
+          <div className="w-full max-w-md animate-pulse space-y-6 rounded-[2.5rem] border border-slate-200 bg-white p-12">
+            <div className="h-8 w-32 rounded-lg bg-slate-100" />
+            <div className="h-4 w-48 rounded-lg bg-slate-100" />
+            <div className="h-14 rounded-xl bg-slate-100" />
+            <div className="h-14 rounded-xl bg-slate-100" />
+            <div className="h-14 rounded-xl bg-slate-100" />
           </div>
         </div>
       }

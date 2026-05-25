@@ -14,7 +14,7 @@ import { formatLocation } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import CandidateAvatar from "@/components/CandidateAvatar";
-import { Search, FileText, MapPin, User, LayoutGrid, List } from "lucide-react";
+import { Search, FileText, MapPin, User, LayoutGrid, List, Download } from "lucide-react";
 import Link from "next/link";
 
 interface JobOption {
@@ -38,6 +38,12 @@ interface ApplicationItem {
     id: string;
     firstName: string;
     lastName: string;
+    email?: string | null;
+    phone?: string | null;
+    location?: string | null;
+    experience?: number | null;
+    education?: string | null;
+    jobTitle?: string | null;
     profileImage?: string | null;
     resumeUrl: string | null;
     skills: string[];
@@ -139,16 +145,60 @@ export default function EmployerApplicationListClient({
     fetchApplications(page, appliedSearch, appliedJobId, appliedStatus);
   }, [page, appliedSearch, appliedJobId, appliedStatus, fetchApplications]);
 
+  const handleExportCSV = () => {
+    if (applications.length === 0) return;
+    const headers = [
+      "Application ID", "Status", "Applied At", "Cover Letter",
+      "Job ID", "Job Title", "Job Location", "Job Category", "Required Skills",
+      "Applicant ID", "First Name", "Last Name", "Email", "Phone",
+      "Location", "Experience (Years)", "Education", "Job Title",
+      "Applicant Skills", "Skill Match %", "Skill Match Labels"
+    ];
+    const rows = applications.map(app => [
+      app.id,
+      app.status,
+      app.appliedAt ? new Date(app.appliedAt).toISOString().split('T')[0] : "",
+      `"${(app.coverLetter || "").replace(/"/g, '""')}"`,
+      app.job.id,
+      `"${app.job.title.replace(/"/g, '""')}"`,
+      `"${app.job.location.replace(/"/g, '""')}"`,
+      `"${app.job.category.replace(/"/g, '""')}"`,
+      `"${(app.job.requiredSkills || []).join(", ").replace(/"/g, '""')}"`,
+      app.jobSeeker.id,
+      `"${app.jobSeeker.firstName.replace(/"/g, '""')}"`,
+      `"${app.jobSeeker.lastName.replace(/"/g, '""')}"`,
+      `"${(app.jobSeeker.email || "").replace(/"/g, '""')}"`,
+      `"${(app.jobSeeker.phone || "").replace(/"/g, '""')}"`,
+      `"${(app.jobSeeker.location || "").replace(/"/g, '""')}"`,
+      app.jobSeeker.experience ?? "",
+      `"${(app.jobSeeker.education || "").replace(/"/g, '""')}"`,
+      `"${(app.jobSeeker.jobTitle || "").replace(/"/g, '""')}"`,
+      `"${(app.jobSeeker.skills || []).join(", ").replace(/"/g, '""')}"`,
+      Math.round(app.skillMatchPercent ?? 0),
+      `"${(app.skillMatchLabels || []).join(", ").replace(/"/g, '""')}"`
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `applications_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
   const containerClass =
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className={containerClass}>
         {/* Hero / Search Section */}
-        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-10 sm:p-12 mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
+        <div className="linear-card rounded-[2.5rem] p-10 sm:p-12 mb-16 shadow-lg animate-in fade-in slide-in-from-top-10 duration-1000">
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
             Candidate Applications
           </p>
@@ -159,7 +209,7 @@ export default function EmployerApplicationListClient({
             Review applicant details, manage application statuses, and track your recruitment pipeline.
           </p>
 
-          <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/5 bg-black/20 p-4 shadow-2xl">
+          <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
             <div className="relative flex-1 min-w-[280px]">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
               <Input
@@ -167,12 +217,12 @@ export default function EmployerApplicationListClient({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="h-12 pl-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground font-medium"
+                className="h-12 pl-12 rounded-xl bg-white border-slate-200 focus:ring-primary/20 focus:border-primary text-foreground font-medium shadow-sm"
               />
             </div>
             <div className="w-[180px]">
               <Select value={jobId} onValueChange={setJobId}>
-                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
                   <SelectValue placeholder="All Missions" />
                 </SelectTrigger>
                 <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
@@ -187,7 +237,7 @@ export default function EmployerApplicationListClient({
             </div>
             <div className="w-[160px]">
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
                 <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
@@ -211,7 +261,7 @@ export default function EmployerApplicationListClient({
                 variant="ghost"
                 onClick={handleClear}
                 disabled={loading}
-                className="h-12 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10"
+                className="h-12 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200"
               >
                 Reset
               </Button>
@@ -222,8 +272,8 @@ export default function EmployerApplicationListClient({
         <div className="mt-8 flex flex-col gap-6 lg:flex-row">
           {/* Left Filter Panel */}
           <aside className="w-full shrink-0 lg:w-80 space-y-8 animate-in slide-in-from-left-10 duration-1000">
-            <div className="linear-card rounded-[2rem] p-8 space-y-8 border-white/5 bg-white/[0.02]">
-              <div className="flex items-center gap-3 border-b border-white/5 pb-6">
+            <div className="linear-card rounded-[2rem] p-8 space-y-8 shadow-md">
+              <div className="flex items-center gap-3 border-b border-slate-200 pb-6">
                 <Search className="h-4 w-4 text-primary" />
                 <h2 className="text-sm font-black uppercase tracking-widest text-foreground">Filter Results</h2>
               </div>
@@ -236,17 +286,17 @@ export default function EmployerApplicationListClient({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20"
+                    className="h-12 rounded-xl bg-white border-slate-200 focus:ring-primary/20 shadow-sm"
                   />
                 </div>
                 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Selection</label>
                   <Select value={jobId} onValueChange={setJobId}>
-                    <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                    <SelectContent className="bg-white border-slate-200 shadow-lg">
                       <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Postings</SelectItem>
                       {jobs.map((j) => (
                         <SelectItem key={j.id} value={j.id} className="text-[10px] font-black uppercase tracking-widest text-foreground">
@@ -260,10 +310,10 @@ export default function EmployerApplicationListClient({
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Application Status</label>
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                    <SelectContent className="bg-white border-slate-200 shadow-lg">
                       <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Statuses</SelectItem>
                       <SelectItem value="PENDING" className="text-[10px] font-black uppercase tracking-widest">Pending</SelectItem>
                       <SelectItem value="REVIEWED" className="text-[10px] font-black uppercase tracking-widest">Reviewed</SelectItem>
@@ -284,7 +334,7 @@ export default function EmployerApplicationListClient({
                     variant="ghost"
                     onClick={handleClear}
                     disabled={loading}
-                    className="w-full h-12 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10"
+                    className="w-full h-12 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200"
                   >
                     Reset Filters
                   </Button>
@@ -292,7 +342,7 @@ export default function EmployerApplicationListClient({
               </div>
             </div>
 
-            <div className="linear-card rounded-[2rem] p-8 bg-emerald-500/5 border-emerald-500/20">
+            <div className="rounded-[2rem] bg-emerald-50 border border-emerald-200 p-8">
                <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-4">Candidate Tip</h3>
                <p className="text-xs text-muted-foreground leading-loose font-medium italic">
                  &quot;Review each candidate&apos;s skill match percentage to see how well they fit the requirements of your job posting.&quot;
@@ -310,13 +360,23 @@ export default function EmployerApplicationListClient({
                       Discovered {applications.length} Candidate Profiles
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 rounded-xl bg-white/5 p-1 border border-white/10">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportCSV}
+                      className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white"
+                    >
+                      <Download className="h-4 w-4" />
+                      Export CSV
+                    </Button>
+                    <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200">
                     <Button
                       variant="ghost"
                       size="icon"
                       type="button"
                       onClick={() => setViewMode("grid")}
-                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-slate-200"}`}
                     >
                       <LayoutGrid className="h-4 w-4" />
                     </Button>
@@ -325,19 +385,20 @@ export default function EmployerApplicationListClient({
                       size="icon"
                       type="button"
                       onClick={() => setViewMode("table")}
-                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "table" ? "toggle-active" : "text-muted-foreground hover:bg-white/10"}`}
+                      className={`h-10 w-10 rounded-lg transition-all ${viewMode === "table" ? "toggle-active" : "text-muted-foreground hover:bg-slate-200"}`}
                     >
                       <List className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
               {loading ? (
-                <div className="linear-card rounded-[2.5rem] p-24 text-center animate-pulse border-white/5">
+                <div className="linear-card rounded-[2.5rem] p-24 text-center animate-pulse border-slate-200">
                    <p className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">Loading Applications...</p>
                 </div>
               ) : applications.length === 0 ? (
-                <div className="linear-card rounded-[2.5rem] p-24 text-center border-white/5">
+                <div className="linear-card rounded-[2.5rem] p-24 text-center border-slate-200">
                    <p className="text-lg font-black uppercase tracking-[0.2em] text-muted-foreground/60">No matching applications found.</p>
                 </div>
               ) : viewMode === "grid" ? (
@@ -345,7 +406,7 @@ export default function EmployerApplicationListClient({
                   {applications.map((app, idx) => (
                     <div
                       key={app.id}
-                      className="group flex flex-col gap-8 rounded-[2.5rem] border border-white/10 bg-white/[0.02] p-8 transition-all hover:bg-white/5 hover:border-primary/30 animate-in slide-in-from-right-10 duration-700 fill-mode-both sm:flex-row sm:items-start sm:justify-between"
+                      className="linear-card group flex flex-col gap-8 rounded-[2.5rem] shadow-md p-8 transition-all hover:shadow-xl hover:border-primary/30 animate-in slide-in-from-right-10 duration-700 fill-mode-both sm:flex-row sm:items-start sm:justify-between"
                       style={{ animationDelay: `${idx * 100}ms` }}
                     >
                       <div className="min-w-0 flex-1">
@@ -366,7 +427,7 @@ export default function EmployerApplicationListClient({
                               Applied for: {app.job.title}
                             </p>
                             <div className="mt-4 flex flex-wrap items-center gap-3">
-                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[9px] font-black uppercase tracking-widest text-slate-600">
                                 <MapPin className="h-3 w-3 text-primary" />
                                 {formatLocation(app.job.location, true)}
                               </span>
@@ -378,7 +439,7 @@ export default function EmployerApplicationListClient({
                               </span>
                             </div>
                             
-                            <div className="mt-8 p-6 rounded-[1.5rem] bg-black/20 border border-white/5">
+                            <div className="mt-8 p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200">
                               <SkillMatchBar
                                 percent={app.skillMatchPercent}
                                 matched={app.skillMatchMatched}
@@ -388,7 +449,7 @@ export default function EmployerApplicationListClient({
                             </div>
                             
                             {app.coverLetter && (
-                              <div className="mt-6 p-6 rounded-[1.5rem] bg-white/[0.02] border-l-4 border-primary">
+                              <div className="mt-6 p-6 rounded-[1.5rem] bg-blue-50 border-l-4 border-primary">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 italic">Cover Letter:</p>
                                 <p className="text-sm text-muted-foreground leading-relaxed font-medium line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
                                   {app.coverLetter}
@@ -423,7 +484,7 @@ export default function EmployerApplicationListClient({
                           {app.status}
                         </span>
                         <div className="flex flex-col gap-3 w-full sm:w-auto">
-                          <div className="h-10 px-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                          <div className="h-10 px-2 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
                             <ApplicationActions
                               applicationId={app.id}
                               currentStatus={app.status}
@@ -431,7 +492,7 @@ export default function EmployerApplicationListClient({
                             />
                           </div>
                           <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
-                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 gap-2 transition-all">
+                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 gap-2 transition-all">
                               <User className="h-3.5 w-3.5" />
                               View Profile
                             </Button>
@@ -442,11 +503,11 @@ export default function EmployerApplicationListClient({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] overflow-hidden animate-in fade-in duration-700">
+                <div className="linear-card rounded-[2rem] overflow-hidden shadow-md animate-in fade-in duration-700">
                    <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-white/5 bg-white/5">
+                        <tr className="border-b border-slate-200 bg-slate-50">
                           <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Candidate</th>
                           <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
                           <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Applied For</th>
@@ -456,7 +517,7 @@ export default function EmployerApplicationListClient({
                       </thead>
                       <tbody>
                         {applications.map((app) => (
-                          <tr key={app.id} className="border-b border-white/5 hover:bg-white/[0.04] transition-colors group">
+                          <tr key={app.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
                             <td className="p-6">
                               <div className="flex items-center gap-4">
                                 <CandidateAvatar
@@ -535,11 +596,11 @@ export default function EmployerApplicationListClient({
                     size="sm"
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                    className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                   >
                     Previous
                   </Button>
-                  <span className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <span className="px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                     Page {page} / {totalPages}
                   </span>
                   <Button

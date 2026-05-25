@@ -25,12 +25,12 @@ export default async function EmployerResumeSearchPage({
   const params = await searchParams;
 
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="min-h-screen w-full bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8">
         {isRestricted && (
-          <div className="mb-12 linear-card rounded-[2rem] border-amber-500/20 bg-amber-500/5 p-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
-            <AlertCircle className="h-6 w-6 text-amber-400 shrink-0" />
-            <p className="text-sm text-amber-400 font-bold uppercase tracking-widest">
+          <div className="mb-12 rounded-[2rem] border border-amber-200 bg-amber-50 p-8 flex items-center gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+            <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
+            <p className="text-sm text-amber-700 font-bold uppercase tracking-widest">
               Resume Database access is not included in your current plan. Please upgrade to search resumes.
             </p>
           </div>
@@ -39,7 +39,7 @@ export default async function EmployerResumeSearchPage({
         {!isRestricted ? (
           <EmployerResumeDatabaseSearch searchParams={params} />
         ) : (
-          <div className="linear-card rounded-[3rem] p-24 text-center border-dashed border-white/10 bg-white/[0.01] opacity-50">
+          <div className="rounded-[3rem] p-24 text-center border-dashed border-slate-200 bg-slate-50 opacity-50">
             <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
               Resume Database Locked
             </p>

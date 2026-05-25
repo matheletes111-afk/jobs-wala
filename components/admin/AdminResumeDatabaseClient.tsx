@@ -278,7 +278,7 @@ export default function AdminResumeDatabaseClient() {
   }, [limit, page, total]);
 
   return (
-    <div className="min-h-screen w-full bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-20">
         {/* Intelligence Header */}
         <div className="mb-20 border-b border-white/5 pb-12">
@@ -293,7 +293,7 @@ export default function AdminResumeDatabaseClient() {
             Bulk upload and parse candidate resumes. Automatically extract contact information and skills.
           </p>
 
-          <div className="mt-12 flex flex-col gap-6 p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm backdrop-blur-3xl">
             <div className="flex flex-col gap-6 md:flex-row md:items-center">
               <div className="relative flex-1">
                 <Input
@@ -303,7 +303,7 @@ export default function AdminResumeDatabaseClient() {
                   onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                   className="h-14 opacity-0 absolute inset-0 z-10 cursor-pointer"
                 />
-                <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-white/5 group hover:bg-white/10 transition-all">
+                <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-blue-200 rounded-2xl bg-white/50 group hover:bg-white/80 transition-all">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 group-hover:text-blue-500">
                     {files.length > 0 ? `${files.length} FILES SELECTED` : "SELECT RESUMES TO UPLOAD"}
                   </p>
@@ -312,7 +312,7 @@ export default function AdminResumeDatabaseClient() {
               <Button
                 onClick={onUpload}
                 disabled={uploading || files.length === 0}
-                className="h-14 px-10 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+                className="h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
               >
                 <Upload className="mr-3 h-4 w-4" />
                 {uploading ? "Uploading..." : "Upload & Parse"}
@@ -328,7 +328,7 @@ export default function AdminResumeDatabaseClient() {
         </div>
 
         {/* Tactical Filters */}
-        <div className="linear-card mb-12 rounded-[2.5rem] p-10 bg-white/[0.02] border border-white/5 shadow-2xl">
+        <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm mb-12">
           <div className="flex items-center gap-3 mb-10">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Search Filters</h2>
@@ -393,7 +393,7 @@ export default function AdminResumeDatabaseClient() {
 
           <div className="mt-10 pt-10 border-t border-white/5 flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <Button onClick={onApplyFilters} className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all">
+              <Button onClick={onApplyFilters} className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all">
                 Apply Filters
               </Button>
               <Button variant="ghost" onClick={onClearFilters} className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5">
@@ -407,7 +407,7 @@ export default function AdminResumeDatabaseClient() {
                 size="sm"
                 onClick={onDeleteFailed}
                 disabled={loading || uploading}
-                className="h-10 px-6 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all"
+                className="h-10 px-6 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 text-white text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all"
               >
                 Delete Failed Resumes
               </Button>
@@ -431,7 +431,7 @@ export default function AdminResumeDatabaseClient() {
             resumes.map((resume, idx) => (
               <div
                 key={resume.id}
-                className="linear-card group group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+                className="linear-card group flex flex-col rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 p-10 transition-all hover:shadow-md hover:border-blue-300 animate-in fade-in slide-in-from-bottom-5 duration-700"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
                 <div className="flex-1 min-w-0 space-y-6">
@@ -495,12 +495,13 @@ export default function AdminResumeDatabaseClient() {
 
                 <div className="flex flex-col items-end gap-6 shrink-0">
                   <span
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${resume.parseStatus === "PARSED"
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                      : resume.parseStatus === "FAILED"
-                        ? "bg-red-500/10 text-red-400 border-red-500/20"
-                        : "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                      }`}
+                    className={`rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-all ${
+                      resume.parseStatus === "PARSED"
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                        : resume.parseStatus === "FAILED"
+                          ? "bg-red-50 text-red-600 border-red-200"
+                          : "bg-amber-50 text-amber-600 border-amber-200"
+                    }`}
                   >
                     {resume.parseStatus === "PARSED" ? (
                       <CircleCheckBig className="h-3.5 w-3.5" />

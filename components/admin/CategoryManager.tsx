@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategoryStatus } from "@prisma/client";
-import { FolderTree, Pencil, Trash2, FolderPlus, Info, Search } from "lucide-react";
+import { FolderTree, Pencil, Trash2, FolderPlus, Info, Search, Download } from "lucide-react";
 
 export interface CategoryRow {
   id: string;
@@ -132,11 +132,35 @@ export default function CategoryManager({
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleExportCSV = () => {
+    if (filteredCategories.length === 0) return;
+    const headers = ["ID", "Name", "Status", "Created At", "Updated At"];
+
+    const rows = filteredCategories.map(c => [
+      c.id,
+      `"${c.name.replace(/"/g, '""')}"`,
+      c.status,
+      c.createdAt ? new Date(c.createdAt).toISOString().split('T')[0] : "",
+      c.updatedAt ? new Date(c.updatedAt).toISOString().split('T')[0] : ""
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `categories_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col gap-10 lg:flex-row animate-in fade-in duration-1000">
       {/* Category Management Sidebar */}
       <aside className="w-full shrink-0 lg:w-80">
-        <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-white/[0.02] border-white/5 shadow-2xl">
+        <div className="sticky top-32 rounded-[2.5rem] p-10 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
           <div className="flex items-center gap-3 mb-10">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
@@ -186,7 +210,7 @@ export default function CategoryManager({
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] transition-all"
+                className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-95"
               >
                 {loading ? "Processing..." : editingId ? "Update Category" : "Add Category"}
               </Button>
@@ -223,15 +247,26 @@ export default function CategoryManager({
              </p>
           </div>
           
-          {/* Quick Search Card */}
-          <div className="relative w-full md:w-80">
-             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
-             <Input
-               placeholder="Search categories..."
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="h-12 pl-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
-             />
+          {/* Search and Export */}
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground shrink-0"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+            <div className="relative flex-1 md:w-80">
+               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
+               <Input
+                 placeholder="Search categories..."
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 className="h-12 pl-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
+               />
+            </div>
           </div>
         </div>
 
@@ -247,7 +282,7 @@ export default function CategoryManager({
             {filteredCategories.map((c, idx) => (
               <div
                 key={c.id}
-                className="linear-card group flex flex-wrap items-center justify-between gap-6 rounded-[2.5rem] bg-white/[0.01] border border-white/5 p-8 transition-all hover:bg-white/[0.04] animate-in fade-in slide-in-from-right-4 duration-500"
+                className="group flex items-start justify-between gap-6 rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 p-8 transition-all hover:shadow-md hover:border-blue-300 animate-in fade-in slide-in-from-bottom-5 duration-700"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
                 <div className="flex items-center gap-8 min-w-0 flex-1">

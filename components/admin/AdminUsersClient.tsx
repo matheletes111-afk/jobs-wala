@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, LayoutGrid, List, ChevronDown, ChevronRight, Briefcase, User } from "lucide-react";
+import { Search, LayoutGrid, List, ChevronDown, ChevronRight, Briefcase, User, Download } from "lucide-react";
 import { formatLocation } from "@/lib/utils";
 
 interface UserItem {
@@ -29,6 +29,13 @@ interface UserItem {
     jobTitle?: string | null;
     availabilityStatus?: string | null;
     bio?: string | null;
+    phone?: string | null;
+    resumeUrl?: string | null;
+    resumeUpdatedAt?: string | null;
+    education?: string | null;
+    certificates?: string | null;
+    createdAt?: string | null;
+    updatedAt?: string | null;
   } | null;
   employerProfile: {
     companyName: string;
@@ -37,6 +44,9 @@ interface UserItem {
     companySize?: string | null;
     description?: string | null;
     resumeSearchEnabled?: boolean;
+    website?: string | null;
+    createdAt?: string | null;
+    updatedAt?: string | null;
   } | null;
 }
 
@@ -118,6 +128,74 @@ export default function AdminUsersClient() {
     setPage(1);
   };
 
+  const handleExportCSV = () => {
+    if (users.length === 0) return;
+    const headers = [
+      "ID", "Email", "Role", "Created At",
+      "Name / Company Name", "Location", "Skills / Industry",
+      "Experience / Company Size", "Job Title", "Availability", "Resume DB Access",
+      "Phone", "Education", "Bio / Description", "Website", "Resume URL",
+      "Resume Updated At", "Certificates", "Profile Created", "Profile Updated"
+    ];
+
+    const rows = users.map(user => {
+      const isJS = user.role === "JOB_SEEKER";
+      const isEmp = user.role === "EMPLOYER";
+
+      const name = isJS && user.jobSeekerProfile ? `${user.jobSeekerProfile.firstName} ${user.jobSeekerProfile.lastName}` : isEmp && user.employerProfile ? user.employerProfile.companyName : "";
+      const location = isJS && user.jobSeekerProfile?.location ? displayLocation(user.jobSeekerProfile.location) : "";
+      const skillsIndustry = isJS && user.jobSeekerProfile ? (user.jobSeekerProfile.skills || []).join(", ") : isEmp && user.employerProfile ? user.employerProfile.industry || "" : "";
+      const expSize = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.experience ?? "" : isEmp && user.employerProfile ? user.employerProfile.companySize || "" : "";
+      const jobTitle = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.jobTitle || "" : "";
+      const availability = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.availabilityStatus || "" : "";
+      const resumeAccess = isEmp && user.employerProfile ? (user.employerProfile.resumeSearchEnabled ? "Yes" : "No") : "";
+      const phone = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.phone || "" : "";
+      const education = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.education || "" : "";
+      const bioDesc = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.bio || "" : isEmp && user.employerProfile ? user.employerProfile.description || "" : "";
+      const website = isEmp && user.employerProfile ? user.employerProfile.website || "" : "";
+      const resumeUrl = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.resumeUrl || "" : "";
+      const resumeUpdated = isJS && user.jobSeekerProfile?.resumeUpdatedAt ? new Date(user.jobSeekerProfile.resumeUpdatedAt).toISOString().split('T')[0] : "";
+      const certs = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.certificates || "" : "";
+      
+      const pCreated = isJS && user.jobSeekerProfile?.createdAt ? new Date(user.jobSeekerProfile.createdAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.createdAt ? new Date(user.employerProfile.createdAt).toISOString().split('T')[0] : "";
+      const pUpdated = isJS && user.jobSeekerProfile?.updatedAt ? new Date(user.jobSeekerProfile.updatedAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.updatedAt ? new Date(user.employerProfile.updatedAt).toISOString().split('T')[0] : "";
+
+      return [
+        user.id,
+        `"${user.email.replace(/"/g, '""')}"`,
+        user.role,
+        user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : "",
+        `"${name.replace(/"/g, '""')}"`,
+        `"${location.replace(/"/g, '""')}"`,
+        `"${skillsIndustry.replace(/"/g, '""')}"`,
+        `"${String(expSize).replace(/"/g, '""')}"`,
+        `"${jobTitle.replace(/"/g, '""')}"`,
+        `"${availability.replace(/"/g, '""')}"`,
+        resumeAccess,
+        `"${phone.replace(/"/g, '""')}"`,
+        `"${education.replace(/"/g, '""')}"`,
+        `"${bioDesc.replace(/"/g, '""')}"`,
+        `"${website.replace(/"/g, '""')}"`,
+        `"${resumeUrl.replace(/"/g, '""')}"`,
+        resumeUpdated,
+        `"${certs.replace(/"/g, '""')}"`,
+        pCreated,
+        pUpdated
+      ];
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const sortedUsers =
     sort === "oldest"
       ? [...users].sort(
@@ -161,7 +239,7 @@ export default function AdminUsersClient() {
   };
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
         {/* Registry Access Header */}
         <div className="mb-16 border-b border-white/5 pb-12">
@@ -176,7 +254,7 @@ export default function AdminUsersClient() {
             Manage system users, view profiles, and update access permissions.
           </p>
 
-          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm backdrop-blur-3xl">
             <div className="relative flex-1 min-w-[280px]">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
               <Input
@@ -203,7 +281,7 @@ export default function AdminUsersClient() {
             <Button
               onClick={handleSearch}
               disabled={loading}
-              className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
             >
               Search Users
             </Button>
@@ -213,7 +291,7 @@ export default function AdminUsersClient() {
         <div className="flex flex-col gap-10 lg:flex-row">
           {/* Tactical Filters Sidebar */}
           <aside className="w-full shrink-0 lg:w-80">
-            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-white/[0.02] border-white/5 shadow-2xl">
+            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
               <div className="flex items-center gap-3 mb-10">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Filters</h2>
@@ -255,7 +333,7 @@ export default function AdminUsersClient() {
                 <div className="pt-6 flex flex-col gap-3">
                   <Button
                     onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
                   >
                     Apply Filters
                   </Button>
@@ -290,6 +368,15 @@ export default function AdminUsersClient() {
               </div>
 
               <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
+                >
+                  <Download className="h-4 w-4" />
+                  Export CSV
+                </Button>
                 <div className="flex p-1 rounded-xl bg-white/5 border border-white/5">
                   <button
                     type="button"
@@ -426,7 +513,7 @@ function UserCard({
 
   return (
     <div
-      className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+      className="linear-card group flex flex-col rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 p-10 transition-all hover:shadow-md hover:border-blue-300 animate-in fade-in slide-in-from-bottom-5 duration-700"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-start justify-between gap-4 mb-10">
@@ -441,7 +528,7 @@ function UserCard({
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-emerald-400" : isEmployer ? "bg-blue-400" : "bg-blue-500"}`} />
+              <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-blue-500" : isEmployer ? "bg-indigo-500" : "bg-blue-500"}`} />
               <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{user.role.replace("_", " ")}</p>
             </div>
             <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
@@ -450,7 +537,7 @@ function UserCard({
         </div>
 
         {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
-          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+          <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest text-blue-600">
             {user.jobSeekerProfile.availabilityStatus}
           </span>
         )}
@@ -490,8 +577,8 @@ function UserCard({
             <Button
               type="button"
               className={`h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${user.employerProfile.resumeSearchEnabled
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                  : "bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/10"
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
                 }`}
               disabled={isUpdating}
               onClick={() =>

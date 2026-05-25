@@ -40,7 +40,7 @@ export default async function UserDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background">
+    <div className="min-h-screen w-full min-w-0 bg-transparent">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
         <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
@@ -89,12 +89,12 @@ export default async function UserDashboardPage() {
             const Icon = card.icon;
             const colors: Record<string, string> = {
               emerald:
-                "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
+                "bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 hover:scale-105 shadow-xl shadow-emerald-500/20",
               amber:
-                "bg-amber-500/5 text-amber-400 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20 shadow-amber-500/5",
-              blue: "bg-blue-500/5 text-blue-400 border-blue-500/10 hover:bg-blue-500/10 hover:border-blue-500/20 shadow-blue-500/5",
+                "bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 hover:scale-105 shadow-xl shadow-amber-500/20",
+              blue: "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-0 hover:scale-105 shadow-xl shadow-blue-500/20",
               violet:
-                "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
+                "bg-gradient-to-br from-violet-600 to-purple-600 text-white border-0 hover:scale-105 shadow-xl shadow-violet-500/20",
             };
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
@@ -102,18 +102,18 @@ export default async function UserDashboardPage() {
                   className={`relative overflow-hidden flex flex-col justify-between h-48 rounded-[2rem] p-8 border transition-all duration-500 animate-in zoom-in-95 ${colors[card.color]}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-white/5 p-3 group-hover:scale-110 transition-transform">
-                      <Icon className="h-6 w-6" />
+                  <div className="flex items-start justify-between text-white">
+                    <div className="rounded-2xl bg-white/20 p-3 group-hover:scale-110 transition-transform">
+                      <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-5 w-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all" />
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase font-black tracking-[0.2em] opacity-60 mb-1">
+                  <div className="text-white">
+                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/70 mb-1">
                       {card.label}
                     </p>
-                    <p className="text-3xl font-black text-foreground">{card.value}</p>
-                    <p className="text-xs font-bold opacity-60 mt-1">{card.subValue}</p>
+                    <p className="text-3xl font-black text-white">{card.value}</p>
+                    <p className="text-xs font-bold text-white/70 mt-1">{card.subValue}</p>
                   </div>
                 </div>
               </Link>

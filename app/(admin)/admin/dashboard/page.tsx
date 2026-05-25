@@ -78,7 +78,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
         {/* Header */}
         <div className="mb-16">
@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Admin Dashboard</p>
           </div>
-          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-foreground">
             Platform <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Overview</span>
           </h1>
           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
@@ -99,11 +99,11 @@ export default async function AdminDashboardPage() {
           {colorCards.map((card, idx) => {
             const Icon = card.icon;
             const accentColors = {
-              blue: "bg-blue-500/5 text-blue-400 border-blue-500/10 hover:bg-blue-500/10 hover:border-blue-500/20 shadow-blue-500/5",
-              violet: "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
-              amber: "bg-amber-500/5 text-amber-400 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20 shadow-amber-500/5",
-              emerald: "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
-              orange: "bg-orange-500/5 text-orange-400 border-orange-500/10 hover:bg-orange-500/10 hover:border-orange-500/20 shadow-orange-500/5",
+              blue: "bg-blue-200 text-blue-950 border-blue-400 shadow-md hover:bg-blue-300 hover:shadow-lg",
+              violet: "bg-violet-200 text-violet-950 border-violet-400 shadow-md hover:bg-violet-300 hover:shadow-lg",
+              amber: "bg-amber-200 text-amber-950 border-amber-400 shadow-md hover:bg-amber-300 hover:shadow-lg",
+              emerald: "bg-emerald-200 text-emerald-950 border-emerald-400 shadow-md hover:bg-emerald-300 hover:shadow-lg",
+              orange: "bg-orange-200 text-orange-950 border-orange-400 shadow-md hover:bg-orange-300 hover:shadow-lg",
             };
             const colorClass = accentColors[card.accent as keyof typeof accentColors];
 
@@ -114,15 +114,15 @@ export default async function AdminDashboardPage() {
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-white/5 p-3 group-hover:scale-110 transition-transform">
+                    <div className="rounded-2xl bg-black/5 p-3 group-hover:scale-110 transition-transform">
                       <Icon className="h-7 w-7" />
                     </div>
                     <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{card.label}</p>
-                    <p className="text-4xl font-black tracking-tighter text-foreground">{card.value}</p>
-                    <p className="text-[10px] font-bold opacity-40 mt-1 italic uppercase tracking-widest">Metric</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-800 mb-1">{card.label}</p>
+                    <p className="text-4xl font-black tracking-tighter text-black">{card.value}</p>
+                    <p className="text-[10px] font-bold text-slate-700 mt-1 italic uppercase tracking-widest">Metric</p>
                   </div>
                 </div>
               </Link>
@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
 
         {/* Recent jobs list */}
         <section className="space-y-10">
-          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-white/5 pb-10">
+          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-black/10 pb-10">
             <div className="space-y-3">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">
                 Recent Activity
@@ -151,7 +151,7 @@ export default async function AdminDashboardPage() {
 
           <div className="grid gap-6">
             {recentJobs.length === 0 ? (
-              <div className="linear-card rounded-[2.5rem] px-6 py-24 text-center border-dashed border-white/10">
+              <div className="linear-card rounded-[2.5rem] px-6 py-24 text-center border-dashed border-black/10">
                 <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic" >
                   No recent job activity detected.
                 </p>
@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
                   <Link
                     key={job.id}
                     href={`/admin/jobs/${job.id}`}
-                    className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border-white/5 p-8 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700 h-full"
+                    className="linear-card group flex flex-col rounded-[2.5rem] bg-white/50 border-black/10 p-8 transition-all hover:bg-white/80 animate-in fade-in slide-in-from-bottom-5 duration-700 h-full shadow-sm hover:shadow-md"
                     style={{ animationDelay: `${idx * 150}ms` }}
                   >
                     <div className="flex items-start justify-between gap-4 mb-6">
@@ -170,7 +170,7 @@ export default async function AdminDashboardPage() {
                         companyLogo={job.employer.companyLogo}
                         companyName={job.employer.companyName}
                         size="md"
-                        className="shrink-0 rounded-2xl border border-white/10 transition-transform group-hover:scale-110"
+                        className="shrink-0 rounded-2xl border border-black/10 bg-white transition-transform group-hover:scale-110"
                       />
                       <span
                         className={`shrink-0 rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border ${
@@ -178,7 +178,7 @@ export default async function AdminDashboardPage() {
                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                             : job.status === "PENDING"
                               ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                              : "bg-white/5 text-muted-foreground border-white/10"
+                              : "bg-black/5 text-muted-foreground border-black/10"
                         }`}
                       >
                         {job.status}
@@ -194,7 +194,7 @@ export default async function AdminDashboardPage() {
                       </p>
 
                       <div className="flex flex-wrap gap-2 pt-2">
-                        <span className="rounded-xl bg-white/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-foreground/40">
+                        <span className="rounded-xl bg-black/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-foreground/80">
                           {formatLocation(job.location)}
                         </span>
                         <span className="rounded-xl bg-blue-500/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-blue-500 border border-blue-500/20">
@@ -202,7 +202,7 @@ export default async function AdminDashboardPage() {
                         </span>
                       </div>
 
-                      <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                      <div className="pt-6 border-t border-black/10 flex items-center justify-between">
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">
                           Date {new Date(job.createdAt).toLocaleDateString("en-GB")}
                         </p>

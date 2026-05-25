@@ -25,7 +25,7 @@ export default async function EmployerDashboardPage() {
 
     if (!profile) {
       return (
-        <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+        <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
           <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-24">
             <div className="linear-card rounded-[2.5rem] p-12 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
               <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/20">
@@ -91,7 +91,7 @@ export default async function EmployerDashboardPage() {
     ];
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-16">
         <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -149,32 +149,32 @@ export default async function EmployerDashboardPage() {
         </div>
 
         {/* Color cards */}
-        <div className="mb-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {colorCards.map((card, idx) => {
             const Icon = card.icon;
             const accentColors = {
-              blue: "bg-blue-500/5 text-blue-400 border-blue-500/10 hover:bg-blue-500/10 hover:border-blue-500/20 shadow-blue-500/5",
-              violet: "bg-violet-500/5 text-violet-400 border-violet-500/10 hover:bg-violet-500/10 hover:border-violet-500/20 shadow-violet-500/5",
-              emerald: "bg-emerald-500/5 text-emerald-400 border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 shadow-emerald-500/5",
+              blue: "bg-gradient-to-br from-blue-500 to-blue-700 shadow-xl shadow-blue-500/30",
+              violet: "bg-gradient-to-br from-violet-500 to-indigo-700 shadow-xl shadow-violet-500/30",
+              emerald: "bg-gradient-to-br from-emerald-500 to-teal-700 shadow-xl shadow-emerald-500/30",
             };
             const colorClass = accentColors[card.accent as keyof typeof accentColors];
 
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`relative flex flex-col justify-between h-48 rounded-[2.5rem] p-8 border transition-all duration-500 animate-in zoom-in-95 cursor-pointer ${colorClass}`}
+                  className={`relative flex flex-col justify-between h-48 rounded-[2.5rem] p-8 text-white border-0 transition-all duration-300 hover:scale-[1.03] animate-in zoom-in-95 cursor-pointer ${colorClass}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-white/5 p-3 group-hover:scale-110 transition-transform">
-                      <Icon className="h-7 w-7" />
+                    <div className="rounded-2xl bg-white/20 p-3 group-hover:scale-110 transition-transform">
+                      <Icon className="h-7 w-7 text-white" />
                     </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-5 w-5 text-white/70 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{card.label}</p>
-                    <p className="text-4xl font-black tracking-tighter text-foreground">{card.value}</p>
-                    <p className="text-xs font-bold opacity-60 mt-1 italic">Manage your {card.label.toLowerCase()}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-1">{card.label}</p>
+                    <p className="text-5xl font-black tracking-tighter text-white">{card.value}</p>
+                    <p className="text-xs font-bold text-white/60 mt-1">Manage your {card.label.toLowerCase()}</p>
                   </div>
                 </div>
               </Link>

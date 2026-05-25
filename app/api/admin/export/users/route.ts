@@ -14,15 +14,20 @@ export async function GET() {
       },
     });
 
-    const csv = [
-      ["Email", "Role", "Created At"].join(","),
+    const csv = "\uFEFF" + [
+      ["ID", "Email", "Role", "First Name", "Last Name", "Company Name", "Phone", "Location", "Created At"].join(","),
       ...users.map(
-        (u: {
-          email: string;
-          role: string;
-          createdAt: Date;
-        }) =>
-          `"${u.email}","${u.role}","${u.createdAt.toISOString()}"`
+        (u: any) => {
+          const isSeeker = u.role === "JOB_SEEKER" && u.jobSeekerProfile;
+          const isEmployer = u.role === "EMPLOYER" && u.employerProfile;
+          const firstName = isSeeker ? u.jobSeekerProfile.firstName : isEmployer ? u.employerProfile.companyName.split(' ')[0] : "";
+          const lastName = isSeeker ? u.jobSeekerProfile.lastName : "";
+          const companyName = isEmployer ? u.employerProfile.companyName : "";
+          const phone = isSeeker ? u.jobSeekerProfile.phone : isEmployer ? u.employerProfile.phone : "";
+          const location = isSeeker ? u.jobSeekerProfile.location : isEmployer ? u.employerProfile.location : "";
+          
+          return `"${u.id}","${u.email}","${u.role}","${firstName || ""}","${lastName || ""}","${companyName || ""}","${phone || ""}","${typeof location === 'string' ? location : typeof location === 'object' && location ? JSON.stringify(location).replace(/"/g, '""') : ""}","${u.createdAt.toISOString()}"`;
+        }
       ),
     ].join("\n");
 

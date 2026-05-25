@@ -8,7 +8,7 @@ export default async function AdminReportsPage() {
   await requireAdmin();
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-20">
         {/* Header Section */}
         <div className="mb-20 border-b border-white/5 pb-12">
@@ -37,7 +37,7 @@ export default async function AdminReportsPage() {
             <p className="text-sm font-medium text-muted-foreground/40 italic mb-10">Export all users, roles, and profiles to CSV.</p>
             
             <form action="/api/admin/export/users" method="GET">
-              <Button type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
+              <Button style={{ color: "white" }} type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
                 Export CSV
               </Button>
             </form>
@@ -55,7 +55,7 @@ export default async function AdminReportsPage() {
             <p className="text-sm font-medium text-muted-foreground/40 italic mb-10">Export all active, pending, and closed jobs.</p>
             
             <form action="/api/admin/export/jobs" method="GET">
-              <Button type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
+              <Button style={{ color: "white" }} type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
                 Export CSV
               </Button>
             </form>
@@ -73,7 +73,7 @@ export default async function AdminReportsPage() {
             <p className="text-sm font-medium text-muted-foreground/40 italic mb-10">Export applications and status updates.</p>
             
             <form action="/api/admin/export/applications" method="GET">
-              <Button type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
+              <Button style={{ color: "white" }} type="submit" className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:from-blue-700 hover:to-orange-600 hover:scale-[1.02] active:scale-95 transition-all">
                 Export CSV
               </Button>
             </form>

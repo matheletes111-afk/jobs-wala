@@ -114,42 +114,51 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background xl:flex-row divide-x divide-white/5">
-      {/* Left section - only on xl+ to avoid gap on medium screens */}
-      {/* Left section */}
-      <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
-        <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">
-          <img
-            src="/images/logo.jpeg"
-            alt="Jobs Portal"
-            width={320}
-            height={320}
-            className="h-32 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
-          />
-        </Link>
-        <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary">
-          Create Account
-        </p>
-        <h2 className="mb-6 text-3xl font-black leading-tight text-foreground xl:text-4xl 2xl:text-5xl">
-          Join the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">Elite Network</span> of Talent
-        </h2>
-        <p className="mb-10 max-w-md text-lg text-muted-foreground leading-relaxed">
-          Build a high-performance profile, connect with top-tier employers, and unlock tailored opportunities designed for your growth.
-        </p>
-        <ul className="space-y-4">
-          {[
-            "Access curated jobs from verified companies",
-            "Showcase your portfolio and skill badges",
-            "Collaborate with hiring teams in real time"
-          ].map((text) => (
-            <li key={text} className="flex items-center gap-4 text-foreground/80 font-medium">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400">
-                <Check className="h-4 w-4" strokeWidth={3} />
-              </span>
-              {text}
-            </li>
-          ))}
-        </ul>
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent xl:flex-row">
+      {/* Left panel — premium light gradient */}
+      <div className="hidden xl:flex xl:w-[45%] flex-col items-start justify-start pt-32 relative overflow-hidden linear-card border-r border-slate-200 shadow-xl">
+        {/* Glow blobs */}
+        <div className="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] rounded-full bg-blue-400/20 blur-[120px]" />
+        <div className="absolute bottom-[-15%] right-[-15%] w-[60%] h-[60%] rounded-full bg-orange-400/20 blur-[120px]" />
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "linear-gradient(to right,#000 1px,transparent 1px),linear-gradient(to bottom,#000 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+
+        <div className="relative z-10 flex flex-col items-start px-12 2xl:px-20 text-left gap-8">
+          {/* Logo */}
+          <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
+            <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-8 shadow-xl inline-block">
+              <img src="/images/logo.jpeg" alt="Jobs Portal" width={400} height={160}
+                className="h-32 w-auto object-contain mix-blend-multiply" />
+            </div>
+          </Link>
+
+          <div>
+            <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-primary">Create Account</p>
+            <h2 className="text-4xl font-black leading-tight text-foreground xl:text-5xl 2xl:text-6xl">
+              Join the{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Elite Network</span>
+              {" "}of Talent
+            </h2>
+            <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed font-semibold">
+              Build a high-performance profile, connect with top-tier employers, and unlock tailored opportunities designed for your growth.
+            </p>
+          </div>
+
+          <ul className="w-full max-w-xs space-y-4 text-left">
+            {[
+              "Access curated jobs from verified companies",
+              "Showcase your portfolio and skill badges",
+              "Collaborate with hiring teams in real time"
+            ].map((text) => (
+              <li key={text} className="flex items-start gap-4 text-slate-700 font-bold text-sm">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-blue-100 border border-blue-200 text-blue-600 shadow-sm">
+                  <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                </span>
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Form section - full width below xl, centered; 55% on xl+ */}
@@ -163,15 +172,15 @@ export default function RegisterPage() {
               alt="Jobs Portal"
               width={240}
               height={240}
-              className="h-20 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
+              className="h-20 w-auto max-w-full rounded-lg object-contain mix-blend-multiply"
             />
           </Link>
         </div>
-        <div className="linear-card w-full max-w-md rounded-[2.5rem] p-10 sm:p-12 animate-in slide-in-from-bottom-5 duration-500">
+        <div className="w-full max-w-lg rounded-[3rem] linear-card p-10 sm:p-14 shadow-2xl animate-in slide-in-from-bottom-5 duration-500 z-10 relative mx-auto">
           <h1 className="text-2xl font-black text-foreground mb-2">
             Register
           </h1>
-          <p className="text-sm text-muted-foreground mb-8">
+          <p className="text-sm font-bold text-muted-foreground mb-10">
             Start your professional journey today
           </p>
 
@@ -185,26 +194,24 @@ export default function RegisterPage() {
             {/* Role segmented control */}
             <div className="space-y-3">
               <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Registration Purpose</Label>
-              <div className="flex rounded-xl bg-white/5 border border-white/10 p-1">
+              <div className="flex rounded-2xl bg-slate-100/80 p-1.5 shadow-inner border border-slate-200/50">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "JOB_SEEKER" })}
-                  className={`flex-1 rounded-lg py-3 text-xs font-black uppercase tracking-widest transition-all ${
-                    formData.role === "JOB_SEEKER"
-                      ? "bg-white/10 text-white shadow-lg"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                  }`}
+                  className={`flex-1 rounded-xl py-3.5 text-xs font-black uppercase tracking-widest transition-all ${formData.role === "JOB_SEEKER"
+                      ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+                    }`}
                 >
                   Candidate
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "EMPLOYER" })}
-                  className={`flex-1 rounded-lg py-3 text-xs font-black uppercase tracking-widest transition-all ${
-                    formData.role === "EMPLOYER"
-                      ? "bg-white/10 text-white shadow-lg"
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                  }`}
+                  className={`flex-1 rounded-xl py-3.5 text-xs font-black uppercase tracking-widest transition-all ${formData.role === "EMPLOYER"
+                      ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
+                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+                    }`}
                 >
                   Employer
                 </button>
@@ -221,7 +228,7 @@ export default function RegisterPage() {
                 placeholder={formData.role === "EMPLOYER" ? "you@company.com" : "you@example.com"}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                 required
               />
             </div>
@@ -237,7 +244,7 @@ export default function RegisterPage() {
                       id="firstName"
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                      className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                       required
                     />
                   </div>
@@ -249,7 +256,7 @@ export default function RegisterPage() {
                       id="lastName"
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                      className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                       required
                     />
                   </div>
@@ -264,7 +271,7 @@ export default function RegisterPage() {
                     placeholder="+91 98765 43210"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                    className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                     required
                   />
                 </div>
@@ -281,7 +288,7 @@ export default function RegisterPage() {
                   placeholder="Acme Studios"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                  className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
                   required
                 />
               </div>
@@ -296,7 +303,7 @@ export default function RegisterPage() {
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                className="h-14 rounded-2xl border-slate-200 bg-white/50 shadow-inner focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 text-foreground transition-all px-5"
                 required
                 minLength={8}
               />
@@ -313,7 +320,7 @@ export default function RegisterPage() {
                 id="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="h-14 rounded-xl border-white/10 bg-white/5 focus:border-primary/50 focus:ring-primary/20 text-foreground transition-all"
+                className="h-14 rounded-2xl border-slate-200 bg-white/50 shadow-inner focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 text-foreground transition-all px-5"
                 required
                 minLength={6}
               />
@@ -321,7 +328,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="h-14 w-full rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all mt-4"
+              className="mt-4 h-16 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all text-sm"
               disabled={loading}
             >
               {loading
@@ -334,7 +341,7 @@ export default function RegisterPage() {
 
           <p className="mt-10 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
             Have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-blue-600 hover:text-orange-500 transition-colors">
               Sign In
             </Link>
           </p>

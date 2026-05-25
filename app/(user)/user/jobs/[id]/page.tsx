@@ -36,7 +36,7 @@ export default async function JobDetailsPage({
   });
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
         <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
           <JobDetails job={job} />

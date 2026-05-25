@@ -5,7 +5,7 @@ export default async function JobsPage() {
   await requireJobSeeker();
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background/50 backdrop-blur-3xl">
+    <div className="min-h-screen w-full min-w-0 bg-transparent/50 backdrop-blur-3xl">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-24">
         {/* Command Center Header */}
         <div className="mb-16 border-b border-white/5 pb-12 animate-in fade-in slide-in-from-top-4 duration-1000">

@@ -191,7 +191,7 @@ export default function EmployerProfileForm({
     : null;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 p-8 sm:p-12 bg-black/40 backdrop-blur-3xl">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-12 p-8 sm:p-12 bg-white rounded-[3rem]">
       {error && (
         <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 font-bold animate-in slide-in-from-top-4">
           {error}
@@ -199,10 +199,10 @@ export default function EmployerProfileForm({
       )}
 
       {/* Profile summary header */}
-      <div className="flex flex-col gap-10 sm:flex-row sm:items-start border-b border-white/5 pb-12">
+      <div className="flex flex-col gap-10 sm:flex-row sm:items-start border-b border-slate-200 pb-12">
         <div className="flex flex-col items-center gap-4">
           <div
-            className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[2.5rem] border-2 border-white/10 bg-white/5 shadow-2xl transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+            className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[2.5rem] border border-slate-200 bg-slate-50 shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
             onClick={() => logoInputRef.current?.click()}
           >
             {logoPreview ? (
@@ -244,7 +244,7 @@ export default function EmployerProfileForm({
                Verified Employer
              </span>
              {updatedAgo && (
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+              <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 border border-slate-200 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500">
                 <Clock className="h-3.5 w-3.5" />
                 Updated {updatedAgo}
               </span>
@@ -258,13 +258,13 @@ export default function EmployerProfileForm({
           </p>
           <div className="mt-8 flex flex-wrap justify-center sm:justify-start gap-3">
             {profile?.industry && (
-              <span className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-foreground">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-slate-100 border border-slate-200 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-foreground">
                 <Briefcase className="h-3.5 w-3.5 text-primary" />
                 {profile.industry}
               </span>
             )}
             {profile?.companySize && (
-              <span className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-foreground">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-slate-100 border border-slate-200 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-foreground">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 {profile.companySize} Employees
               </span>
@@ -282,7 +282,7 @@ export default function EmployerProfileForm({
           </div>
           <div className="lg:col-span-2">
             {userEmail !== undefined && (
-              <div className="space-y-6 rounded-[2rem] border border-white/5 bg-white/[0.02] p-8">
+              <div className="space-y-6 rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
                 <div className="space-y-2">
                   <Label htmlFor="currentEmail" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                     Email Address
@@ -292,11 +292,11 @@ export default function EmployerProfileForm({
                     type="email"
                     value={userEmail}
                     disabled
-                    className="h-12 rounded-xl bg-white/5 border-white/10 text-muted-foreground font-black opacity-50"
+                    className="h-12 rounded-xl bg-slate-100 border-slate-200 text-muted-foreground font-black opacity-50 shadow-sm"
                   />
                 </div>
                 
-                <div className="space-y-4 pt-4 border-t border-white/5">
+                <div className="space-y-4 pt-4 border-t border-slate-200">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">Change Email Address</p>
                   {emailChangeMessage && (
                     <div
@@ -324,7 +324,7 @@ export default function EmployerProfileForm({
                           e.key === "Enter" && (e.preventDefault(), handleRequestEmailChange())
                         }
                         disabled={emailChangeLoading}
-                        className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20"
+                        className="h-12 rounded-xl bg-white border-slate-200 focus:ring-primary/20 shadow-sm"
                       />
                     </div>
                     <Button
@@ -332,7 +332,7 @@ export default function EmployerProfileForm({
                       variant="secondary"
                       onClick={handleRequestEmailChange}
                       disabled={emailChangeLoading || !newEmail.trim()}
-                      className="h-12 px-6 rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20 transition-all active:scale-95 shrink-0"
+                      className="h-12 px-6 rounded-xl bg-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-300 transition-all active:scale-95 shrink-0"
                     >
                       {emailChangeLoading ? "Processing…" : "Send Link"}
                     </Button>
@@ -343,7 +343,7 @@ export default function EmployerProfileForm({
           </div>
         </div>
 
-        <div className="grid gap-12 lg:grid-cols-3 pt-12 border-t border-white/5">
+        <div className="grid gap-12 lg:grid-cols-3 pt-12 border-t border-slate-200">
           <div className="lg:col-span-1">
              <h3 className="text-xl font-black text-foreground tracking-tight">Company Profile</h3>
              <p className="mt-2 text-sm font-medium text-muted-foreground italic">Update your company details to provide more information to candidates.</p>
@@ -358,7 +358,7 @@ export default function EmployerProfileForm({
                   id="companyName"
                   {...register("companyName")}
                   placeholder="Acme Corp"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                  className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
                 {errors.companyName && (
                   <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.companyName.message}</p>
@@ -373,7 +373,7 @@ export default function EmployerProfileForm({
                   id="industry"
                   {...register("industry")}
                   placeholder="IT Services"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                  className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
               </div>
 
@@ -385,7 +385,7 @@ export default function EmployerProfileForm({
                   id="companySize"
                   {...register("companySize")}
                   placeholder="500+ Employees"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                  className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
               </div>
 
@@ -398,7 +398,7 @@ export default function EmployerProfileForm({
                   type="url"
                   {...register("website")}
                   placeholder="https://www.acmecorp.com"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                  className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
               </div>
             </div>
@@ -412,20 +412,20 @@ export default function EmployerProfileForm({
                 {...register("description")}
                 placeholder="Describe your company's mission, values, and work culture..."
                 rows={6}
-                className="rounded-[2rem] bg-white/5 border-white/10 focus:ring-primary/20 p-6 font-medium italic leading-relaxed"
+                className="rounded-[2rem] bg-white border-slate-200 focus:ring-primary/20 p-6 font-medium italic leading-relaxed shadow-sm"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-white/5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-200">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Review and save your company profile information.</p>
           <div className="flex gap-4">
             <Button
               type="button"
               variant="ghost"
               onClick={() => router.back()}
-              className="h-14 px-10 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95"
+              className="h-14 px-10 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all active:scale-95"
             >
               Cancel
             </Button>

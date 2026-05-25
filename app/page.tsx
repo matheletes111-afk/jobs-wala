@@ -90,13 +90,13 @@ export default async function HomePage() {
   });
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background selection:bg-primary/20">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
       {/* Header - Premium Glassmorphism */}
-      <header className="sticky top-0 z-50 glass border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-white to-sky-100 border-b border-sky-200/60 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
           <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
             {/* Mobile: smaller logo */}
-            <div className="bg-white rounded-lg shadow-2xl flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
+            <div className="bg-white rounded-lg shadow-md flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
               <img
                 src="/images/logo.jpeg"
                 alt="Jobs Portal"
@@ -114,7 +114,7 @@ export default async function HomePage() {
             ) : (
               <>
                 <Link href="/login">
-                  <Button variant="ghost" className="text-foreground hover:bg-white/10">
+                  <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
                     Sign in
                   </Button>
                 </Link>
@@ -148,27 +148,28 @@ export default async function HomePage() {
                 Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
               </p>
               <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-4 sm:mb-10 items-center lg:items-start">
-                <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
-                  <span className="flex items-center border-b border-white/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r sm:py-4">
+                <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-black/10 bg-white shadow-xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
+                  <span className="flex items-center border-b border-black/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r sm:py-4">
                     <Search className="h-5 w-5 shrink-0" />
                   </span>
                   <input
                     type="search"
                     name="search"
                     placeholder="Enter skills or job title"
-                    className="min-w-0 flex-1 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:py-4"
+                    className="min-w-0 flex-1 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-slate-400 outline-none sm:py-4"
                   />
-                  <span className="hidden items-center border-l border-white/10 px-4 text-muted-foreground sm:flex">
+                  <span className="hidden items-center border-l border-black/10 px-4 text-muted-foreground sm:flex">
                     <FileText className="h-5 w-5" />
                   </span>
                   <input
                     type="text"
                     name="category"
                     placeholder="Category"
-                    className="w-full border-t border-white/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-white/30 outline-none sm:w-48 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
+                    className="w-full border-t border-black/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-slate-400 outline-none sm:w-48 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
                   />
                 </div>
                 <button
+                  style={{ "color": "white" }}
                   type="submit"
                   className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-12 py-4 text-white font-bold shadow-lg shadow-orange-500/20 transition-all hover:bg-[#ea580c] hover:scale-[1.02] active:scale-95"
                 >
@@ -211,14 +212,14 @@ export default async function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[24rem] md:h-[28rem] lg:h-[34.5rem] xl:h-[42.5rem] lg:max-w-[44rem] xl:max-w-[50rem] lg:-my-6 xl:-my-8 animate-in fade-in slide-in-from-right-10 duration-1000">
+            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[25rem] md:h-[28rem] lg:h-[34rem] xl:h-[40rem] lg:max-w-[44rem] xl:max-w-[50rem] lg:-my-6 xl:-my-8 animate-in fade-in slide-in-from-right-10 duration-1000">
               <div className="absolute inset-0 bg-gradient-to-tr from-[#2563eb]/10 to-transparent rounded-full blur-3xl" />
               <Image
                 src={HERO_IMAGE_URL}
                 alt="Find your dream job"
                 fill
-                className="object-contain object-right drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 704px, 800px"
+                className="object-contain object-center lg:object-right drop-shadow-2xl scale-[1.02]"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 700px, 800px"
                 unoptimized
               />
             </div>
@@ -226,7 +227,7 @@ export default async function HomePage() {
         </section>
 
         {/* CTA Banners - Premium Pill Style */}
-        <section className="py-12 sm:py-16 bg-white/2">
+        <section className="py-12 sm:py-16 bg-transparent">
           <div className="mx-auto flex max-w-7xl flex-col items-stretch justify-center gap-6 px-4 sm:flex-row sm:flex-wrap sm:px-6 md:px-8 lg:px-10">
             <Link
               href="/user/jobs"
@@ -234,7 +235,7 @@ export default async function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative min-w-0 flex-1 text-left">
-                <p className="truncate text-xl font-bold sm:text-2xl">Search your desired Job</p>
+                <p className="truncate text-xl font-bold sm:text-2xl" style={{ "color": "white" }}>Search your desired Job</p>
                 <p className="mt-1 truncate text-sm font-medium text-blue-100/80 sm:text-base">
                   Discover a career you are passionate about
                 </p>
@@ -249,12 +250,12 @@ export default async function HomePage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative min-w-0 flex-1 text-left">
-                <p className="truncate text-xl font-bold sm:text-2xl">Post a Job Today</p>
+                <p className="truncate text-xl font-bold sm:text-2xl" style={{ "color": "white" }}>Post a Job Today</p>
                 <p className="mt-1 truncate text-sm font-medium text-orange-100/80 sm:text-base">
                   Discover the ideal candidate for your team
                 </p>
               </div>
-              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110">
+              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110" style={{ "color": "white" }}>
                 <Send className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2.5} />
               </span>
             </Link>

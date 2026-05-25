@@ -142,28 +142,28 @@ export default function EmployerResumeDatabaseSearch({
   }, [limit, page, total]);
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-16 border-b border-white/5 pb-10">
+        <div className="mb-16 border-b border-slate-200 pb-10">
            <div className="flex items-center gap-3 mb-4">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500">Talent Database</p>
            </div>
-           <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-gradient leading-tight">
+           <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-foreground leading-tight">
              Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-600">Library</span>
            </h1>
            <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic max-w-2xl">
              Access the central resume database. Filter by candidate information, location, and key skills.
            </p>
 
-           <div className="mt-12 grid gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl md:grid-cols-5">
+           <div className="mt-12 grid gap-4 p-4 rounded-3xl linear-card shadow-lg md:grid-cols-5">
               <div className="md:col-span-2">
                 <Input
                   placeholder="Search candidates (Name, Email, etc)..."
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && apply()}
-                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                  className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/40 italic"
                 />
               </div>
               <div className="md:col-span-1">
@@ -179,7 +179,7 @@ export default function EmployerResumeDatabaseSearch({
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                 className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/40 italic"
               />
               <Input
                 type="number"
@@ -188,7 +188,7 @@ export default function EmployerResumeDatabaseSearch({
                 value={minExperience}
                 onChange={(e) => setMinExperience(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20 italic"
+                 className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/40 italic"
               />
            </div>
 
@@ -197,7 +197,7 @@ export default function EmployerResumeDatabaseSearch({
                 <Search className="mr-2 h-4 w-4" />
                 Search Database
               </Button>
-              <Button variant="ghost" onClick={clear} className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all">
+              <Button variant="ghost" onClick={clear} className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-slate-100 transition-all">
                 Clear Filters
               </Button>
               <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest italic ml-auto">{rangeText}</span>
@@ -206,15 +206,15 @@ export default function EmployerResumeDatabaseSearch({
 
         <div className="grid gap-6 grid-cols-1">
           {loading ? (
-            <div className="col-span-full linear-card rounded-[3rem] p-32 text-center animate-pulse">
+            <div className="col-span-full rounded-[3rem] p-32 text-center animate-pulse border border-slate-200 bg-white">
                <p className="text-sm font-black uppercase tracking-[0.5em] text-emerald-500">Accessing Resume Archives...</p>
             </div>
           ) : error ? (
-            <div className="col-span-full p-8 rounded-[2rem] bg-red-500/10 border border-red-500/20 text-red-400 text-center font-bold italic">
+            <div className="col-span-full p-8 rounded-[2rem] bg-red-50 border border-red-200 text-red-700 text-center font-bold italic">
                &lt;Error: {error}&gt;
             </div>
           ) : resumes.length === 0 ? (
-            <div className="col-span-full linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
+            <div className="col-span-full rounded-[3rem] p-32 text-center border-dashed border-slate-200 bg-slate-50">
                <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
                   No records match your search criteria.
                </p>
@@ -223,7 +223,7 @@ export default function EmployerResumeDatabaseSearch({
             resumes.map((resume, idx) => (
               <div
                 key={resume.id}
-                className="linear-card group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+                className="linear-card group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] shadow-md p-10 transition-all hover:shadow-xl animate-in fade-in slide-in-from-bottom-5 duration-700"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
                 <div className="flex-1 min-w-0 space-y-6">
@@ -249,7 +249,7 @@ export default function EmployerResumeDatabaseSearch({
                         <MapPin className="h-3.5 w-3.5 text-emerald-500/50" />
                         {resume.extractedLocation || "ORBITAL / REMOTE"}
                       </span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500/80 px-3 py-1 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
                         {resume.currentTitle || "UNDEFINED ROLE"}
                       </span>
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
@@ -268,7 +268,7 @@ export default function EmployerResumeDatabaseSearch({
                             className={`px-3 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${
                               isMatched 
                                 ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                                : "bg-white/5 border-white/5 text-muted-foreground/60"
+                                : "bg-slate-100 border-slate-200 text-slate-600"
                             }`}
                           >
                             {skill}
@@ -287,7 +287,7 @@ export default function EmployerResumeDatabaseSearch({
                     href={resume.r2Url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-12 px-8 rounded-2xl bg-white/5 border border-white/10 flex items-center text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-emerald-500 hover:text-white transition-all active:scale-95 shadow-xl hover:shadow-emerald-500/20"
+                    className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 flex items-center text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all active:scale-95 shadow-sm hover:shadow-md"
                   >
                     SYNC PDF
                   </a>
@@ -301,7 +301,7 @@ export default function EmployerResumeDatabaseSearch({
            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
             <Button
               variant="ghost"
-              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+              className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 disabled:opacity-30 transition-all text-foreground"
               disabled={page <= 1}
               onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             >
@@ -313,7 +313,7 @@ export default function EmployerResumeDatabaseSearch({
             </div>
             <Button
               variant="ghost"
-              className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+              className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 disabled:opacity-30 transition-all text-foreground"
               disabled={page >= totalPages}
               onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
             >

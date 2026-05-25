@@ -147,8 +147,8 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
 
 
   return (
-    <div className="w-full bg-black/40 backdrop-blur-3xl p-8 sm:p-12">
-      <div className="mb-10 border-b border-white/5 pb-10">
+    <div className="w-full bg-white rounded-[3rem] p-8 sm:p-12">
+      <div className="mb-10 border-b border-slate-200 pb-10">
         <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">
           Job Details
         </p>
@@ -194,7 +194,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 id="title"
                 {...register("title")}
                 placeholder="Software Engineer"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
               />
               {errors.title && (
                 <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.title.message}</p>
@@ -208,10 +208,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                   value={categoryValue || ""}
                   onValueChange={(value) => setValue("category", value)}
                 >
-                  <SelectTrigger id="category" className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20">
+                  <SelectTrigger id="category" className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                  <SelectContent className="bg-white border-slate-200 shadow-lg">
                     {initialData?.category &&
                       !categories.some(
                         (c) => c.name === initialData?.category
@@ -232,7 +232,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                   id="category"
                   {...register("category")}
                   placeholder="IT Department"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                  className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
               )}
               {errors.category && (
@@ -247,7 +247,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 {...register("description")}
                 placeholder="Outline the responsibilities, expected outcomes, and requirements..."
                 rows={8}
-                className="rounded-[2rem] bg-white/5 border-white/10 focus:ring-primary/20 p-6 font-semibold leading-relaxed"
+                className="rounded-[2rem] bg-white border-slate-200 focus:ring-primary/20 p-6 font-semibold leading-relaxed shadow-sm"
               />
               {errors.description && (
                 <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.description.message}</p>
@@ -256,7 +256,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
 
             <div className="space-y-2 sm:col-span-2">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Location *</Label>
-              <div className="p-1 rounded-[1.5rem] bg-white/5 border border-white/5">
+              <div className="p-1 rounded-[1.5rem] bg-slate-50 border border-slate-200 shadow-sm">
                 <LocationDropdown
                   value={locationValue}
                   onChange={(value) => setValue("location", value)}
@@ -268,7 +268,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         </div>
 
         {/* Section 2: Compensation & Experience */}
-        <div className="space-y-8 pt-12 border-t border-white/5">
+        <div className="space-y-8 pt-12 border-t border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Experience & Salary</p>
@@ -281,10 +281,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 value={employmentType}
                 onValueChange={(value) => setValue("employmentType", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                <SelectContent className="bg-white border-slate-200 shadow-lg">
                   <SelectItem value="FULL_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Full Time</SelectItem>
                   <SelectItem value="PART_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Part Time</SelectItem>
                   <SelectItem value="CONTRACT" className="text-[10px] font-black uppercase tracking-widest text-foreground">Contract</SelectItem>
@@ -300,10 +300,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 value={workMode}
                 onValueChange={(value) => setValue("workMode", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                <SelectContent className="bg-white border-slate-200 shadow-lg">
                   <SelectItem value="ONSITE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Onsite</SelectItem>
                   <SelectItem value="HYBRID" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hybrid</SelectItem>
                   <SelectItem value="REMOTE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Remote</SelectItem>
@@ -367,10 +367,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 value={watch("currency") || "INR"}
                 onValueChange={(value) => setValue("currency", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                   <SelectValue placeholder="Select Currency" />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                <SelectContent className="bg-white border-slate-200 shadow-lg">
                   <SelectItem value="INR" className="text-[10px] font-black uppercase tracking-widest text-foreground">INR</SelectItem>
                   <SelectItem value="USD" className="text-[10px] font-black uppercase tracking-widest text-foreground">USD</SelectItem>
                   <SelectItem value="EUR" className="text-[10px] font-black uppercase tracking-widest text-foreground">EUR</SelectItem>
@@ -386,10 +386,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 value={watch("payType") || "MONTHLY"}
                 onValueChange={(value) => setValue("payType", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
                   <SelectValue placeholder="Select Pay Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                <SelectContent className="bg-white border-slate-200 shadow-lg">
                   <SelectItem value="HOURLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hourly</SelectItem>
                   <SelectItem value="DAILY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Daily</SelectItem>
                   <SelectItem value="WEEKLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Weekly</SelectItem>
@@ -403,7 +403,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         </div>
 
         {/* Section 3: Skills */}
-        <div className="space-y-8 pt-12 border-t border-white/5">
+        <div className="space-y-8 pt-12 border-t border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Skills & Expertise</p>
@@ -433,14 +433,14 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-white/5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-200">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Please review all fields before posting your job.</p>
           <div className="flex gap-4">
             <Button
               type="button"
               variant="ghost"
               onClick={() => router.back()}
-              className="h-14 px-10 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95"
+              className="h-14 px-10 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all active:scale-95"
             >
               Cancel
             </Button>

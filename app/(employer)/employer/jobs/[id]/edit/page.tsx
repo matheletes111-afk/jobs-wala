@@ -35,13 +35,13 @@ export default async function EditJobPage({
   };
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-foreground">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-12">
-        <div className="linear-card rounded-[2.5rem] bg-white/[0.02] p-8 sm:p-12 mb-12 border border-white/5 animate-in fade-in-up duration-500 fill-mode-both hover:scale-100 hover:border-white/5">
+        <div className="linear-card rounded-[2.5rem] p-8 sm:p-12 mb-12 shadow-md animate-in fade-in-up duration-500 fill-mode-both hover:scale-100">
           <div className="mb-8">
             <Link
               href="/employer/jobs"
-              className="inline-flex items-center gap-3 h-10 px-5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-white/10 transition-all active:scale-95 group"
+              className="inline-flex items-center gap-3 h-10 px-5 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-slate-200 transition-all active:scale-95 group"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               Back to Job List
@@ -57,7 +57,7 @@ export default async function EditJobPage({
             Update the details of your job opening. Changes will be reflected once you save.
           </p>
         </div>
-        <div className="rounded-[3rem] p-1 shadow-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 overflow-hidden bg-card/40 backdrop-blur-sm">
+        <div className="linear-card rounded-[3rem] p-1 shadow-md overflow-hidden">
           <JobForm jobId={job.id} initialData={initialData} />
         </div>
       </div>

@@ -19,7 +19,7 @@ export default async function EmployerApplicationsPage({
 
   if (!profile) {
     return (
-      <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+      <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
         <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-24">
           <div className="linear-card rounded-[2.5rem] p-12 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
             <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/20">

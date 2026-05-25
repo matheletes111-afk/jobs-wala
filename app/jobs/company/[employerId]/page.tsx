@@ -22,9 +22,9 @@ export default async function JobsByCompanyPage({
   if (!profile) notFound();
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background selection:bg-primary/20">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
       {/* Header - Premium Glassmorphism */}
-      <header className="sticky top-0 z-50 glass border-b border-white/5">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-white to-sky-100 border-b border-sky-200/60 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
           <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
             <div className="bg-white rounded-lg shadow-2xl flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">

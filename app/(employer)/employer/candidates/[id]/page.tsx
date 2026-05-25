@@ -44,15 +44,15 @@ export default async function EmployerCandidateDetailPage({
   const initials = `${candidate.firstName?.[0] ?? ""}${candidate.lastName?.[0] ?? ""}`.toUpperCase() || "?";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       {/* Hero section */}
-      <div className="relative overflow-hidden border-b border-white/5 bg-black/40 px-6 pb-24 pt-12 md:px-8">
+      <div className="relative overflow-hidden border-b border-slate-200 bg-slate-50 px-6 pb-24 pt-12 md:px-8">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
         <Link href="/employer/applications">
           <Button
             variant="ghost"
             size="sm"
-            className="mb-8 gap-3 h-10 px-5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-white/10 transition-all active:scale-95 group"
+            className="mb-8 gap-3 h-10 px-5 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-slate-200 transition-all active:scale-95 group"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Back to Applications
@@ -60,7 +60,7 @@ export default async function EmployerCandidateDetailPage({
         </Link>
         
         <div className="relative flex flex-col items-center gap-10 sm:flex-row sm:items-end">
-          <div className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border-2 border-white/10 bg-white/5 shadow-2xl transition-transform hover:scale-105">
+          <div className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-md transition-transform hover:scale-105">
             {candidate.profileImage ? (
               <img
                 src={candidate.profileImage}
@@ -99,12 +99,12 @@ export default async function EmployerCandidateDetailPage({
             
             <div className="mt-6 flex flex-wrap justify-center sm:justify-start gap-3">
               {candidate.experience != null && (
-                <span className="rounded-xl bg-white/5 border border-white/10 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
+                <span className="rounded-xl bg-slate-100 border border-slate-200 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
                   {candidate.experience} Years Experience
                 </span>
               )}
               {candidate.location && (
-                <span className="rounded-xl bg-white/5 border border-white/10 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
+                <span className="rounded-xl bg-slate-100 border border-slate-200 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/80">
                   <MapPin className="h-3.5 w-3.5 mr-2 inline text-primary" />
                   {formatLocation(candidate.location)}
                 </span>
@@ -119,7 +119,7 @@ export default async function EmployerCandidateDetailPage({
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Left Column: Intelligence Card */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="linear-card rounded-[3rem] bg-black/40 border-white/5 p-10 sm:p-14 shadow-2xl">
+            <div className="linear-card rounded-[3rem] p-10 sm:p-14 shadow-md">
               {/* Contact Grid */}
               <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="space-y-2">
@@ -153,7 +153,7 @@ export default async function EmployerCandidateDetailPage({
                       <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                       <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Cover Letter</h3>
                    </div>
-                   <div className="rounded-[2rem] bg-white/[0.02] border border-white/5 p-8 sm:p-10">
+                   <div className="rounded-[2rem] bg-slate-50 border border-slate-200 p-8 sm:p-10 shadow-sm">
                      <p className="whitespace-pre-wrap text-lg leading-relaxed text-muted-foreground font-medium italic">
                         &quot;{candidate.bio}&quot;
                      </p>
@@ -188,7 +188,7 @@ export default async function EmployerCandidateDetailPage({
                       <div className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
                       <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Education</h3>
                    </div>
-                  <div className="rounded-[2rem] bg-white/[0.02] border border-white/5 p-8">
+                  <div className="rounded-[2rem] bg-slate-50 border border-slate-200 p-8 shadow-sm">
                      <p className="text-lg font-bold text-foreground/90 leading-relaxed italic">
                         {candidate.education}
                      </p>
@@ -214,7 +214,7 @@ export default async function EmployerCandidateDetailPage({
                      </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       {list.map((cert, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.03] border border-white/5 transition-all hover:bg-white/[0.05]">
+                        <div key={idx} className="flex items-center justify-between p-6 rounded-2xl bg-slate-50 border border-slate-200 transition-all hover:bg-slate-100 shadow-sm">
                            <div className="min-w-0 flex-1">
                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-1 truncate">
                                 {cert.description || "Unspecified Credential"}
@@ -227,7 +227,7 @@ export default async function EmployerCandidateDetailPage({
                               href={cert.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-foreground hover:bg-white/10 transition-all hover:scale-110"
+                              className="h-10 w-10 flex items-center justify-center rounded-xl bg-slate-100 border border-slate-200 text-foreground hover:bg-slate-200 transition-all hover:scale-110 shadow-sm"
                             >
                               {cert.type === "image" ? <ImageIcon className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                             </a>
@@ -244,7 +244,7 @@ export default async function EmployerCandidateDetailPage({
           <div className="lg:col-span-1 space-y-8">
              {/* Resume Card */}
              {candidate.resumeUrl && (
-                <div className="linear-card rounded-[2.5rem] p-10 bg-emerald-500/5 border-emerald-500/20 shadow-2xl">
+                <div className="linear-card rounded-[2.5rem] p-10 shadow-md">
                    <div className="flex items-center gap-3 mb-8">
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400">Resume</h3>
@@ -273,18 +273,18 @@ export default async function EmployerCandidateDetailPage({
              )}
 
              {/* Profile Summary Card */}
-             <div className="linear-card rounded-[2.5rem] p-10 bg-white/[0.02] border-white/5">
+             <div className="linear-card rounded-[2.5rem] p-10 shadow-md">
                 <h3 className="text-sm font-black uppercase tracking-widest text-foreground mb-8">Profile Summary</h3>
                 <div className="space-y-6">
-                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                   <div className="flex justify-between items-center py-4 border-b border-slate-200">
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Registered</span>
                       <span className="text-xs font-bold text-foreground">{new Date(candidate.updatedAt).toLocaleDateString()}</span>
                    </div>
-                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                   <div className="flex justify-between items-center py-4 border-b border-slate-200">
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Verification</span>
                       <span className="text-xs font-bold text-emerald-400">PASSED</span>
                    </div>
-                   <div className="flex justify-between items-center py-4 border-b border-white/5">
+                   <div className="flex justify-between items-center py-4 border-b border-slate-200">
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Status</span>
                       <span className="text-xs font-bold text-primary">ACTIVE</span>
                    </div>

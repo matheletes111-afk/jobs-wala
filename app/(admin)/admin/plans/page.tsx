@@ -123,7 +123,7 @@ export default function AdminPlansPage() {
              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Subscription System</span>
           </div>
           <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
-            Subscription <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Hub</span>
+            Subscription <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">Hub</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base font-medium text-white/50 leading-relaxed">
             Manage your plans and track subscriber activity in one place.

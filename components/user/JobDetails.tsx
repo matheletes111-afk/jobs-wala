@@ -53,20 +53,20 @@ export default function JobDetails({ job }: { job: Job }) {
           <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-6xl mb-6">
             {job.title}
           </h1>
-          <div className="flex flex-wrap justify-center md:justify-start gap-3">
-            <span className="inline-flex items-center px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground">
+          <div className="flex flex-wrap justify-center md:justify-start gap-2">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-[10px] font-black uppercase tracking-widest text-slate-700">
               {job.employer.companyName}
             </span>
-            <span className="inline-flex items-center px-5 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest text-blue-400">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-[10px] font-black uppercase tracking-widest text-blue-700">
               {formatLocation(job.location)}
             </span>
-            <span className="inline-flex items-center px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-widest text-indigo-400">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-[10px] font-black uppercase tracking-widest text-violet-700">
               {job.category}
             </span>
-            <span className="inline-flex items-center px-5 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest text-emerald-400">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-black uppercase tracking-widest text-emerald-700">
               {(job.employmentType || "FULL_TIME").replace("_", " ")}
             </span>
-            <span className="inline-flex items-center px-5 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-[10px] font-black uppercase tracking-widest text-orange-400">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-[10px] font-black uppercase tracking-widest text-orange-700">
               {(job.workMode || "ONSITE").replace("_", " ")}
             </span>
           </div>
@@ -108,7 +108,7 @@ export default function JobDetails({ job }: { job: Job }) {
               </div>
               <div className="flex flex-wrap gap-3">
                 {job.requiredSkills!.map((s) => (
-                  <span key={s} className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-black uppercase tracking-widest text-emerald-400 shadow-xl shadow-emerald-500/5">
+                  <span key={s} className="px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-black uppercase tracking-widest text-emerald-800 shadow-xl shadow-emerald-500/5">
                     {s}
                   </span>
                 ))}
@@ -124,7 +124,7 @@ export default function JobDetails({ job }: { job: Job }) {
               </div>
               <div className="flex flex-wrap gap-3">
                 {job.secondarySkills!.map((s) => (
-                  <span key={s} className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-muted-foreground">
+                  <span key={s} className="px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-slate-700">
                     {s}
                   </span>
                 ))}

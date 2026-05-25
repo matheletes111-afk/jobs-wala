@@ -58,7 +58,7 @@ export default function NewPlanPage() {
            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Subscription System</span>
         </div>
         <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
-          Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">New Plan</span>
+          Create <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">New Plan</span>
         </h1>
         <p className="mt-4 text-base font-medium text-white/50 leading-relaxed">
           Configure a new plan with custom job limits, search access, and billing duration.
@@ -215,7 +215,7 @@ export default function NewPlanPage() {
            <Button
             type="submit"
             disabled={loading}
-            className="h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-orange-500 px-12 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+            className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 px-12 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
           >
             {loading ? "Creating..." : (
               <span className="flex items-center gap-3">

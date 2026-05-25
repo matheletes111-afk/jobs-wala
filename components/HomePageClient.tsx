@@ -115,7 +115,7 @@ export default function HomePageClient({
     <>
       {/* Top Companies are Hiring - card grid */}
       {topCompanies.length > 0 && (
-        <section className="bg-background py-16 sm:py-20 md:py-24">
+        <section className="bg-transparent py-16 sm:py-20 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
             <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
               Our Partners
@@ -157,7 +157,7 @@ export default function HomePageClient({
             <div className="mt-12 flex justify-center">
               <Button
                 variant="outline"
-                className="rounded-full border-white/10 hover:bg-white/5 transition-all hover:scale-105 active:scale-95"
+                className="rounded-full border-black/10 hover:bg-black/5 transition-all hover:scale-105 active:scale-95"
                 asChild
               >
                 <Link href="/user/jobs">View Featured Companies</Link>
@@ -169,7 +169,7 @@ export default function HomePageClient({
 
       {/* Browse Jobs By Categories - horizontal scroll */}
       {categories.length > 0 && (
-        <section className="py-16 sm:py-20 bg-white/[0.02]">
+        <section className="py-16 sm:py-20 bg-transparent">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
             <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
               Explore Opportunities
@@ -181,7 +181,7 @@ export default function HomePageClient({
               <button
                 type="button"
                 onClick={() => scrollCategories("left")}
-                className="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-background/80 backdrop-blur-md shadow-xl transition-all hover:bg-white/10 hover:scale-110 active:scale-95 disabled:opacity-0"
+                className="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 backdrop-blur-md shadow-xl transition-all hover:bg-black/5 hover:scale-110 active:scale-95 disabled:opacity-0"
                 aria-label="Scroll left"
               >
                 <ChevronLeft className="h-6 w-6 text-foreground" />
@@ -189,7 +189,7 @@ export default function HomePageClient({
               <button
                 type="button"
                 onClick={() => scrollCategories("right")}
-                className="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-background/80 backdrop-blur-md shadow-xl transition-all hover:bg-white/10 hover:scale-110 active:scale-95 disabled:opacity-0"
+                className="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 backdrop-blur-md shadow-xl transition-all hover:bg-black/5 hover:scale-110 active:scale-95 disabled:opacity-0"
                 aria-label="Scroll right"
               >
                 <ChevronRight className="h-6 w-6 text-foreground" />
@@ -208,7 +208,7 @@ export default function HomePageClient({
                       <LayoutGrid className="h-8 w-8" />
                     </div>
                     <p className="font-bold text-foreground mb-1">{cat.name}</p>
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest bg-white/5 border border-white/10 px-3 py-1 rounded-full group-hover:bg-white/10 transition-colors">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest bg-black/5 border border-black/10 px-3 py-1 rounded-full group-hover:bg-black/10 transition-colors">
                       {cat.jobCount} Jobs
                     </span>
                   </Link>
@@ -220,7 +220,7 @@ export default function HomePageClient({
       )}
 
       {/* Latest Jobs - card grid */}
-      <section className="bg-background py-16 sm:py-20 md:py-24">
+      <section className="bg-transparent py-16 sm:py-20 md:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
           <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
             New Opportunities
@@ -256,12 +256,12 @@ export default function HomePageClient({
                         {job.employmentType.replace("_", " ")}
                       </span>
                       <div className="flex items-center gap-2">
-                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors" />
+                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-black/5 border border-black/10 hover:bg-black/10 transition-colors" />
                         <CompanyLogo
                           companyLogo={job.employer.companyLogo}
                           companyName={job.employer.companyName}
                           size="md"
-                          className="rounded-xl border border-white/10"
+                          className="rounded-xl border border-black/10"
                         />
                       </div>
                     </div>
@@ -280,7 +280,7 @@ export default function HomePageClient({
                         {formatLocation(job.location, true)}
                       </p>
                     </div>
-                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                    <div className="mt-8 pt-6 border-t border-black/10 flex items-center justify-between">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                         Posted {formatDate(job.createdAt)}
                       </p>
@@ -290,7 +290,7 @@ export default function HomePageClient({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full text-foreground/70 hover:text-foreground hover:bg-white/5"
+                              className="w-full text-foreground/70 hover:text-foreground hover:bg-black/5"
                             >
                               Details
                             </Button>
@@ -318,7 +318,7 @@ export default function HomePageClient({
               </div>
               <div className="mt-16 flex justify-center">
                 <Button
-                  className="rounded-full bg-white/5 border border-white/10 px-10 py-6 text-foreground font-bold hover:bg-white/10 hover:scale-105 active:scale-95 transition-all"
+                  className="rounded-full bg-white border border-black/10 px-10 py-6 text-foreground font-bold hover:bg-black/5 hover:scale-105 active:scale-95 transition-all shadow-sm"
                   asChild
                 >
                   <Link href="/user/jobs">Explore All Jobs</Link>

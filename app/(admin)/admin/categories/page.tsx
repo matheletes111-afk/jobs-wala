@@ -13,7 +13,7 @@ export default async function AdminCategoriesPage() {
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-20";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
         {/* Header Section */}
         <div className="mb-16 border-b border-white/5 pb-10">

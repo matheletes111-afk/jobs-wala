@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
-import { Search, User, MapPin, Briefcase, GraduationCap, FileText, ChevronRight, LayoutGrid, List } from "lucide-react";
+import { Search, User, MapPin, Briefcase, GraduationCap, FileText, ChevronRight, LayoutGrid, List, Download } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
 
 interface Candidate {
@@ -19,9 +19,14 @@ interface Candidate {
   skills: string[];
   profileImage?: string | null;
   resumeUrl?: string | null;
+  resumeUpdatedAt?: string | null;
   education?: string | null;
   bio?: string | null;
   availabilityStatus?: string | null;
+  phone?: string | null;
+  certificates?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
   user: { email: string };
 }
 
@@ -112,21 +117,60 @@ export default function ResumeSearch({
     setPage(1);
   };
 
+  const handleExportCSV = () => {
+    if (candidates.length === 0) return;
+    const headers = [
+      "Candidate ID", "First Name", "Last Name", "Email", "Phone", "Job Title", 
+      "Location", "Experience (Years)", "Skills", "Education", 
+      "Availability", "Bio", "Resume URL", "Resume Updated At",
+      "Certificates", "Profile Created", "Profile Updated"
+    ];
+    const rows = candidates.map(candidate => [
+      candidate.id,
+      `"${candidate.firstName.replace(/"/g, '""')}"`,
+      `"${candidate.lastName.replace(/"/g, '""')}"`,
+      `"${(candidate.user?.email || "").replace(/"/g, '""')}"`,
+      `"${(candidate.phone || "").replace(/"/g, '""')}"`,
+      `"${(candidate.jobTitle || "").replace(/"/g, '""')}"`,
+      `"${(candidate.location || "").replace(/"/g, '""')}"`,
+      candidate.experience ?? "",
+      `"${(candidate.skills || []).join(", ").replace(/"/g, '""')}"`,
+      `"${(candidate.education || "").replace(/"/g, '""')}"`,
+      `"${(candidate.availabilityStatus || "").replace(/"/g, '""')}"`,
+      `"${(candidate.bio || "").replace(/"/g, '""')}"`,
+      `"${(candidate.resumeUrl || "").replace(/"/g, '""')}"`,
+      candidate.resumeUpdatedAt ? new Date(candidate.resumeUpdatedAt).toISOString().split('T')[0] : "",
+      `"${(candidate.certificates || "").replace(/"/g, '""')}"`,
+      candidate.createdAt ? new Date(candidate.createdAt).toISOString().split('T')[0] : "",
+      candidate.updatedAt ? new Date(candidate.updatedAt).toISOString().split('T')[0] : ""
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `candidates_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = Math.min(page * limit, total);
   const containerClass =
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-white animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
         {/* Talent Cloud Monitoring Header */}
-        <div className="mb-16 border-b border-white/5 pb-10">
+        <div className="mb-16 border-b border-slate-200 pb-10">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Candidate Search</p>
           </div>
-          <h1 className="text-4xl font-black md:text-6xl tracking-tighter leading-tight text-white">
+          <h1 className="text-4xl font-black md:text-6xl tracking-tighter leading-tight text-foreground">
             Explore{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
               Talent
@@ -136,7 +180,7 @@ export default function ResumeSearch({
             Filter by skills, location, and keywords to find matching candidates for your job openings.
           </p>
 
-          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/80 border border-slate-200 shadow-lg backdrop-blur-xl">
             <div className="relative flex-1 min-w-[280px]">
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
               <Input
@@ -170,7 +214,7 @@ export default function ResumeSearch({
         <div className="flex flex-col gap-10 lg:flex-row">
           {/* Tactical Filters Sidebar */}
           <aside className="w-full shrink-0 lg:w-80">
-            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-white/[0.02] border-white/5 shadow-2xl">
+            <div className="sticky top-32 linear-card rounded-[2.5rem] p-8 shadow-md">
               <div className="flex items-center gap-3 mb-10">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Advanced Filters</h2>
@@ -187,7 +231,7 @@ export default function ResumeSearch({
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-sm font-medium text-foreground px-4"
+                    className="h-12 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-foreground px-4 shadow-sm focus-visible:ring-primary/20"
                   />
                 </div>
 
@@ -209,7 +253,7 @@ export default function ResumeSearch({
                     value={skills}
                     onChange={(e) => setSkills(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-sm font-medium text-foreground px-4"
+                    className="h-12 bg-white border border-slate-200 rounded-2xl text-sm font-medium text-foreground px-4 shadow-sm focus-visible:ring-primary/20"
                   />
                 </div>
 
@@ -223,14 +267,14 @@ export default function ResumeSearch({
                   <Button
                     variant="ghost"
                     onClick={handleClear}
-                    className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all"
+                    className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-slate-100 transition-all"
                   >
                     Reset Filters
                   </Button>
                 </div>
               </div>
 
-              <div className="mt-12 p-6 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10">
+              <div className="mt-12 p-6 rounded-[1.5rem] bg-blue-50 border border-blue-200">
                 <p className="text-[9px] leading-relaxed text-muted-foreground/60 font-medium italic">
                   Candidates are updated in real-time. Adjust your filters to find exactly who you need.
                 </p>
@@ -240,7 +284,7 @@ export default function ResumeSearch({
 
           {/* Result Grid */}
           <div className="flex-1 space-y-10">
-            <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
+            <div className="flex flex-wrap items-center justify-between gap-6 border-b border-slate-200 pb-8">
               <div className="flex flex-col gap-1">
                  <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
                    {total} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Candidates Found</span>
@@ -251,11 +295,20 @@ export default function ResumeSearch({
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex p-1 rounded-xl bg-white/5 border border-white/5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white"
+                >
+                  <Download className="h-4 w-4" />
+                  Export CSV
+                </Button>
+                <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-200">
                   <button
                     type="button"
                     onClick={() => setViewMode("grid")}
-                    className={`rounded-lg p-2.5 transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-white/5"}`}
+                    className={`rounded-lg p-2.5 transition-all ${viewMode === "grid" ? "toggle-active bg-white shadow-sm" : "text-muted-foreground hover:bg-slate-200"}`}
                     aria-label="Grid Mode"
                   >
                     <LayoutGrid className="h-5 w-5" />
@@ -263,7 +316,7 @@ export default function ResumeSearch({
                   <button
                     type="button"
                     onClick={() => setViewMode("list")}
-                    className={`rounded-lg p-2.5 transition-all ${viewMode === "list" ? "toggle-active" : "text-muted-foreground hover:bg-white/5"}`}
+                    className={`rounded-lg p-2.5 transition-all ${viewMode === "list" ? "toggle-active bg-white shadow-sm" : "text-muted-foreground hover:bg-slate-200"}`}
                     aria-label="List Mode"
                   >
                     <List className="h-5 w-5" />
@@ -273,11 +326,11 @@ export default function ResumeSearch({
             </div>
 
             {loading ? (
-              <div className="linear-card rounded-[3rem] p-32 text-center animate-pulse">
+              <div className="rounded-[3rem] p-32 text-center animate-pulse border border-slate-200">
                 <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Searching Candidates...</p>
               </div>
             ) : candidates.length === 0 ? (
-              <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
+              <div className="rounded-[3rem] p-32 text-center border-dashed border-slate-200">
                 <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
                   No candidates found. <br />Try adjusting your filters.
                 </p>
@@ -287,7 +340,7 @@ export default function ResumeSearch({
                 {candidates.map((candidate, idx) => (
                   <div
                     key={candidate.id}
-                    className={`linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-8 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700 ${viewMode === "list" ? "md:flex-row md:items-center md:gap-10" : ""}`}
+                    className={`linear-card group flex flex-col rounded-[2.5rem] shadow-md p-8 transition-all hover:shadow-xl animate-in fade-in slide-in-from-bottom-5 duration-700 ${viewMode === "list" ? "md:flex-row md:items-center md:gap-10" : ""}`}
                     style={{ animationDelay: `${idx * 50}ms` }}
                   >
                     <div className={`flex items-start gap-4 ${viewMode === "list" ? "flex-1" : "mb-8"}`}>
@@ -296,7 +349,7 @@ export default function ResumeSearch({
                         firstName={candidate.firstName}
                         lastName={candidate.lastName}
                         size="lg"
-                        className="rounded-2xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-110"
+                        className="rounded-2xl border border-slate-200 shadow-sm transition-transform group-hover:scale-110"
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -321,7 +374,7 @@ export default function ResumeSearch({
                     </div>
 
                     <div className={`flex-1 space-y-6 ${viewMode === "list" ? "hidden md:block" : ""}`}>
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                         <p className="text-xs leading-relaxed text-muted-foreground font-medium italic line-clamp-2">
                           {candidate.bio ? `&quot;${candidate.bio}&quot;` : "Candidate profile contains high-value skills. View profile for more details."}
                         </p>
@@ -345,7 +398,7 @@ export default function ResumeSearch({
                           {candidate.skills.slice(0, 3).map((skill, sIdx) => (
                             <span
                               key={sIdx}
-                              className="px-3 py-1 rounded-lg bg-blue-500/5 border border-blue-500/10 text-[9px] font-black uppercase tracking-widest text-blue-400"
+                              className="px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[9px] font-black uppercase tracking-widest text-slate-600"
                             >
                               {skill}
                             </span>
@@ -359,7 +412,7 @@ export default function ResumeSearch({
                       )}
                     </div>
 
-                    <div className={`pt-8 border-t border-white/5 flex items-center justify-between gap-4 ${viewMode === "list" ? "border-t-0 pt-0" : "mt-8"}`}>
+                    <div className={`pt-8 border-t border-slate-200 flex items-center justify-between gap-4 ${viewMode === "list" ? "border-t-0 pt-0" : "mt-8"}`}>
                       {candidate.resumeUrl ? (
                         <a
                           href={candidate.resumeUrl}
@@ -372,7 +425,7 @@ export default function ResumeSearch({
                         </a>
                       ) : (
                          <div className="hidden sm:flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
                                <GraduationCap className="h-4 w-4 text-muted-foreground/30" />
                             </div>
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 italic max-w-[120px] line-clamp-1">
@@ -383,7 +436,7 @@ export default function ResumeSearch({
                       <Link href={`/employer/candidates/${candidate.id}`}>
                         <Button
                           variant="ghost"
-                          className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95 group"
+                          className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all active:scale-95 group"
                         >
                           PROFILE
                           <ChevronRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1 text-red-500" />
@@ -399,7 +452,7 @@ export default function ResumeSearch({
               <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
                 <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
@@ -411,7 +464,7 @@ export default function ResumeSearch({
                 </div>
                 <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >

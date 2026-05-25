@@ -33,16 +33,16 @@ export default function DashboardRedirect() {
   }, [session, status, router]);
 
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 bg-black px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 linear-card px-4 relative">
       <div className="relative">
         <div className="absolute inset-0 animate-ping rounded-full bg-blue-600/20" />
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-black border border-white/10 shadow-2xl">
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white border border-blue-100 shadow-2xl">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" strokeWidth={2.5} />
         </div>
       </div>
       <div className="text-center">
-        <h1 className="text-xl font-semibold text-white sm:text-2xl">
-          Welcome to JobsDaddy
+        <h1 className="text-xl font-semibold text-foreground sm:text-2xl">
+          Welcome to JobDaddy
         </h1>
         <p className="mt-2 text-sm text-gray-500">Taking you to your dashboard...</p>
       </div>

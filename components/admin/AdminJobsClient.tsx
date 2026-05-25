@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Briefcase,
   Calendar,
+  Download,
 } from "lucide-react";
 import CompanyLogo from "@/components/CompanyLogo";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -33,7 +34,17 @@ interface JobItem {
   location: string;
   category: string;
   status: string;
+  experienceMin?: number | null;
+  experienceMax?: number | null;
+  employmentType?: string;
+  workMode?: string;
+  requiredSkills?: string[];
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  payType?: string | null;
   createdAt?: string;
+  expiresAt?: string | null;
   employer: {
     companyName: string;
     companyLogo?: string | null;
@@ -157,6 +168,55 @@ export default function AdminJobsClient() {
     setPage(1);
   };
 
+  const handleExportCSV = () => {
+    if (jobs.length === 0) return;
+    const headers = [
+      "ID", "Title", "Company Name", "Industry", "Location", "Category", 
+      "Status", "Employment Type", "Work Mode", "Experience Required",
+      "Salary Range", "Skills", "Applications Count", "Created At", "Expires At"
+    ];
+
+    const rows = jobs.map(job => {
+      const location = formatLocation(job.location, true);
+      const experience = job.experienceMin != null && job.experienceMax != null 
+        ? `${job.experienceMin}-${job.experienceMax} YRS` 
+        : job.experienceMin != null ? `${job.experienceMin}+ YRS` : "";
+        
+      const salary = job.salaryMin != null && job.salaryMax != null
+        ? `${job.currency || ""} ${job.salaryMin}-${job.salaryMax} / ${job.payType || ""}`
+        : "";
+
+      return [
+        job.id,
+        `"${(job.title || "").replace(/"/g, '""')}"`,
+        `"${(job.employer.companyName || "").replace(/"/g, '""')}"`,
+        `"${(job.employer.industry || "").replace(/"/g, '""')}"`,
+        `"${location.replace(/"/g, '""')}"`,
+        `"${(job.category || "").replace(/"/g, '""')}"`,
+        job.status,
+        job.employmentType || "",
+        job.workMode || "",
+        `"${experience}"`,
+        `"${salary}"`,
+        `"${(job.requiredSkills || []).join(", ").replace(/"/g, '""')}"`,
+        job._count.applications,
+        job.createdAt ? new Date(job.createdAt).toISOString().split('T')[0] : "",
+        job.expiresAt ? new Date(job.expiresAt).toISOString().split('T')[0] : ""
+      ];
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `jobs_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleJobUpdated = useCallback(() => {
     fetchJobs(
       page,
@@ -181,7 +241,7 @@ export default function AdminJobsClient() {
     "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
         {/* Broadcast Monitoring Header */}
         <div className="mb-16 border-b border-white/5 pb-12">
@@ -196,7 +256,7 @@ export default function AdminJobsClient() {
              Monitor, approve, and manage job listings across the platform.
            </p>
            
-           <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 shadow-2xl backdrop-blur-3xl">
+           <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm backdrop-blur-3xl">
               <div className="relative flex-1 min-w-[280px]">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
                 <Input
@@ -240,7 +300,7 @@ export default function AdminJobsClient() {
               <Button
                 onClick={handleSearch}
                 disabled={loading}
-                className="h-12 px-8 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+                className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
               >
                 Search Jobs
               </Button>
@@ -250,7 +310,7 @@ export default function AdminJobsClient() {
         <div className="flex flex-col gap-10 lg:flex-row">
           {/* Tactical Filters Sidebar */}
           <aside className="w-full shrink-0 lg:w-80">
-            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-white/[0.02] border-white/5 shadow-2xl">
+            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
               <div className="flex items-center gap-3 mb-10">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
                 <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Filters</h2>
@@ -302,7 +362,7 @@ export default function AdminJobsClient() {
                 <div className="pt-6 flex flex-col gap-3">
                    <Button
                     onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
                   >
                     Apply Filters
                   </Button>
@@ -331,6 +391,15 @@ export default function AdminJobsClient() {
               </div>
               
               <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
+                >
+                  <Download className="h-4 w-4" />
+                  Export CSV
+                </Button>
                 <div className="flex p-1 rounded-xl bg-white/5 border border-white/5">
                   <button
                     type="button"
@@ -431,7 +500,7 @@ function JobCard({
 
   return (
     <div 
-       className="linear-card group flex flex-col rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 transition-all hover:bg-white/[0.05] animate-in fade-in slide-in-from-bottom-5 duration-700"
+       className="linear-card group flex flex-col rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 p-10 transition-all hover:shadow-md hover:border-blue-300 animate-in fade-in slide-in-from-bottom-5 duration-700"
        style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex items-start justify-between gap-4 mb-10">
@@ -444,7 +513,7 @@ function JobCard({
           />
           <div className="min-w-0">
              <div className="flex items-center gap-3 mb-2">
-                <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : job.status === "PENDING" ? "bg-amber-400" : "bg-red-400"}`} />
+                <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-blue-500" : job.status === "PENDING" ? "bg-orange-500" : "bg-red-500"}`} />
                 <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
              </div>
              <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{job.title}</h3>
@@ -489,13 +558,13 @@ function JobCard({
             </div>
             
             <span
-              className={`rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
-                job.status === "ACTIVE"
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  : job.status === "PENDING"
-                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                    : "bg-white/5 text-muted-foreground border-white/10"
-              }`}
+              className={`rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border ${
+              job.status === "ACTIVE"
+                ? "bg-blue-50 text-blue-600 border-blue-200"
+                : job.status === "PENDING"
+                  ? "bg-orange-50 text-orange-600 border-orange-200"
+                  : "bg-slate-50 border-slate-200 text-slate-500"
+            }`}
             >
               {statusLabel}
             </span>

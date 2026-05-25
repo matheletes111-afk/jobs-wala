@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background xl:flex-row divide-x divide-white/5">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent xl:flex-row divide-x divide-white/5">
       {/* Left section - Matching Login/Register Layout */}
       <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
         <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">

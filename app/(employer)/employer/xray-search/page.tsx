@@ -19,7 +19,7 @@ export default async function XRaySearchPage() {
   const isRestricted = !profile?.xraySearchEnabled || isExpired || profile.subscriptionStatus !== "ACTIVE";
 
   return (
-    <div className="min-h-screen w-full bg-black">
+    <div className="min-h-screen w-full bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8">
         {isRestricted && (
           <div className="mb-12 linear-card rounded-[2rem] border-blue-500/20 bg-blue-500/5 p-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">

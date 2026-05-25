@@ -20,7 +20,7 @@ export default async function ProfilePage({
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
         <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
           <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-primary">

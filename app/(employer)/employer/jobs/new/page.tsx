@@ -43,7 +43,7 @@ export default async function NewJobPage() {
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-black text-foreground">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-12">
         
         {isRestricted && (

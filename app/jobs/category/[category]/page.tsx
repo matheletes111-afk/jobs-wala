@@ -13,7 +13,7 @@ export default async function JobsByCategoryPage({
   const user = await getCurrentUser();
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-background selection:bg-primary/20">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
       {/* Header - Premium Glassmorphism */}
       <header className="sticky top-0 z-50 glass border-b border-white/5">
         <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">

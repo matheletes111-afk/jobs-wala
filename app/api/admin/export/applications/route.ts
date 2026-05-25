@@ -9,26 +9,20 @@ export async function GET() {
 
     const applications = await prisma.application.findMany({
       include: {
-        job: true,
-        jobSeeker: true,
+        job: {
+          include: { employer: true }
+        },
+        jobSeeker: {
+          include: { user: true }
+        },
       },
     });
 
-    const csv = [
-      ["Job Title", "Candidate", "Status", "Applied At"].join(","),
+    const csv = "\uFEFF" + [
+      ["ID", "Job Title", "Company", "Candidate First Name", "Candidate Last Name", "Candidate Email", "Candidate Phone", "Status", "Applied At"].join(","),
       ...applications.map(
-        (a: {
-          job: {
-            title: string;
-          };
-          jobSeeker: {
-            firstName: string;
-            lastName: string;
-          };
-          status: string;
-          appliedAt: Date;
-        }) =>
-          `"${a.job.title}","${a.jobSeeker.firstName} ${a.jobSeeker.lastName}","${a.status}","${a.appliedAt.toISOString()}"`
+        (a: any) =>
+          `"${a.id}","${(a.job?.title || "").replace(/"/g, '""')}","${(a.job?.employer?.companyName || "").replace(/"/g, '""')}","${(a.jobSeeker?.firstName || "").replace(/"/g, '""')}","${(a.jobSeeker?.lastName || "").replace(/"/g, '""')}","${a.jobSeeker?.user?.email || ""}","${a.jobSeeker?.phone || ""}","${a.status}","${a.appliedAt.toISOString()}"`
       ),
     ].join("\n");
 

@@ -13,19 +13,16 @@ export async function GET() {
       },
     });
 
-    const csv = [
-      ["Title", "Company", "Location", "Status", "Created At"].join(","),
+    const csv = "\uFEFF" + [
+      ["ID", "Title", "Company", "Category", "Employment Type", "Work Mode", "Location", "Status", "Experience", "Salary", "Created At"].join(","),
       ...jobs.map(
-        (j: {
-          title: string;
-          location: string | null;
-          status: string;
-          createdAt: Date;
-          employer: {
-            companyName: string;
-          };
-        }) =>
-          `"${j.title}","${j.employer.companyName}","${j.location}","${j.status}","${j.createdAt.toISOString()}"`
+        (j: any) => {
+          const exp = j.experienceMin != null && j.experienceMax != null ? `${j.experienceMin}-${j.experienceMax} YRS` : j.experienceMin != null ? `${j.experienceMin}+ YRS` : "";
+          const salary = j.salaryMin != null && j.salaryMax != null ? `${j.currency || ""} ${j.salaryMin}-${j.salaryMax} / ${j.payType || ""}` : "";
+          const location = typeof j.location === 'string' ? j.location : typeof j.location === 'object' && j.location ? JSON.stringify(j.location).replace(/"/g, '""') : "";
+          
+          return `"${j.id}","${(j.title || "").replace(/"/g, '""')}","${(j.employer?.companyName || "").replace(/"/g, '""')}","${(j.category || "").replace(/"/g, '""')}","${j.employmentType || ""}","${j.workMode || ""}","${location}","${j.status}","${exp}","${salary}","${j.createdAt.toISOString()}"`;
+        }
       ),
     ].join("\n");
 

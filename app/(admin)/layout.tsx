@@ -16,7 +16,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen w-full min-w-0 flex-col bg-black text-white animate-in fade-in duration-1000">
+    <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent text-foreground animate-in fade-in duration-1000">
       <header className="sticky top-0 z-50 w-full glass border-b border-white/5 shadow-2xl">
         <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between gap-6 px-4 sm:px-6 md:px-8 lg:px-10">
           <Link href="/admin/dashboard" className="flex shrink-0 items-center gap-3 transition-transform hover:scale-105 active:scale-95">
@@ -28,7 +28,7 @@ export default async function AdminLayout({
                />
             </div>
             <div className="hidden flex-col md:flex -space-y-1">
-                <span className="text-base font-black tracking-tighter text-foreground">JOBS<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">DADDY</span></span>
+                <span className="text-base font-black tracking-tighter text-foreground">JOB<span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">DADDY</span></span>
                 <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-500 opacity-80">Admin</span>
             </div>
           </Link>

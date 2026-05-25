@@ -27,7 +27,7 @@ export default function AdminHeaderNav() {
       {/* Desktop nav: visible from md up */}
       <div className="hidden items-center gap-6 md:flex">
         <AdminNavLinks />
-        <div className="flex items-center gap-4 h-10 border-l border-white/10 pl-6">
+        <div className="flex items-center gap-4 h-10 border-l border-slate-200 pl-6">
           <LogoutButton />
           <span className="flex h-8 items-center rounded-full bg-blue-600/10 border border-blue-600/20 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-[#2563eb] shadow-lg shadow-blue-500/5">
             Admin
@@ -44,7 +44,7 @@ export default function AdminHeaderNav() {
           type="button"
           variant="ghost"
           size="icon"
-          className="h-10 w-10 shrink-0 rounded-xl bg-white/5 border border-white/10 transition-all active:scale-90"
+          className="h-10 w-10 shrink-0 rounded-xl bg-white shadow-sm border border-slate-200 transition-all active:scale-90"
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
@@ -67,10 +67,10 @@ export default function AdminHeaderNav() {
                </div>
               <AdminNavLinks vertical onLinkClick={() => setOpen(false)} />
             </nav>
-            <div className="mt-12 border-t border-white/5 pt-10 flex flex-col gap-6">
+            <div className="mt-12 border-t border-slate-200 pt-10 flex flex-col gap-6">
               <LogoutButton />
-              <div className="flex items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/5">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Admin Dashboard</p>
+              <div className="flex items-center justify-center p-6 rounded-2xl bg-slate-50 border border-slate-200">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 italic">Admin Dashboard</p>
               </div>
             </div>
           </div>

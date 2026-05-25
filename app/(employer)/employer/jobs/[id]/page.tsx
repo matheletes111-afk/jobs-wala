@@ -49,7 +49,7 @@ export default async function EmployerJobDetailsPage({
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
         <div className="mb-12 flex flex-wrap items-center justify-between gap-6">
           <Link
