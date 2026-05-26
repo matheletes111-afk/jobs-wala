@@ -25,11 +25,11 @@ export default function EmployerHeaderNav() {
   return (
     <>
       {/* Desktop nav: visible from md up */}
-      <div className="hidden items-center gap-6 md:flex">
+      <div className="hidden items-center gap-3 xl:gap-6 md:flex">
         <EmployerNavLinks />
-        <div className="flex items-center gap-4 border-l border-white/10 pl-6">
+        <div className="flex items-center gap-3 xl:gap-4 border-l border-white/10 pl-3 xl:pl-6">
           <LogoutButton />
-          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400">
+          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400 shrink-0">
             Employer
           </span>
         </div>

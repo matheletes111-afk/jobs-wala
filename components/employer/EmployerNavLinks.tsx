@@ -44,14 +44,14 @@ export default function EmployerNavLinks({
         : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
       }`
     : (isActive: boolean) =>
-      `flex items-center gap-2 rounded-xl px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
+      `flex items-center gap-1.5 rounded-xl px-2 py-2 xl:px-3 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
         ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
         : "text-muted-foreground hover:text-foreground hover:bg-white/5"
       }`;
 
   const wrapperClass = vertical
     ? "flex flex-col gap-2"
-    : "flex items-center gap-1";
+    : "flex items-center gap-0.5 xl:gap-1";
 
   return (
     <div className={wrapperClass}>
