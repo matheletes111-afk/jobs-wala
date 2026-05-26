@@ -191,26 +191,25 @@ export default async function Footer() {
                 <p className="flex items-start gap-3">
                   <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" />
                   <span>
-                    651 N Broad St, Suite 201, Middletown, Zip Code 19709, New
-                    Castle, Delaware, USA
+                    Sector 12, Greater Noida (U.P)
                   </span>
                 </p>
                 <p className="flex items-center gap-3">
                   <Mail className="h-4 w-4 shrink-0 text-primary" />
                   <a
-                    href="mailto:info@jobsdaddy.com"
+                    href="mailto:Info@jobdaddy.in"
                     className="transition-colors hover:text-black"
                   >
-                    info@jobsdaddy.com
+                    Info@jobdaddy.in
                   </a>
                 </p>
                 <p className="flex items-center gap-3">
                   <Phone className="h-4 w-4 shrink-0 text-primary" />
                   <a
-                    href="tel:+13025550123"
+                    href="tel:+91-8800614884"
                     className="transition-colors hover:text-black"
                   >
-                    +1 (302) 555-0123
+                    +91-8800614884
                   </a>
                 </p>
               </div>
