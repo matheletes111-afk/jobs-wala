@@ -74,6 +74,23 @@ export async function POST(req: Request) {
 
     // Handle Free Plan (0 Amount)
     if (plan.amount === 0) {
+      // Check if the user has ever had a Free Plan before
+      const hadFreePlan = await prisma.subscription.findFirst({
+        where: {
+          employerId: userId,
+          plan: {
+            amount: 0,
+          },
+        },
+      });
+
+      if (hadFreePlan) {
+        return NextResponse.json(
+          { error: "You have already used the Free Plan once. Please subscribe to a premium plan." },
+          { status: 400 }
+        );
+      }
+
       if (existingSubscription?.razorpaySubscriptionId) {
         // Cancel the old paid subscription to stop billing
         try {

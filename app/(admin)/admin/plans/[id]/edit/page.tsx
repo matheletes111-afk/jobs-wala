@@ -119,10 +119,10 @@ export default function EditPlanPage() {
       <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <div className="grid gap-8 md:grid-cols-2">
           {/* Left Column: Basic Info */}
-          <div className="space-y-8 rounded-3xl border border-white/5 bg-white/[0.02] p-8 backdrop-blur-3xl">
+          <div className="space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
              <div className="flex items-center gap-3 mb-2">
                 <Sparkles className="h-4 w-4 text-orange-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Plan Identity</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Plan Identity</span>
              </div>
 
             <div className="space-y-4">
@@ -162,10 +162,10 @@ export default function EditPlanPage() {
           </div>
 
           {/* Right Column: Pricing & Limits */}
-          <div className="space-y-8 rounded-3xl border border-white/5 bg-white/[0.02] p-8 backdrop-blur-3xl">
+          <div className="space-y-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
              <div className="flex items-center gap-3 mb-2">
                 <ShieldCheck className="h-4 w-4 text-blue-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Quotas & Pricing</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Quotas & Pricing</span>
              </div>
 
              <div className="grid grid-cols-2 gap-6">
@@ -217,32 +217,58 @@ export default function EditPlanPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
-               <div className="flex items-center gap-3">
-                  <Zap className={`h-4 w-4 transition-colors ${formData.resumeSearchEnabled ? 'text-yellow-500' : 'text-white/20'}`} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Resume Search Access</span>
+            <div 
+               onClick={() => setFormData({ ...formData, resumeSearchEnabled: !formData.resumeSearchEnabled })}
+               className={`flex items-center justify-between rounded-2xl border p-5 transition-all duration-300 cursor-pointer select-none ${
+                 formData.resumeSearchEnabled 
+                   ? 'border-blue-500/30 bg-blue-50/10' 
+                   : 'border-slate-200 bg-white hover:bg-slate-50'
+               }`}
+            >
+               <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-xl transition-all duration-300 ${
+                     formData.resumeSearchEnabled ? 'bg-yellow-500/10 text-yellow-600' : 'bg-slate-100 text-slate-400'
+                  }`}>
+                     <Zap className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                     <span className="text-sm font-bold text-slate-800">Resume Search Access</span>
+                     <p className="text-xs text-slate-500">Allow employers to search and view candidate resume profiles.</p>
+                  </div>
                </div>
-               <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, resumeSearchEnabled: !formData.resumeSearchEnabled })}
-                  className={`h-6 w-11 rounded-full transition-all duration-500 ${formData.resumeSearchEnabled ? 'bg-blue-600' : 'bg-white/10'}`}
+               <div
+                  style={{ backgroundColor: formData.resumeSearchEnabled ? '#2563eb' : '#94a3b8' }}
+                  className="h-6 w-11 rounded-full transition-all duration-300 relative flex items-center px-1 shrink-0 border border-slate-400/20"
                >
-                  <div className={`h-4 w-4 rounded-full bg-white transition-all duration-300 transform ${formData.resumeSearchEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
-               </button>
+                  <div className={`h-4 w-4 rounded-full bg-white shadow-md transition-all duration-300 transform ${formData.resumeSearchEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4 transition-colors hover:bg-white/10">
-               <div className="flex items-center gap-3">
-                  <Zap className={`h-4 w-4 transition-colors ${formData.xraySearchEnabled ? 'text-blue-500' : 'text-white/20'}`} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/60">X-Ray Search Access</span>
+            <div 
+               onClick={() => setFormData({ ...formData, xraySearchEnabled: !formData.xraySearchEnabled })}
+               className={`flex items-center justify-between rounded-2xl border p-5 transition-all duration-300 cursor-pointer select-none ${
+                 formData.xraySearchEnabled 
+                   ? 'border-indigo-500/30 bg-indigo-50/10' 
+                   : 'border-slate-200 bg-white hover:bg-slate-50'
+               }`}
+            >
+               <div className="flex items-start gap-4">
+                  <div className={`p-3 rounded-xl transition-all duration-300 ${
+                     formData.xraySearchEnabled ? 'bg-blue-500/10 text-blue-600' : 'bg-slate-100 text-slate-400'
+                  }`}>
+                     <Zap className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                     <span className="text-sm font-bold text-slate-800">X-Ray Search Access</span>
+                     <p className="text-xs text-slate-500">Enable Google X-Ray search to find candidates directly on LinkedIn.</p>
+                  </div>
                </div>
-               <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, xraySearchEnabled: !formData.xraySearchEnabled })}
-                  className={`h-6 w-11 rounded-full transition-all duration-500 ${formData.xraySearchEnabled ? 'bg-indigo-600' : 'bg-white/10'}`}
+               <div
+                  style={{ backgroundColor: formData.xraySearchEnabled ? '#4f46e5' : '#94a3b8' }}
+                  className="h-6 w-11 rounded-full transition-all duration-300 relative flex items-center px-1 shrink-0 border border-slate-400/20"
                >
-                  <div className={`h-4 w-4 rounded-full bg-white transition-all duration-300 transform ${formData.xraySearchEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
-               </button>
+                  <div className={`h-4 w-4 rounded-full bg-white shadow-md transition-all duration-300 transform ${formData.xraySearchEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+               </div>
             </div>
           </div>
         </div>
