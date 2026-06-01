@@ -146,7 +146,10 @@ export async function GET(req: NextRequest) {
       page,
       limit,
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (e?.digest?.startsWith("NEXT_REDIRECT") || e?.message === "NEXT_REDIRECT") {
+      throw e;
+    }
     console.error("[GET /api/employer/applications]", e);
     return NextResponse.json(
       { error: "Failed to fetch applications." },

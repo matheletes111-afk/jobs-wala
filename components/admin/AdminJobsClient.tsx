@@ -79,10 +79,12 @@ export default function AdminJobsClient() {
   const [category, setCategory] = useState("all");
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("all");
+  const [sort, setSort] = useState("desc");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedCategory, setAppliedCategory] = useState("all");
   const [appliedLocation, setAppliedLocation] = useState("");
   const [appliedStatus, setAppliedStatus] = useState("all");
+  const [appliedSort, setAppliedSort] = useState("desc");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const limit = 12;
@@ -93,13 +95,15 @@ export default function AdminJobsClient() {
       searchVal: string,
       categoryVal: string,
       locationVal: string,
-      statusVal: string
+      statusVal: string,
+      sortVal: string
     ) => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         params.set("page", String(pageNum));
         params.set("limit", String(limit));
+        params.set("sort", sortVal);
         if (searchVal.trim()) params.set("search", searchVal.trim());
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
@@ -137,7 +141,8 @@ export default function AdminJobsClient() {
       appliedSearch,
       appliedCategory,
       appliedLocation,
-      appliedStatus
+      appliedStatus,
+      appliedSort
     );
   }, [
     page,
@@ -145,6 +150,7 @@ export default function AdminJobsClient() {
     appliedCategory,
     appliedLocation,
     appliedStatus,
+    appliedSort,
     fetchJobs,
   ]);
 
@@ -153,6 +159,7 @@ export default function AdminJobsClient() {
     setAppliedCategory(category);
     setAppliedLocation(location);
     setAppliedStatus(status);
+    setAppliedSort(sort);
     setPage(1);
   };
 
@@ -161,10 +168,12 @@ export default function AdminJobsClient() {
     setCategory("all");
     setLocation("");
     setStatus("all");
+    setSort("desc");
     setAppliedSearch("");
     setAppliedCategory("all");
     setAppliedLocation("");
     setAppliedStatus("all");
+    setAppliedSort("desc");
     setPage(1);
   };
 
@@ -223,7 +232,8 @@ export default function AdminJobsClient() {
       appliedSearch,
       appliedCategory,
       appliedLocation,
-      appliedStatus
+      appliedStatus,
+      appliedSort
     );
   }, [
     page,
@@ -231,6 +241,7 @@ export default function AdminJobsClient() {
     appliedCategory,
     appliedLocation,
     appliedStatus,
+    appliedSort,
     fetchJobs,
   ]);
 
@@ -297,6 +308,17 @@ export default function AdminJobsClient() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="w-[140px]">
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
+                    <SelectValue placeholder="Sort By" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-white/10">
+                    <SelectItem value="desc">Latest First</SelectItem>
+                    <SelectItem value="asc">Oldest First</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button
                 onClick={handleSearch}
                 disabled={loading}
@@ -355,6 +377,22 @@ export default function AdminJobsClient() {
                           {c.name.toUpperCase()}
                         </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-4">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
+                    <Calendar className="h-3 w-3" />
+                    Sort By Date
+                  </label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-white/10">
+                      <SelectItem value="desc">Latest First</SelectItem>
+                      <SelectItem value="asc">Oldest First</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -419,10 +457,17 @@ export default function AdminJobsClient() {
                   </button>
                 </div>
                 
-                 <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all cursor-not-allowed">
-                  <span className="opacity-40 tabular-nums">SORT: LATEST</span>
-                  <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
-                </div>
+                 <div>
+                  <Select value={sort} onValueChange={(v) => { setSort(v); setAppliedSort(v); setPage(1); }}>
+                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
+                      <SelectValue placeholder="Sort Date" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-white/10">
+                      <SelectItem value="desc">Latest First</SelectItem>
+                      <SelectItem value="asc">Oldest First</SelectItem>
+                    </SelectContent>
+                  </Select>
+                 </div>
               </div>
             </div>
 
@@ -550,10 +595,15 @@ function JobCard({
                  {job._count.applications} Applications
                </span>
                {job.createdAt && (
-                 <span className="flex items-center gap-2 italic">
-                   <Calendar className="h-4 w-4" />
-                   ID-{new Date(job.createdAt).getTime().toString(36).toUpperCase()}
-                 </span>
+                 <>
+                   <span className="flex items-center gap-2 italic">
+                     <Calendar className="h-4 w-4" />
+                     Posted: {new Date(job.createdAt).toLocaleDateString()}
+                   </span>
+                   <span className="flex items-center gap-2 italic">
+                     ID-{new Date(job.createdAt).getTime().toString(36).toUpperCase()}
+                   </span>
+                 </>
                )}
              </div>
              

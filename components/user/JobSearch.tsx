@@ -60,9 +60,11 @@ export default function JobSearch() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [location, setLocation] = useState("");
+  const [sort, setSort] = useState("desc");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedCategory, setAppliedCategory] = useState("all");
   const [appliedLocation, setAppliedLocation] = useState("");
+  const [appliedSort, setAppliedSort] = useState("desc");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
 
   const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
@@ -72,13 +74,15 @@ export default function JobSearch() {
       pageNum: number,
       searchVal: string,
       categoryVal: string,
-      locationVal: string
+      locationVal: string,
+      sortVal: string
     ) => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         params.set("page", String(pageNum));
         params.set("limit", "10");
+        params.set("sort", sortVal);
         if (searchVal.trim()) params.set("search", searchVal.trim());
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
@@ -112,13 +116,14 @@ export default function JobSearch() {
   }, []);
 
   useEffect(() => {
-    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation);
-  }, [page, appliedSearch, appliedCategory, appliedLocation, fetchJobs]);
+    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation, appliedSort);
+  }, [page, appliedSearch, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
 
   const handleSearch = () => {
     setAppliedSearch(search);
     setAppliedCategory(category);
     setAppliedLocation(location);
+    setAppliedSort(sort);
     setPage(1);
   };
 
@@ -126,9 +131,11 @@ export default function JobSearch() {
     setSearch("");
     setCategory("all");
     setLocation("");
+    setSort("desc");
     setAppliedSearch("");
     setAppliedCategory("all");
     setAppliedLocation("");
+    setAppliedSort("desc");
     setPage(1);
   };
 
@@ -177,6 +184,18 @@ export default function JobSearch() {
                 <div className="relative">
                   <LocationDropdown value={location} onChange={setLocation} />
                 </div>
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-muted-foreground">Sort By Date</label>
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:border-primary/40 transition-all">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background/95 backdrop-blur-3xl border-white/10 rounded-2xl">
+                    <SelectItem value="desc" className="text-xs font-semibold">Latest First</SelectItem>
+                    <SelectItem value="asc" className="text-xs font-semibold">Oldest First</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -273,12 +292,12 @@ export default function JobSearch() {
                       <div className="mt-10 pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8">
                         <div className="flex items-center gap-6">
                           <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-12 w-12 rounded-xl bg-white/5 border-white/5 hover:bg-primary/10 hover:text-primary transition-all active:scale-90" />
-                          <div className="hidden sm:block">
-                             <p className="text-xs font-semibold text-muted-foreground/40">Posted On</p>
-                             <p className="text-xs font-semibold text-emerald-500/60">
+                           <div className="hidden sm:block border border-emerald-500/30 bg-emerald-500/5 px-4 py-2 rounded-xl">
+                             <p className="text-[10px] font-bold text-black uppercase tracking-wider">Posted On</p>
+                             <p className="text-xs font-bold text-emerald-600 mt-0.5">
                                {new Date(job.createdAt).toLocaleDateString()} at {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                              </p>
-                          </div>
+                           </div>
                         </div>
                         <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
                           <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">

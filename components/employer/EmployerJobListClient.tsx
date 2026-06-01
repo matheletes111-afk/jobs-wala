@@ -63,9 +63,11 @@ export default function EmployerJobListClient() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [location, setLocation] = useState("");
+  const [sort, setSort] = useState("desc");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedCategory, setAppliedCategory] = useState("all");
   const [appliedLocation, setAppliedLocation] = useState("");
+  const [appliedSort, setAppliedSort] = useState("desc");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const limit = 12;
@@ -75,13 +77,15 @@ export default function EmployerJobListClient() {
       pageNum: number,
       searchVal: string,
       categoryVal: string,
-      locationVal: string
+      locationVal: string,
+      sortVal: string
     ) => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         params.set("page", String(pageNum));
         params.set("limit", String(limit));
+        params.set("sort", sortVal);
         if (searchVal.trim()) params.set("search", searchVal.trim());
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
@@ -113,13 +117,14 @@ export default function EmployerJobListClient() {
   }, []);
 
   useEffect(() => {
-    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation);
-  }, [page, appliedSearch, appliedCategory, appliedLocation, fetchJobs]);
+    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation, appliedSort);
+  }, [page, appliedSearch, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
 
   const handleSearch = () => {
     setAppliedSearch(search);
     setAppliedCategory(category);
     setAppliedLocation(location);
+    setAppliedSort(sort);
     setPage(1);
   };
 
@@ -127,9 +132,11 @@ export default function EmployerJobListClient() {
     setSearch("");
     setCategory("all");
     setLocation("");
+    setSort("desc");
     setAppliedSearch("");
     setAppliedCategory("all");
     setAppliedLocation("");
+    setAppliedSort("desc");
     setPage(1);
   };
 
@@ -218,6 +225,17 @@ export default function EmployerJobListClient() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="w-[180px]">
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold focus:ring-primary/20 shadow-sm">
+                  <SelectValue placeholder="Sort Order" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-slate-200 shadow-lg">
+                  <SelectItem value="desc" className="text-xs font-semibold">Latest First</SelectItem>
+                  <SelectItem value="asc" className="text-xs font-semibold">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center gap-3">
               <Button
                 onClick={handleSearch}
@@ -293,6 +311,19 @@ export default function EmployerJobListClient() {
                           {c.name}
                         </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs font-semibold text-muted-foreground/60">Sort By Date</label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200 shadow-lg">
+                      <SelectItem value="desc" className="text-xs font-semibold">Latest First</SelectItem>
+                      <SelectItem value="asc" className="text-xs font-semibold">Oldest First</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -425,6 +456,10 @@ export default function EmployerJobListClient() {
                           <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
                             {job.status === "PAUSED" ? "Paused" : job.status === "CLOSED" ? "Closed" : job.status}
                           </span>
+                          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5 text-primary" />
+                            Posted: {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : ""}
+                          </span>
                           {formatSalary(job) && (
                             <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary shadow-lg shadow-primary/5">
                               {formatSalary(job)}
@@ -475,6 +510,7 @@ export default function EmployerJobListClient() {
                             <th className="p-6 text-xs font-semibold text-muted-foreground">Job Title</th>
                             <th className="p-6 text-xs font-semibold text-muted-foreground">Status</th>
                             <th className="p-6 text-xs font-semibold text-muted-foreground">Category</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground">Posted Date</th>
                             <th className="p-6 text-xs font-semibold text-muted-foreground">Applicants</th>
                             <th className="p-6 text-xs font-semibold text-muted-foreground text-right">Actions</th>
                           </tr>
@@ -508,6 +544,11 @@ export default function EmployerJobListClient() {
                               </td>
                               <td className="p-6">
                                 <span className="text-xs font-semibold text-muted-foreground">{job.category}</span>
+                              </td>
+                              <td className="p-6">
+                                <span className="text-xs font-semibold text-muted-foreground">
+                                  {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "-"}
+                                </span>
                               </td>
                               <td className="p-6">
                                 <div className="flex items-center gap-2 text-xs font-semibold text-foreground">

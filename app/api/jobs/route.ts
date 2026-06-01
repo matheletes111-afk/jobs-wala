@@ -153,6 +153,7 @@ export async function GET(req: NextRequest) {
     MAX_LIMIT,
     Math.max(1, parseInt(searchParams.get("limit") || String(DEFAULT_LIMIT), 10))
   );
+  const sort = (searchParams.get("sort") || "desc").trim();
   const usePagination = searchParams.get("page") !== null || searchParams.get("limit") !== null;
 
   const where: { postedBy?: string; category?: string; status?: JobStatus } = {};
@@ -167,7 +168,7 @@ export async function GET(req: NextRequest) {
       where,
       skip: usePagination ? (page - 1) * limit : 0,
       take: usePagination ? limit : 50,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: sort === "asc" ? "asc" as const : "desc" as const },
       include: {
         employer: {
           select: { companyName: true, companyLogo: true },

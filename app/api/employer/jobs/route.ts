@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const search = (searchParams.get("search") || "").trim();
     const category = (searchParams.get("category") || "").trim();
+    const sort = (searchParams.get("sort") || "desc").trim();
     let country = "";
     let state: string[] = [];
     let city: string[] = [];
@@ -79,7 +80,7 @@ export async function GET(req: NextRequest) {
       prisma.job.count({ where }),
       prisma.job.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: sort === "asc" ? "asc" as const : "desc" as const },
         skip: (page - 1) * limit,
         take: limit,
         include: {
@@ -118,7 +119,10 @@ export async function GET(req: NextRequest) {
       page,
       limit,
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (e?.digest?.startsWith("NEXT_REDIRECT") || e?.message === "NEXT_REDIRECT") {
+      throw e;
+    }
     console.error("[GET /api/employer/jobs]", e);
     return NextResponse.json(
       { error: "Failed to fetch jobs." },
