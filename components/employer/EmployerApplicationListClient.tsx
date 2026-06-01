@@ -13,6 +13,7 @@ import {
 import { formatLocation } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
+import { skillKeywordMatch } from "@/lib/skill-match";
 import CandidateAvatar from "@/components/CandidateAvatar";
 import { Search, FileText, MapPin, User, LayoutGrid, List, Download } from "lucide-react";
 import Link from "next/link";
@@ -33,6 +34,12 @@ interface ApplicationItem {
     location: string;
     category: string;
     requiredSkills: string[];
+    employmentType: string;
+    workMode: string;
+    salaryMin: number | null;
+    salaryMax: number | null;
+    currency: string | null;
+    payType: string | null;
   };
   jobSeeker: {
     id: string;
@@ -67,6 +74,27 @@ interface EmployerApplicationListClientProps {
   initialJobId?: string;
   initialStatus?: string;
 }
+
+const formatEmploymentType = (type: string) => {
+  if (!type) return "";
+  return type.replace("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+};
+
+const formatSalary = (min: number | null, max: number | null, currency: string | null, payType: string | null) => {
+  if (min === null && max === null) return null;
+  const cur = currency || "INR";
+  const pType = payType ? ` / ${payType.toLowerCase()}` : "";
+  if (min !== null && max !== null) {
+    return `${cur} ${min.toLocaleString()} - ${max.toLocaleString()}${pType}`;
+  }
+  if (min !== null) {
+    return `From ${cur} ${min.toLocaleString()}${pType}`;
+  }
+  if (max !== null) {
+    return `Up to ${cur} ${max.toLocaleString()}${pType}`;
+  }
+  return null;
+};
 
 export default function EmployerApplicationListClient({
   jobs,
@@ -199,10 +227,10 @@ export default function EmployerApplicationListClient({
       <div className={containerClass}>
         {/* Hero / Search Section */}
         <div className="linear-card rounded-[2.5rem] p-10 sm:p-12 mb-16 shadow-lg animate-in fade-in slide-in-from-top-10 duration-1000">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+          <p className="mb-3 text-xs font-semibold text-primary">
             Candidate Applications
           </p>
-          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+          <h1 className="mb-2 text-3xl font-bold text-foreground lg:text-5xl tracking-tighter">
             Application <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-400">Hub</span>
           </h1>
           <p className="mb-10 text-muted-foreground font-medium italic">
@@ -222,13 +250,13 @@ export default function EmployerApplicationListClient({
             </div>
             <div className="w-[180px]">
               <Select value={jobId} onValueChange={setJobId}>
-                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold focus:ring-primary/20 shadow-sm">
                   <SelectValue placeholder="All Missions" />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
-                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Jobs</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                  <SelectItem value="all" className="text-xs font-semibold">All Jobs</SelectItem>
                   {jobs.map((j) => (
-                    <SelectItem key={j.id} value={j.id} className="text-[10px] font-black uppercase tracking-widest">
+                    <SelectItem key={j.id} value={j.id} className="text-xs font-semibold">
                       {j.title}
                     </SelectItem>
                   ))}
@@ -237,15 +265,15 @@ export default function EmployerApplicationListClient({
             </div>
             <div className="w-[160px]">
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold focus:ring-primary/20 shadow-sm">
                   <SelectValue placeholder="All Status" />
                 </SelectTrigger>
-                <SelectContent className="bg-background/95 backdrop-blur-xl border-white/5">
-                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Status</SelectItem>
-                  <SelectItem value="PENDING" className="text-[10px] font-black uppercase tracking-widest">Pending</SelectItem>
-                  <SelectItem value="REVIEWED" className="text-[10px] font-black uppercase tracking-widest">Reviewed</SelectItem>
-                  <SelectItem value="SHORTLISTED" className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Shortlisted</SelectItem>
-                  <SelectItem value="REJECTED" className="text-[10px] font-black uppercase tracking-widest text-red-400">Rejected</SelectItem>
+                <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                  <SelectItem value="all" className="text-xs font-semibold">All Status</SelectItem>
+                  <SelectItem value="PENDING" className="text-xs font-semibold">Pending</SelectItem>
+                  <SelectItem value="REVIEWED" className="text-xs font-semibold">Reviewed</SelectItem>
+                  <SelectItem value="SHORTLISTED" className="text-xs font-semibold text-emerald-400">Shortlisted</SelectItem>
+                  <SelectItem value="REJECTED" className="text-xs font-semibold text-red-400">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -253,7 +281,7 @@ export default function EmployerApplicationListClient({
               <Button
                 onClick={handleSearch}
                 disabled={loading}
-                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
               >
                 Search
               </Button>
@@ -261,7 +289,7 @@ export default function EmployerApplicationListClient({
                 variant="ghost"
                 onClick={handleClear}
                 disabled={loading}
-                className="h-12 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200"
+                className="h-12 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200"
               >
                 Reset
               </Button>
@@ -275,12 +303,12 @@ export default function EmployerApplicationListClient({
             <div className="linear-card rounded-[2rem] p-8 space-y-8 shadow-md">
               <div className="flex items-center gap-3 border-b border-slate-200 pb-6">
                 <Search className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-black uppercase tracking-widest text-foreground">Filter Results</h2>
+                <h2 className="text-sm font-semibold text-foreground">Filter Results</h2>
               </div>
               
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Applicant Name</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Applicant Name</label>
                   <Input
                     placeholder="Search applicants..."
                     value={search}
@@ -291,15 +319,15 @@ export default function EmployerApplicationListClient({
                 </div>
                 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Selection</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Job Selection</label>
                   <Select value={jobId} onValueChange={setJobId}>
-                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200 shadow-lg">
-                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Postings</SelectItem>
+                      <SelectItem value="all" className="text-xs font-semibold">All Postings</SelectItem>
                       {jobs.map((j) => (
-                        <SelectItem key={j.id} value={j.id} className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                        <SelectItem key={j.id} value={j.id} className="text-xs font-semibold text-foreground">
                           {j.title}
                         </SelectItem>
                       ))}
@@ -308,17 +336,17 @@ export default function EmployerApplicationListClient({
                 </div>
                 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Application Status</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Application Status</label>
                   <Select value={status} onValueChange={setStatus}>
-                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200 shadow-lg">
-                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Statuses</SelectItem>
-                      <SelectItem value="PENDING" className="text-[10px] font-black uppercase tracking-widest">Pending</SelectItem>
-                      <SelectItem value="REVIEWED" className="text-[10px] font-black uppercase tracking-widest">Reviewed</SelectItem>
-                      <SelectItem value="SHORTLISTED" className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Shortlisted</SelectItem>
-                      <SelectItem value="REJECTED" className="text-[10px] font-black uppercase tracking-widest text-red-400">Rejected</SelectItem>
+                      <SelectItem value="all" className="text-xs font-semibold">All Statuses</SelectItem>
+                      <SelectItem value="PENDING" className="text-xs font-semibold">Pending</SelectItem>
+                      <SelectItem value="REVIEWED" className="text-xs font-semibold">Reviewed</SelectItem>
+                      <SelectItem value="SHORTLISTED" className="text-xs font-semibold text-emerald-400">Shortlisted</SelectItem>
+                      <SelectItem value="REJECTED" className="text-xs font-semibold text-red-400">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -326,7 +354,7 @@ export default function EmployerApplicationListClient({
                 <div className="pt-4 space-y-3">
                   <Button
                     onClick={handleSearch}
-                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95"
+                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
                   >
                     Update View
                   </Button>
@@ -334,7 +362,7 @@ export default function EmployerApplicationListClient({
                     variant="ghost"
                     onClick={handleClear}
                     disabled={loading}
-                    className="w-full h-12 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200"
+                    className="w-full h-12 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold hover:bg-slate-200"
                   >
                     Reset Filters
                   </Button>
@@ -343,7 +371,7 @@ export default function EmployerApplicationListClient({
             </div>
 
             <div className="rounded-[2rem] bg-emerald-50 border border-emerald-200 p-8">
-               <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-4">Candidate Tip</h3>
+               <h3 className="text-xs font-semibold text-emerald-400 mb-4">Candidate Tip</h3>
                <p className="text-xs text-muted-foreground leading-loose font-medium italic">
                  &quot;Review each candidate&apos;s skill match percentage to see how well they fit the requirements of your job posting.&quot;
                </p>
@@ -356,7 +384,7 @@ export default function EmployerApplicationListClient({
                 <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-right-5 duration-700">
                   <div className="flex items-center gap-3">
                     <div className="h-1 w-8 rounded-full bg-primary/30" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                    <p className="text-xs font-semibold text-muted-foreground/60">
                       Discovered {applications.length} Candidate Profiles
                     </p>
                   </div>
@@ -365,7 +393,7 @@ export default function EmployerApplicationListClient({
                       variant="outline"
                       size="sm"
                       onClick={handleExportCSV}
-                      className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white"
+                      className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white"
                     >
                       <Download className="h-4 w-4" />
                       Export CSV
@@ -395,11 +423,11 @@ export default function EmployerApplicationListClient({
             )}
               {loading ? (
                 <div className="linear-card rounded-[2.5rem] p-24 text-center animate-pulse border-slate-200">
-                   <p className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">Loading Applications...</p>
+                   <p className="text-lg font-semibold text-muted-foreground/40 italic">Loading Applications...</p>
                 </div>
               ) : applications.length === 0 ? (
                 <div className="linear-card rounded-[2.5rem] p-24 text-center border-slate-200">
-                   <p className="text-lg font-black uppercase tracking-[0.2em] text-muted-foreground/60">No matching applications found.</p>
+                   <p className="text-lg font-semibold text-muted-foreground/60">No matching applications found.</p>
                 </div>
               ) : viewMode === "grid" ? (
                 <div className="space-y-8">
@@ -419,38 +447,94 @@ export default function EmployerApplicationListClient({
                             className="group-hover:scale-105 transition-transform"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1 italic">Applicant ID: {app.jobSeeker.id.slice(0,8)}</p>
-                            <h3 className="text-2xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
+                            <p className="text-xs font-semibold text-primary mb-1">Applicant ID: {app.jobSeeker.id.slice(0,8)}</p>
+                            <h3 className="text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
                               {app.jobSeeker.firstName} {app.jobSeeker.lastName}
                             </h3>
                             <p className="mt-1 text-sm font-bold text-muted-foreground uppercase tracking-widest">
                               Applied for: {app.job.title}
                             </p>
                             <div className="mt-4 flex flex-wrap items-center gap-3">
-                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[9px] font-black uppercase tracking-widest text-slate-600">
+                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
                                 <MapPin className="h-3 w-3 text-primary" />
                                 {formatLocation(app.job.location, true)}
                               </span>
-                              <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary">
+                              <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
                                 {app.job.category}
                               </span>
-                              <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest">
+                              <span className="px-3 py-1 rounded-full bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-600">
+                                {formatEmploymentType(app.job.employmentType)}
+                              </span>
+                              <span className="px-3 py-1 rounded-full bg-purple-55 border border-purple-200 text-xs font-semibold text-purple-600">
+                                {app.job.workMode}
+                              </span>
+                              {formatSalary(app.job.salaryMin, app.job.salaryMax, app.job.currency, app.job.payType) && (
+                                <span className="px-3 py-1 rounded-full bg-emerald-55 border border-emerald-200 text-xs font-semibold text-emerald-600">
+                                  {formatSalary(app.job.salaryMin, app.job.salaryMax, app.job.currency, app.job.payType)}
+                                </span>
+                              )}
+                              <span className="text-xs font-semibold text-muted-foreground/40">
                                 Date: {new Date(app.appliedAt).toLocaleDateString()}
                               </span>
                             </div>
                             
-                            <div className="mt-8 p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200">
+                            <div className="mt-8 p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200 space-y-6">
                               <SkillMatchBar
                                 percent={app.skillMatchPercent}
                                 matched={app.skillMatchMatched}
                                 total={app.skillMatchTotal}
                                 matchedLabels={app.skillMatchLabels}
                               />
+                              
+                              <div className="pt-4 border-t border-slate-200/60 space-y-4">
+                                <div>
+                                  <h4 className="text-xs font-semibold text-slate-500 mb-2">Required Skills for this Job:</h4>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {app.job.requiredSkills.map((reqSkill, sIdx) => {
+                                      const matched = app.skillMatchLabels.some(l => l.toLowerCase() === reqSkill.toLowerCase());
+                                      return (
+                                        <span
+                                          key={sIdx}
+                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                                            matched
+                                              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                              : "bg-slate-100 border-slate-200 text-slate-500"
+                                          }`}
+                                        >
+                                          <span className="text-[10px]">{matched ? "✓" : "✗"}</span>
+                                          {reqSkill}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <h4 className="text-xs font-semibold text-slate-500 mb-2">Candidate's Full Profile Skills:</h4>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {app.jobSeeker.skills.map((skill, sIdx) => {
+                                      const isReq = app.job.requiredSkills.some(r => skillKeywordMatch(r, skill));
+                                      return (
+                                        <span
+                                          key={sIdx}
+                                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                                            isReq 
+                                              ? "bg-blue-50 border-blue-200 text-blue-700 font-semibold"
+                                              : "bg-slate-100 border-slate-200 text-slate-700"
+                                          }`}
+                                        >
+                                          {skill} {isReq && <span className="text-xs font-bold text-blue-500 ml-1">(Matched)</span>}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                             
                             {app.coverLetter && (
-                              <div className="mt-6 p-6 rounded-[1.5rem] bg-blue-50 border-l-4 border-primary">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 italic">Cover Letter:</p>
+                              <div className="mt-6 p-6 rounded-[1.5rem] bg-blue-55 border-l-4 border-primary">
+                                <p className="text-xs font-semibold text-muted-foreground/50 mb-3">Cover Letter:</p>
                                 <p className="text-sm text-muted-foreground leading-relaxed font-medium line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
                                   {app.coverLetter}
                                 </p>
@@ -462,7 +546,7 @@ export default function EmployerApplicationListClient({
                                 href={app.jobSeeker.resumeUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-6 inline-flex items-center gap-3 h-10 px-6 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+                                className="mt-6 inline-flex items-center gap-3 h-10 px-6 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
                               >
                                 <FileText className="h-4 w-4" />
                                 View Resume
@@ -473,7 +557,7 @@ export default function EmployerApplicationListClient({
                       </div>
                       <div className="flex shrink-0 flex-col items-center sm:items-end gap-6">
                         <span
-                          className={`h-10 px-6 rounded-xl border flex items-center justify-center text-[10px] font-black uppercase tracking-widest shadow-xl ${
+                          className={`h-10 px-6 rounded-xl border flex items-center justify-center text-xs font-semibold shadow-xl ${
                             app.status === "SHORTLISTED"
                               ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-500/5"
                               : app.status === "REJECTED"
@@ -491,10 +575,10 @@ export default function EmployerApplicationListClient({
                               onSuccess={handleApplicationUpdated}
                             />
                           </div>
-                          <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
-                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 gap-2 transition-all">
-                              <User className="h-3.5 w-3.5" />
-                              View Profile
+                          <Link href={`/employer/applications/${app.id}`}>
+                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 gap-2 transition-all">
+                              <FileText className="h-3.5 w-3.5" />
+                              View Details
                             </Button>
                           </Link>
                         </div>
@@ -504,15 +588,15 @@ export default function EmployerApplicationListClient({
                 </div>
               ) : (
                 <div className="linear-card rounded-[2rem] overflow-hidden shadow-md animate-in fade-in duration-700">
-                   <div className="overflow-x-auto">
+                    <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="border-b border-slate-200 bg-slate-50">
-                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Candidate</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Applied For</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Skill Match</th>
-                          <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                          <th className="p-6 text-xs font-semibold text-muted-foreground">Candidate</th>
+                          <th className="p-6 text-xs font-semibold text-muted-foreground">Status</th>
+                          <th className="p-6 text-xs font-semibold text-muted-foreground">Applied For</th>
+                          <th className="p-6 text-xs font-semibold text-muted-foreground">Skill Match</th>
+                          <th className="p-6 text-xs font-semibold text-muted-foreground text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -528,16 +612,16 @@ export default function EmployerApplicationListClient({
                                   className="h-10 w-10"
                                 />
                                 <div className="min-w-0">
-                                  <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                                  <Link href={`/employer/applications/${app.id}`}>
                                     <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{app.jobSeeker.firstName} {app.jobSeeker.lastName}</p>
                                   </Link>
-                                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">ID: {app.jobSeeker.id.slice(0,8)}</p>
+                                  <p className="text-xs font-semibold text-muted-foreground mt-0.5">ID: {app.jobSeeker.id.slice(0,8)}</p>
                                 </div>
                               </div>
                             </td>
                             <td className="p-6">
                                <span
-                                className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                   app.status === "SHORTLISTED"
                                     ? "bg-emerald-500/10 text-emerald-400"
                                     : app.status === "REJECTED"
@@ -550,33 +634,33 @@ export default function EmployerApplicationListClient({
                             </td>
                             <td className="p-6">
                               <div className="min-w-0">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-foreground line-clamp-1">{app.job.title}</p>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{app.job.category}</p>
+                                <p className="text-xs font-semibold text-foreground line-clamp-1">{app.job.title}</p>
+                                <p className="text-xs font-semibold text-muted-foreground mt-0.5">{app.job.category}</p>
                               </div>
                             </td>
                             <td className="p-6">
                               <div className="flex items-center gap-2">
-                                <div className="h-1 w-16 rounded-full bg-white/10 overflow-hidden">
+                                <div className="h-1 w-16 rounded-full bg-slate-200 overflow-hidden">
                                   <div 
                                     className="h-full bg-primary" 
                                     style={{ width: `${app.skillMatchPercent ?? 0}%` }}
                                   />
                                 </div>
-                                <span className="text-[10px] font-black text-primary">{Math.round(app.skillMatchPercent ?? 0)}%</span>
+                                <span className="text-xs font-semibold text-primary">{Math.round(app.skillMatchPercent ?? 0)}%</span>
                               </div>
                             </td>
                             <td className="p-6">
                               <div className="flex items-center justify-end gap-2">
-                                <div className="h-8 px-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center">
+                                <div className="h-8 px-1.5 rounded-lg bg-slate-100 border border-slate-200 flex items-center">
                                   <ApplicationActions
                                     applicationId={app.id}
                                     currentStatus={app.status}
                                     onSuccess={handleApplicationUpdated}
                                   />
                                 </div>
-                                <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
-                                  <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
-                                    View
+                                <Link href={`/employer/applications/${app.id}`}>
+                                  <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs font-semibold border-slate-200 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                    Details
                                   </Button>
                                 </Link>
                               </div>
@@ -596,11 +680,11 @@ export default function EmployerApplicationListClient({
                     size="sm"
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
+                    className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                   >
                     Previous
                   </Button>
-                  <span className="px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  <span className="px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-muted-foreground">
                     Page {page} / {totalPages}
                   </span>
                   <Button
@@ -608,7 +692,7 @@ export default function EmployerApplicationListClient({
                     size="sm"
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                    className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                   >
                     Next
                   </Button>

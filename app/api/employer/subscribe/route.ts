@@ -33,6 +33,7 @@ export async function POST(req: Request) {
         status: "ACTIVE",
         endDate: { gte: new Date() },
       },
+      include: { plan: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -74,6 +75,14 @@ export async function POST(req: Request) {
 
     // Handle Free Plan (0 Amount)
     if (plan.amount === 0) {
+      // Check if the user is currently on an active premium plan
+      if (existingSubscription && existingSubscription.plan.amount > 0) {
+        return NextResponse.json(
+          { error: "You cannot switch to the Free Plan while you have an active premium subscription." },
+          { status: 400 }
+        );
+      }
+
       // Check if the user has ever had a Free Plan before
       const hadFreePlan = await prisma.subscription.findFirst({
         where: {

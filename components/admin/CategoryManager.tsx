@@ -163,20 +163,20 @@ export default function CategoryManager({
         <div className="sticky top-32 rounded-[2.5rem] p-10 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
           <div className="flex items-center gap-3 mb-10">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+            <h2 className="text-sm font-semibold text-foreground">
               {editingId ? "Edit Category" : "Add Category"}
             </h2>
           </div>
 
           <form onSubmit={editingId ? handleUpdate : handleCreate} className="space-y-8">
             {error && (
-              <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-[9px] font-black uppercase tracking-widest italic animate-in slide-in-from-top-2">
+              <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold italic animate-in slide-in-from-top-2">
                 Log: {error}
               </div>
             )}
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                  <FolderPlus className="h-3 w-3" /> Category Name
               </label>
               <Input
@@ -184,19 +184,19 @@ export default function CategoryManager({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter name..."
-                className="h-12 bg-white/5 border-white/5 focus:border-blue-500/50 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
+                className="h-12 bg-white/5 border-white/5 focus:border-blue-500/50 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
               />
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                  <Info className="h-3 w-3" /> Status
               </label>
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as CategoryStatus)}
               >
-                <SelectTrigger id="cat-status" className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                <SelectTrigger id="cat-status" className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background border-white/10">
@@ -210,7 +210,7 @@ export default function CategoryManager({
               <Button
                 type="submit"
                 disabled={loading}
-                className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-95"
               >
                 {loading ? "Processing..." : editingId ? "Update Category" : "Add Category"}
               </Button>
@@ -219,7 +219,7 @@ export default function CategoryManager({
                   type="button" 
                   variant="ghost" 
                   onClick={cancelEdit}
-                  className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5"
+                  className="h-12 w-full rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-white/5"
                 >
                   Cancel
                 </Button>
@@ -239,10 +239,10 @@ export default function CategoryManager({
       <div className="flex-1 space-y-8">
         <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
           <div className="space-y-3">
-             <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
-               {initialCategories.length} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Available</span>
+             <p className="text-3xl font-bold text-foreground tracking-tighter tabular-nums">
+               {initialCategories.length} <span className="text-sm font-semibold text-blue-500 opacity-60 ml-2">Available</span>
              </p>
-             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
+             <p className="text-xs font-semibold text-muted-foreground/40 italic">
                 Category Master Grid
              </p>
           </div>
@@ -253,7 +253,7 @@ export default function CategoryManager({
               variant="outline"
               size="sm"
               onClick={handleExportCSV}
-              className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground shrink-0"
+              className="h-12 px-6 rounded-2xl text-xs font-semibold gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground shrink-0"
             >
               <Download className="h-4 w-4" />
               Export CSV
@@ -264,7 +264,7 @@ export default function CategoryManager({
                  placeholder="Search categories..."
                  value={searchTerm}
                  onChange={(e) => setSearchTerm(e.target.value)}
-                 className="h-12 pl-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
+                 className="h-12 pl-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20 px-4 transition-all"
                />
             </div>
           </div>
@@ -272,7 +272,7 @@ export default function CategoryManager({
 
         {filteredCategories.length === 0 ? (
           <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
-             <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+             <p className="text-lg font-bold text-muted-foreground/40 italic leading-relaxed">
                {searchTerm ? "No categories found matching your search." : "No categories found."}<br />
                {searchTerm ? "Try a different keyword." : "Add a new category in the sidebar."}
              </p>
@@ -290,15 +290,15 @@ export default function CategoryManager({
                      <FolderTree className="h-6 w-6 text-blue-500 scale-90 group-hover:scale-110 transition-transform" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-2xl font-black text-foreground tracking-tighter group-hover:text-blue-500 transition-colors truncate">
-                      {c.name}
-                    </h3>
-                    <div className="flex items-center gap-4 mt-2 tabular-nums">
-                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30 italic">Created {new Date(c.createdAt).toLocaleDateString()}</span>
-                       <span className="h-1.5 w-1.5 rounded-full bg-white/5" />
-                       <div className="flex items-center gap-2">
-                          <span className={`h-1.5 w-1.5 rounded-full ${c.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"}`} />
-                          <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${c.status === "ACTIVE" ? "text-emerald-400" : "text-amber-400"}`}>
+                    <h3 className="text-2xl font-bold text-foreground tracking-tighter group-hover:text-blue-500 transition-colors truncate">
+                       {c.name}
+                     </h3>
+                     <div className="flex items-center gap-4 mt-2 tabular-nums">
+                        <span className="text-xs font-semibold text-muted-foreground/30 italic">Created {new Date(c.createdAt).toLocaleDateString()}</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-white/5" />
+                        <div className="flex items-center gap-2">
+                           <span className={`h-1.5 w-1.5 rounded-full ${c.status === "ACTIVE" ? "bg-emerald-500" : "bg-amber-500"}`} />
+                           <span className={`text-xs font-semibold ${c.status === "ACTIVE" ? "text-emerald-400" : "text-amber-400"}`}>
                             {c.status}
                           </span>
                        </div>

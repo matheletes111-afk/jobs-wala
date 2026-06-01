@@ -349,12 +349,12 @@ textarea:focus {
   color: rgb(5, 5, 5) !important;
 }
 
-/* Override tracking classes to use simple Arial/Roboto font */
+/* Override tracking classes to inherit the font-family */
 .tracking-\[0\.2em\],
 .tracking-\[0\.3em\],
 .tracking-\[0\.4em\],
 .tracking-widest {
-  font-family: Roboto, Arial, Helvetica, sans-serif !important;
+  font-family: inherit !important;
 }
 /* Hide scrollbar */
 .scrollbar-none::-webkit-scrollbar { display: none; }

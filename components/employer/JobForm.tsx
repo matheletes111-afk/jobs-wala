@@ -149,10 +149,10 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
   return (
     <div className="w-full bg-white rounded-[3rem] p-8 sm:p-12">
       <div className="mb-10 border-b border-slate-200 pb-10">
-        <p className="mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">
+        <p className="mb-2 text-xs font-semibold text-primary italic">
           Job Details
         </p>
-        <h2 className="text-3xl font-black text-foreground tracking-tight">
+        <h2 className="text-3xl font-bold text-foreground tracking-tight">
           {jobId ? "Edit Job" : "Create Job"}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground font-semibold leading-relaxed">
@@ -184,31 +184,31 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         <div className="space-y-8">
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Job Category & Title</p>
+            <p className="text-xs font-semibold text-muted-foreground/60">Job Category & Title</p>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Title *</Label>
+              <Label htmlFor="title" className="text-xs font-semibold text-muted-foreground/60">Job Title *</Label>
               <Input
                 id="title"
                 {...register("title")}
                 placeholder="Software Engineer"
-                className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
+                className="h-14 rounded-2xl bg-white border-slate-200 focus-visible:ring-primary/20 font-bold shadow-sm"
               />
               {errors.title && (
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.title.message}</p>
+                <p className="text-xs font-semibold text-red-400 mt-2">{errors.title.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Category *</Label>
+              <Label htmlFor="category" className="text-xs font-semibold text-muted-foreground/60">Job Category *</Label>
               {categories.length > 0 ? (
                 <Select
                   value={categoryValue || ""}
                   onValueChange={(value) => setValue("category", value)}
                 >
-                  <SelectTrigger id="category" className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
+                  <SelectTrigger id="category" className="h-14 rounded-2xl bg-white border-slate-200 text-xs font-semibold focus:ring-primary/20 shadow-sm">
                     <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 shadow-lg">
@@ -216,12 +216,12 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                       !categories.some(
                         (c) => c.name === initialData?.category
                       ) && (
-                        <SelectItem value={initialData.category} className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                        <SelectItem value={initialData.category} className="text-xs font-semibold text-foreground">
                           {initialData.category}
                         </SelectItem>
                       )}
                     {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                      <SelectItem key={c.id} value={c.name} className="text-xs font-semibold text-foreground">
                         {c.name}
                       </SelectItem>
                     ))}
@@ -235,27 +235,27 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                   className="h-14 rounded-2xl bg-white border-slate-200 focus:ring-primary/20 font-bold shadow-sm"
                 />
               )}
-              {errors.category && (
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.category.message}</p>
+               {errors.category && (
+                <p className="text-xs font-semibold text-red-400 mt-2">{errors.category.message}</p>
               )}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Description *</Label>
+              <Label htmlFor="description" className="text-xs font-semibold text-muted-foreground/60">Job Description *</Label>
               <Textarea
                 id="description"
                 {...register("description")}
                 placeholder="Outline the responsibilities, expected outcomes, and requirements..."
                 rows={8}
-                className="rounded-[2rem] bg-white border-slate-200 focus:ring-primary/20 p-6 font-semibold leading-relaxed shadow-sm"
+                className="rounded-[2rem] bg-white border-slate-200 focus-visible:ring-primary/20 p-6 font-semibold leading-relaxed shadow-sm"
               />
               {errors.description && (
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-400 mt-2">{errors.description.message}</p>
+                <p className="text-xs font-semibold text-red-400 mt-2">{errors.description.message}</p>
               )}
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Location *</Label>
+              <Label className="text-xs font-semibold text-muted-foreground/60">Location *</Label>
               <div className="p-1 rounded-[1.5rem] bg-slate-50 border border-slate-200 shadow-sm">
                 <LocationDropdown
                   value={locationValue}
@@ -271,72 +271,72 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         <div className="space-y-8 pt-12 border-t border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Experience & Salary</p>
+            <p className="text-xs font-semibold text-muted-foreground/60">Experience & Salary</p>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="employmentType" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Employment Type *</Label>
+              <Label htmlFor="employmentType" className="text-xs font-semibold text-muted-foreground/60">Employment Type *</Label>
               <Select
                 value={employmentType}
                 onValueChange={(value) => setValue("employmentType", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-lg">
-                  <SelectItem value="FULL_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Full Time</SelectItem>
-                  <SelectItem value="PART_TIME" className="text-[10px] font-black uppercase tracking-widest text-foreground">Part Time</SelectItem>
-                  <SelectItem value="CONTRACT" className="text-[10px] font-black uppercase tracking-widest text-foreground">Contract</SelectItem>
-                  <SelectItem value="INTERNSHIP" className="text-[10px] font-black uppercase tracking-widest text-foreground">Internship</SelectItem>
-                  <SelectItem value="FREELANCE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Freelance</SelectItem>
+                  <SelectItem value="FULL_TIME" className="text-xs font-semibold text-foreground">Full Time</SelectItem>
+                  <SelectItem value="PART_TIME" className="text-xs font-semibold text-foreground">Part Time</SelectItem>
+                  <SelectItem value="CONTRACT" className="text-xs font-semibold text-foreground">Contract</SelectItem>
+                  <SelectItem value="INTERNSHIP" className="text-xs font-semibold text-foreground">Internship</SelectItem>
+                  <SelectItem value="FREELANCE" className="text-xs font-semibold text-foreground">Freelance</SelectItem>
                 </SelectContent>
               </Select>
             </div>
  
             <div className="space-y-2">
-              <Label htmlFor="workMode" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Work Mode *</Label>
+              <Label htmlFor="workMode" className="text-xs font-semibold text-muted-foreground/60">Work Mode *</Label>
               <Select
                 value={workMode}
                 onValueChange={(value) => setValue("workMode", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-lg">
-                  <SelectItem value="ONSITE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Onsite</SelectItem>
-                  <SelectItem value="HYBRID" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hybrid</SelectItem>
-                  <SelectItem value="REMOTE" className="text-[10px] font-black uppercase tracking-widest text-foreground">Remote</SelectItem>
+                  <SelectItem value="ONSITE" className="text-xs font-semibold text-foreground">Onsite</SelectItem>
+                  <SelectItem value="HYBRID" className="text-xs font-semibold text-foreground">Hybrid</SelectItem>
+                  <SelectItem value="REMOTE" className="text-xs font-semibold text-foreground">Remote</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="experienceMin" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Min Experience (Years)</Label>
+              <Label htmlFor="experienceMin" className="text-xs font-semibold text-muted-foreground/60">Min Experience (Years)</Label>
               <Input
                 id="experienceMin"
                 type="number"
                 min={0}
                 {...register("experienceMin", { valueAsNumber: true })}
                 placeholder="0"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="experienceMax" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Max Experience (Years)</Label>
+              <Label htmlFor="experienceMax" className="text-xs font-semibold text-muted-foreground/60">Max Experience (Years)</Label>
               <Input
                 id="experienceMax"
                 type="number"
                 min={0}
                 {...register("experienceMax", { valueAsNumber: true })}
                 placeholder="10"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="salaryMin" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Minimum Salary</Label>
+              <Label htmlFor="salaryMin" className="text-xs font-semibold text-muted-foreground/60">Minimum Salary</Label>
               <Input
                 id="salaryMin"
                 type="number"
@@ -344,12 +344,12 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 step={100}
                 {...register("salaryMin", { valueAsNumber: true })}
                 placeholder="50000"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="salaryMax" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Maximum Salary</Label>
+              <Label htmlFor="salaryMax" className="text-xs font-semibold text-muted-foreground/60">Maximum Salary</Label>
               <Input
                 id="salaryMax"
                 type="number"
@@ -357,45 +357,45 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                 step={100}
                 {...register("salaryMax", { valueAsNumber: true })}
                 placeholder="150000"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Currency</Label>
+              <Label className="text-xs font-semibold text-muted-foreground/60">Currency</Label>
               <Select
                 value={watch("currency") || "INR"}
                 onValueChange={(value) => setValue("currency", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                   <SelectValue placeholder="Select Currency" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-lg">
-                  <SelectItem value="INR" className="text-[10px] font-black uppercase tracking-widest text-foreground">INR</SelectItem>
-                  <SelectItem value="USD" className="text-[10px] font-black uppercase tracking-widest text-foreground">USD</SelectItem>
-                  <SelectItem value="EUR" className="text-[10px] font-black uppercase tracking-widest text-foreground">EUR</SelectItem>
-                  <SelectItem value="GBP" className="text-[10px] font-black uppercase tracking-widest text-foreground">GBP</SelectItem>
-                  <SelectItem value="AED" className="text-[10px] font-black uppercase tracking-widest text-foreground">AED</SelectItem>
+                  <SelectItem value="INR" className="text-xs font-semibold text-foreground">INR</SelectItem>
+                  <SelectItem value="USD" className="text-xs font-semibold text-foreground">USD</SelectItem>
+                  <SelectItem value="EUR" className="text-xs font-semibold text-foreground">EUR</SelectItem>
+                  <SelectItem value="GBP" className="text-xs font-semibold text-foreground">GBP</SelectItem>
+                  <SelectItem value="AED" className="text-xs font-semibold text-foreground">AED</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Pay Type</Label>
+              <Label className="text-xs font-semibold text-muted-foreground/60">Pay Type</Label>
               <Select
                 value={watch("payType") || "MONTHLY"}
                 onValueChange={(value) => setValue("payType", value)}
               >
-                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                   <SelectValue placeholder="Select Pay Type" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-lg">
-                  <SelectItem value="HOURLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Hourly</SelectItem>
-                  <SelectItem value="DAILY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Daily</SelectItem>
-                  <SelectItem value="WEEKLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Weekly</SelectItem>
-                  <SelectItem value="BIWEEKLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Biweekly</SelectItem>
-                  <SelectItem value="MONTHLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Monthly</SelectItem>
-                  <SelectItem value="YEARLY" className="text-[10px] font-black uppercase tracking-widest text-foreground">Yearly</SelectItem>
+                  <SelectItem value="HOURLY" className="text-xs font-semibold text-foreground">Hourly</SelectItem>
+                  <SelectItem value="DAILY" className="text-xs font-semibold text-foreground">Daily</SelectItem>
+                  <SelectItem value="WEEKLY" className="text-xs font-semibold text-foreground">Weekly</SelectItem>
+                  <SelectItem value="BIWEEKLY" className="text-xs font-semibold text-foreground">Biweekly</SelectItem>
+                  <SelectItem value="MONTHLY" className="text-xs font-semibold text-foreground">Monthly</SelectItem>
+                  <SelectItem value="YEARLY" className="text-xs font-semibold text-foreground">Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -406,48 +406,48 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
         <div className="space-y-8 pt-12 border-t border-slate-200">
           <div className="flex items-center gap-3">
             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Skills & Expertise</p>
+            <p className="text-xs font-semibold text-muted-foreground/60">Skills & Expertise</p>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="requiredSkills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Required Skills *</Label>
+              <Label htmlFor="requiredSkills" className="text-xs font-semibold text-muted-foreground/60">Required Skills *</Label>
               <Input
                 id="requiredSkills"
                 {...register("requiredSkills")}
                 placeholder="React, Next.js, Node.js"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
-              <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2 italic">Comma-separated list (e.g., React, Next.js, Node.js)</p>
+              <p className="text-xs font-semibold text-muted-foreground/40 mt-2 italic">Comma-separated list (e.g., React, Next.js, Node.js)</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="secondarySkills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Optional Skills</Label>
+              <Label htmlFor="secondarySkills" className="text-xs font-semibold text-muted-foreground/60">Optional Skills</Label>
               <Input
                 id="secondarySkills"
                 {...register("secondarySkills")}
                 placeholder="Docker, Kubernetes, AWS"
-                className="h-14 rounded-2xl bg-white/5 border-white/10 focus:ring-primary/20 font-bold"
+                className="h-14 rounded-2xl bg-white/5 border-slate-200 focus-visible:ring-primary/20 font-bold"
               />
-              <p className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2 italic">Additional skills that are preferred but not mandatory</p>
+              <p className="text-xs font-semibold text-muted-foreground/40 mt-2 italic">Additional skills that are preferred but not mandatory</p>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-200">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Please review all fields before posting your job.</p>
+          <p className="text-xs font-semibold text-muted-foreground/40">Please review all fields before posting your job.</p>
           <div className="flex gap-4">
             <Button
               type="button"
               variant="ghost"
               onClick={() => router.back()}
-              className="h-14 px-10 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all active:scale-95"
+              className="h-14 px-10 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 transition-all active:scale-95"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="h-14 px-12 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+              className="h-14 px-12 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-semibold transition-all hover:scale-105 active:scale-95"
             >
               {loading ? "Saving..." : jobId ? "Update Job" : "Post Job"}
             </Button>

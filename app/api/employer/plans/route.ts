@@ -45,6 +45,13 @@ export async function GET() {
       });
     }
 
+    const hadFreePlan = await prisma.subscription.findFirst({
+      where: {
+        employerId: session.user.id,
+        plan: { amount: 0 }
+      }
+    });
+
     return NextResponse.json({
       plans,
       activePlanId: activeSubscription?.planId || null,
@@ -52,6 +59,7 @@ export async function GET() {
       activePlanEndDate: activeSubscription?.endDate || null,
       activePlanDetails: activeSubscription?.plan || null,
       scheduledPlanDetails: scheduledPlanDetails,
+      hadFreePlan: !!hadFreePlan,
     });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch plans" }, { status: 500 });

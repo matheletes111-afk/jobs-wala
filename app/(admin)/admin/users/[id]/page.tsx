@@ -17,6 +17,7 @@ import {
   Award,
 } from "lucide-react";
 import { formatLocation } from "@/lib/utils";
+import EmployerApprovalActions from "@/components/admin/EmployerApprovalActions";
 
 export default async function AdminUserDetailPage({
   params,
@@ -86,6 +87,18 @@ export default async function AdminUserDetailPage({
                     STATUS: {user.jobSeekerProfile.availabilityStatus}
                   </span>
                 )}
+                
+                {isEmployer && user.employerProfile?.approvalStatus && (
+                  <span className={`mb-4 inline-block rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${
+                    user.employerProfile.approvalStatus === "APPROVED"
+                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                      : user.employerProfile.approvalStatus === "REJECTED"
+                      ? "bg-red-500/10 border-red-500/20 text-red-400"
+                      : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                  }`}>
+                    APPROVAL: {user.employerProfile.approvalStatus}
+                  </span>
+                )}
 
                 <h1 className="text-3xl font-black md:text-5xl tracking-tighter leading-tight mb-2 text-gradient">
                   {displayName}
@@ -135,9 +148,16 @@ export default async function AdminUserDetailPage({
                 ) : null}
               </div>
             </div>
-            <div className="flex shrink-0">
+            <div className="flex flex-wrap items-center gap-4 shrink-0">
+              {isEmployer && user.employerProfile && (
+                <EmployerApprovalActions
+                  userId={user.id}
+                  approvalStatus={user.employerProfile.approvalStatus as any}
+                  resumeSearchEnabled={user.employerProfile.resumeSearchEnabled}
+                />
+              )}
               <Link href="/admin/users">
-                <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all">
+                <Button variant="ghost" className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all">
                   ← Back to Users
                 </Button>
               </Link>
@@ -171,6 +191,72 @@ export default async function AdminUserDetailPage({
                   <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Education</h2>
                 </div>
                 <p className="text-muted-foreground font-medium italic leading-relaxed text-lg">{user.jobSeekerProfile.education}</p>
+              </section>
+            )}
+
+            {/* Candidate Details Node */}
+            {isJobSeeker && user.jobSeekerProfile && (
+              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Candidate Professional Details</h2>
+                </div>
+                
+                <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+                  {user.jobSeekerProfile.highestEducation && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Highest Education</p>
+                      <p className="text-sm font-bold text-foreground">{user.jobSeekerProfile.highestEducation}</p>
+                    </div>
+                  )}
+                  {user.jobSeekerProfile.noticePeriod && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Notice Period / LWD</p>
+                      <p className="text-sm font-bold text-foreground">{user.jobSeekerProfile.noticePeriod}</p>
+                    </div>
+                  )}
+                  {user.jobSeekerProfile.dateOfBirth && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Date of Birth</p>
+                      <p className="text-sm font-bold text-foreground">
+                        {new Date(user.jobSeekerProfile.dateOfBirth).toLocaleDateString(undefined, { dateStyle: "long" })}
+                      </p>
+                    </div>
+                  )}
+                  {user.jobSeekerProfile.linkedinUrl && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">LinkedIn Profile</p>
+                      <a href={user.jobSeekerProfile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary hover:underline break-all">
+                        View LinkedIn
+                      </a>
+                    </div>
+                  )}
+                  {user.jobSeekerProfile.currentSalary !== null && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Current Salary</p>
+                      <p className="text-sm font-bold text-foreground">
+                        {user.jobSeekerProfile.currentSalaryCurrency || "INR"} {user.jobSeekerProfile.currentSalary.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  {user.jobSeekerProfile.expectedSalary !== null && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Expected Salary</p>
+                      <p className="text-sm font-bold text-foreground">
+                        {user.jobSeekerProfile.expectedSalaryCurrency || "INR"} {user.jobSeekerProfile.expectedSalary.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {user.jobSeekerProfile.desiredLocation && (
+                  <div className="pt-6 border-t border-white/5 space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Desired Location(s)</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {formatLocation(user.jobSeekerProfile.desiredLocation)}
+                    </p>
+                  </div>
+                )}
               </section>
             )}
 
@@ -262,6 +348,30 @@ export default async function AdminUserDetailPage({
                    </div>
                  )}
 
+                 {isEmployer && user.employerProfile?.pointOfContact && (
+                   <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
+                         <Briefcase className="h-5 w-5" />
+                      </div>
+                      <div>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Point of Contact</p>
+                          <p className="text-sm font-black text-foreground tracking-tight">{user.employerProfile.pointOfContact}</p>
+                      </div>
+                   </div>
+                 )}
+
+                 {isEmployer && user.employerProfile?.phone && (
+                   <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
+                         <Phone className="h-5 w-5" />
+                      </div>
+                      <div>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Phone Number</p>
+                          <p className="text-sm font-black text-foreground tracking-tight tabular-nums">{user.employerProfile.phone}</p>
+                      </div>
+                   </div>
+                 )}
+
                  <div className="pt-10 border-t border-white/5 grid grid-cols-2 gap-6">
                     <div>
                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Role</p>
@@ -282,6 +392,30 @@ export default async function AdminUserDetailPage({
                  </div>
               </div>
             </section>
+
+            {/* MSME / Authority Registration Document — Employer only */}
+            {isEmployer && user.employerProfile?.msmeDocUrl && (
+              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Registration Document</h2>
+                </div>
+                <a
+                  href={user.employerProfile.msmeDocUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-amber-500/5 hover:border-amber-500/20 transition-all group"
+                >
+                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-foreground group-hover:text-amber-400 transition-colors">MSME / Authority Registration</p>
+                    <p className="text-[10px] font-semibold text-muted-foreground/40 italic mt-0.5">Click to view document</p>
+                  </div>
+                </a>
+              </section>
+            )}
           </div>
         </div>
       </div>

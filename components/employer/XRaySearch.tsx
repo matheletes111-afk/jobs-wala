@@ -735,9 +735,9 @@ export default function XRaySearch() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Global Talent Acquisition</p>
+              <p className="text-xs font-semibold text-blue-500">Global Talent Acquisition</p>
             </div>
-            <h1 className="text-4xl font-black md:text-6xl tracking-tighter leading-tight text-foreground">
+            <h1 className="text-4xl font-bold md:text-6xl tracking-tighter leading-tight text-foreground">
               X-Ray{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
                 Search
@@ -752,7 +752,7 @@ export default function XRaySearch() {
             <Button
               variant="ghost"
               onClick={handleClear}
-              className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all animate-in fade-in slide-in-from-right-4"
+              className="h-12 px-6 rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-white/5 transition-all animate-in fade-in slide-in-from-right-4"
             >
               Clear All
             </Button>
@@ -764,36 +764,36 @@ export default function XRaySearch() {
           <Card className="linear-card p-6 rounded-[2rem] flex flex-col gap-2 group hover:shadow-md transition-all">
             <div className="flex items-center gap-3 mb-1">
               <Search className="h-4 w-4 text-blue-500/50 group-hover:text-blue-500 transition-colors" />
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Candidates Found</p>
+              <p className="text-xs font-semibold text-muted-foreground/40">Candidates Found</p>
             </div>
-            <p className="text-3xl font-black tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-foreground">
               {Number(totalResults).toLocaleString()}
             </p>
           </Card>
           <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-amber-500/[0.03] transition-all">
             <div className="flex items-center gap-3 mb-1">
               <Star className="h-4 w-4 text-amber-500/50 group-hover:text-amber-500 transition-colors" />
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Shortlisted</p>
+              <p className="text-xs font-semibold text-muted-foreground/40">Shortlisted</p>
             </div>
-            <p className="text-3xl font-black tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-foreground">
               {shortlist.length}
             </p>
           </Card>
           <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-indigo-500/[0.03] transition-all">
             <div className="flex items-center gap-3 mb-1">
               <Wand2 className="h-4 w-4 text-indigo-500/50 group-hover:text-indigo-500 transition-colors" />
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">AI Insights</p>
+              <p className="text-xs font-semibold text-muted-foreground/40">AI Insights</p>
             </div>
-            <p className="text-3xl font-black tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-foreground">
               {sessionInsightsCount}
             </p>
           </Card>
           <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-emerald-500/[0.03] transition-all">
             <div className="flex items-center gap-3 mb-1">
               <List className="h-4 w-4 text-emerald-500/50 group-hover:text-emerald-500 transition-colors" />
-              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">Saved Queries</p>
+              <p className="text-xs font-semibold text-muted-foreground/40">Saved Queries</p>
             </div>
-            <p className="text-3xl font-black tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-foreground">
               {savedQueries.length}
             </p>
           </Card>
@@ -808,10 +808,10 @@ export default function XRaySearch() {
               <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-[10px] font-black">1</div>
-                    <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Extract Keywords</h2>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-xs font-bold">1</div>
+                    <h2 className="text-sm font-semibold text-foreground">Extract Keywords</h2>
                   </div>
-                  <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[8px] font-black uppercase tracking-tighter">
+                  <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs font-semibold">
                     AI Powered
                   </Badge>
                 </div>
@@ -819,13 +819,13 @@ export default function XRaySearch() {
                 <div className="space-y-4">
                   {activeJobs.length > 0 && (
                     <div className="space-y-2 mb-4 animate-in fade-in slide-in-from-left-2">
-                      <p className="text-[10px] font-bold text-blue-500/60 uppercase tracking-widest italic">
+                      <p className="text-xs font-semibold text-blue-500/60">
                         Select an Active Job to Source
                       </p>
                       <select
                         value={selectedJobId || ""}
                         onChange={(e) => handleJobSourcing(e.target.value)}
-                        className="w-full h-12 bg-blue-50 border border-blue-200 rounded-2xl px-4 text-xs font-bold text-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer"
+                        className="w-full h-12 bg-blue-55 border border-blue-200 rounded-2xl px-4 text-xs font-bold text-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer"
                       >
                         <option value="" className="bg-black">-- Pick a job to auto-generate prompt --</option>
                         {activeJobs.map(job => (
@@ -842,14 +842,14 @@ export default function XRaySearch() {
                       <Button
                         variant="ghost"
                         onClick={() => setShowJobContext(!showJobContext)}
-                        className="w-full h-10 rounded-xl bg-blue-50 border border-blue-200 text-[9px] font-black uppercase tracking-widest text-blue-700 hover:bg-blue-100"
+                        className="w-full h-10 rounded-xl bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-700 hover:bg-blue-100"
                       >
                         {showJobContext ? "Hide Job Details" : "View Job Context"}
                       </Button>
                       {showJobContext && (
-                        <div className="mt-3 p-4 rounded-2xl bg-blue-50 border border-blue-100 animate-in fade-in slide-in-from-top-2">
-                          <p className="text-[10px] font-bold text-blue-500/60 uppercase tracking-widest mb-2 italic">Active Requirements</p>
-                          <p className="text-[10px] leading-relaxed text-muted-foreground/80 line-clamp-4">
+                        <div className="mt-3 p-4 rounded-2xl bg-blue-55 border border-blue-100 animate-in fade-in slide-in-from-top-2">
+                          <p className="text-xs font-semibold text-blue-500/60 mb-2">Active Requirements</p>
+                          <p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-4">
                             {activeJobs.find(j => j.id === selectedJobId)?.description}
                           </p>
                         </div>
@@ -857,7 +857,7 @@ export default function XRaySearch() {
                     </div>
                   )}
 
-                  <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">
+                  <p className="text-xs font-semibold text-muted-foreground/45">
                     What are you looking for?
                   </p>
                   <div className="relative">
@@ -875,7 +875,7 @@ export default function XRaySearch() {
                       {extracting ? <Loader2 className="h-5 w-5 animate-spin" /> : <Wand2 className="h-5 w-5" />}
                     </button>
                   </div>
-                  <p className="text-[9px] text-muted-foreground/40 italic">
+                  <p className="text-xs text-muted-foreground/40 italic">
                     Our AI will convert your prompt into a LinkedIn-specific search string.
                   </p>
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -883,7 +883,7 @@ export default function XRaySearch() {
                       <button
                         key={i}
                         onClick={() => setPrompt(ex)}
-                        className="text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 text-slate-600"
+                        className="text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 text-slate-600"
                       >
                         {ex}
                       </button>
@@ -893,12 +893,12 @@ export default function XRaySearch() {
                   {recentSearches.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">
+                        <p className="text-xs font-semibold text-muted-foreground/40">
                           Recent History
                         </p>
                         <button
                           onClick={clearHistory}
-                          className="text-[8px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 transition-colors"
+                          className="text-xs font-semibold text-red-500/50 hover:text-red-500 transition-colors"
                         >
                           Clear
                         </button>
@@ -908,7 +908,7 @@ export default function XRaySearch() {
                           <button
                             key={i}
                             onClick={() => setXrayQuery(q)}
-                            className="w-full text-left text-[9px] font-medium text-blue-400 hover:text-blue-300 transition-colors line-clamp-1 truncate"
+                            className="w-full text-left text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors line-clamp-1 truncate"
                           >
                             {q}
                           </button>
@@ -920,7 +920,7 @@ export default function XRaySearch() {
                   {savedQueries.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic text-amber-500/60">
+                        <p className="text-xs font-semibold text-muted-foreground/40">
                           Saved Queries
                         </p>
                       </div>
@@ -929,7 +929,7 @@ export default function XRaySearch() {
                           <div key={i} className="flex items-center justify-between group/saved">
                             <button
                               onClick={() => setXrayQuery(item.query)}
-                              className="flex-1 text-left text-[9px] font-bold text-foreground/80 hover:text-blue-400 transition-colors line-clamp-1 truncate"
+                              className="flex-1 text-left text-xs font-semibold text-foreground/80 hover:text-blue-400 transition-colors line-clamp-1 truncate"
                             >
                               {item.label}
                             </button>
@@ -952,15 +952,15 @@ export default function XRaySearch() {
               <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-[10px] font-black">2</div>
-                    <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">X-Ray Search String</h2>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-xs font-bold">2</div>
+                    <h2 className="text-sm font-semibold text-foreground">X-Ray Search String</h2>
                   </div>
                   <div className="flex gap-1.5">
                     {regions.map((r) => (
                       <button
                         key={r.value}
                         onClick={() => setRegion(r.value)}
-                        className={`text-[8px] font-black uppercase px-2 py-1 rounded-md border transition-all ${region === r.value
+                        className={`text-xs font-semibold px-2 py-1 rounded-md border transition-all ${region === r.value
                           ? "bg-blue-600 border-blue-500 text-white"
                           : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
                           }`}
@@ -978,7 +978,7 @@ export default function XRaySearch() {
                       <button
                         key={i}
                         onClick={() => setPlatform(p.value)}
-                        className={`text-[8px] font-black uppercase tracking-widest px-2 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${xrayQuery.includes(p.value)
+                        className={`text-xs font-semibold px-2 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${xrayQuery.includes(p.value)
                           ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
                           : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200"
                           }`}
@@ -1020,14 +1020,14 @@ export default function XRaySearch() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Wand2 className="h-3 w-3 text-indigo-400" />
-                          <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400/80">AI Smart Refinement</p>
+                          <p className="text-xs font-semibold text-indigo-400/80">AI Smart Refinement</p>
                         </div>
                         {refining ? (
                           <Loader2 className="h-3 w-3 text-indigo-400 animate-spin" />
                         ) : (
                           <button
                             onClick={handleRefine}
-                            className="text-[8px] font-black uppercase tracking-widest text-indigo-400/60 hover:text-indigo-400 transition-colors"
+                            className="text-xs font-semibold text-indigo-400/60 hover:text-indigo-400 transition-colors"
                             title="Refresh suggestions"
                           >
                             <RefreshCw className="h-3 w-3" />
@@ -1061,7 +1061,7 @@ export default function XRaySearch() {
                       <button
                         key={i}
                         onClick={() => applyModifier(mod.value)}
-                        className="text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 text-slate-600"
+                        className="text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-200 text-slate-600"
                       >
                         + {mod.label}
                       </button>
@@ -1071,7 +1071,7 @@ export default function XRaySearch() {
                     <Button
                       onClick={() => handleSearch(false)}
                       disabled={loading || !xrayQuery}
-                      className="flex-1 h-14 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      className="flex-1 h-14 rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                       Execute Global Search
@@ -1100,7 +1100,7 @@ export default function XRaySearch() {
               <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
                 <div className="flex items-center gap-3 mb-6">
                   <Info className="h-4 w-4 text-blue-500" />
-                  <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Search Tips</h2>
+                  <h2 className="text-sm font-semibold text-foreground">Search Tips</h2>
                 </div>
                 <ul className="space-y-4">
                   <li className="flex gap-3">
@@ -1133,7 +1133,7 @@ export default function XRaySearch() {
                 <TabsList className="bg-transparent h-auto p-0 gap-8">
                   <TabsTrigger
                     value="results"
-                    className="data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                    className="data-[state=active]:bg-transparent data-[state=active]:text-blue-500 data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none bg-transparent px-0 pb-4 h-auto text-sm font-semibold transition-all"
                   >
                     Search Results
                     {results.length > 0 && (
@@ -1144,7 +1144,7 @@ export default function XRaySearch() {
                   </TabsTrigger>
                   <TabsTrigger
                     value="shortlist"
-                    className="data-[state=active]:bg-transparent data-[state=active]:text-amber-500 data-[state=active]:border-b-2 data-[state=active]:border-amber-500 rounded-none bg-transparent px-0 pb-4 h-auto text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                    className="data-[state=active]:bg-transparent data-[state=active]:text-amber-500 data-[state=active]:border-b-2 data-[state=active]:border-amber-500 rounded-none bg-transparent px-0 pb-4 h-auto text-sm font-semibold transition-all"
                   >
                     Shortlisted
                     {shortlist.length > 0 && (
@@ -1194,15 +1194,15 @@ export default function XRaySearch() {
                     <div className="inline-block p-4 rounded-full bg-blue-100 mb-6">
                       <Globe className="h-8 w-8 text-blue-500 animate-pulse" />
                     </div>
-                    <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Searching the Web...</p>
-                    <p className="mt-2 text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">Accessing Google Custom Search API</p>
+                    <p className="text-sm font-semibold text-blue-500">Searching the Web...</p>
+                    <p className="mt-2 text-xs font-semibold text-muted-foreground/40">Accessing Google Custom Search API</p>
                   </div>
                 ) : results.length === 0 ? (
                   <div className="rounded-[3rem] p-32 text-center bg-slate-50 border border-slate-200 border-dashed">
                     <div className="inline-block p-4 rounded-full bg-slate-100 mb-6">
                       <Search className="h-8 w-8 text-muted-foreground/20" />
                     </div>
-                    <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
+                    <p className="text-xl font-bold text-muted-foreground/20 italic leading-relaxed">
                       No global results to display. <br />Generate a query to start searching.
                     </p>
                   </div>
@@ -1210,7 +1210,7 @@ export default function XRaySearch() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between px-4 pb-4 border-b border-slate-200">
                       <div className="flex flex-col gap-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">
+                        <p className="text-xs font-semibold text-blue-500">
                           {localFilter ? `${filteredResults.length.toLocaleString()} / ` : ""}{Number(totalResults).toLocaleString()} Candidates Discovered
                         </p>
                       </div>
@@ -1220,7 +1220,7 @@ export default function XRaySearch() {
                           <select
                             value={scoreThreshold}
                             onChange={(e) => setScoreThreshold(Number(e.target.value))}
-                            className="bg-transparent text-[9px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
+                            className="bg-transparent text-xs font-semibold text-muted-foreground focus:outline-none cursor-pointer"
                           >
                             <option value="0" className="bg-white text-foreground">All Scores</option>
                             <option value="50" className="bg-white text-foreground">50% +</option>
@@ -1233,7 +1233,7 @@ export default function XRaySearch() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
-                          className={`h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${sortBy === "score"
+                          className={`h-9 px-4 rounded-xl text-xs font-semibold transition-all ${sortBy === "score"
                             ? "bg-emerald-500/10 text-emerald-400"
                             : "text-muted-foreground hover:bg-slate-100"
                             }`}
@@ -1246,7 +1246,7 @@ export default function XRaySearch() {
                             variant="outline"
                             size="sm"
                             onClick={handleBatchShortlist}
-                            className="h-9 px-4 rounded-xl bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 text-[10px] font-black uppercase tracking-widest transition-all"
+                            className="h-9 px-4 rounded-xl bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 text-xs font-semibold transition-all"
                           >
                             <Star className="mr-2 h-3.5 w-3.5" />
                             Shortlist All
@@ -1258,7 +1258,7 @@ export default function XRaySearch() {
                             size="sm"
                             onClick={handleBatchSummarize}
                             disabled={batchSummarizing || loading}
-                            className="h-9 px-4 rounded-xl bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 text-[10px] font-black uppercase tracking-widest transition-all"
+                            className="h-9 px-4 rounded-xl bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-all"
                           >
                             {batchSummarizing ? (
                               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
@@ -1283,13 +1283,13 @@ export default function XRaySearch() {
                     <div className="grid gap-4">
                       {filteredResults.length === 0 && results.length > 0 ? (
                         <div className="p-20 text-center rounded-[2.5rem] bg-slate-50 border border-slate-200 border-dashed">
-                          <p className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-6">
+                          <p className="text-sm font-semibold text-muted-foreground/40 italic mb-6">
                             No results match your local filter.
                           </p>
                           <Button
                             variant="ghost"
                             onClick={() => setLocalFilter("")}
-                            className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest"
+                            className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold"
                           >
                             Reset Local Filter
                           </Button>
@@ -1327,7 +1327,7 @@ export default function XRaySearch() {
                           onClick={() => handleSearch(true)}
                           disabled={loading}
                           variant="ghost"
-                          className="h-14 px-12 rounded-2xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 disabled:opacity-20 transition-all group"
+                          className="h-14 px-12 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-semibold hover:bg-slate-200 disabled:opacity-20 transition-all group"
                         >
                           {loading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1348,14 +1348,14 @@ export default function XRaySearch() {
                     <div className="inline-block p-4 rounded-full bg-amber-50 mb-6">
                       <Star className="h-8 w-8 text-amber-500/20" />
                     </div>
-                    <p className="text-xl font-black text-muted-foreground/20 uppercase tracking-widest italic leading-relaxed">
+                    <p className="text-xl font-bold text-muted-foreground/20 italic leading-relaxed">
                       Your shortlist is empty. <br />Star candidates to save them here.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between px-4 pb-4 border-b border-slate-200">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">
+                      <p className="text-xs font-semibold text-amber-500">
                         {shortlist.length} Candidates Shortlisted
                       </p>
                       <div className="flex items-center gap-3">
@@ -1364,7 +1364,7 @@ export default function XRaySearch() {
                           <select
                             value={scoreThreshold}
                             onChange={(e) => setScoreThreshold(Number(e.target.value))}
-                            className="bg-transparent text-[8px] font-black uppercase tracking-widest text-muted-foreground focus:outline-none cursor-pointer"
+                            className="bg-transparent text-xs font-semibold text-muted-foreground focus:outline-none cursor-pointer"
                           >
                             <option value="0" className="bg-white text-foreground">All</option>
                             <option value="50" className="bg-white text-foreground">50%+</option>
@@ -1375,7 +1375,7 @@ export default function XRaySearch() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setSortBy(sortBy === "score" ? "none" : "score")}
-                          className={`h-8 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${sortBy === "score"
+                          className={`h-8 px-4 rounded-xl text-xs font-semibold transition-all ${sortBy === "score"
                             ? "bg-emerald-500/10 text-emerald-400"
                             : "text-muted-foreground hover:bg-slate-100"
                             }`}
@@ -1388,7 +1388,7 @@ export default function XRaySearch() {
                             variant="outline"
                             size="sm"
                             onClick={handleBatchContacted}
-                            className="h-8 px-4 rounded-xl bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 text-[9px] font-black uppercase tracking-widest transition-all"
+                            className="h-8 px-4 rounded-xl bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold transition-all"
                           >
                             <UserCheck className="mr-2 h-3 w-3" />
                             Mark All Contacted
@@ -1400,7 +1400,7 @@ export default function XRaySearch() {
                             size="sm"
                             onClick={handleBatchSummarize}
                             disabled={batchSummarizing}
-                            className="h-8 px-4 rounded-xl bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 text-[9px] font-black uppercase tracking-widest transition-all"
+                            className="h-8 px-4 rounded-xl bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-all"
                           >
                             {batchSummarizing ? (
                               <Loader2 className="mr-2 h-3 w-3 animate-spin" />
@@ -1416,7 +1416,7 @@ export default function XRaySearch() {
                             size="sm"
                             onClick={handleBatchDraftOutreach}
                             disabled={batchDrafting}
-                            className="h-8 px-4 rounded-xl bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-[9px] font-black uppercase tracking-widest transition-all"
+                            className="h-8 px-4 rounded-xl bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 text-xs font-semibold transition-all"
                           >
                             {batchDrafting ? (
                               <Loader2 className="mr-2 h-3 w-3 animate-spin" />
@@ -1431,7 +1431,7 @@ export default function XRaySearch() {
                             variant="outline"
                             size="sm"
                             onClick={copyShortlistEmails}
-                            className={`h-8 px-4 rounded-xl transition-all text-[9px] font-black uppercase tracking-widest ${copyEmailsFeedback
+                            className={`h-8 px-4 rounded-xl transition-all text-xs font-semibold ${copyEmailsFeedback
                               ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                               : "bg-slate-100 border border-slate-200 text-muted-foreground hover:bg-slate-200 hover:text-blue-600"
                               }`}
@@ -1453,7 +1453,7 @@ export default function XRaySearch() {
                           variant="ghost"
                           size="sm"
                           onClick={() => setIsImporting(!isImporting)}
-                          className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 hover:bg-blue-500/5 rounded-xl transition-all"
+                          className="h-8 px-4 text-xs font-semibold text-blue-400 hover:text-blue-300 hover:bg-blue-500/5 rounded-xl transition-all"
                         >
                           <Download className="h-3 w-3 mr-2 rotate-180" />
                           Import
@@ -1463,7 +1463,7 @@ export default function XRaySearch() {
                             variant="ghost"
                             size="sm"
                             onClick={handleBulkRemoveContacted}
-                            className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/5 rounded-xl transition-all"
+                            className="h-8 px-4 text-xs font-semibold text-amber-500/60 hover:text-amber-500 hover:bg-amber-500/5 rounded-xl transition-all"
                           >
                             <Trash2 className="h-3 w-3 mr-2" />
                             Remove Contacted
@@ -1475,7 +1475,7 @@ export default function XRaySearch() {
                             setShortlist([]);
                             localStorage.removeItem("xray_shortlist");
                           }}
-                          className="h-8 px-4 text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
+                          className="h-8 px-4 text-xs font-semibold text-red-500/50 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
                         >
                           <Trash2 className="h-3 w-3 mr-2" />
                           Clear All
@@ -1485,7 +1485,7 @@ export default function XRaySearch() {
 
                     {isImporting && (
                       <div className="p-6 rounded-[2.5rem] bg-slate-50 border border-blue-200 border-dashed animate-in fade-in slide-in-from-top-2">
-                        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest italic mb-4">
+                        <p className="text-xs font-semibold text-muted-foreground/40 italic mb-4">
                           Paste LinkedIn/GitHub URLs (one per line)
                         </p>
                         <textarea
@@ -1498,14 +1498,14 @@ export default function XRaySearch() {
                           <Button
                             variant="ghost"
                             onClick={() => setIsImporting(false)}
-                            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                            className="h-10 px-6 rounded-xl text-xs font-semibold"
                           >
                             Cancel
                           </Button>
                           <Button
                             onClick={handleBulkImport}
                             disabled={!importText.trim()}
-                            className="h-10 px-8 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest"
+                            className="h-10 px-8 rounded-xl bg-blue-600 text-white text-xs font-semibold"
                           >
                             Add to Shortlist
                           </Button>
@@ -1717,14 +1717,14 @@ function CandidateCard({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-black text-foreground tracking-tight group-hover:text-blue-600 transition-colors">
+              <h3 className="text-lg font-bold text-foreground tracking-tight group-hover:text-blue-600 transition-colors">
                 {name}
               </h3>
-              <Badge variant="outline" className="bg-blue-500/5 text-blue-400 border-blue-500/10 text-[9px] font-black uppercase tracking-widest">
+              <Badge variant="outline" className="bg-blue-500/5 text-blue-400 border-blue-500/10 text-[10px] font-semibold">
                 LinkedIn
               </Badge>
               {isContacted && (
-                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[8px] font-black uppercase tracking-tighter">
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] font-semibold">
                   Contacted
                 </Badge>
               )}
@@ -1732,7 +1732,7 @@ function CandidateCard({
                 <Badge className={`${insight.score >= 80 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                   insight.score >= 50 ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                     "bg-red-500/10 text-red-400 border-red-500/20"
-                  } text-[9px] font-black uppercase tracking-widest px-2`}>
+                  } text-[10px] font-semibold px-2`}>
                   {insight.score}% Match
                 </Badge>
               )}
@@ -1742,7 +1742,7 @@ function CandidateCard({
                 variant="ghost"
                 size="sm"
                 onClick={onFindSimilar}
-                className="h-7 px-2 rounded-lg bg-slate-100 border border-slate-200 text-[8px] font-black uppercase tracking-widest hover:bg-blue-50 hover:text-blue-600"
+                className="h-7 px-2 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-semibold hover:bg-blue-50 hover:text-blue-600"
               >
                 <Search className="h-3 w-3 mr-1.5" />
                 Find Similar
@@ -1751,7 +1751,7 @@ function CandidateCard({
                 variant="ghost"
                 size="sm"
                 onClick={onCopySummary}
-                className="h-7 px-2 rounded-lg bg-slate-100 border border-slate-200 text-[8px] font-black uppercase tracking-widest hover:bg-slate-200 hover:text-foreground"
+                className="h-7 px-2 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-semibold hover:bg-slate-200 hover:text-foreground"
               >
                 <Share2 className="h-3 w-3 mr-1.5" />
                 Copy Info
@@ -1792,13 +1792,13 @@ function CandidateCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-muted-foreground/30">
+              <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/30">
                 <Globe className="h-3 w-3" />
                 External Talent
               </span>
               <button
                 onClick={() => onCopy(item.link, idx)}
-                className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-blue-600 transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground/30 hover:text-blue-600 transition-colors"
               >
                 {copiedIndex === idx ? (
                   <>
@@ -1837,7 +1837,7 @@ function CandidateCard({
                   else onDraftEmail(item);
                 }}
                 disabled={isDrafting}
-                className={`h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${draft
+                className={`h-9 px-4 rounded-xl text-xs font-semibold transition-all ${draft
                   ? "bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100"
                   : "bg-slate-100 border border-slate-200 text-muted-foreground hover:bg-slate-200 hover:text-indigo-600"
                   }`}
@@ -1855,7 +1855,7 @@ function CandidateCard({
                 href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-slate-100 border border-slate-200 text-[9px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 transition-all group/btn"
+                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 transition-all group/btn"
               >
                 View Profile
                 <ExternalLink className="h-3 w-3 text-blue-500 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
@@ -1874,7 +1874,7 @@ function CandidateCard({
                 <Mail className="h-4 w-4 text-indigo-400" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Personalized Outreach</p>
+                <p className="text-xs font-semibold text-indigo-400">Personalized Outreach</p>
                 <p className="text-[9px] text-muted-foreground/40 italic">AI-Generated based on profile & job requirements</p>
               </div>
             </div>
@@ -1883,7 +1883,7 @@ function CandidateCard({
                 variant="ghost"
                 size="sm"
                 onClick={handleCopyDraft}
-                className="h-8 px-3 rounded-lg bg-indigo-100 text-[9px] font-black uppercase tracking-widest text-indigo-700 hover:bg-indigo-200"
+                className="h-8 px-3 rounded-lg bg-indigo-100 text-xs font-semibold text-indigo-700 hover:bg-indigo-200"
               >
                 {copiedDraft ? (
                   <>
@@ -1915,10 +1915,10 @@ function CandidateCard({
             </p>
           </div>
           <div className="mt-6 flex items-center gap-2">
-            <Badge className="bg-indigo-500/10 text-indigo-400 border-none text-[8px] font-black uppercase tracking-tighter">
+            <Badge className="bg-indigo-500/10 text-indigo-400 border-none text-[10px] font-semibold">
               Ready to send
             </Badge>
-            <p className="text-[8px] text-muted-foreground/30 font-bold uppercase tracking-widest">
+            <p className="text-[10px] text-muted-foreground/30 font-semibold">
               Double-check for accuracy before sending
             </p>
           </div>
@@ -1933,7 +1933,7 @@ function CandidateCard({
               <FileText className="h-4 w-4 text-amber-500" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">Recruiter Notes</p>
+              <p className="text-xs font-semibold text-amber-500">Recruiter Notes</p>
               <p className="text-[9px] text-muted-foreground/40 italic">Internal notes for this candidate</p>
             </div>
           </div>

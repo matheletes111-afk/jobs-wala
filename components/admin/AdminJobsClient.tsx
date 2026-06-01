@@ -247,9 +247,9 @@ export default function AdminJobsClient() {
         <div className="mb-16 border-b border-white/5 pb-12">
            <div className="flex items-center gap-3 mb-4">
               <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Job Management</p>
+              <p className="text-xs font-semibold text-blue-500">Job Management</p>
            </div>
-            <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+            <h1 className="text-4xl font-bold md:text-6xl tracking-tighter text-white">
               Job <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Administration</span>
             </h1>
            <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
@@ -264,12 +264,12 @@ export default function AdminJobsClient() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold tracking-widest text-[10px]"
+                  className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-semibold text-xs"
                 />
               </div>
               <div className="w-[180px]">
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-white/10">
@@ -284,7 +284,7 @@ export default function AdminJobsClient() {
               </div>
               <div className="w-[140px]">
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                  <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent className="bg-background border-white/10">
@@ -300,7 +300,7 @@ export default function AdminJobsClient() {
               <Button
                 onClick={handleSearch}
                 disabled={loading}
-                className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+                className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
               >
                 Search Jobs
               </Button>
@@ -313,12 +313,12 @@ export default function AdminJobsClient() {
             <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
               <div className="flex items-center gap-3 mb-10">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Filters</h2>
+                <h2 className="text-sm font-semibold text-foreground">Filters</h2>
               </div>
               
               <div className="space-y-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                     <Briefcase className="h-3 w-3" />
                     Search Keywords
                   </label>
@@ -327,12 +327,12 @@ export default function AdminJobsClient() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20"
                   />
                 </div>
                 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                     <MapPin className="h-3 w-3" />
                     Location
                   </label>
@@ -340,12 +340,12 @@ export default function AdminJobsClient() {
                 </div>
                 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                     <LayoutGrid className="h-3 w-3" />
                     Category
                   </label>
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-white/10">
@@ -362,14 +362,14 @@ export default function AdminJobsClient() {
                 <div className="pt-6 flex flex-col gap-3">
                    <Button
                     onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
                   >
                     Apply Filters
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={handleClear}
-                    className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all"
+                    className="h-12 w-full rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-white/5 transition-all"
                   >
                     Clear Filters
                   </Button>
@@ -382,10 +382,10 @@ export default function AdminJobsClient() {
           <div className="flex-1 space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
               <div className="flex flex-col gap-1">
-                 <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
-                   {total} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Jobs</span>
+                 <p className="text-3xl font-bold text-foreground tracking-tighter tabular-nums">
+                   {total} <span className="text-sm font-semibold text-blue-500 opacity-60 ml-2">Jobs</span>
                  </p>
-                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
+                 <p className="text-xs font-semibold text-muted-foreground/40 italic">
                     Showing {start} - {end} jobs
                  </p>
               </div>
@@ -395,7 +395,7 @@ export default function AdminJobsClient() {
                   variant="outline"
                   size="sm"
                   onClick={handleExportCSV}
-                  className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
+                  className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
@@ -419,7 +419,7 @@ export default function AdminJobsClient() {
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all cursor-not-allowed">
+                 <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all cursor-not-allowed">
                   <span className="opacity-40 tabular-nums">SORT: LATEST</span>
                   <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
                 </div>
@@ -428,11 +428,11 @@ export default function AdminJobsClient() {
 
             {loading ? (
               <div className="linear-card rounded-[3rem] p-32 text-center animate-pulse">
-                <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Loading...</p>
+                <p className="text-sm font-semibold text-blue-500">Loading...</p>
               </div>
             ) : jobs.length === 0 ? (
               <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
-                <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+                <p className="text-xl font-bold text-muted-foreground/40 italic leading-relaxed">
                   No jobs found matching your criteria.
                 </p>
               </div>
@@ -455,19 +455,19 @@ export default function AdminJobsClient() {
               <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
                   <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Previous Page
                 </Button>
                 <div className="px-8 flex flex-col items-center">
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Page</p>
+                   <p className="text-xs font-semibold text-blue-500">Page</p>
                    <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
                 </div>
                 <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
@@ -514,10 +514,10 @@ function JobCard({
           <div className="min-w-0">
              <div className="flex items-center gap-3 mb-2">
                 <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-blue-500" : job.status === "PENDING" ? "bg-orange-500" : "bg-red-500"}`} />
-                <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
+                <p className="text-xs font-semibold text-blue-500">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
              </div>
-             <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{job.title}</h3>
-             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">
+             <h3 className="text-xl font-bold text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{job.title}</h3>
+             <p className="text-xs font-semibold text-muted-foreground/40 mt-1 italic">
                  {job.employer.companyName} {" // "} {job.employer.industry || "General Exploration"}
              </p>
           </div>
@@ -532,10 +532,10 @@ function JobCard({
          </div>
 
          <div className="flex flex-wrap gap-2">
-            <span className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-[9px] font-black uppercase tracking-widest text-blue-500/80">
-              {job.category}
-            </span>
-            <span className="px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2 tabular-nums">
+             <span className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs font-semibold text-blue-500/80">
+               {job.category}
+             </span>
+             <span className="px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground/60 flex items-center gap-2 tabular-nums">
               <MapPin className="h-3 w-3" />
               {formatLocation(job.location, true)}
             </span>
@@ -544,35 +544,35 @@ function JobCard({
 
       <div className="mt-10 pt-10 border-t border-white/5">
          <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 tabular-nums">
-              <span className="flex items-center gap-2 italic">
-                <Briefcase className="h-4 w-4" />
-                {job._count.applications} Applications
-              </span>
-              {job.createdAt && (
-                <span className="flex items-center gap-2 italic">
-                  <Calendar className="h-4 w-4" />
-                  ID-{new Date(job.createdAt).getTime().toString(36).toUpperCase()}
-                </span>
-              )}
-            </div>
-            
-            <span
-              className={`rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border ${
-              job.status === "ACTIVE"
-                ? "bg-blue-50 text-blue-600 border-blue-200"
-                : job.status === "PENDING"
-                  ? "bg-orange-50 text-orange-600 border-orange-200"
-                  : "bg-slate-50 border-slate-200 text-slate-500"
-            }`}
-            >
+             <div className="flex items-center gap-6 text-xs font-semibold text-muted-foreground/30 tabular-nums">
+               <span className="flex items-center gap-2 italic">
+                 <Briefcase className="h-4 w-4" />
+                 {job._count.applications} Applications
+               </span>
+               {job.createdAt && (
+                 <span className="flex items-center gap-2 italic">
+                   <Calendar className="h-4 w-4" />
+                   ID-{new Date(job.createdAt).getTime().toString(36).toUpperCase()}
+                 </span>
+               )}
+             </div>
+             
+             <span
+               className={`rounded-full px-4 py-1.5 text-xs font-semibold border ${
+               job.status === "ACTIVE"
+                 ? "bg-blue-50 text-blue-600 border-blue-200"
+                 : job.status === "PENDING"
+                   ? "bg-orange-50 text-orange-600 border-orange-200"
+                   : "bg-slate-50 border-slate-200 text-slate-500"
+             }`}
+             >
               {statusLabel}
             </span>
          </div>
 
          <div className="flex flex-wrap items-center justify-end gap-3">
              <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-10 w-10 bg-white/5 border border-white/10 rounded-xl transition-all active:scale-90" />
-             <div className="[&_button]:h-10 [&_button]:rounded-2xl [&_button]:text-[10px] [&_button]:font-black [&_button]:uppercase [&_button]:tracking-widest">
+             <div className="[&_button]:h-10 [&_button]:rounded-2xl [&_button]:text-xs [&_button]:font-semibold">
                <JobApprovalActions
                  jobId={job.id}
                  currentStatus={
@@ -582,7 +582,7 @@ function JobCard({
                />
              </div>
              <Link href={`/admin/jobs/${job.id}`}>
-               <Button variant="ghost" className="h-10 px-6 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95 group">
+               <Button variant="ghost" className="h-10 px-6 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold text-foreground hover:bg-white/10 transition-all active:scale-95 group">
                  View Job
                  <ChevronRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                </Button>

@@ -13,6 +13,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { formatResumeUpdatedAt } from "@/lib/utils";
 import { Camera, Plus, Trash2, FileText, ImageIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type CertificateItem = { url: string; type: "image" | "pdf"; description: string };
 
@@ -26,6 +33,15 @@ const profileSchema = z.object({
   education: z.string().optional(),
   bio: z.string().optional(),
   skills: z.string().optional(),
+  linkedinUrl: z.string().optional(),
+  highestEducation: z.string().optional(),
+  currentSalary: z.any().optional(),
+  currentSalaryCurrency: z.string().optional(),
+  expectedSalary: z.any().optional(),
+  expectedSalaryCurrency: z.string().optional(),
+  desiredLocation: z.string().optional(),
+  noticePeriod: z.string().optional(),
+  dateOfBirth: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -45,6 +61,15 @@ interface ProfileFormProps {
     resumeUrl?: string | null;
     resumeUpdatedAt?: Date | string | null;
     certificates?: string | null;
+    linkedinUrl?: string | null;
+    highestEducation?: string | null;
+    currentSalary?: number | null;
+    currentSalaryCurrency?: string | null;
+    expectedSalary?: number | null;
+    expectedSalaryCurrency?: string | null;
+    desiredLocation?: string | null;
+    noticePeriod?: string | null;
+    dateOfBirth?: Date | string | null;
   };
   userEmail?: string;
   emailChangeStatus?: string;
@@ -138,11 +163,25 @@ export default function ProfileForm({
           education: profile.education || "",
           bio: profile.bio || "",
           skills: profile.skills.join(", "),
+          linkedinUrl: profile.linkedinUrl || "",
+          highestEducation: profile.highestEducation || "",
+          currentSalary: profile.currentSalary ?? "",
+          currentSalaryCurrency: profile.currentSalaryCurrency || "INR",
+          expectedSalary: profile.expectedSalary ?? "",
+          expectedSalaryCurrency: profile.expectedSalaryCurrency || "INR",
+          desiredLocation: profile.desiredLocation || "",
+          noticePeriod: profile.noticePeriod || "",
+          dateOfBirth: profile.dateOfBirth
+            ? typeof profile.dateOfBirth === "string"
+              ? profile.dateOfBirth.split("T")[0]
+              : new Date(profile.dateOfBirth).toISOString().split("T")[0]
+            : "",
         }
       : undefined,
   });
 
   const locationValue = watch("location");
+  const desiredLocationValue = watch("desiredLocation");
 
   const handleRequestEmailChange = async () => {
     if (!newEmail.trim()) return;
@@ -311,7 +350,7 @@ export default function ProfileForm({
             />
           </div>
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-black text-foreground">{profile ? "My Profile" : "Create Profile"}</h2>
+            <h2 className="text-2xl font-bold text-foreground">{profile ? "My Profile" : "Create Profile"}</h2>
             <p className="text-sm font-medium text-muted-foreground mt-1">
               Manage your personal and professional information
             </p>
@@ -328,7 +367,7 @@ export default function ProfileForm({
           {userEmail !== undefined && (
             <div className="space-y-6">
               <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Email Address</Label>
+                <Label className="text-xs font-semibold text-muted-foreground">Email Address</Label>
                 <Input
                   id="currentEmail"
                   type="email"
@@ -340,13 +379,13 @@ export default function ProfileForm({
               <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full bg-primary" />
-                  <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Change Email</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Change Email</h3>
                 </div>
                 {emailChangeMessage && (
                   <div
                     className={`rounded-xl p-4 text-sm font-semibold border ${
                       emailChangeMessage.type === "success"
-                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                         : "bg-red-500/10 text-red-400 border-red-500/20"
                     }`}
                   >
@@ -355,7 +394,7 @@ export default function ProfileForm({
                 )}
                 <div className="flex flex-col sm:flex-row gap-4 items-end">
                   <div className="flex-1 w-full space-y-3">
-                    <Label htmlFor="newEmail" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Email</Label>
+                    <Label htmlFor="newEmail" className="text-xs font-semibold text-muted-foreground">New Email</Label>
                     <Input
                       id="newEmail"
                       type="email"
@@ -372,7 +411,7 @@ export default function ProfileForm({
                     variant="ghost"
                     onClick={() => handleRequestEmailChange()}
                     disabled={emailChangeLoading || !newEmail.trim()}
-                    className="h-12 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 whitespace-nowrap px-6 transition-all"
+                    className="h-12 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 whitespace-nowrap px-6 transition-all"
                   >
                     {emailChangeLoading ? "Sending..." : "Send Verification"}
                   </Button>
@@ -383,7 +422,7 @@ export default function ProfileForm({
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-3">
-              <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">First Name</Label>
+              <Label htmlFor="firstName" className="text-xs font-semibold text-muted-foreground">First Name</Label>
               <Input
                 id="firstName"
                 {...register("firstName")}
@@ -395,7 +434,7 @@ export default function ProfileForm({
               )}
             </div>
             <div className="space-y-3">
-              <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Last Name</Label>
+              <Label htmlFor="lastName" className="text-xs font-semibold text-muted-foreground">Last Name</Label>
               <Input
                 id="lastName"
                 {...register("lastName")}
@@ -410,7 +449,28 @@ export default function ProfileForm({
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-3">
-              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+              <Label htmlFor="dateOfBirth" className="text-xs font-semibold text-muted-foreground">Date of Birth</Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                {...register("dateOfBirth")}
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground scheme-dark"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="linkedinUrl" className="text-xs font-semibold text-muted-foreground">LinkedIn URL</Label>
+              <Input
+                id="linkedinUrl"
+                {...register("linkedinUrl")}
+                placeholder="https://linkedin.com/in/username"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label htmlFor="phone" className="text-xs font-semibold text-muted-foreground">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -423,7 +483,7 @@ export default function ProfileForm({
               )}
             </div>
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</Label>
+              <Label className="text-xs font-semibold text-muted-foreground">Location (Current)</Label>
               <LocationDropdown
                 value={locationValue}
                 onChange={(value) => setValue("location", value)}
@@ -432,9 +492,18 @@ export default function ProfileForm({
             </div>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="space-y-3">
+            <Label className="text-xs font-semibold text-muted-foreground">Desired Location (Multiple)</Label>
+            <LocationDropdown
+              value={desiredLocationValue}
+              onChange={(value) => setValue("desiredLocation", value)}
+              error={errors.desiredLocation?.message}
+            />
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
             <div className="space-y-3">
-              <Label htmlFor="jobTitle" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Job Title</Label>
+              <Label htmlFor="jobTitle" className="text-xs font-semibold text-muted-foreground">Job Title</Label>
               <Input
                 id="jobTitle"
                 {...register("jobTitle")}
@@ -443,7 +512,7 @@ export default function ProfileForm({
               />
             </div>
             <div className="space-y-3">
-              <Label htmlFor="experience" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Years of Experience</Label>
+              <Label htmlFor="experience" className="text-xs font-semibold text-muted-foreground">Years of Experience</Label>
               <Input
                 id="experience"
                 type="number"
@@ -452,11 +521,29 @@ export default function ProfileForm({
                 className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
               />
             </div>
+            <div className="space-y-3">
+              <Label htmlFor="noticePeriod" className="text-xs font-semibold text-muted-foreground">Notice Period / LWD</Label>
+              <Input
+                id="noticePeriod"
+                {...register("noticePeriod")}
+                placeholder="e.g. Immediate, 30 days, LWD: 15 June"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+              />
+            </div>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-3">
             <div className="space-y-3">
-              <Label htmlFor="education" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Education</Label>
+              <Label htmlFor="highestEducation" className="text-xs font-semibold text-muted-foreground">Highest Education</Label>
+              <Input
+                id="highestEducation"
+                {...register("highestEducation")}
+                placeholder="e.g. M.Tech, MBA, PhD"
+                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="education" className="text-xs font-semibold text-muted-foreground">Education (Details)</Label>
               <Input
                 id="education"
                 {...register("education")}
@@ -465,7 +552,7 @@ export default function ProfileForm({
               />
             </div>
             <div className="space-y-3">
-              <Label htmlFor="skills" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Skills</Label>
+              <Label htmlFor="skills" className="text-xs font-semibold text-muted-foreground">Skills</Label>
               <Input
                 id="skills"
                 {...register("skills")}
@@ -475,8 +562,69 @@ export default function ProfileForm({
             </div>
           </div>
 
+          <div className="grid gap-8 md:grid-cols-2">
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold text-muted-foreground">Current Salary</Label>
+              <div className="flex gap-3">
+                <div className="w-[110px] shrink-0">
+                  <Select
+                    value={watch("currentSalaryCurrency") || "INR"}
+                    onValueChange={(val) => setValue("currentSalaryCurrency", val)}
+                  >
+                    <SelectTrigger className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/20">
+                      <SelectValue placeholder="INR" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                      <SelectItem value="INR">INR (₹)</SelectItem>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="GBP">GBP (£)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="AED">AED</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Input
+                  id="currentSalary"
+                  type="number"
+                  {...register("currentSalary")}
+                  placeholder="e.g. 1200000"
+                  className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 flex-1"
+                />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <Label className="text-xs font-semibold text-muted-foreground">Expected Salary</Label>
+              <div className="flex gap-3">
+                <div className="w-[110px] shrink-0">
+                  <Select
+                    value={watch("expectedSalaryCurrency") || "INR"}
+                    onValueChange={(val) => setValue("expectedSalaryCurrency", val)}
+                  >
+                    <SelectTrigger className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/20">
+                      <SelectValue placeholder="INR" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                      <SelectItem value="INR">INR (₹)</SelectItem>
+                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="GBP">GBP (£)</SelectItem>
+                      <SelectItem value="EUR">EUR (€)</SelectItem>
+                      <SelectItem value="AED">AED</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Input
+                  id="expectedSalary"
+                  type="number"
+                  {...register("expectedSalary")}
+                  placeholder="e.g. 1500000"
+                  className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 flex-1"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-3">
-            <Label htmlFor="bio" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Bio / Summary</Label>
+            <Label htmlFor="bio" className="text-xs font-semibold text-muted-foreground">Bio / Summary</Label>
             <Textarea
               id="bio"
               {...register("bio")}
@@ -489,7 +637,7 @@ export default function ProfileForm({
           <div className="space-y-6">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-violet-400" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Resume / CV</h3>
+              <h3 className="text-sm font-semibold text-foreground">Resume / CV</h3>
             </div>
             <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
               <Input
@@ -497,16 +645,16 @@ export default function ProfileForm({
                 type="file"
                 accept=".pdf"
                 onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-[10px] file:font-black file:uppercase file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
+                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-xs file:font-semibold file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
               />
               {profile?.resumeUrl && (
                 <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
                   <div className="flex items-center gap-4">
                     <FileText className="h-6 w-6 text-primary" />
                     <div>
-                      <p className="text-sm font-black text-foreground">Current Resume</p>
+                      <p className="text-sm font-bold text-foreground">Current Resume</p>
                       {profile?.resumeUpdatedAt && (
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Synced: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}</p>
+                        <p className="text-xs font-semibold text-muted-foreground">Synced: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}</p>
                       )}
                     </div>
                   </div>
@@ -514,7 +662,7 @@ export default function ProfileForm({
                     href={profile.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-10 px-6 rounded-lg bg-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all flex items-center"
+                    className="h-10 px-6 rounded-lg bg-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all flex items-center"
                   >
                     View File
                   </a>
@@ -527,14 +675,14 @@ export default function ProfileForm({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-2 w-2 rounded-full bg-emerald-400" />
-                <h3 className="text-xs font-black uppercase tracking-widest text-foreground">Certifications</h3>
+                <h3 className="text-sm font-semibold text-foreground">Certifications</h3>
               </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={addCertificate}
-                className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition-all"
               >
                 <Plus className="h-3 w-3 mr-2" />
                 Add Certificate
@@ -552,7 +700,7 @@ export default function ProfileForm({
                       className="flex flex-col sm:flex-row items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-6 animate-in slide-in-from-right-4"
                     >
                       <div className="flex-1 w-full space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Certificate File</Label>
+                        <Label className="text-xs font-semibold text-muted-foreground/50">Certificate File</Label>
                         {entry.url ? (
                           <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-white/5 border border-white/10">
                             {entry.type === "image" ? <ImageIcon className="h-4 w-4 text-primary" /> : <FileText className="h-4 w-4 text-primary" />}
@@ -570,7 +718,7 @@ export default function ProfileForm({
                         )}
                       </div>
                       <div className="flex-[2] w-full space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Description</Label>
+                        <Label className="text-xs font-semibold text-muted-foreground/50">Description</Label>
                         <Input
                           placeholder="e.g. AWS Certified Solutions Architect"
                           value={entry.description}
@@ -595,11 +743,11 @@ export default function ProfileForm({
           </div>
 
           <div className="pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/30">Save Profile Information</p>
+            <p className="text-xs font-semibold text-muted-foreground/50">Save Profile Information</p>
             <Button 
               type="submit" 
               disabled={loading}
-              className="w-full sm:w-64 h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
+              className="w-full sm:w-64 h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
             >
               {loading ? "Saving..." : profile ? "Update Profile" : "Create Profile"}
             </Button>

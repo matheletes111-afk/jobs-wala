@@ -42,6 +42,7 @@ export default function EmployerSubscriptionPage() {
   const [activePlanEndDate, setActivePlanEndDate] = useState<string | null>(null);
   const [activePlanDetails, setActivePlanDetails] = useState<{ name: string, amount: number, currency: string } | null>(null);
   const [scheduledPlanDetails, setScheduledPlanDetails] = useState<{ name: string, amount: number, currency: string } | null>(null);
+  const [hadFreePlan, setHadFreePlan] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [activeTab, setActiveTab] = useState<"plans" | "history">("plans");
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,6 +73,7 @@ export default function EmployerSubscriptionPage() {
       setActivePlanEndDate(data.activePlanEndDate);
       setActivePlanDetails(data.activePlanDetails);
       setScheduledPlanDetails(data.scheduledPlanDetails);
+      setHadFreePlan(data.hadFreePlan || false);
     } catch (error) {
       console.error("Failed to fetch plans:", error);
     } finally {
@@ -305,15 +307,23 @@ export default function EmployerSubscriptionPage() {
 
                 <button
                   onClick={() => handleSubscribe(plan)}
-                  disabled={activePlanId === plan.id || processingId === plan.id || !!scheduledPlanId}
-                  className={`mt-auto w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg ${activePlanId === plan.id
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
-                    : scheduledPlanId === plan.id
-                      ? "bg-orange-50 text-orange-500 cursor-not-allowed border border-orange-200 shadow-none"
-                      : !!scheduledPlanId
-                        ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
-                        : "bg-primary text-white hover:bg-blue-600 hover:shadow-primary/25 active:scale-[0.98]"
-                    }`}
+                  disabled={
+                    activePlanId === plan.id ||
+                    processingId === plan.id ||
+                    !!scheduledPlanId ||
+                    (plan.amount === 0 && (hadFreePlan || (activePlanDetails ? activePlanDetails.amount > 0 : false)))
+                  }
+                  className={`mt-auto w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg ${
+                    activePlanId === plan.id
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                      : scheduledPlanId === plan.id
+                        ? "bg-orange-50 text-orange-500 cursor-not-allowed border border-orange-200 shadow-none"
+                        : !!scheduledPlanId
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                          : plan.amount === 0 && (hadFreePlan || (activePlanDetails ? activePlanDetails.amount > 0 : false))
+                            ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                            : "bg-primary text-white hover:bg-blue-600 hover:shadow-primary/25 active:scale-[0.98]"
+                  }`}
                 >
                   {processingId === plan.id ? (
                     "Processing..."
@@ -321,6 +331,10 @@ export default function EmployerSubscriptionPage() {
                     "Currently Active"
                   ) : scheduledPlanId !== null ? (
                     "Action Locked"
+                  ) : plan.amount === 0 && activePlanDetails && activePlanDetails.amount > 0 ? (
+                    "Premium Active"
+                  ) : plan.amount === 0 && hadFreePlan ? (
+                    "Already Used"
                   ) : (
                     plan.amount === 0 ? "Activate Free Plan" : "Subscribe Now"
                   )}

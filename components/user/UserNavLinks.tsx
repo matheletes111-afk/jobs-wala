@@ -28,16 +28,16 @@ export default function UserNavLinks({ vertical, onLinkClick }: UserNavLinksProp
 
   const linkClass = vertical
     ? (isActive: boolean) =>
-        `flex w-full items-center gap-4 rounded-xl px-4 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${
+        `flex w-full items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
           isActive
             ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            : "text-muted-foreground hover:text-foreground hover:bg-slate-100"
         }`
     : (isActive: boolean) =>
-        `flex items-center gap-2 rounded-xl px-4 py-2.5 text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+        `flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
           isActive
             ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            : "text-muted-foreground hover:text-foreground hover:bg-slate-100"
         }`;
 
   const wrapperClass = vertical

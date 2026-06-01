@@ -113,6 +113,7 @@ export async function GET(req: NextRequest) {
         employmentType: j.employmentType,
         experienceRequired: j.experienceRequired,
         employer: j.employer,
+        createdAt: j.createdAt,
       })),
       total,
       totalPages,

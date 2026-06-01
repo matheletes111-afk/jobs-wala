@@ -18,6 +18,15 @@ const profileSchema = z.object({
   profileImage: z.preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
   resumeUrl: z.string().url().optional().nullable(),
   certificates: z.string().optional().nullable(), // JSON string
+  linkedinUrl: z.string().url().optional().nullable().or(z.literal("")),
+  highestEducation: z.string().optional().nullable(),
+  currentSalary: z.preprocess((v) => (v === "" || v === undefined || v === null ? null : Number(v)), z.number().optional().nullable()),
+  currentSalaryCurrency: z.string().optional().nullable(),
+  expectedSalary: z.preprocess((v) => (v === "" || v === undefined || v === null ? null : Number(v)), z.number().optional().nullable()),
+  expectedSalaryCurrency: z.string().optional().nullable(),
+  desiredLocation: z.string().optional().nullable(),
+  noticePeriod: z.string().optional().nullable(),
+  dateOfBirth: z.preprocess((v) => (v === "" || v === undefined || v === null ? null : typeof v === "string" ? new Date(v) : v), z.date().optional().nullable()),
 });
 
 export async function GET(req: NextRequest) {

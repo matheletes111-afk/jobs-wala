@@ -85,6 +85,70 @@ export default async function Footer() {
               <ul className="space-y-3">
                 <li>
                   <Link
+                    href="/"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#about"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   About us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#services"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   Services
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#products"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   Products
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/user/jobs"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   Careers
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#contact"
+                    className="text-sm text-black/80 transition-colors hover:text-black"
+                  >
+                   Contact us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#book-demo"
+                    className="text-sm text-black/80 transition-colors hover:text-black font-semibold text-primary"
+                  >
+                   Book Demo
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#free-trial"
+                    className="text-sm text-black/80 transition-colors hover:text-black font-semibold text-emerald-600"
+                  >
+                   Free trial
+                  </Link>
+                </li>
+                <li className="pt-2 border-t border-black/5">
+                  <Link
                     href="/employer/jobs/new"
                     className="text-sm text-black/80 transition-colors hover:text-black"
                   >
@@ -97,14 +161,6 @@ export default async function Footer() {
                     className="text-sm text-black/80 transition-colors hover:text-black"
                   >
                     Search Jobs
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Home
                   </Link>
                 </li>
                 {user ? (

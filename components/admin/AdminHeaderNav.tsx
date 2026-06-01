@@ -29,7 +29,7 @@ export default function AdminHeaderNav() {
         <AdminNavLinks />
         <div className="flex items-center gap-4 h-10 border-l border-slate-200 pl-6">
           <LogoutButton />
-          <span className="flex h-8 items-center rounded-full bg-blue-600/10 border border-blue-600/20 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-[#2563eb] shadow-lg shadow-blue-500/5">
+          <span className="flex h-8 items-center rounded-full bg-blue-600/10 border border-blue-600/20 px-4 text-xs font-semibold text-[#2563eb] shadow-lg shadow-blue-500/5">
             Admin
           </span>
         </div>
@@ -37,7 +37,7 @@ export default function AdminHeaderNav() {
 
       {/* Mobile: hamburger + badge */}
       <div className="flex items-center gap-3 md:hidden">
-        <span className="rounded-full bg-blue-600/10 border border-blue-600/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[#2563eb]">
+        <span className="rounded-full bg-blue-600/10 border border-blue-600/20 px-3 py-1 text-xs font-semibold text-[#2563eb]">
           Admin
         </span>
         <Button

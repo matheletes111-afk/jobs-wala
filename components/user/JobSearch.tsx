@@ -32,6 +32,7 @@ interface Job {
   employmentType: string;
   experienceRequired?: number | null;
   employer: { companyName: string; companyLogo?: string | null };
+  createdAt: string;
 }
 
 interface CategoryOption {
@@ -141,12 +142,12 @@ export default function JobSearch() {
           <div>
             <div className="flex items-center gap-3 mb-8">
               <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Search Filters</h2>
+              <h2 className="text-sm font-semibold text-foreground">Search Filters</h2>
             </div>
             
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Keyword Search</label>
+                <label className="text-xs font-semibold text-muted-foreground">Keyword Search</label>
                 <Input
                   placeholder="Search keywords..."
                   value={search}
@@ -156,15 +157,15 @@ export default function JobSearch() {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Category</label>
+                <label className="text-xs font-semibold text-muted-foreground">Category</label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:border-primary/40 transition-all">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent className="bg-background/95 backdrop-blur-3xl border-white/10 rounded-2xl">
-                    <SelectItem value="all" className="text-xs font-bold uppercase tracking-widest">All Categories</SelectItem>
+                    <SelectItem value="all" className="text-xs font-semibold">All Categories</SelectItem>
                     {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name} className="text-xs font-bold uppercase tracking-widest">
+                      <SelectItem key={c.id} value={c.name} className="text-xs font-semibold">
                         {c.name}
                       </SelectItem>
                     ))}
@@ -172,7 +173,7 @@ export default function JobSearch() {
                 </Select>
               </div>
               <div className="space-y-3">
-                <label className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">Location</label>
+                <label className="text-xs font-semibold text-muted-foreground">Location</label>
                 <div className="relative">
                   <LocationDropdown value={location} onChange={setLocation} />
                 </div>
@@ -180,10 +181,10 @@ export default function JobSearch() {
             </div>
           </div>
           <div className="flex flex-col gap-3 pt-10 border-t border-white/5">
-            <Button onClick={handleSearch} disabled={loading} className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-blue-500/20">
+            <Button onClick={handleSearch} disabled={loading} className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-blue-500/20">
               Search Jobs
             </Button>
-            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-white/5 transition-all">
+            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-12 rounded-2xl text-xs font-semibold text-muted-foreground/60 hover:text-foreground hover:bg-white/5 transition-all">
               Clear Filters
             </Button>
           </div>
@@ -192,8 +193,8 @@ export default function JobSearch() {
 
       <div className="flex-1">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-            <span className="font-black text-foreground">{total}</span> Jobs Found
+          <p className="text-sm font-semibold text-muted-foreground">
+            <span className="font-bold text-foreground">{total}</span> Jobs Found
             <span className="mx-4 text-white/10">/</span>
             Showing {start} - {end}
           </p>
@@ -202,16 +203,16 @@ export default function JobSearch() {
         {loading ? (
           <div className="linear-card rounded-[2.5rem] p-24 text-center">
             <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mb-6" />
-            <p className="text-muted-foreground font-bold uppercase tracking-widest">Searching Jobs...</p>
+            <p className="text-sm font-semibold text-muted-foreground">Searching Jobs...</p>
           </div>
         ) : jobs.length === 0 ? (
           <div className="linear-card rounded-[3rem] p-24 text-center border-dashed border-white/5 bg-white/[0.01]">
             <div className="mx-auto h-20 w-20 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/5">
                <Search className="size-8 text-muted-foreground/20" />
             </div>
-            <p className="text-2xl font-black text-foreground tracking-tighter mb-4 uppercase italic">No Jobs Found</p>
+            <p className="text-2xl font-bold text-foreground tracking-tighter mb-4 italic">No Jobs Found</p>
             <p className="text-muted-foreground font-medium italic mb-10 max-w-sm mx-auto opacity-40">No jobs matched your search. Try adjusting your filters.</p>
-            <Button variant="outline" onClick={handleClear} className="h-14 px-10 rounded-2xl border-white/10 hover:bg-white/5 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02]">
+            <Button variant="outline" onClick={handleClear} className="h-14 px-10 rounded-2xl border-white/10 hover:bg-white/5 text-xs font-semibold transition-all hover:scale-[1.02]">
               Reset Filters
             </Button>
           </div>
@@ -236,31 +237,31 @@ export default function JobSearch() {
                   <div className="min-w-0 flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <Link href={`/jobs/${job.id}`}>
-                          <h3 className="text-3xl font-black text-foreground group-hover:text-primary transition-colors tracking-tight">
+                          <h3 className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors tracking-tight">
                             {job.title}
                           </h3>
                         </Link>
                         {appliedSet.has(job.id) && (
-                          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.1)] flex items-center gap-2 mx-auto md:mx-0">
+                          <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-xs font-semibold text-emerald-400 flex items-center gap-2 mx-auto md:mx-0">
                             <CheckCircle2 className="size-3.5" />
                             Applied
                           </span>
                         )}
                       </div>
-                      <p className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">{job.employer.companyName}</p>
+                      <p className="mt-2 text-xs font-semibold text-muted-foreground/50">{job.employer.companyName}</p>
                       
                       <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
                           {formatLocation(job.location, true)}
                         </span>
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
                           {job.category}
                         </span>
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 whitespace-nowrap">
+                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
                           {job.employmentType}
                         </span>
                         {formatSalary(job) && (
-                          <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-widest text-primary whitespace-nowrap shadow-xl shadow-primary/10">
+                          <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary whitespace-nowrap shadow-xl shadow-primary/10">
                             {formatSalary(job)}
                           </span>
                         )}
@@ -273,12 +274,14 @@ export default function JobSearch() {
                         <div className="flex items-center gap-6">
                           <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-12 w-12 rounded-xl bg-white/5 border-white/5 hover:bg-primary/10 hover:text-primary transition-all active:scale-90" />
                           <div className="hidden sm:block">
-                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/20 italic">Listing Status</p>
-                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/40">Verified Active</p>
+                             <p className="text-xs font-semibold text-muted-foreground/40">Posted On</p>
+                             <p className="text-xs font-semibold text-emerald-500/60">
+                               {new Date(job.createdAt).toLocaleDateString()} at {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                             </p>
                           </div>
                         </div>
                         <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
-                          <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
+                          <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
                             Apply Now
                           </Button>
                         </Link>
@@ -296,7 +299,7 @@ export default function JobSearch() {
             size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-all"
+            className="h-10 px-6 rounded-xl text-xs font-semibold text-muted-foreground/40 hover:text-foreground transition-all"
           >
             ← Previous Page
           </Button>
@@ -334,7 +337,7 @@ export default function JobSearch() {
                     key={p}
                     variant="ghost"
                     size="sm"
-                    className={`h-10 w-10 p-0 rounded-xl text-[10px] font-black transition-all ${
+                    className={`h-10 w-10 p-0 rounded-xl text-xs font-semibold transition-all ${
                       page === p 
                         ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40" 
                         : "text-muted-foreground/40 hover:bg-white/5 hover:text-foreground"
@@ -352,7 +355,7 @@ export default function JobSearch() {
             size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-all"
+            className="h-10 px-6 rounded-xl text-xs font-semibold text-muted-foreground/40 hover:text-foreground transition-all"
           >
             Next Page →
           </Button>

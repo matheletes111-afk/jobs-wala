@@ -65,6 +65,13 @@ export async function GET(req: NextRequest) {
               location: true,
               category: true,
               requiredSkills: true,
+              secondarySkills: true,
+              employmentType: true,
+              workMode: true,
+              salaryMin: true,
+              salaryMax: true,
+              currency: true,
+              payType: true,
             },
           },
           jobSeeker: {
@@ -91,8 +98,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       applications: applications.map((a) => {
+        const combinedSkills = [...(a.job.requiredSkills ?? []), ...(a.job.secondarySkills ?? [])];
         const match = computeSkillMatch(
-          a.job.requiredSkills ?? [],
+          combinedSkills,
           a.jobSeeker.skills ?? []
         );
         return {
@@ -105,7 +113,13 @@ export async function GET(req: NextRequest) {
             title: a.job.title,
             location: a.job.location,
             category: a.job.category,
-            requiredSkills: a.job.requiredSkills ?? [],
+            requiredSkills: combinedSkills,
+            employmentType: a.job.employmentType,
+            workMode: a.job.workMode,
+            salaryMin: a.job.salaryMin,
+            salaryMax: a.job.salaryMax,
+            currency: a.job.currency,
+            payType: a.job.payType,
           },
           jobSeeker: {
             id: a.jobSeeker.id,

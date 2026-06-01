@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import EmployerNavLinks from "@/components/employer/EmployerNavLinks";
 import LogoutButton from "@/components/LogoutButton";
 
-export default function EmployerHeaderNav() {
+export default function EmployerHeaderNav({ isApproved = true }: { isApproved?: boolean }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -26,10 +26,10 @@ export default function EmployerHeaderNav() {
     <>
       {/* Desktop nav: visible from md up */}
       <div className="hidden items-center gap-3 xl:gap-6 md:flex">
-        <EmployerNavLinks />
+        <EmployerNavLinks isApproved={isApproved} />
         <div className="flex items-center gap-3 xl:gap-4 border-l border-white/10 pl-3 xl:pl-6">
           <LogoutButton />
-          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400 shrink-0">
+          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400 shrink-0">
             Employer
           </span>
         </div>
@@ -37,7 +37,7 @@ export default function EmployerHeaderNav() {
 
       {/* Mobile: hamburger + full-width panel */}
       <div className="flex items-center gap-3 md:hidden">
-        <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400">
+        <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
           Employer
         </span>
         <Button
@@ -62,6 +62,7 @@ export default function EmployerHeaderNav() {
           <div className="flex-1 overflow-y-auto px-6 py-8">
             <nav className="flex flex-col gap-2">
               <EmployerNavLinks
+                isApproved={isApproved}
                 vertical
                 onLinkClick={() => setOpen(false)}
               />

@@ -28,25 +28,30 @@ interface EmployerNavLinksProps {
   vertical?: boolean;
   /** Optional: close mobile menu after navigation (call in onClick) */
   onLinkClick?: () => void;
+  /** Whether the employer is approved by admin */
+  isApproved?: boolean;
 }
 
 export default function EmployerNavLinks({
   vertical,
   onLinkClick,
+  isApproved = true,
 }: EmployerNavLinksProps) {
   const pathname = usePathname();
-  const links = employerNavLinks;
+  const links = isApproved
+    ? employerNavLinks
+    : employerNavLinks.filter(link => link.href === "/employer/profile");
 
   const linkClass = vertical
     ? (isActive: boolean) =>
-      `flex w-full items-center gap-4 rounded-xl px-5 py-4 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
+      `flex w-full items-center gap-4 rounded-xl px-5 py-4 text-sm font-semibold transition-all duration-300 ${isActive
         ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
-        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+        : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
       }`
     : (isActive: boolean) =>
-      `flex items-center gap-1.5 rounded-xl px-2 py-2 xl:px-3 text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${isActive
+      `flex items-center gap-1.5 rounded-xl px-2 py-2 xl:px-3 text-sm font-semibold transition-all duration-300 ${isActive
         ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+        : "text-muted-foreground hover:text-foreground hover:bg-slate-100"
       }`;
 
   const wrapperClass = vertical

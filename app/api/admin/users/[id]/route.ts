@@ -40,8 +40,7 @@ export async function GET(
 
 /**
  * PATCH /api/admin/users/[id]
- * Body: { resumeSearchEnabled: boolean }
- * Toggles employer resume database search access.
+ * Body: { resumeSearchEnabled?: boolean, approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED' }
  */
 export async function PATCH(
   req: NextRequest,
@@ -50,18 +49,15 @@ export async function PATCH(
   try {
     await requireAdmin();
     const { id } = await params;
-    const body = (await req.json()) as { resumeSearchEnabled?: boolean };
-
-    if (typeof body.resumeSearchEnabled !== "boolean") {
-      return NextResponse.json(
-        { error: "resumeSearchEnabled must be a boolean." },
-        { status: 400 }
-      );
-    }
+    const body = (await req.json()) as { 
+      resumeSearchEnabled?: boolean; 
+      approvalStatus?: "PENDING" | "APPROVED" | "REJECTED";
+      rejectionReason?: string;
+    };
 
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { role: true, employerProfile: { select: { id: true } } },
+      select: { role: true, employerProfile: { select: { id: true, approvalStatus: true } } },
     });
 
     if (!user) {
@@ -70,22 +66,91 @@ export async function PATCH(
 
     if (user.role !== "EMPLOYER" || !user.employerProfile) {
       return NextResponse.json(
-        { error: "Resume database access can only be changed for employers." },
+        { error: "This operation can only be performed for employers." },
         { status: 400 }
       );
     }
 
+    const updateData: Record<string, unknown> = {};
+
+    if (typeof body.resumeSearchEnabled === "boolean") {
+      updateData.resumeSearchEnabled = body.resumeSearchEnabled;
+    }
+
+    if (body.approvalStatus) {
+      updateData.approvalStatus = body.approvalStatus;
+      if (body.approvalStatus === "REJECTED") {
+        updateData.rejectionReason = body.rejectionReason || "No reason provided by the administrator.";
+      } else {
+        updateData.rejectionReason = null;
+      }
+    }
+
     const updated = await prisma.employerProfile.update({
       where: { userId: id },
-      data: { resumeSearchEnabled: body.resumeSearchEnabled },
-      select: { userId: true, resumeSearchEnabled: true },
+      data: updateData,
+      select: { userId: true, resumeSearchEnabled: true, approvalStatus: true },
     });
+
+    // If employer was APPROVED and has never had a subscription, activate the default 0 Rs free plan
+    if (body.approvalStatus === "APPROVED") {
+      const existingSubs = await prisma.subscription.count({
+        where: { employerId: id },
+      });
+
+      if (existingSubs === 0) {
+        // Find or create the free plan (0 Rs)
+        let freePlan = await prisma.plan.findFirst({
+          where: { amount: 0, status: "ACTIVE" },
+        });
+
+        if (!freePlan) {
+          freePlan = await prisma.plan.create({
+            data: {
+              name: "Free Plan",
+              description: "Basic introductory plan with limited postings.",
+              amount: 0,
+              currency: "INR",
+              durationDays: 30,
+              jobLimit: 5,
+              resumeSearchEnabled: false,
+              xraySearchEnabled: false,
+              status: "ACTIVE",
+            },
+          });
+        }
+
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + freePlan.durationDays);
+
+        const subscription = await prisma.subscription.create({
+          data: {
+            employerId: id,
+            planId: freePlan.id,
+            status: "ACTIVE",
+            startDate: new Date(),
+            endDate: endDate,
+          },
+        });
+
+        await prisma.employerProfile.update({
+          where: { userId: id },
+          data: {
+            subscriptionId: subscription.id,
+            subscriptionStatus: "ACTIVE",
+            subscriptionExpiry: endDate,
+            resumeSearchEnabled: freePlan.resumeSearchEnabled,
+            xraySearchEnabled: freePlan.xraySearchEnabled,
+          },
+        });
+      }
+    }
 
     return NextResponse.json(updated);
   } catch (e) {
     console.error("[PATCH /api/admin/users/[id]]", e);
     return NextResponse.json(
-      { error: "Failed to update employer resume access." },
+      { error: "Failed to update employer profile." },
       { status: 500 }
     );
   }

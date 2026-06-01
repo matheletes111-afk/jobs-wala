@@ -17,6 +17,13 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { email: String(email).trim() },
+      include: {
+        employerProfile: {
+          select: {
+            approvalStatus: true
+          }
+        }
+      }
     });
 
     if (!user) {

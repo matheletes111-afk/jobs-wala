@@ -36,6 +36,10 @@ function LoginForm() {
       Promise.resolve().then(() => setError("Email verification failed. Please try again."));
     } else if (errorParam === "EMAIL_NOT_VERIFIED") {
       Promise.resolve().then(() => setError("Please verify your email address before logging in. Check your inbox for the verification link."));
+    } else if (errorParam === "EMPLOYER_PENDING") {
+      Promise.resolve().then(() => setError("Your profile is pending admin approval."));
+    } else if (errorParam === "EMPLOYER_REJECTED") {
+      Promise.resolve().then(() => setError("Your profile has been rejected by the admin."));
     }
     const resetSuccess = searchParams.get("reset");
     if (resetSuccess === "success") {
@@ -59,6 +63,10 @@ function LoginForm() {
       if (!checkRes.ok || checkData.error) {
         if (checkData.error === "EMAIL_NOT_VERIFIED") {
           setError("Please verify your email address before logging in. Check your inbox for the verification link.");
+        } else if (checkData.error === "EMPLOYER_PENDING") {
+          setError("Your profile is pending admin approval.");
+        } else if (checkData.error === "EMPLOYER_REJECTED") {
+          setError("Your profile has been rejected by the admin.");
         } else {
           setError(checkData.error || "Invalid email or password");
         }

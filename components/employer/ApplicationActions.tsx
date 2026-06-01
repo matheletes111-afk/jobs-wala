@@ -51,7 +51,7 @@ export default function ApplicationActions({
       onValueChange={handleStatusChange}
       disabled={loading}
     >
-      <SelectTrigger className="w-36 h-10 rounded-xl bg-white/5 border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all focus:ring-primary/20">
+      <SelectTrigger className="w-36 h-10 rounded-xl bg-slate-50 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100 transition-all focus:ring-primary/20">
         {loading ? (
           <span className="flex items-center gap-2">
             <Loader2 className="h-3 w-3 animate-spin text-primary" />

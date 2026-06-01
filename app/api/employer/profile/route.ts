@@ -13,6 +13,10 @@ const profileSchema = z.object({
   description: z.string().optional(),
   companyLogo: z
     .preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
+  pointOfContact: z.string().optional(),
+  phone: z.string().optional(),
+  msmeDocUrl: z
+    .preprocess((v) => (v === "" ? null : v), z.string().url().optional().nullable()),
 });
 
 export async function POST(req: NextRequest) {
@@ -25,6 +29,8 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user.id,
         ...data,
+        approvalStatus: "PENDING",
+        rejectionReason: null,
       },
     });
 
@@ -50,9 +56,19 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const data = profileSchema.parse(body);
 
+    const currentProfile = await prisma.employerProfile.findUnique({
+      where: { userId: user.id },
+      select: { approvalStatus: true },
+    });
+
+    const shouldResetStatus = currentProfile?.approvalStatus === "REJECTED";
+
     const profile = await prisma.employerProfile.update({
       where: { userId: user.id },
-      data,
+      data: {
+        ...data,
+        ...(shouldResetStatus ? { approvalStatus: "PENDING", rejectionReason: null } : {}),
+      },
     });
 
     return NextResponse.json(profile);

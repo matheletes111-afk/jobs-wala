@@ -9,7 +9,7 @@ import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import JobDetails from "@/components/user/JobDetails";
 import CandidateAvatar from "@/components/CandidateAvatar";
-import { computeSkillMatch } from "@/lib/skill-match";
+import { computeSkillMatch, skillKeywordMatch } from "@/lib/skill-match";
 
 export default async function EmployerJobDetailsPage({
   params,
@@ -143,7 +143,7 @@ export default async function EmployerJobDetailsPage({
               <div className="grid gap-8">
                 {job.applications.map((application) => {
                   const skillMatch = computeSkillMatch(
-                    job.requiredSkills ?? [],
+                    [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
                     application.jobSeeker.skills ?? []
                   );
                   return (
@@ -204,15 +204,60 @@ export default async function EmployerJobDetailsPage({
                           </div>
 
                           <div className="pt-8 border-t border-white/5">
-                             <div className="max-w-xl">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-3 italic">Skill Match</p>
-                                <SkillMatchBar
-                                  percent={skillMatch.percent}
-                                  matched={skillMatch.matched}
-                                  total={skillMatch.total}
-                                  matchedLabels={skillMatch.matchedLabels}
-                                />
-                             </div>
+                            <div className="p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200 space-y-6">
+                              <SkillMatchBar
+                                percent={skillMatch.percent}
+                                matched={skillMatch.matched}
+                                total={skillMatch.total}
+                                matchedLabels={skillMatch.matchedLabels}
+                                className="max-w-none"
+                              />
+                              
+                              <div className="pt-4 border-t border-slate-200 space-y-4">
+                                <div>
+                                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Required & Secondary Skills for this Job:</h4>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {[...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].map((reqSkill, sIdx) => {
+                                      const matched = skillMatch.matchedLabels.some(l => l.toLowerCase() === reqSkill.toLowerCase());
+                                      return (
+                                        <span
+                                          key={sIdx}
+                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                                            matched
+                                              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                              : "bg-slate-100 border-slate-200 text-slate-500"
+                                          }`}
+                                        >
+                                          <span className="text-[10px]">{matched ? "✓" : "✗"}</span>
+                                          {reqSkill}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Candidate's Full Profile Skills:</h4>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {(application.jobSeeker.skills ?? []).map((skill, sIdx) => {
+                                      const isReq = [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].some(r => skillKeywordMatch(r, skill));
+                                      return (
+                                        <span
+                                          key={sIdx}
+                                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                                            isReq 
+                                              ? "bg-blue-50 border-blue-200 text-blue-700 font-semibold"
+                                              : "bg-slate-100 border-slate-200 text-slate-700"
+                                          }`}
+                                        >
+                                          {skill} {isReq && <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest ml-1">(Matched)</span>}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
                           {application.coverLetter && (

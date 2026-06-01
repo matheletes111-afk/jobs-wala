@@ -73,6 +73,7 @@ export async function GET(req: NextRequest) {
               description: true,
               resumeSearchEnabled: true,
               website: true,
+              approvalStatus: true,
               createdAt: true,
               updatedAt: true,
             },

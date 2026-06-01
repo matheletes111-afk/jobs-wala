@@ -135,6 +135,7 @@ export async function POST(req: NextRequest) {
           data: {
             userId: user.id,
             companyName: validatedData.companyName,
+            approvalStatus: "PENDING",
           },
         });
       }

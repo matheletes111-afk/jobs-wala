@@ -29,7 +29,7 @@ export default function UserHeaderNav() {
         <UserNavLinks />
         <div className="flex items-center gap-4 border-l border-white/10 pl-6">
           <LogoutButton />
-          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400">
+          <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
             Candidate
           </span>
         </div>
@@ -37,7 +37,7 @@ export default function UserHeaderNav() {
 
       {/* Mobile: hamburger + full-width panel */}
       <div className="flex items-center gap-3 md:hidden">
-        <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400">
+        <span className="rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">
           Candidate
         </span>
         <Button

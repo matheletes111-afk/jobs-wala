@@ -132,6 +132,15 @@ model JobSeekerProfile {
   bio               String?  @db.Text
   availabilityStatus String? @default("AVAILABLE") // AVAILABLE, UNAVAILABLE, LOOKING
   certificates       String?  @db.Text // JSON array: [{ url, type: 'image'|'pdf', description }]
+  linkedinUrl        String?
+  highestEducation   String?
+  currentSalary      Float?
+  currentSalaryCurrency String?
+  expectedSalary     Float?
+  expectedSalaryCurrency String?
+  desiredLocation    String?
+  noticePeriod       String?
+  dateOfBirth        DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -153,12 +162,17 @@ model EmployerProfile {
   companySize         String?
   website             String?
   description         String?  @db.Text
+  pointOfContact      String?
+  phone               String?
+  msmeDocUrl          String?
   resumeSearchEnabled Boolean  @default(false)
   xraySearchEnabled   Boolean  @default(false)
   savedXRayQueries    Json?    // Array of objects { query: string, label: string, createdAt: date }
   subscriptionId      String?
   subscriptionStatus  SubscriptionStatus? @default(EXPIRED)
   subscriptionExpiry  DateTime?
+  approvalStatus      EmployerApprovalStatus @default(PENDING)
+  rejectionReason     String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -169,6 +183,12 @@ model EmployerProfile {
 
   @@index([userId])
   @@index([companyName])
+}
+
+enum EmployerApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum WorkMode {

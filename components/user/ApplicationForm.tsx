@@ -111,7 +111,7 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
   return (
     <div className="linear-card rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
       <div className="border-b border-white/5 p-10 sm:p-12">
-        <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Application Details</h2>
+        <h2 className="text-2xl font-bold text-foreground">Application Details</h2>
         <p className="mt-2 text-sm font-medium text-muted-foreground italic">
           Finalize your application for this position.
         </p>
@@ -123,11 +123,11 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
             <div className="flex gap-4">
               <AlertCircle className="h-6 w-6 shrink-0 text-amber-500 mt-1" />
               <div className="flex-1">
-                <p className="text-lg font-black text-amber-400 uppercase tracking-widest">Protocol Interrupted</p>
+                <p className="text-lg font-bold text-amber-400">Protocol Interrupted</p>
                 <p className="mt-2 text-muted-foreground font-medium leading-relaxed">{error}</p>
                 {missingRequirements.length > 0 && (
                   <div className="mt-6 space-y-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500/60">Missing Profile Information:</p>
+                    <p className="text-xs font-semibold text-amber-500/60">Missing Profile Information:</p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {missingRequirements.map((item, i) => (
                         <li key={i} className="flex items-center gap-2 text-sm font-bold text-amber-200/80 bg-amber-500/10 px-4 py-2 rounded-lg">
@@ -139,7 +139,7 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
                     <div className="pt-4">
                       <Link
                         href="/user/profile"
-                        className="inline-flex items-center gap-3 h-12 px-8 rounded-xl bg-amber-500 text-black font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20"
+                        className="inline-flex items-center gap-3 h-12 px-8 rounded-xl bg-amber-500 text-black font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20"
                       >
                         Complete Profile
                         <ExternalLink className="h-4 w-4" />
@@ -159,8 +159,8 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
               <FileText className="h-6 w-6 text-blue-400" />
             </div>
             <div>
-              <Label className="text-lg font-black text-foreground uppercase tracking-tight">Your Resume</Label>
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Resume / Curriculum Vitae</p>
+              <Label className="text-lg font-bold text-foreground">Your Resume</Label>
+              <p className="text-xs font-semibold text-muted-foreground">Resume / Curriculum Vitae</p>
             </div>
           </div>
 
@@ -172,9 +172,9 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
                     <FileText className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-foreground uppercase tracking-widest">Current Resume</p>
+                    <p className="text-sm font-bold text-foreground">Current Resume</p>
                     {currentResumeUpdatedAt && (
-                      <p className="text-[10px] font-bold text-muted-foreground">LAST SYNC: {formatResumeUpdatedAt(currentResumeUpdatedAt)}</p>
+                      <p className="text-xs font-semibold text-muted-foreground">LAST SYNC: {formatResumeUpdatedAt(currentResumeUpdatedAt)}</p>
                     )}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
                   href={currentResumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-10 px-6 flex items-center rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/20 transition-all shadow-lg"
+                  className="h-10 px-6 flex items-center rounded-xl bg-white/10 text-xs font-semibold text-foreground hover:bg-white/20 transition-all shadow-lg"
                 >
                   View Resume
                 </a>
@@ -190,16 +190,16 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
             )}
 
             <div className="space-y-4">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 block">Upload New Resume (Optional)</Label>
+              <Label className="text-xs font-semibold text-muted-foreground/60 block">Upload New Resume (Optional)</Label>
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <Input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                  className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground file:bg-white/10 file:border-0 file:text-[10px] file:font-black file:uppercase file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
+                  className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground file:bg-white/10 file:border-0 file:text-xs file:font-semibold file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
                 />
                 {resumeFile && (
-                  <div className="flex items-center gap-2 text-xs font-black text-primary uppercase tracking-widest animate-pulse whitespace-nowrap">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary animate-pulse whitespace-nowrap">
                     <Upload className="h-3 w-3" />
                     Pending Override: {resumeFile.name.slice(0, 15)}...
                   </div>
@@ -216,8 +216,8 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
               <MessageSquare className="h-6 w-6 text-emerald-400" />
             </div>
             <div>
-              <Label htmlFor="coverLetter" className="text-lg font-black text-foreground uppercase tracking-tight">Cover Letter</Label>
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Message to Hiring Manager</p>
+              <Label htmlFor="coverLetter" className="text-lg font-bold text-foreground">Cover Letter</Label>
+              <p className="text-xs font-semibold text-muted-foreground">Message to Hiring Manager</p>
             </div>
           </div>
           <div className="relative">
@@ -231,21 +231,21 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
             <div className="absolute right-6 bottom-6 h-1 w-1 rounded-full bg-primary/20" />
           </div>
           {errors.coverLetter && (
-            <p className="mt-2 text-xs font-bold text-red-500 uppercase tracking-widest">{errors.coverLetter.message}</p>
+            <p className="mt-2 text-xs font-bold text-red-500">{errors.coverLetter.message}</p>
           )}
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-8 border-t border-white/5 p-10 bg-white/[0.01]">
           <div className="flex items-center gap-3">
              <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
-             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 max-w-[200px] leading-loose">
+             <p className="text-xs font-semibold text-muted-foreground/50 max-w-[200px] leading-loose">
                Submit your application to the employer.
              </p>
           </div>
           <Button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-80 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-[0.3em] transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary/30"
+            className="w-full sm:w-80 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-semibold transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-primary/30"
           >
             {loading ? "Submitting..." : "Submit Application"}
           </Button>

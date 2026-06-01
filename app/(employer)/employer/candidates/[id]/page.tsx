@@ -138,13 +138,70 @@ export default async function EmployerCandidateDetailPage({
                 )}
                 {candidate.location && (
                   <div className="space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Location</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Location (Current)</p>
                     <p className="text-sm font-bold text-foreground">
                       {formatLocation(candidate.location)}
                     </p>
                   </div>
                 )}
               </div>
+
+              {/* Professional Details */}
+              <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pt-8 border-t border-slate-200/60">
+                {candidate.highestEducation && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Highest Education</p>
+                    <p className="text-sm font-bold text-foreground">{candidate.highestEducation}</p>
+                  </div>
+                )}
+                {candidate.noticePeriod && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Notice Period / LWD</p>
+                    <p className="text-sm font-bold text-foreground">{candidate.noticePeriod}</p>
+                  </div>
+                )}
+                {candidate.dateOfBirth && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Date of Birth</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {new Date(candidate.dateOfBirth).toLocaleDateString(undefined, { dateStyle: "long" })}
+                    </p>
+                  </div>
+                )}
+                {candidate.linkedinUrl && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">LinkedIn</p>
+                    <a href={candidate.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary hover:text-blue-400 transition-colors break-all">
+                      View Profile
+                    </a>
+                  </div>
+                )}
+                {candidate.currentSalary !== null && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Current Salary</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {candidate.currentSalaryCurrency || "INR"} {candidate.currentSalary.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+                {candidate.expectedSalary !== null && (
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Expected Salary</p>
+                    <p className="text-sm font-bold text-foreground">
+                      {candidate.expectedSalaryCurrency || "INR"} {candidate.expectedSalary.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {candidate.desiredLocation && (
+                <div className="mb-16 pt-8 border-t border-slate-200/60 space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">Desired Location(s)</p>
+                  <p className="text-sm font-bold text-foreground">
+                    {formatLocation(candidate.desiredLocation)}
+                  </p>
+                </div>
+              )}
 
               {/* Bio / About */}
               {candidate.bio && (

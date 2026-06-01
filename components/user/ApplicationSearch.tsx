@@ -151,10 +151,10 @@ export default function ApplicationSearch() {
       <aside className="w-full shrink-0 lg:w-80">
         <div className="linear-card sticky top-28 rounded-[2rem] p-8 space-y-8 animate-in slide-in-from-left-4 duration-700">
           <div>
-            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground mb-6">Filter Applications</h2>
+            <h2 className="text-sm font-semibold text-foreground mb-6">Filter Applications</h2>
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Keywords</label>
+                <label className="text-xs font-semibold text-muted-foreground">Keywords</label>
                 <Input
                   placeholder="Job title or keywords..."
                   value={search}
@@ -164,7 +164,7 @@ export default function ApplicationSearch() {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category</label>
+                <label className="text-xs font-semibold text-muted-foreground">Category</label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10">
                     <SelectValue placeholder="All Categories" />
@@ -180,13 +180,13 @@ export default function ApplicationSearch() {
                 </Select>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Location</label>
+                <label className="text-xs font-semibold text-muted-foreground">Location</label>
                 <div className="relative">
                   <LocationDropdown value={location} onChange={setLocation} />
                 </div>
               </div>
               <div className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Pipeline Status</label>
+                <label className="text-xs font-semibold text-muted-foreground">Pipeline Status</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["all", "PENDING", "REVIEWED", "SHORTLISTED", "REJECTED"] as const).map((s) => (
                     <Button
@@ -199,7 +199,7 @@ export default function ApplicationSearch() {
                         setPage(1);
                       }}
                       disabled={loading}
-                      className={`h-10 text-[10px] font-black uppercase tracking-widest rounded-lg border border-white/5 transition-all ${
+                      className={`h-10 text-xs font-semibold rounded-lg border border-white/5 transition-all ${
                         appliedStatus === s
                           ? "bg-white/10 text-foreground border-white/20 shadow-lg"
                           : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -225,8 +225,8 @@ export default function ApplicationSearch() {
 
       <div className="flex-1">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-            <span className="font-black text-foreground">{total}</span> Pipeline Items
+          <p className="text-sm font-semibold text-muted-foreground">
+            <span className="font-bold text-foreground">{total}</span> Pipeline Items
             <span className="mx-4 text-white/10">/</span>
             Result set {start} - {end}
           </p>
@@ -235,7 +235,7 @@ export default function ApplicationSearch() {
         {loading ? (
           <div className="linear-card rounded-[2.5rem] p-24 text-center">
             <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mb-6" />
-            <p className="text-muted-foreground font-bold uppercase tracking-widest">Synchronizing Applications...</p>
+            <p className="text-sm font-semibold text-muted-foreground">Synchronizing Applications...</p>
           </div>
         ) : applications.length === 0 ? (
           <div className="linear-card rounded-[2.5rem] p-24 text-center">
@@ -281,16 +281,16 @@ export default function ApplicationSearch() {
                     <div className="min-w-0 flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <Link href={`/jobs/${application.job.id}`}>
-                          <h3 className="text-2xl font-black text-foreground group-hover:text-primary transition-colors hover:underline decoration-primary/30 underline-offset-8">
+                          <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors hover:underline decoration-primary/30 underline-offset-8">
                             {application.job.title}
                           </h3>
                         </Link>
                         <span
-                          className={`rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-widest shadow-xl transition-all w-fit mx-auto md:mx-0 ${
+                          className={`rounded-full px-5 py-2 text-xs font-semibold shadow-xl transition-all w-fit mx-auto md:mx-0 ${
                             application.status === "SHORTLISTED"
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : application.status === "REJECTED"
-                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                ? "bg-red-500/10 text-red-400 border-red-500/20"
                                 : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
                           }`}
                         >
@@ -301,22 +301,22 @@ export default function ApplicationSearch() {
                         {application.job.employer.companyName}
                       </p>
                       <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground whitespace-nowrap">
                           {formatLocation(application.job.location, true)}
                         </span>
-                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground whitespace-nowrap">
                           {application.job.category}
                         </span>
                         {(application.job.status === "PAUSED" ||
                           application.job.status === "CLOSED" ||
                           application.job.status === "INACTIVE") && (
-                          <span className="px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold uppercase tracking-widest text-red-400 whitespace-nowrap">
+                          <span className="px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs font-semibold text-red-400 whitespace-nowrap">
                             {application.job.status.toLowerCase()}
                           </span>
                         )}
                       </div>
                       <div className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40">
+                        <p className="text-xs font-semibold text-muted-foreground/40">
                           Transmission Date <span className="text-muted-foreground/60 ml-2">{new Date(application.appliedAt).toLocaleDateString()}</span>
                         </p>
                         {application.coverLetter && (
@@ -340,7 +340,7 @@ export default function ApplicationSearch() {
             size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground"
           >
             Previous
           </Button>
@@ -378,7 +378,7 @@ export default function ApplicationSearch() {
                     key={p}
                     variant="ghost"
                     size="sm"
-                    className={`h-10 w-10 p-0 rounded-xl text-xs font-black transition-all ${
+                    className={`h-10 w-10 p-0 rounded-xl text-xs font-semibold transition-all ${
                       page === p 
                         ? "bg-white/10 text-white border border-white/20 shadow-lg shadow-white/5" 
                         : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -396,7 +396,7 @@ export default function ApplicationSearch() {
             size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground"
           >
             Next
           </Button>

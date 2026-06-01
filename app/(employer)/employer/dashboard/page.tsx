@@ -18,6 +18,7 @@ export default async function EmployerDashboardPage() {
       subscriptions: {
         where: { status: "ACTIVE" },
         orderBy: { endDate: "desc" },
+        include: { plan: true },
         take: 1,
       },
     },
@@ -122,7 +123,7 @@ export default async function EmployerDashboardPage() {
               </Button>
             </Link>
           </div>
-        ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) && (
+        ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) ? (
           <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
              <div className="flex items-center gap-6">
               <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
@@ -130,12 +131,31 @@ export default async function EmployerDashboardPage() {
               </div>
               <div>
                 <h3 className="text-xl font-black text-white tracking-tight">Plan Expiring Soon</h3>
-                <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
+                <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
               </div>
             </div>
             <Link href="/employer/subscription">
               <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
                 Renew Plan
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+            <div className="flex items-center gap-6">
+              <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                <Zap className="h-8 w-8 text-blue-500 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
+                <p className="mt-1 text-sm font-medium text-white/50 italic">
+                  Your subscription is active and expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "long" })}.
+                </p>
+              </div>
+            </div>
+            <Link href="/employer/subscription">
+              <Button className="h-12 px-8 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                Manage Plan
               </Button>
             </Link>
           </div>
@@ -147,6 +167,48 @@ export default async function EmployerDashboardPage() {
             </Button>
           </Link>
         </div>
+
+        {/* Profile Approval Pending Banner */}
+        {profile.approvalStatus !== "APPROVED" && (
+          <div className={`mb-12 rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700 border ${
+            profile.approvalStatus === "REJECTED"
+              ? "bg-gradient-to-r from-red-500/10 via-red-500/5 to-transparent border-red-500/20"
+              : "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/20"
+          }`}>
+            <div className="flex items-center gap-6">
+              <div className={`h-16 w-16 shrink-0 rounded-3xl flex items-center justify-center border ${
+                profile.approvalStatus === "REJECTED"
+                  ? "bg-red-500/20 border-red-500/20"
+                  : "bg-amber-500/20 border-amber-500/20"
+              }`}>
+                <svg className={`h-8 w-8 animate-pulse ${
+                  profile.approvalStatus === "REJECTED" ? "text-red-500" : "text-amber-500"
+                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-white tracking-tight">
+                  {profile.approvalStatus === "REJECTED" ? "Profile Rejected by Admin" : "Admin Approval Pending"}
+                </h3>
+                <p className="mt-1 text-sm font-medium text-white/50 italic">
+                  {profile.approvalStatus === "REJECTED"
+                    ? `Reason: ${profile.rejectionReason || "No reason provided."}. Please correct the profile details to submit again.`
+                    : "Your profile is pending admin approval. Please ensure all profile fields are completed."}
+                </p>
+              </div>
+            </div>
+            <Link href="/employer/profile">
+              <Button className={`h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
+                profile.approvalStatus === "REJECTED"
+                  ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/20"
+                  : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+              }`}>
+                {profile.approvalStatus === "REJECTED" ? "Edit Profile" : "Go to Profile"}
+              </Button>
+            </Link>
+          </div>
+        )}
 
         {/* Color cards */}
         <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

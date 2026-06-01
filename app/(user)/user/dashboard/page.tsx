@@ -44,7 +44,7 @@ export default async function UserDashboardPage() {
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
         <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
               User Dashboard
             </h1>
             <p className="mt-2 text-muted-foreground font-medium">
@@ -109,10 +109,10 @@ export default async function UserDashboardPage() {
                     <ChevronRight className="h-5 w-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all" />
                   </div>
                   <div className="text-white">
-                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/70 mb-1">
+                    <p className="text-xs font-semibold text-white/70 mb-1">
                       {card.label}
                     </p>
-                    <p className="text-3xl font-black text-white">{card.value}</p>
+                    <p className="text-3xl font-bold text-white">{card.value}</p>
                     <p className="text-xs font-bold text-white/70 mt-1">{card.subValue}</p>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export default async function UserDashboardPage() {
               </p>
             </div>
             <Link href="/user/applications">
-              <Button className="text-xs font-black uppercase tracking-widest text-blue-500 hover:bg-blue-500/5 px-4 h-10 rounded-xl transition-all">
+              <Button className="text-xs font-semibold text-blue-500 hover:bg-blue-500/5 px-4 h-10 rounded-xl transition-all">
                 View All Applications
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
@@ -165,17 +165,17 @@ export default async function UserDashboardPage() {
                       <span>{formatLocation(application.job.location)}</span>
                     </div>
                     <div className="mt-3 flex items-center gap-4">
-                      <span className="text-[10px] font-bold uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full text-foreground/40 leading-none">
+                      <span className="text-xs font-semibold bg-white/5 px-3 py-1 rounded-full text-foreground/40 leading-none">
                         {application.job.category}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/30 leading-none">
+                      <span className="text-xs font-semibold text-foreground/30 leading-none">
                         Applied {new Date(application.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span
-                      className={`rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-widest shadow-xl transition-all ${
+                      className={`rounded-full px-5 py-2 text-xs font-semibold shadow-xl transition-all ${
                         application.status === "SHORTLISTED"
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                           : application.status === "REJECTED"

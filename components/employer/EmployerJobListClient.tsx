@@ -182,10 +182,10 @@ export default function EmployerJobListClient() {
       <div className={containerClass}>
         {/* Hero / Search Section */}
         <div className="linear-card rounded-[2.5rem] p-10 sm:p-12 mb-16 shadow-md animate-in fade-in slide-in-from-top-10 duration-1000">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+          <p className="mb-3 text-xs font-semibold text-primary">
             Job Management
           </p>
-          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+          <h1 className="mb-2 text-3xl font-bold text-foreground lg:text-5xl tracking-tighter">
             Job <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-purple-400">Postings</span>
           </h1>
           <p className="mb-10 text-muted-foreground font-medium italic">
@@ -205,13 +205,13 @@ export default function EmployerJobListClient() {
             </div>
             <div className="w-[200px]">
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest focus:ring-primary/20 shadow-sm">
+                <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold focus:ring-primary/20 shadow-sm">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 shadow-lg">
-                  <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Categories</SelectItem>
+                  <SelectItem value="all" className="text-xs font-semibold">All Categories</SelectItem>
                   {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest">
+                    <SelectItem key={c.id} value={c.name} className="text-xs font-semibold">
                       {c.name}
                     </SelectItem>
                   ))}
@@ -222,7 +222,7 @@ export default function EmployerJobListClient() {
               <Button
                 onClick={handleSearch}
                 disabled={loading}
-                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
+                className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
               >
                 Search
               </Button>
@@ -230,7 +230,7 @@ export default function EmployerJobListClient() {
                 variant="ghost"
                 onClick={handleClear}
                 disabled={loading}
-                className="h-12 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200"
+                className="h-12 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200"
               >
                 Clear
               </Button>
@@ -240,14 +240,14 @@ export default function EmployerJobListClient() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12 animate-in fade-in duration-1000">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+            <p className="text-xs font-semibold text-primary flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Live Updates
             </p>
             <p className="mt-1 text-sm font-bold text-muted-foreground uppercase tracking-widest">{total} Job{total !== 1 && "s"} Found</p>
           </div>
           <Link href="/employer/jobs/new">
-            <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 gap-3">
+            <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 gap-3">
               <Plus className="h-5 w-5" />
               Post a Job
             </Button>
@@ -260,12 +260,12 @@ export default function EmployerJobListClient() {
             <div className="linear-card rounded-[2rem] p-8 space-y-8 shadow-md">
               <div className="flex items-center gap-3 border-b border-slate-200 pb-6">
                 <Search className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-black uppercase tracking-widest text-foreground">Advanced Filters</h2>
+                <h2 className="text-sm font-semibold text-foreground">Advanced Filters</h2>
               </div>
 
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Search Key</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Search Key</label>
                   <Input
                     placeholder="Refine search..."
                     value={search}
@@ -276,20 +276,20 @@ export default function EmployerJobListClient() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Location Hub</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Location Hub</label>
                   <LocationDropdown value={location} onChange={setLocation} />
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Job Category</label>
+                  <label className="text-xs font-semibold text-muted-foreground/60">Job Category</label>
                   <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200 shadow-lg">
-                      <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">All Categories</SelectItem>
+                      <SelectItem value="all" className="text-xs font-semibold">All Categories</SelectItem>
                       {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.name} className="text-[10px] font-black uppercase tracking-widest">
+                        <SelectItem key={c.id} value={c.name} className="text-xs font-semibold">
                           {c.name}
                         </SelectItem>
                       ))}
@@ -300,7 +300,7 @@ export default function EmployerJobListClient() {
                 <div className="pt-4 space-y-3">
                   <Button
                     onClick={handleSearch}
-                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95"
+                    className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
                   >
                     Apply Filters
                   </Button>
@@ -308,7 +308,7 @@ export default function EmployerJobListClient() {
                     variant="ghost"
                     onClick={handleClear}
                     disabled={loading}
-                    className="w-full h-12 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200"
+                    className="w-full h-12 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold hover:bg-slate-200"
                   >
                     Reset All
                   </Button>
@@ -316,8 +316,8 @@ export default function EmployerJobListClient() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] bg-blue-50 border border-blue-200 p-8">
-              <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-4">Job Status Tip</h3>
+            <div className="rounded-[2rem] bg-blue-55 border border-blue-200 p-8">
+              <h3 className="text-xs font-semibold text-primary mb-4">Job Status Tip</h3>
               <p className="text-xs text-muted-foreground leading-loose font-medium italic">
                 &quot;Keep your job postings up to date. Active jobs are visible to candidates, while closed jobs are archived for your records.&quot;
               </p>
@@ -330,7 +330,7 @@ export default function EmployerJobListClient() {
               <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-right-5 duration-700">
                 <div className="flex items-center gap-3">
                   <div className="h-1 w-8 rounded-full bg-primary/30" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                  <p className="text-xs font-semibold text-muted-foreground/60">
                     Showing {jobs.length} Jobs
                   </p>
                 </div>
@@ -339,7 +339,7 @@ export default function EmployerJobListClient() {
                     variant="outline"
                     size="sm"
                     onClick={handleExportCSV}
-                    className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white"
+                    className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white"
                   >
                     <Download className="h-4 w-4" />
                     Export CSV
@@ -367,11 +367,11 @@ export default function EmployerJobListClient() {
             )}
                 {loading ? (
                   <div className="rounded-[2.5rem] p-24 text-center animate-pulse border border-slate-200">
-                    <p className="text-lg font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic">Loading Jobs...</p>
+                    <p className="text-lg font-semibold text-muted-foreground/40 italic">Loading Jobs...</p>
                   </div>
                 ) : jobs.length === 0 ? (
                   <div className="rounded-[2.5rem] p-24 text-center border border-slate-200">
-                    <p className="text-lg font-black uppercase tracking-[0.2em] text-muted-foreground/60">No matching jobs found.</p>
+                    <p className="text-lg font-semibold text-muted-foreground/60">No matching jobs found.</p>
                   </div>
                 ) : viewMode === "grid" ? (
                   <div className="grid gap-8 sm:grid-cols-1 lg:grid-cols-2">
@@ -392,16 +392,16 @@ export default function EmployerJobListClient() {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-3 mb-2">
                                 <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
+                                <span className={`text-xs font-semibold ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
                                   {job.status}
                                 </span>
                               </div>
                               <Link href={`/employer/jobs/${job.id}`}>
-                                <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                <h3 className="text-xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
                                   {job.title}
                                 </h3>
                               </Link>
-                              <p className="mt-2 flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                              <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                                 <MapPin className="h-3 w-3 text-primary" />
                                 {formatLocation(job.location, true)}
                               </p>
@@ -419,21 +419,21 @@ export default function EmployerJobListClient() {
                         </div>
 
                         <div className="mt-6 flex flex-wrap gap-2">
-                          <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary">
+                          <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
                             {job.category}
                           </span>
-                          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[9px] font-black uppercase tracking-widest text-slate-600">
+                          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
                             {job.status === "PAUSED" ? "Paused" : job.status === "CLOSED" ? "Closed" : job.status}
                           </span>
                           {formatSalary(job) && (
-                            <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[9px] font-black uppercase tracking-widest text-primary shadow-lg shadow-primary/5">
+                            <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary shadow-lg shadow-primary/5">
                               {formatSalary(job)}
                             </span>
                           )}
                         </div>
 
                         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-200">
-                          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                          <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                             <FileText className="h-3.5 w-3.5 text-primary" />
                             {job._count.applications} Applications Received
                           </span>
@@ -457,7 +457,7 @@ export default function EmployerJobListClient() {
                           <Link href={`/employer/jobs/${job.id}`} className="w-full">
                             <Button
                               variant="default"
-                              className="w-full h-12 rounded-xl bg-primary hover:bg-blue-600 text-white font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-primary/20"
+                              className="w-full h-12 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs transition-all shadow-lg shadow-primary/20"
                             >
                               Manage Job Details
                             </Button>
@@ -472,11 +472,11 @@ export default function EmployerJobListClient() {
                       <table className="w-full text-left border-collapse">
                         <thead>
                           <tr className="border-b border-slate-200 bg-slate-50">
-                            <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Job Title</th>
-                            <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
-                            <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category</th>
-                            <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Applicants</th>
-                            <th className="p-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground">Job Title</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground">Category</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground">Applicants</th>
+                            <th className="p-6 text-xs font-semibold text-muted-foreground text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -494,23 +494,23 @@ export default function EmployerJobListClient() {
                                     <Link href={`/employer/jobs/${job.id}`}>
                                       <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{job.title}</p>
                                     </Link>
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{formatLocation(job.location, true)}</p>
+                                    <p className="text-xs font-semibold text-muted-foreground mt-0.5">{formatLocation(job.location, true)}</p>
                                   </div>
                                 </div>
                               </td>
                               <td className="p-6">
                                 <div className="flex items-center gap-2">
                                   <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
-                                  <span className={`text-[10px] font-black uppercase tracking-widest ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
+                                  <span className={`text-xs font-semibold ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
                                     {job.status}
                                   </span>
                                 </div>
                               </td>
                               <td className="p-6">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{job.category}</span>
+                                <span className="text-xs font-semibold text-muted-foreground">{job.category}</span>
                               </td>
                               <td className="p-6">
-                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-foreground">
+                                <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                                   <FileText className="h-3 w-3 text-primary" />
                                   {job._count.applications}
                                 </div>
@@ -535,7 +535,7 @@ export default function EmployerJobListClient() {
                                     </Button>
                                   </Link>
                                   <Link href={`/employer/jobs/${job.id}`}>
-                                    <Button variant="outline" size="sm" className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
+                                    <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs font-semibold border-white/10 hover:bg-primary hover:border-primary hover:text-white transition-all">
                                       Manage
                                     </Button>
                                   </Link>
@@ -556,11 +556,11 @@ export default function EmployerJobListClient() {
                       size="sm"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
+                      className="h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 disabled:opacity-30 transition-all"
                     >
                       Previous Page
                     </Button>
-                    <span className="px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    <span className="px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-muted-foreground">
                       Page {page} of {totalPages}
                     </span>
                     <Button
@@ -568,7 +568,7 @@ export default function EmployerJobListClient() {
                       size="sm"
                       disabled={page >= totalPages}
                       onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
+                      className="h-10 px-6 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-foreground hover:bg-white/10 disabled:opacity-30 transition-all"
                     >
                       Next Page
                     </Button>

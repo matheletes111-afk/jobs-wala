@@ -45,6 +45,7 @@ interface UserItem {
     description?: string | null;
     resumeSearchEnabled?: boolean;
     website?: string | null;
+    approvalStatus?: string;
     createdAt?: string | null;
     updatedAt?: string | null;
   } | null;
@@ -238,6 +239,49 @@ export default function AdminUsersClient() {
     }
   };
 
+  const updateEmployerApproval = async (userId: string, status: "APPROVED" | "REJECTED") => {
+    if (updatingAccessFor) return;
+    
+    let reason: string | null = null;
+    if (status === "REJECTED") {
+      reason = prompt("Please enter the reason for rejecting this employer profile:");
+      if (reason === null) return; // Cancelled
+      if (!reason.trim()) {
+        alert("A rejection reason is required.");
+        return;
+      }
+    }
+
+    setUpdatingAccessFor(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          approvalStatus: status,
+          rejectionReason: reason || undefined
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === userId && item.employerProfile
+            ? {
+              ...item,
+              employerProfile: {
+                ...item.employerProfile,
+                approvalStatus: status,
+              },
+            }
+            : item
+        )
+      );
+    } finally {
+      setUpdatingAccessFor(null);
+    }
+  };
+
+
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
@@ -245,9 +289,9 @@ export default function AdminUsersClient() {
         <div className="mb-16 border-b border-white/5 pb-12">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">User Management</p>
+            <p className="text-xs font-semibold text-blue-500">User Management</p>
           </div>
-          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-white">
+          <h1 className="text-4xl font-bold md:text-6xl tracking-tighter text-white">
             User <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Management</span>
           </h1>
           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
@@ -262,12 +306,12 @@ export default function AdminUsersClient() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-bold tracking-widest text-[10px]"
+                className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-semibold text-xs"
               />
             </div>
             <div className="w-[180px]">
               <Select value={role} onValueChange={setRole}>
-                <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border-white/10">
@@ -281,7 +325,7 @@ export default function AdminUsersClient() {
             <Button
               onClick={handleSearch}
               disabled={loading}
-              className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
             >
               Search Users
             </Button>
@@ -294,12 +338,12 @@ export default function AdminUsersClient() {
             <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
               <div className="flex items-center gap-3 mb-10">
                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-foreground">Filters</h2>
+                <h2 className="text-sm font-semibold text-foreground">Filters</h2>
               </div>
 
               <div className="space-y-10">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                     <User className="h-3 w-3" />
                     Search Name
                   </label>
@@ -308,17 +352,17 @@ export default function AdminUsersClient() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-bold tracking-widest text-foreground placeholder:text-muted-foreground/20"
+                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20"
                   />
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic flex items-center gap-2">
+                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
                     <Briefcase className="h-3 w-3" />
                     User Role
                   </label>
                   <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-foreground">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-white/10">
@@ -333,14 +377,14 @@ export default function AdminUsersClient() {
                 <div className="pt-6 flex flex-col gap-3">
                   <Button
                     onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
                   >
                     Apply Filters
                   </Button>
                   <Button
                     variant="ghost"
                     onClick={handleClear}
-                    className="h-12 w-full rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 transition-all"
+                    className="h-12 w-full rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-white/5 transition-all"
                   >
                     Reset Filters
                   </Button>
@@ -359,10 +403,10 @@ export default function AdminUsersClient() {
           <div className="flex-1 space-y-8">
             <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
               <div className="flex flex-col gap-1">
-                <p className="text-3xl font-black text-foreground tracking-tighter tabular-nums">
-                  {total} <span className="text-sm font-black uppercase tracking-widest text-blue-500 opacity-60 ml-2">Found</span>
+                <p className="text-3xl font-bold text-foreground tracking-tighter tabular-nums">
+                  {total} <span className="text-sm font-semibold text-blue-500 opacity-60 ml-2">Found</span>
                 </p>
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 italic">
+                <p className="text-xs font-semibold text-muted-foreground/40 italic">
                   Showing {start} - {end} users
                 </p>
               </div>
@@ -372,7 +416,7 @@ export default function AdminUsersClient() {
                   variant="outline"
                   size="sm"
                   onClick={handleExportCSV}
-                  className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
+                  className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
@@ -397,7 +441,7 @@ export default function AdminUsersClient() {
                 </div>
 
                 <div className="relative group">
-                  <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all cursor-pointer">
+                  <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all cursor-pointer">
                     <span className="opacity-40">SORT:</span> {sort === "recent" ? "LATEST" : "OLDEST"}
                     <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
                   </div>
@@ -415,11 +459,11 @@ export default function AdminUsersClient() {
 
             {loading ? (
               <div className="linear-card rounded-[3rem] p-32 text-center animate-pulse">
-                <p className="text-sm font-black uppercase tracking-[0.5em] text-blue-500">Loading...</p>
+                <p className="text-sm font-semibold text-blue-500">Loading...</p>
               </div>
             ) : users.length === 0 ? (
               <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
-                <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+                <p className="text-xl font-bold text-muted-foreground/40 italic leading-relaxed">
                   No matches found.
                 </p>
               </div>
@@ -432,6 +476,7 @@ export default function AdminUsersClient() {
                     key={user.id}
                     user={user}
                     onToggleResumeAccess={toggleEmployerResumeAccess}
+                    onUpdateApproval={updateEmployerApproval}
                     isUpdating={updatingAccessFor === user.id}
                     index={idx}
                   />
@@ -443,19 +488,19 @@ export default function AdminUsersClient() {
               <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
                 <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Previous Page
                 </Button>
                 <div className="px-8 flex flex-col items-center">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Page</p>
+                  <p className="text-xs font-semibold text-blue-500">Page</p>
                   <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
                 </div>
                 <Button
                   variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 disabled:opacity-20 transition-all"
+                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
                   disabled={page >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
@@ -473,11 +518,13 @@ export default function AdminUsersClient() {
 function UserCard({
   user,
   onToggleResumeAccess,
+  onUpdateApproval,
   isUpdating,
   index,
 }: {
   user: UserItem;
   onToggleResumeAccess: (userId: string, enabled: boolean) => Promise<void>;
+  onUpdateApproval: (userId: string, status: "APPROVED" | "REJECTED") => Promise<void>;
   isUpdating: boolean;
   index: number;
 }) {
@@ -522,23 +569,35 @@ function UserCard({
             {logoUrl ? (
               <AvatarImage src={logoUrl} alt={displayName} className="object-cover" />
             ) : null}
-            <AvatarFallback className="bg-blue-500/10 text-blue-500 text-xl font-black">
+            <AvatarFallback className="bg-blue-500/10 text-blue-500 text-xl font-bold">
               {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="flex items-center gap-3 mb-2">
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-blue-500" : isEmployer ? "bg-indigo-500" : "bg-blue-500"}`} />
-              <p className="text-[10px] font-black uppercase tracking-widest text-blue-500">{user.role.replace("_", " ")}</p>
+              <p className="text-xs font-semibold text-blue-500">{user.role.replace("_", " ")}</p>
             </div>
-            <h3 className="text-xl font-black text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-1 italic">{subtitle}</p>
+            <h3 className="text-xl font-bold text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
+            <p className="text-xs font-semibold text-muted-foreground/40 mt-1 italic">{subtitle}</p>
           </div>
         </div>
 
         {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
-          <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest text-blue-600">
+          <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-xs font-semibold text-blue-600">
             {user.jobSeekerProfile.availabilityStatus}
+          </span>
+        )}
+
+        {isEmployer && user.employerProfile?.approvalStatus && (
+          <span className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+            user.employerProfile.approvalStatus === "APPROVED"
+              ? "bg-green-50 border-green-200 text-green-600"
+              : user.employerProfile.approvalStatus === "REJECTED"
+              ? "bg-red-50 border-red-200 text-red-600"
+              : "bg-amber-50 border-amber-200 text-amber-600"
+          }`}>
+            {user.employerProfile.approvalStatus}
           </span>
         )}
       </div>
@@ -557,12 +616,12 @@ function UserCard({
         {isJobSeeker && user.jobSeekerProfile?.skills && user.jobSeekerProfile.skills.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {user.jobSeekerProfile.skills.slice(0, 4).map((s) => (
-              <span key={s} className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-[9px] font-black uppercase tracking-widest text-blue-500/80">
+              <span key={s} className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs font-semibold text-blue-500/80">
                 {s}
               </span>
             ))}
             {user.jobSeekerProfile.skills.length > 4 && (
-              <span className="px-4 py-1.5 rounded-xl bg-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/40">
+              <span className="px-4 py-1.5 rounded-xl bg-white/5 text-xs font-semibold text-muted-foreground/40">
                 +{user.jobSeekerProfile.skills.length - 4} MORE
               </span>
             )}
@@ -571,32 +630,54 @@ function UserCard({
       </div>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-6 border-t border-white/5 pt-10">
-        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 italic">LOGGED: {new Date(user.createdAt).toLocaleDateString("en-GB")}</p>
+        <p className="text-xs font-semibold text-muted-foreground/30 italic">LOGGED: {new Date(user.createdAt).toLocaleDateString("en-GB")}</p>
         <div className="flex items-center gap-3">
           {isEmployer && user.employerProfile ? (
-            <Button
-              type="button"
-              className={`h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${user.employerProfile.resumeSearchEnabled
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                  : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
-                }`}
-              disabled={isUpdating}
-              onClick={() =>
-                onToggleResumeAccess(
-                  user.id,
-                  !Boolean(user.employerProfile?.resumeSearchEnabled)
-                )
-              }
-            >
-              {isUpdating
-                ? "SYNCING..."
-                : user.employerProfile.resumeSearchEnabled
-                  ? "DB ACCESS: ON"
-                  : "DB ACCESS: OFF"}
-            </Button>
+            <>
+              {user.employerProfile.approvalStatus !== "APPROVED" && (
+                <Button
+                  type="button"
+                  className="h-10 px-5 rounded-2xl text-xs font-semibold bg-green-600 text-white hover:bg-green-700 shadow-md shadow-green-500/20 transition-all"
+                  disabled={isUpdating}
+                  onClick={() => onUpdateApproval(user.id, "APPROVED")}
+                >
+                  Approve
+                </Button>
+              )}
+              {user.employerProfile.approvalStatus !== "REJECTED" && (
+                <Button
+                  type="button"
+                  className="h-10 px-5 rounded-2xl text-xs font-semibold bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-500/20 transition-all"
+                  disabled={isUpdating}
+                  onClick={() => onUpdateApproval(user.id, "REJECTED")}
+                >
+                  Reject
+                </Button>
+              )}
+              <Button
+                type="button"
+                className={`h-10 px-5 rounded-2xl text-xs font-semibold transition-all ${user.employerProfile.resumeSearchEnabled
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                    : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                  }`}
+                disabled={isUpdating || user.employerProfile.approvalStatus !== "APPROVED"}
+                onClick={() =>
+                  onToggleResumeAccess(
+                    user.id,
+                    !Boolean(user.employerProfile?.resumeSearchEnabled)
+                  )
+                }
+              >
+                {isUpdating
+                  ? "SYNCING..."
+                  : user.employerProfile.resumeSearchEnabled
+                    ? "DB ACCESS: ON"
+                    : "DB ACCESS: OFF"}
+              </Button>
+            </>
           ) : null}
           <Link href={`/admin/users/${user.id}`}>
-            <Button variant="ghost" className="h-10 px-6 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all active:scale-95 group">
+            <Button variant="ghost" className="h-10 px-6 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold text-foreground hover:bg-white/10 transition-all active:scale-95 group">
               View Profile
               <ChevronRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </Button>

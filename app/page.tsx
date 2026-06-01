@@ -7,7 +7,7 @@ import { UserRole } from "@prisma/client";
 import { CategoryStatus } from "@prisma/client";
 import HomePageClient from "@/components/HomePageClient";
 import { formatLocation } from "@/lib/utils";
-import { Briefcase, FileText, Search, Send } from "lucide-react";
+import { Briefcase, FileText, Search, Send, ChevronDown } from "lucide-react";
 
 const HERO_IMAGE_URL = "/images/home_img.png";
 
@@ -92,10 +92,9 @@ export default async function HomePage() {
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
       {/* Header - Premium Glassmorphism */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-white to-sky-100 border-b border-sky-200/60 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
           <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
-            {/* Mobile: smaller logo */}
             <div className="bg-white rounded-lg shadow-md flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
               <img
                 src="/images/logo.jpeg"
@@ -104,28 +103,123 @@ export default async function HomePage() {
               />
             </div>
           </Link>
-          <nav className="flex items-center gap-3">
-            {user ? (
-              <Link href="/dashboard">
-                <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
-                  Dashboard
+
+          {/* Right Aligned Container */}
+          <div className="flex items-center gap-8">
+            {/* Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-6">
+              <Link href="#about" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
+                About <ChevronDown className="h-3 w-3 text-slate-400" />
+              </Link>
+              
+              {/* Services Dropdown */}
+              <div className="relative group py-4">
+                <span className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1 cursor-pointer">
+                  Services <ChevronDown className="h-3 w-3 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
+                </span>
+                
+                <div className="absolute right-0 top-full hidden group-hover:block w-[360px] bg-white border border-slate-100 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                  <div className="space-y-4 text-left">
+                    {/* Category 1: Talent Solutions */}
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Talent Solutions</p>
+                      <div className="grid gap-0.5">
+                        <Link href="#contingent" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Contingent Workforce Solution
+                        </Link>
+                        <Link href="#ats" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          AI Powered ATS
+                        </Link>
+                        <Link href="#contact" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Recruitment Solution <span className="text-[10px] text-slate-400 font-normal">(Contact Us)</span>
+                        </Link>
+                        <Link href="#hire-talent" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Hire a Talent
+                        </Link>
+                        <Link href="/employer/jobs/new" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Post a Job
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Category 2: Career Services */}
+                    <div className="space-y-1 pt-3 border-t border-slate-100">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Career Services</p>
+                      <div className="grid gap-0.5">
+                        <Link href="#super-resume" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Get your super resume
+                        </Link>
+                        <Link href="#linkedin-optimization" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          LinkedIn Optimization
+                        </Link>
+                        <Link href="#career-counselling" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Career Counselling
+                        </Link>
+                        <Link href="#interview-preparation" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                          Interview Preparation
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Category 3: IT & Digital Solutions */}
+                    <div className="space-y-1 pt-3 border-t border-slate-100">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">IT & Digital Solutions</p>
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                        <p className="text-[14px] font-medium text-slate-800">IT Product Development</p>
+                        <p className="text-xs text-slate-500 font-normal leading-relaxed mt-1">
+                          Mobile App Development, Website Development, Built your own CRM, POS system, Heavy Portal, SEO, SEM, Digital Marketing, Chat Bot, Workflow Automation
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Link href="#products" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
+                Products <ChevronDown className="h-3 w-3 text-slate-400" />
+              </Link>
+              <Link href="/user/jobs" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">
+                Careers
+              </Link>
+              <Link href="#contact" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">
+                Contact us
+              </Link>
+            </nav>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <Link href="#book-demo" className="hidden sm:inline-block">
+                <Button variant="outline" className="h-10 px-5 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95">
+                  Book Demo
                 </Button>
               </Link>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-                    Sign in
+              
+              {user ? (
+                <Link href="/dashboard">
+                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
+                    Dashboard
                   </Button>
                 </Link>
-                <Link href="/register">
-                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
-                    Register
-                  </Button>
-                </Link>
-              </>
-            )}
-          </nav>
+              ) : (
+                <>
+                  <Link href="#free-trial" className="hidden xs:inline-block">
+                    <Button className="bg-primary hover:bg-blue-600 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
+                      Free trial
+                    </Button>
+                  </Link>
+                  <Link href="/login">
+                    <Button variant="ghost" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-4">
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link href="/register" className="hidden sm:inline-block">
+                    <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
+                      Register
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
