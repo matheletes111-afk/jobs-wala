@@ -74,229 +74,139 @@ export default async function Footer() {
   }[];
 
   return (
-    <footer className="mt-auto border-t border-black/10">
-      {/* Main footer - Blue */}
-      <div className="bg-sky-200 text-black">
-        <div className="container mx-auto px-4 py-10 sm:py-12">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Quick Links */}
-            <div>
-              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Quick Links</h3>
-              <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Home
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#about"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   About us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#services"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Services
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#products"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Products
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/user/jobs"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Careers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#contact"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                   Contact us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#book-demo"
-                    className="text-sm text-black/80 transition-colors hover:text-black font-semibold text-primary"
-                  >
-                   Book Demo
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="#free-trial"
-                    className="text-sm text-black/80 transition-colors hover:text-black font-semibold text-emerald-600"
-                  >
-                   Free trial
-                  </Link>
-                </li>
-                <li className="pt-2 border-t border-black/5">
-                  <Link
-                    href="/employer/jobs/new"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                    Post Job
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/user/jobs"
-                    className="text-sm text-black/80 transition-colors hover:text-black"
-                  >
-                    Search Jobs
-                  </Link>
-                </li>
-                {user ? (
-                  <li>
-                    <Link
-                      href="/dashboard"
-                      className="text-sm text-black/80 transition-colors hover:text-black"
-                    >
-                      Dashboard
-                    </Link>
-                  </li>
-                ) : (
-                  <>
-                    <li>
-                      <Link
-                        href="/login"
-                        className="text-sm text-black/80 transition-colors hover:text-black"
-                      >
-                        Login
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/register"
-                        className="text-sm text-black/80 transition-colors hover:text-black"
-                      >
-                        Register
-                      </Link>
-                    </li>
-                  </>
-                )}
-              </ul>
+    <footer className="bg-[#e0f2fe]/80 border-t border-[#bae6fd] text-slate-700 mt-auto">
+      {/* Main footer */}
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:px-8 lg:px-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
+          
+          {/* Logo & Description Column */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <img
+                src="/images/logo.jpeg"
+                alt="Jobdaddy"
+                className="h-8 md:h-9 object-contain rounded-lg border border-[#bae6fd] bg-white p-1"
+              />
+              <span className="font-extrabold text-lg text-slate-900 tracking-tight">Jobdaddy</span>
             </div>
+            <p className="text-xs font-semibold text-slate-500 leading-relaxed max-w-xs mb-6">
+              AI-powered job portal that connects talent with the right opportunities.
+            </p>
+          </div>
 
-            {/* Jobs By Category */}
-            <div>
-              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Jobs By Category</h3>
-              <ul className="space-y-3">
-                {categoriesRaw.map((cat) => (
+          {/* Column 1: JOBS BY CATEGORY */}
+          <div>
+            <h3 className="mb-6 text-xs font-bold uppercase tracking-wider text-blue-700">JOBS BY CATEGORY</h3>
+            <ul className="space-y-3 text-xs font-semibold text-slate-600">
+              {categoriesRaw.length > 0 ? (
+                categoriesRaw.slice(0, 8).map((cat) => (
                   <li key={cat.id}>
-                    <Link
-                      href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                      className="text-sm text-black/80 transition-colors hover:text-black"
-                    >
+                    <Link href={`/jobs/category/${encodeURIComponent(cat.name)}`} className="hover:text-blue-600 transition-colors block truncate">
                       {cat.name}
                     </Link>
                   </li>
-                ))}
-                {categoriesRaw.length === 0 && (
-                  <li className="text-sm text-black/60">No categories yet</li>
-                )}
-              </ul>
-            </div>
-
-            {/* Top Company Latest */}
-            <div>
-              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Top Company Latest</h3>
-              <ul className="space-y-4">
-                {topCompanies.map((c) => (
-                  <li key={c.userId}>
-                    <Link
-                      href={`/jobs/company/${c.userId}`}
-                      className="group flex items-center gap-3 text-sm text-black/80 transition-all hover:text-black hover:translate-x-1"
-                    >
-                      <CompanyLogo
-                        companyLogo={c.companyLogo}
-                        companyName={c.companyName}
-                        className="h-8 w-8 shrink-0 rounded-lg border border-black/10 bg-white/50 transition-all group-hover:border-black/20"
-                      />
-                      <span className="font-medium">{c.companyName}</span>
+                ))
+              ) : (
+                ["Human Resources", "Artificial Intelligence", "Engineering", "Manufacturing", "Defence", "Healthcare"].map((mockCat) => (
+                  <li key={mockCat}>
+                    <Link href="/user/jobs" className="hover:text-blue-600 transition-colors block">
+                      {mockCat}
                     </Link>
                   </li>
-                ))}
-                {topCompanies.length === 0 && (
-                  <li className="text-sm text-black/60">No companies yet</li>
-                )}
-              </ul>
-            </div>
+                ))
+              )}
+            </ul>
+          </div>
 
-            {/* Contact Us */}
-            <div>
-              <h3 className="mb-6 text-sm font-bold uppercase tracking-widest text-primary">Contact Us</h3>
-              <div className="space-y-4 text-sm text-black/80">
-                <p className="flex items-start gap-3">
-                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                  <span>
-                    Sector 12, Greater Noida (U.P)
-                  </span>
-                </p>
-                <p className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 shrink-0 text-primary" />
-                  <a
-                    href="mailto:Info@jobdaddy.in"
-                    className="transition-colors hover:text-black"
-                  >
-                    Info@jobdaddy.in
-                  </a>
-                </p>
-                <p className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 shrink-0 text-primary" />
-                  <a
-                    href="tel:+91-8800614884"
-                    className="transition-colors hover:text-black"
-                  >
-                    +91-8800614884
-                  </a>
-                </p>
-              </div>
-              <div className="mt-8 flex items-center gap-3">
-                {[
-                  { icon: Facebook, label: "Facebook" },
-                  { icon: Twitter, label: "Twitter" },
-                  { icon: Instagram, label: "Instagram" },
-                  { icon: Linkedin, label: "LinkedIn" },
-                  { icon: Youtube, label: "YouTube" },
-                ].map(({ icon: Icon, label }) => (
-                  <a
-                    key={label}
-                    href="#"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/5 text-black/80 transition-all hover:bg-black/10 hover:text-black hover:-translate-y-1"
-                    aria-label={label}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </a>
-                ))}
-              </div>
+          {/* Column 2: TOP COMPANY LATEST */}
+          <div>
+            <h3 className="mb-6 text-xs font-bold uppercase tracking-wider text-blue-700">TOP COMPANY LATEST</h3>
+            <ul className="space-y-4 text-xs font-semibold text-slate-600">
+              {topCompanies.length > 0 ? (
+                topCompanies.slice(0, 4).map((c) => (
+                  <li key={c.userId}>
+                    <Link href={`/jobs/company/${c.userId}`} className="flex items-center gap-2.5 hover:text-blue-600 transition-colors">
+                      <div className="size-6 rounded-lg bg-white border border-[#bae6fd] flex items-center justify-center font-bold text-[10px] text-blue-600 shrink-0">
+                        {c.companyLogo ? (
+                          <img src={c.companyLogo} alt="" className="size-full object-cover rounded-lg" />
+                        ) : (
+                          (c.companyName[0] ?? "?").toUpperCase()
+                        )}
+                      </div>
+                      <span className="truncate">{c.companyName}</span>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                [
+                  { name: "Jobdaddy", code: "J" },
+                  { name: "UnitedCareerNetworks.com", code: "U" }
+                ].map((mockComp) => (
+                  <li key={mockComp.name}>
+                    <Link href="/user/jobs" className="flex items-center gap-2.5 hover:text-blue-600 transition-colors">
+                      <div className="size-6 rounded-lg bg-white border border-[#bae6fd] flex items-center justify-center font-bold text-[10px] text-blue-600 shrink-0">
+                        {mockComp.code}
+                      </div>
+                      <span>{mockComp.name}</span>
+                    </Link>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+
+          {/* Column 3: CONTACT US */}
+          <div>
+            <h3 className="mb-6 text-xs font-bold uppercase tracking-wider text-blue-700">CONTACT US</h3>
+            <div className="space-y-4 text-xs font-semibold text-slate-600 mb-6">
+              <p className="flex items-start gap-2.5">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                <span>Sector 12, Greater Noida (U.P)</span>
+              </p>
+              <p className="flex items-center gap-2.5">
+                <Mail className="h-4 w-4 shrink-0 text-blue-600" />
+                <a href="mailto:Info@jobdaddy.in" className="hover:text-blue-600 transition-colors">
+                  Info@jobdaddy.in
+                </a>
+              </p>
+              <p className="flex items-center gap-2.5">
+                <Phone className="h-4 w-4 shrink-0 text-blue-600" />
+                <a href="tel:+91-8800614884" className="hover:text-blue-600 transition-colors">
+                  +91-8800614884
+                </a>
+              </p>
+            </div>
+            {/* Social Icons */}
+            <div className="flex items-center gap-2">
+              {[
+                { icon: Facebook, label: "Facebook" },
+                { icon: Twitter, label: "Twitter" },
+                { icon: Instagram, label: "Instagram" },
+                { icon: Linkedin, label: "LinkedIn" },
+                { icon: Youtube, label: "YouTube" },
+              ].map(({ icon: Icon, label }) => (
+                <a
+                  key={label}
+                  href="#"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 hover:bg-sky-200 text-blue-600 transition-colors"
+                  aria-label={label}
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* Bottom Copyright Bar */}
-      <div className="border-t border-black/10 bg-sky-300/50 py-6">
-        <div className="container mx-auto px-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-black">
-          Copyright © 2026 Jobs Daddy. All rights reserved. Design by: SRV
-          Technology
+      {/* Bottom bar */}
+      <div className="border-t border-[#bae6fd] bg-[#bae6fd]/30 py-6 text-xs font-bold text-slate-500">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© 2026 Jobdaddy.co.in | All rights reserved.</p>
+          <p className="flex items-center gap-1">
+            Made with <span className="text-rose-500 text-sm">❤️</span> in India
+          </p>
         </div>
       </div>
     </footer>

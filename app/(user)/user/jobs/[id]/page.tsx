@@ -67,9 +67,9 @@ export default async function JobDetailsPage({
           )}
           
           {!profile && (
-            <div className="mt-12 linear-card rounded-[2rem] p-8 border-amber-500/20 bg-amber-500/5">
-              <p className="text-lg font-black text-amber-400 uppercase tracking-widest flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-amber-400" />
+            <div className="mt-12 linear-card rounded-[2rem] p-8 border-2 border-black/20 bg-black/5">
+              <p className="text-lg font-black text-foreground uppercase tracking-widest flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-foreground" />
                 Profile Incomplete
               </p>
               <p className="mt-2 text-muted-foreground font-medium">

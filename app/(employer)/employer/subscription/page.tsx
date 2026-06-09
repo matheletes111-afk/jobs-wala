@@ -332,7 +332,7 @@ export default function EmployerSubscriptionPage() {
                   ) : scheduledPlanId !== null ? (
                     "Action Locked"
                   ) : plan.amount === 0 && activePlanDetails && activePlanDetails.amount > 0 ? (
-                    "Premium Active"
+                    "Unavailable (Premium Active)"
                   ) : plan.amount === 0 && hadFreePlan ? (
                     "Already Used"
                   ) : (

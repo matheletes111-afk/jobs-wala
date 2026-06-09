@@ -98,12 +98,15 @@ export default function AdminResumeDatabaseClient() {
 
   const [keyword, setKeyword] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
+  const [isBooleanSearch, setIsBooleanSearch] = useState(false);
+  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState("");
   const [location, setLocation] = useState("");
   const [parseStatus, setParseStatus] = useState<ParseStatus>("all");
   const [minExperience, setMinExperience] = useState("");
 
   const [appliedKeyword, setAppliedKeyword] = useState("");
   const [appliedSkills, setAppliedSkills] = useState("");
+  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(false);
   const [appliedLocation, setAppliedLocation] = useState("");
   const [appliedParseStatus, setAppliedParseStatus] = useState<ParseStatus>("all");
   const [appliedMinExperience, setAppliedMinExperience] = useState("");
@@ -115,9 +118,9 @@ export default function AdminResumeDatabaseClient() {
       pageNum: number,
       keywordVal: string,
       skillsVal: string,
+      isBooleanSearchVal: boolean,
       locationVal: string,
-      parseStatusVal: ParseStatus
-      ,
+      parseStatusVal: ParseStatus,
       minExperienceVal: string
     ) => {
       setLoading(true);
@@ -127,6 +130,7 @@ export default function AdminResumeDatabaseClient() {
         params.set("limit", String(limit));
         if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
         if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+        if (isBooleanSearchVal) params.set("isBooleanSearch", "true");
         if (locationVal.trim()) params.set("location", locationVal.trim());
         params.set("parseStatus", parseStatusVal);
         if (minExperienceVal.trim()) {
@@ -156,15 +160,16 @@ export default function AdminResumeDatabaseClient() {
       page,
       appliedKeyword,
       appliedSkills,
+      appliedIsBooleanSearch,
       appliedLocation,
-      appliedParseStatus
-      ,
+      appliedParseStatus,
       appliedMinExperience
     );
   }, [
     page,
     appliedKeyword,
     appliedSkills,
+    appliedIsBooleanSearch,
     appliedLocation,
     appliedParseStatus,
     appliedMinExperience,
@@ -174,7 +179,8 @@ export default function AdminResumeDatabaseClient() {
 
   const onApplyFilters = () => {
     setAppliedKeyword(keyword);
-    setAppliedSkills(skills.join(","));
+    setAppliedSkills(isBooleanSearch ? booleanSkillsExpr : skills.join(","));
+    setAppliedIsBooleanSearch(isBooleanSearch);
     setAppliedLocation(location);
     setAppliedParseStatus(parseStatus);
     setAppliedMinExperience(minExperience);
@@ -185,11 +191,14 @@ export default function AdminResumeDatabaseClient() {
   const onClearFilters = () => {
     setKeyword("");
     setSkills([]);
+    setIsBooleanSearch(false);
+    setBooleanSkillsExpr("");
     setLocation("");
     setParseStatus("all");
     setMinExperience("");
     setAppliedKeyword("");
     setAppliedSkills("");
+    setAppliedIsBooleanSearch(false);
     setAppliedLocation("");
     setAppliedParseStatus("all");
     setAppliedMinExperience("");
@@ -200,28 +209,50 @@ export default function AdminResumeDatabaseClient() {
     if (files.length === 0 || uploading) return;
     setUploading(true);
     setMessage("");
+
+    // Send files in client-side batches of 10 to avoid request body size limits
+    const CLIENT_BATCH_SIZE = 10;
+    const totalBatches = Math.ceil(files.length / CLIENT_BATCH_SIZE);
+    let totalSuccess = 0;
+    let totalFailed = 0;
+    let totalFiles = 0;
+
     try {
-      const formData = new FormData();
-      files.forEach((file) => formData.append("files", file));
-      const res = await fetch("/api/admin/resume-database/bulk-upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        throw new Error(await readApiError(res));
+      for (let i = 0; i < files.length; i += CLIENT_BATCH_SIZE) {
+        const batchFiles = files.slice(i, i + CLIENT_BATCH_SIZE);
+        const batchNum = Math.floor(i / CLIENT_BATCH_SIZE) + 1;
+        setMessage(
+          totalBatches > 1
+            ? `Uploading batch ${batchNum}/${totalBatches} (files ${i + 1}–${Math.min(i + CLIENT_BATCH_SIZE, files.length)} of ${files.length})… please wait`
+            : `Uploading ${files.length} file${files.length !== 1 ? "s" : ""}… please wait`
+        );
+
+        const formData = new FormData();
+        batchFiles.forEach((file) => formData.append("files", file));
+        const res = await fetch("/api/admin/resume-database/bulk-upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          throw new Error(await readApiError(res));
+        }
+        const result = (await res.json()) as BulkUploadResult;
+        totalFiles += result.totalFiles;
+        totalSuccess += result.successCount;
+        totalFailed += result.failedCount;
       }
-      const result = (await res.json()) as BulkUploadResult;
+
       setMessage(
-        `Uploaded ${result.totalFiles} files: ${result.successCount} parsed, ${result.failedCount} failed.`
+        `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`
       );
       setFiles([]);
       await fetchResumes(
         1,
         appliedKeyword,
         appliedSkills,
+        appliedIsBooleanSearch,
         appliedLocation,
-        appliedParseStatus
-        ,
+        appliedParseStatus,
         appliedMinExperience
       );
       setPage(1);
@@ -258,6 +289,7 @@ export default function AdminResumeDatabaseClient() {
         1,
         appliedKeyword,
         appliedSkills,
+        appliedIsBooleanSearch,
         appliedLocation,
         appliedParseStatus,
         appliedMinExperience
@@ -348,15 +380,39 @@ export default function AdminResumeDatabaseClient() {
               />
             </div>
             <div className="space-y-4">
-              <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
-                <FileText className="h-3 w-3" /> Skills
-              </label>
-              <SkillTagInput
-                value={skills}
-                onChange={setSkills}
-                placeholder="React, Java, Python..."
-                className="w-full"
-              />
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
+                  <FileText className="h-3 w-3" /> Skills
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    id="boolean-search-toggle"
+                    checked={isBooleanSearch}
+                    onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label htmlFor="boolean-search-toggle" className="text-[10px] font-black uppercase tracking-wider text-black cursor-pointer select-none">
+                    Boolean Search
+                  </label>
+                </div>
+              </div>
+              {isBooleanSearch ? (
+                <Input
+                  placeholder="e.g. java AND react OR laravel"
+                  value={booleanSkillsExpr}
+                  onChange={(e) => setBooleanSkillsExpr(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onApplyFilters()}
+                  className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20 placeholder:text-[14px] placeholder:font-medium placeholder:tracking-normal"
+                />
+              ) : (
+                <SkillTagInput
+                  value={skills}
+                  onChange={setSkills}
+                  placeholder="React, Java, Python..."
+                  className="w-full"
+                />
+              )}
             </div>
             <div className="space-y-4">
               <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
@@ -469,7 +525,19 @@ export default function AdminResumeDatabaseClient() {
                   {resume.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {resume.skills.map((skill) => {
-                        const isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase());
+                        let isMatched = false;
+                        if (isBooleanSearch) {
+                          const terms = (booleanSkillsExpr.match(/AND|OR|NOT|\(|\)|"[^"]+"|[^\s()]+/gi) || [])
+                            .map(t => t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t)
+                            .filter(t => {
+                              const u = t.toUpperCase();
+                              return u !== 'AND' && u !== 'OR' && u !== 'NOT' && t !== '(' && t !== ')';
+                            })
+                            .map(t => t.toLowerCase());
+                          isMatched = terms.some(t => skill.toLowerCase().includes(t) || t.includes(skill.toLowerCase()));
+                        } else {
+                          isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase() || skill.toLowerCase().includes(s.toLowerCase()));
+                        }
                         return (
                           <span
                             key={`${resume.id}-${skill}`}

@@ -111,13 +111,13 @@ export default async function HomePage() {
               <Link href="#about" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
                 About <ChevronDown className="h-3 w-3 text-slate-400" />
               </Link>
-              
+
               {/* Services Dropdown */}
               <div className="relative group py-4">
                 <span className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1 cursor-pointer">
                   Services <ChevronDown className="h-3 w-3 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
                 </span>
-                
+
                 <div className="absolute right-0 top-full hidden group-hover:block w-[360px] bg-white border border-slate-100 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
                   <div className="space-y-4 text-left">
                     {/* Category 1: Talent Solutions */}
@@ -192,7 +192,7 @@ export default async function HomePage() {
                   Book Demo
                 </Button>
               </Link>
-              
+
               {user ? (
                 <Link href="/dashboard">
                   <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
@@ -223,140 +223,165 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="flex-1 relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-full max-w-7xl bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-30 z-10" />
+      <main className="flex-1 relative bg-transparent">
+        {/* Hero / Banner - Premium Clean Figma Style */}
+        <section className="relative overflow-hidden bg-transparent px-4 pt-12 pb-0 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+          {/* Decorative blue blobs behind the boy */}
+          <div className="absolute right-[10%] top-[10%] w-[450px] h-[450px] bg-blue-200/35 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute right-[5%] bottom-[5%] w-[300px] h-[300px] bg-sky-200/25 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Hero / Banner - Premium Dark Style */}
-        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.2),transparent_60%),radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.08),transparent_50%),radial-gradient(circle_at_center,rgba(59,130,246,0.03),transparent_70%)] px-4 py-12 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-10 xl:px-12">
-          <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:justify-between lg:items-center">
-            <div className="min-w-0 max-w-2xl flex-1 text-center lg:text-left">
-              <p className="mb-4 inline-flex items-center rounded-full bg-orange-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-[#f97316] uppercase sm:text-sm">
-                Ready to find your dream job?
-              </p>
-              <h1 className="mb-6 text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl leading-tight">
-                Take the next step <br />
-                in your <span className="text-[#3b82f6]">career</span> <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f97316] to-[#ec4899]">journey.</span>
+          <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 lg:flex-row lg:justify-between lg:items-end">
+
+            {/* Left Column: Title, Description, and Search */}
+            <div className="min-w-0 max-w-2xl flex-1 text-center lg:text-left pb-16 lg:pb-24">
+              <h1 className="mb-6 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl leading-tight">
+                Find Jobs. <br />
+                Get Matched. <br />
+                <span className="text-[#2563eb]">Grow Your Career.</span>
               </h1>
-              <p className="mb-8 text-sm text-muted-foreground sm:mb-10 sm:text-base">
-                Explore opportunities that match your skills and passions, and land the job you&apos;ve always wanted with JobsPortal.
+              <p className="mb-10 text-sm md:text-base text-slate-500 max-w-xl leading-relaxed mx-auto lg:mx-0 font-medium text-left">
+                Our AI technology matches your skills with the right opportunities, so you can focus on what matters – building your future.
               </p>
-              <form action="/user/jobs" method="get" className="mb-8 flex flex-col gap-4 sm:mb-10 items-center lg:items-start">
-                <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-black/10 bg-white shadow-xl sm:flex-row sm:overflow-hidden transition-all focus-within:border-primary/50">
-                  <span className="flex items-center border-b border-black/10 px-4 py-3 text-muted-foreground sm:border-b-0 sm:border-r sm:py-4">
-                    <Search className="h-5 w-5 shrink-0" />
-                  </span>
-                  <input
-                    type="search"
-                    name="search"
-                    placeholder="Enter skills or job title"
-                    className="min-w-0 flex-1 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-slate-400 outline-none sm:py-4"
-                  />
-                  <span className="hidden items-center border-l border-black/10 px-4 text-muted-foreground sm:flex">
-                    <FileText className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="text"
-                    name="category"
-                    placeholder="Category"
-                    className="w-full border-t border-black/10 bg-transparent py-3 px-4 text-sm text-foreground placeholder:text-slate-400 outline-none sm:w-48 sm:min-w-0 sm:border-t-0 sm:border-l sm:py-4"
-                  />
-                </div>
-                <button
-                  style={{ "color": "white" }}
-                  type="submit"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-12 py-4 text-white font-bold shadow-lg shadow-orange-500/20 transition-all hover:bg-[#ea580c] hover:scale-[1.02] active:scale-95"
-                >
-                  <Search className="h-5 w-5" />
-                  Search Jobs
-                </button>
-              </form>
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 sm:gap-8">
-                <div className="animate-premium-hover">
-                  <p className="text-2xl font-bold text-[#2563eb] sm:text-3xl">{activeJobsCount.toLocaleString()}+</p>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider sm:text-sm">Active Jobs</p>
-                </div>
-                {!user && (
-                  <>
-                    <Link
-                      href="/employer/jobs/new"
-                      className="flex items-center gap-2 text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all"
-                    >
-                      <Briefcase className="h-4 w-4" />
-                      Post Your Job
-                    </Link>
-                    <Link href="/user/jobs" className="text-sm font-semibold text-foreground/80 hover:text-foreground hover:underline hover:scale-105 transition-all">
-                      Search Jobs
-                    </Link>
-                  </>
-                )}
-                {isCandidate && (
-                  <Link href="/user/jobs" className="text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all">
-                    Search Jobs
-                  </Link>
-                )}
-                {isEmployer && (
-                  <Link
-                    href="/employer/jobs/new"
-                    className="flex items-center gap-2 text-sm font-semibold text-[#f97316] hover:underline hover:scale-105 transition-all"
+              {/* Search Section - High Fidelity replica of Figma */}
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_15px_50px_rgba(0,0,0,0.03)] p-6 md:p-8 w-full max-w-3xl mx-auto lg:mx-0 mb-8 relative z-20">
+                <form action="/user/jobs" method="get" className="flex flex-col md:flex-row items-end gap-5 mb-6">
+
+                  {/* Input block 1: Job title, skills or company */}
+                  <div className="flex-1 flex flex-col gap-2 w-full text-left">
+                    <label className="text-sm font-bold text-slate-800">Job title, skills or company</label>
+                    <input
+                      type="search"
+                      name="search"
+                      placeholder="e.g. Software Engineer"
+                      className="search-input w-full text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                      style={{ height: "48px", padding: "0 16px", borderRadius: "12px", border: "1px solid #cbd5e1" }}
+                    />
+                  </div>
+
+                  {/* Input block 2: Location */}
+                  <div className="flex-1 flex flex-col gap-2 w-full text-left">
+                    <label className="text-sm font-bold text-slate-800">Location</label>
+                    <input
+                      type="text"
+                      name="location"
+                      placeholder="e.g. Bangalore"
+                      className="search-input w-full text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                      style={{ height: "48px", padding: "0 16px", borderRadius: "12px", border: "1px solid #cbd5e1" }}
+                    />
+                  </div>
+
+                  {/* Search Button */}
+                  <button
+                    type="submit"
+                    className="h-12 w-full md:w-auto shrink-0 flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+                    style={{ color: "white", background: "#2563eb", border: "none", borderRadius: "12px" }}
                   >
-                    <Briefcase className="h-4 w-4" />
-                    Post Your Job
-                  </Link>
-                )}
+                    <Search className="h-4 w-4" style={{ stroke: "white" }} />
+                    <span style={{ color: "white", }}>Search Jobs</span>
+                  </button>
+                </form>
+
+                {/* Popular Searches */}
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500 text-left">
+                  <span className="font-bold text-slate-700 mr-2">Popular Searches:</span>
+                  {["Software Developer", "Sales", "Marketing", "Data Analyst", "Customer Support"].map((tag) => (
+                    <Link
+                      key={tag}
+                      href={`/user/jobs?search=${encodeURIComponent(tag)}`}
+                      className="px-3 py-1.5 rounded-lg bg-blue-50/60 hover:bg-blue-100/80 text-[#2563eb] font-semibold transition-colors"
+                    >
+                      {tag}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="relative h-64 w-full min-w-0 max-w-xl shrink-0 sm:h-[25rem] md:h-[28rem] lg:h-[34rem] xl:h-[40rem] lg:max-w-[44rem] xl:max-w-[50rem] lg:-my-6 xl:-my-8 animate-in fade-in slide-in-from-right-10 duration-1000">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#2563eb]/10 to-transparent rounded-full blur-3xl" />
-              <Image
-                src={HERO_IMAGE_URL}
-                alt="Find your dream job"
-                fill
-                className="object-contain object-center lg:object-right drop-shadow-2xl scale-[1.02]"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 700px, 800px"
-                unoptimized
-              />
+
+            {/* Right Column: Hero Boy Image with Floating Badges (shifted slightly left and moved UP to align with Find Jobs text) */}
+            <div className="relative z-30 w-full max-w-lg lg:max-w-xl shrink-0 h-[360px] sm:h-[420px] md:h-[480px] lg:h-[540px] xl:h-[600px] flex items-end justify-center -translate-y-8 sm:-translate-y-12 lg:-translate-y-20 xl:-translate-y-24 lg:-translate-x-12 xl:-translate-x-20 transition-all">
+
+              {/* Bubble Background behind the boy */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 select-none -translate-y-8">
+                {/* Large Main Bubble */}
+                <div className="absolute w-[95%] aspect-square rounded-full bg-gradient-to-tr from-[#bae6fd] via-[#e0f2fe]/90 to-[#f0f9ff]/50 border-[3px] border-white/70 shadow-[inset_-12px_-12px_35px_rgba(255,255,255,0.7),_0_25px_60px_rgba(14,165,233,0.15)] backdrop-blur-[2px]" />
+                
+                {/* Secondary Bubble 1 (Top Left) */}
+                <div className="absolute top-[2%] left-[-8%] w-[32%] aspect-square rounded-full bg-gradient-to-tr from-[#e0f2fe] to-white/40 border-2 border-white/80 shadow-[inset_-4px_-4px_12px_rgba(255,255,255,0.8),_0_12px_24px_rgba(14,165,233,0.1)]" />
+                
+                {/* Secondary Bubble 2 (Bottom Right) */}
+                <div className="absolute bottom-[5%] right-[-8%] w-[35%] aspect-square rounded-full bg-gradient-to-tr from-[#bae6fd]/90 to-white/30 border-2 border-white/70 shadow-[inset_-6px_-6px_18px_rgba(255,255,255,0.7),_0_20px_40px_rgba(14,165,233,0.12)]" />
+
+                {/* Smaller Accent Bubbles */}
+                <div className="absolute top-[38%] right-[-12%] w-[12%] aspect-square rounded-full bg-[#bfdbfe]/70 border border-white/50 shadow-inner" />
+                <div className="absolute top-[15%] left-[38%] w-[8%] aspect-square rounded-full bg-white/50 border border-white/60" />
+              </div>
+
+              {/* Boy Image aligned perfectly to the bottom and zoomed in even more (130% size) */}
+              <div className="absolute bottom-0 w-[130%] h-[130%] z-10 translate-y-[12%]">
+                <Image
+                  src={HERO_IMAGE_URL}
+                  alt="Find your dream job"
+                  fill
+                  className="object-contain object-bottom drop-shadow-xl"
+                  sizes="(max-width: 768px) 100vw, 600px"
+                  priority
+                  unoptimized
+                />
+              </div>
+
+              {/* Floating Card 1: Skills Matched (Center Left, slightly overlapping arm but pushed outward) */}
+              <div className="absolute top-[28%] left-[-2%] md:left-[1%] xl:left-[4%] z-30 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 flex flex-col gap-2 min-w-[190px] hover:scale-105 transition-transform duration-300">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Skills Matched</p>
+                <div className="flex flex-col gap-1.5">
+                  {["Python", "SQL", "Machine Learning"].map((skill) => (
+                    <div key={skill} className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                      <span className="flex items-center justify-center size-4 rounded-full bg-emerald-100 text-emerald-600">
+                        <svg className="size-2.5" fill="none" stroke="currentColor" strokeWidth="3.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                      </span>
+                      {skill}
+                    </div>
+                  ))}
+                </div>
+                <Link href="/user/jobs" className="text-[10px] font-bold text-blue-600 hover:underline mt-1">
+                  + 6 more
+                </Link>
+              </div>
+
+              {/* Floating Card 2: AI Match Score (Top Right, pushed further right) */}
+              <div className="absolute top-[4%] right-[-10%] md:right-[-12%] xl:right-[-10%] z-30 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center gap-3 hover:scale-105 transition-transform duration-300">
+                <div className="relative size-12 flex items-center justify-center shrink-0">
+                  <svg className="size-full -rotate-90">
+                    <circle cx="24" cy="24" r="20" fill="transparent" stroke="#f1f5f9" strokeWidth="4" />
+                    <circle cx="24" cy="24" r="20" fill="transparent" stroke="#2563eb" strokeWidth="4" strokeDasharray="125.6" strokeDashoffset="18.8" />
+                  </svg>
+                  <span className="absolute text-xs font-extrabold text-slate-900">85%</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">AI Match Score</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1 mt-0.5">
+                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                    Great Match
+                  </span>
+                </div>
+              </div>
+
+              {/* Floating Card 3: Jobs for You (Bottom Right, pushed further right) */}
+              <div className="absolute bottom-[10%] right-[-8%] md:right-[-10%] xl:right-[-8%] z-30 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-[0_10px_35px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center gap-3 hover:scale-105 transition-transform duration-300">
+                <div className="flex items-center justify-center size-10 rounded-xl bg-blue-50 text-blue-600">
+                  <Briefcase className="size-5" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-slate-900">Jobs for You</span>
+                  <span className="text-[10px] font-bold text-blue-600 mt-0.5">128 New Matches</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Banners - Premium Pill Style */}
-        <section className="py-12 sm:py-16 bg-transparent">
-          <div className="mx-auto flex max-w-7xl flex-col items-stretch justify-center gap-6 px-4 sm:flex-row sm:flex-wrap sm:px-6 md:px-8 lg:px-10">
-            <Link
-              href="/user/jobs"
-              className="group relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-[2rem] bg-[#2563eb] px-8 py-8 text-white shadow-2xl transition-all hover:scale-[1.02] hover:shadow-blue-500/20 active:scale-95 sm:flex-1 md:max-w-[520px]"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative min-w-0 flex-1 text-left">
-                <p className="truncate text-xl font-bold sm:text-2xl" style={{ "color": "white" }}>Search your desired Job</p>
-                <p className="mt-1 truncate text-sm font-medium text-blue-100/80 sm:text-base">
-                  Discover a career you are passionate about
-                </p>
-              </div>
-              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110">
-                <Search className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2.5} />
-              </span>
-            </Link>
-            <Link
-              href="/employer/jobs/new"
-              className="group relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-[2rem] bg-[#f97316] px-8 py-8 text-white shadow-2xl transition-all hover:scale-[1.02] hover:shadow-orange-500/20 active:scale-95 sm:flex-1 md:max-w-[520px]"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative min-w-0 flex-1 text-left">
-                <p className="truncate text-xl font-bold sm:text-2xl" style={{ "color": "white" }}>Post a Job Today</p>
-                <p className="mt-1 truncate text-sm font-medium text-orange-100/80 sm:text-base">
-                  Discover the ideal candidate for your team
-                </p>
-              </div>
-              <span className="relative flex shrink-0 transition-transform group-hover:rotate-12 group-hover:scale-110" style={{ "color": "white" }}>
-                <Send className="h-10 w-10 text-white sm:h-12 sm:w-12" strokeWidth={2.5} />
-              </span>
-            </Link>
-          </div>
-        </section>
-
-        {/* Top Companies, Categories, Latest Jobs (client for filtering) */}
+        {/* Dynamic HomePageClient sections */}
         <HomePageClient topCompanies={topCompanies} categories={categories} />
       </main>
     </div>

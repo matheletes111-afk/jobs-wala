@@ -107,6 +107,7 @@ model User {
   // Relations
   jobSeekerProfile JobSeekerProfile?
   employerProfile  EmployerProfile?
+  resumeDocuments  ResumeDocument[]
 
   @@index([email])
   @@index([role])
@@ -328,6 +329,9 @@ model ResumeDocument {
   currentTitle      String?
   skills            String[] @default([])
 
+  userId            String?
+  user              User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -337,5 +341,6 @@ model ResumeDocument {
   @@index([extractedLocation])
   @@index([experienceYears])
   @@index([skills])
+  @@index([userId])
 }
 

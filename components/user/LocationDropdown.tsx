@@ -249,28 +249,51 @@ export default function LocationDropdown({
   };
 
   useEffect(() => {
-    if (scriptLoaded.current) return;
+    // If csc is already loaded globally, load countries directly
+    if (window.csc) {
+      scriptLoaded.current = true;
+      loadCountries();
+      return;
+    }
 
-    const script = document.createElement("script");
-    script.type = "module";
-    script.innerHTML = `
-      import { Country, State, City } from 'https://cdn.jsdelivr.net/npm/country-state-city@3.1.0/+esm';
-      window.csc = { Country, State, City };
-      if (window.onCSCLoaded) window.onCSCLoaded();
-    `;
-    
     const handleLoad = () => {
       scriptLoaded.current = true;
       loadCountries();
     };
-    
-    window.onCSCLoaded = handleLoad;
-    script.onerror = () => setLoading(false);
-    document.head.appendChild(script);
+
+    // Initialize the global callback queue if not already present
+    if (!window.onCSCLoaded) {
+      (window as any).cscCallbacks = [];
+      window.onCSCLoaded = () => {
+        const queue = (window as any).cscCallbacks || [];
+        queue.forEach((cb: () => void) => cb());
+      };
+    }
+
+    // Register this component's load callback
+    if ((window as any).cscCallbacks) {
+      (window as any).cscCallbacks.push(handleLoad);
+    }
+
+    // Only create and append the script once
+    let script = document.getElementById("csc-script-loader") as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "csc-script-loader";
+      script.type = "module";
+      script.innerHTML = `
+        import { Country, State, City } from 'https://cdn.jsdelivr.net/npm/country-state-city@3.1.0/+esm';
+        window.csc = { Country, State, City };
+        if (window.onCSCLoaded) window.onCSCLoaded();
+      `;
+      document.head.appendChild(script);
+    }
 
     return () => {
-      if (script.parentNode) script.parentNode.removeChild(script);
-      delete window.onCSCLoaded;
+      // Clean up this component's callback when unmounted
+      if ((window as any).cscCallbacks) {
+        (window as any).cscCallbacks = (window as any).cscCallbacks.filter((cb: any) => cb !== handleLoad);
+      }
     };
   }, []);
 

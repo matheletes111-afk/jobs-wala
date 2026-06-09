@@ -115,10 +115,10 @@ export default function SkillTagInput({
       </div>
 
       {showSuggestions && (inputValue.trim() || loading) && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-2xl backdrop-blur-3xl animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl backdrop-blur-3xl animate-in fade-in slide-in-from-top-2 duration-300">
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+              <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
             </div>
           ) : suggestions.length > 0 ? (
             <div className="p-2">
@@ -127,14 +127,14 @@ export default function SkillTagInput({
                   key={suggestion}
                   type="button"
                   onClick={() => addSkill(suggestion)}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/80 hover:bg-white/5 hover:text-emerald-400 transition-all"
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-all"
                 >
                   {suggestion}
                 </button>
               ))}
             </div>
           ) : inputValue.trim() ? (
-            <div className="p-4 text-sm font-medium text-muted-foreground/60 text-center italic">
+            <div className="p-4 text-sm font-medium text-slate-500 text-center italic">
               Press Enter to add &quot;{inputValue}&quot;
             </div>
           ) : null}

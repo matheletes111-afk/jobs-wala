@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import CompanyLogo from "@/components/CompanyLogo";
 import CandidateAvatar from "@/components/CandidateAvatar";
+import SkillMatchBar from "@/components/employer/SkillMatchBar";
+import { computeSkillMatch, skillKeywordMatch } from "@/lib/skill-match";
 
 const PAY_TYPE_LABELS: Record<string, string> = {
   HOURLY: "Hourly",
@@ -218,64 +220,135 @@ export default async function AdminJobDetailsPage({
                   <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Applications ({job.applications.length})</h2>
                 </div>
                 <div className="grid gap-4">
-                  {job.applications.map((app, idx) => (
-                    <div
-                      key={app.id}
-                      className="linear-card group flex flex-col gap-6 rounded-[2.25rem] bg-white/[0.01] border border-white/5 p-8 transition-all hover:bg-white/[0.04] animate-in fade-in slide-in-from-right-4 duration-500"
-                      style={{ animationDelay: `${idx * 50}ms` }}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                          <CandidateAvatar
-                            profileImage={app.jobSeeker.profileImage}
-                            firstName={app.jobSeeker.firstName}
-                            lastName={app.jobSeeker.lastName}
-                            size="md"
-                            className="rounded-2xl border border-white/10"
+                  {job.applications.map((app, idx) => {
+                    const skillMatch = computeSkillMatch(
+                      [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
+                      app.jobSeeker.skills ?? []
+                    );
+                    return (
+                      <div
+                        key={app.id}
+                        className="linear-card group flex flex-col gap-6 rounded-[2.25rem] bg-white/[0.01] border border-white/5 p-8 transition-all hover:bg-white/[0.04] animate-in fade-in slide-in-from-right-4 duration-500"
+                        style={{ animationDelay: `${idx * 50}ms` }}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-6">
+                          <div className="flex items-center gap-6">
+                            <CandidateAvatar
+                              profileImage={app.jobSeeker.profileImage}
+                              firstName={app.jobSeeker.firstName}
+                              lastName={app.jobSeeker.lastName}
+                              size="md"
+                              className="rounded-2xl border border-white/10"
+                            />
+                            <div>
+                              <h4 className="text-xl font-black text-foreground tracking-tight group-hover:text-blue-500 transition-colors">
+                                {app.jobSeeker.firstName} {app.jobSeeker.lastName}
+                              </h4>
+                              <div className="flex items-center gap-3 mt-1.5">
+                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic tabular-nums flex items-center gap-2">
+                                   <Mail className="h-3.5 w-3.5" />
+                                   {app.jobSeeker.user.email}
+                                 </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                             <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
+                                app.status === "SHORTLISTED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : app.status === "REJECTED" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-muted-foreground/40 border-white/10"
+                             }`}>
+                               {app.status}
+                             </span>
+                             {app.jobSeeker.resumeUrl && (
+                               <a
+                                 href={app.jobSeeker.resumeUrl}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95"
+                               >
+                                 View Resume
+                               </a>
+                             )}
+                             <Link href={`/admin/users/${app.jobSeeker.userId}`}>
+                                <Button variant="ghost" size="sm" className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95">
+                                  <UserCircle className="h-4 w-4" />
+                                </Button>
+                             </Link>
+                          </div>
+                        </div>
+
+                        {app.jobSeeker.jobTitle && (
+                          <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5">
+                             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 italic">
+                               {app.jobSeeker.jobTitle} {" // "} {app.jobSeeker.experience != null ? `${app.jobSeeker.experience}Y Experience` : "N/A Experience"}
+                             </p>
+                          </div>
+                        )}
+
+                        <div className="p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200 space-y-6 text-foreground">
+                          <SkillMatchBar
+                            percent={skillMatch.percent}
+                            matched={skillMatch.matched}
+                            total={skillMatch.total}
+                            matchedLabels={skillMatch.matchedLabels}
+                            className="max-w-none text-foreground"
                           />
-                          <div>
-                            <h4 className="text-xl font-black text-foreground tracking-tight group-hover:text-blue-500 transition-colors">
-                              {app.jobSeeker.firstName} {app.jobSeeker.lastName}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-1.5">
-                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic tabular-nums flex items-center gap-2">
-                                 <Mail className="h-3.5 w-3.5" />
-                                 {app.jobSeeker.user.email}
-                               </p>
+                          
+                          <div className="pt-4 border-t border-slate-200 space-y-4">
+                            <div>
+                              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Required & Secondary Skills for this Job:</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {[...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].map((reqSkill, sIdx) => {
+                                  const matched = skillMatch.matchedLabels.some(l => l.toLowerCase() === reqSkill.toLowerCase());
+                                  return (
+                                    <span
+                                      key={sIdx}
+                                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                                        matched
+                                          ? "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold"
+                                          : "bg-slate-100 border-slate-200 text-slate-500"
+                                      }`}
+                                    >
+                                      <span className="text-[10px] font-bold">{matched ? "✓" : "✗"}</span>
+                                      {reqSkill}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div>
+                              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Candidate's Full Profile Skills:</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {(app.jobSeeker.skills ?? []).map((skill, sIdx) => {
+                                  const isReq = [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].some(r => skillKeywordMatch(r, skill));
+                                  return (
+                                    <span
+                                      key={sIdx}
+                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                                        isReq 
+                                          ? "bg-blue-50 border-blue-200 text-blue-700 font-semibold"
+                                          : "bg-slate-100 border-slate-200 text-slate-700"
+                                      }`}
+                                    >
+                                      {skill} {isReq && <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest ml-1">(Matched)</span>}
+                                    </span>
+                                  );
+                                })}
+                              </div>
                             </div>
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-3">
-                           <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
-                              app.status === "SHORTLISTED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : app.status === "REJECTED" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-muted-foreground/40 border-white/10"
-                           }`}>
-                             {app.status}
-                           </span>
-                           <Link href={`/admin/users/${app.jobSeeker.userId}`}>
-                              <Button variant="ghost" size="sm" className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95">
-                                <UserCircle className="h-4 w-4" />
-                              </Button>
-                           </Link>
-                        </div>
+                        {app.coverLetter && (
+                          <div className="flex items-start gap-4 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 italic">
+                            <FileText className="h-4 w-4 shrink-0 text-blue-500 opacity-40" />
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 font-medium">&quot;{app.coverLetter}&quot;</p>
+                          </div>
+                        )}
                       </div>
-
-                      {app.jobSeeker.jobTitle && (
-                        <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5">
-                           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 italic">
-                             {app.jobSeeker.jobTitle} {" // "} {app.jobSeeker.experience != null ? `${app.jobSeeker.experience}Y Experience` : "N/A Experience"}
-                           </p>
-                        </div>
-                      )}
-                      
-                      {app.coverLetter && (
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 italic">
-                          <FileText className="h-4 w-4 shrink-0 text-blue-500 opacity-40" />
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 font-medium">&quot;{app.coverLetter}&quot;</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             )}

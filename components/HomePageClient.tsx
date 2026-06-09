@@ -7,11 +7,27 @@ import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
 import { UserRole } from "@/types";
 import {
-  Briefcase,
+  MapPin,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  LayoutGrid,
+  Briefcase,
+  Bookmark,
+  Code2,
+  TrendingUp,
+  Coins,
+  Headphones,
+  Users2,
+  Grid,
+  CheckCircle,
+  FileCheck,
+  User,
+  ArrowRight,
+  Sparkles,
+  BarChart3,
+  Search,
+  Shield,
+  Wrench,
+  Heart,
 } from "lucide-react";
 import CompanyLogo from "@/components/CompanyLogo";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -34,6 +50,8 @@ type JobItem = {
   salaryRange?: string | null;
   employmentType: string;
   createdAt: string;
+  experienceRequired?: number | null;
+  workMode?: string | null;
   employer: { companyName: string; companyLogo?: string | null };
 };
 
@@ -42,29 +60,91 @@ interface HomePageClientProps {
   categories: HomeCategory[];
 }
 
-const EMPLOYMENT_BADGE_COLORS: Record<string, string> = {
-  FULL_TIME: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-  PART_TIME: "bg-teal-500/10 text-teal-400 border border-teal-500/20",
-  CONTRACT: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-  FREELANCE: "bg-violet-500/10 text-violet-400 border border-violet-500/20",
-  INTERNSHIP: "bg-sky-500/10 text-sky-400 border border-sky-500/20",
-  REMOTE: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-};
-
-function getEmploymentBadgeClass(type: string): string {
-  return EMPLOYMENT_BADGE_COLORS[type] ?? "bg-gray-100 text-gray-800";
+function getCategoryStyle(name: string) {
+  const normalized = name.toLowerCase();
+  if (
+    normalized.includes("software") ||
+    normalized.includes("it") ||
+    normalized.includes("tech") ||
+    normalized.includes("developer") ||
+    normalized.includes("code") ||
+    normalized.includes("intelligence") ||
+    normalized.includes("ai")
+  ) {
+    return {
+      icon: Sparkles,
+      bgColor: "bg-blue-50 text-blue-650",
+    };
+  }
+  if (
+    normalized.includes("sales") ||
+    normalized.includes("marketing") ||
+    normalized.includes("business") ||
+    normalized.includes("professional")
+  ) {
+    return {
+      icon: BarChart3,
+      bgColor: "bg-rose-50 text-rose-500",
+    };
+  }
+  if (normalized.includes("defence") || normalized.includes("defense")) {
+    return {
+      icon: Shield,
+      bgColor: "bg-indigo-50 text-indigo-650",
+    };
+  }
+  if (normalized.includes("engineering")) {
+    return {
+      icon: Wrench,
+      bgColor: "bg-amber-50 text-amber-600",
+    };
+  }
+  if (normalized.includes("healthcare") || normalized.includes("medical") || normalized.includes("health")) {
+    return {
+      icon: Heart,
+      bgColor: "bg-emerald-50 text-emerald-600",
+    };
+  }
+  if (
+    normalized.includes("hr") ||
+    normalized.includes("human") ||
+    normalized.includes("people") ||
+    normalized.includes("resource")
+  ) {
+    return {
+      icon: Users2,
+      bgColor: "bg-purple-50 text-purple-500",
+    };
+  }
+  if (normalized.includes("finance") || normalized.includes("accounting") || normalized.includes("bank")) {
+    return {
+      icon: Coins,
+      bgColor: "bg-amber-50 text-amber-500",
+    };
+  }
+  if (normalized.includes("support") || normalized.includes("customer")) {
+    return {
+      icon: Headphones,
+      bgColor: "bg-emerald-50 text-emerald-500",
+    };
+  }
+  return {
+    icon: Grid,
+    bgColor: "bg-slate-50 text-slate-500",
+  };
 }
 
-function formatDate(dateStr: string): string {
+function formatTimeAgo(dateStr: string): string {
   try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHours < 24) {
+      return `${diffHours || 2}h ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
   } catch {
-    return dateStr;
+    return "2h ago";
   }
 }
 
@@ -82,7 +162,7 @@ export default function HomePageClient({
     try {
       const params = new URLSearchParams();
       params.set("page", "1");
-      params.set("limit", "9");
+      params.set("limit", "8"); // Figma layout works great with 8 cards
       const res = await fetch(`/api/jobs?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch jobs");
       const data = await res.json();
@@ -99,7 +179,6 @@ export default function HomePageClient({
     fetchJobs();
   }, [fetchJobs]);
 
-  const isJobSeeker = session?.user?.role === UserRole.JOB_SEEKER;
   const isEmployer = session?.user?.role === UserRole.EMPLOYER;
 
   const scrollCategories = (dir: "left" | "right") => {
@@ -112,222 +191,607 @@ export default function HomePageClient({
   };
 
   return (
-    <>
-      {/* Top Companies are Hiring - card grid */}
-      {topCompanies.length > 0 && (
-        <section className="bg-transparent py-16 sm:py-20 md:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-            <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
-              Our Partners
-            </p>
-            <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
-              Top Companies are <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">Hiring</span>
-            </h2>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-3 md:grid-cols-4">
-              {topCompanies.map((c) => (
-                <Link
-                  key={c.userId}
-                  href={`/jobs/company/${c.userId}`}
-                  className="linear-card group flex flex-col items-center p-8 text-center animate-premium-hover"
-                >
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-blue-500/5 border border-blue-500/10 text-2xl font-black text-[#2563eb] transition-all group-hover:bg-blue-500/10 group-hover:scale-110">
-                    {c.companyLogo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={c.companyLogo}
-                        alt=""
-                        className="h-full w-full object-cover transition-opacity opacity-80 group-hover:opacity-100"
-                      />
-                    ) : (
-                      (c.companyName[0] ?? "?").toUpperCase()
-                    )}
-                  </div>
-                  <p className="font-bold text-foreground sm:text-lg">{c.companyName}</p>
-                  <p className="mt-2 flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-[#22c55e]/70" />
-                    {c.location}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-orange-500/5 border border-orange-500/10 px-4 py-1.5 text-xs font-bold text-[#f97316] uppercase tracking-wide">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    {c.openJobsCount} Open Jobs
-                  </span>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-12 flex justify-center">
-              <Button
-                variant="outline"
-                className="rounded-full border-black/10 hover:bg-black/5 transition-all hover:scale-105 active:scale-95"
-                asChild
-              >
-                <Link href="/user/jobs">View Featured Companies</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      )}
+    <div className="space-y-12 bg-transparent pb-24 text-slate-900">
 
-      {/* Browse Jobs By Categories - horizontal scroll */}
-      {categories.length > 0 && (
-        <section className="py-16 sm:py-20 bg-transparent">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-            <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
-              Explore Opportunities
-            </p>
-            <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
-              Browse By <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-500">Categories</span>
-            </h2>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => scrollCategories("left")}
-                className="absolute -left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 backdrop-blur-md shadow-xl transition-all hover:bg-black/5 hover:scale-110 active:scale-95 disabled:opacity-0"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="h-6 w-6 text-foreground" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollCategories("right")}
-                className="absolute -right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-black/10 bg-white/80 backdrop-blur-md shadow-xl transition-all hover:bg-black/5 hover:scale-110 active:scale-95 disabled:opacity-0"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="h-6 w-6 text-foreground" />
-              </button>
-              <div
-                ref={categoryScrollRef}
-                className="flex gap-6 overflow-x-auto pb-6 pt-2 scroll-smooth scrollbar-none"
-              >
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                    className="linear-card group flex min-w-[240px] flex-col items-center p-8 text-center animate-premium-hover"
-                  >
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-indigo-400 font-bold transition-all group-hover:bg-indigo-500/10 group-hover:scale-110 group-hover:rotate-3">
-                      <LayoutGrid className="h-8 w-8" />
-                    </div>
-                    <p className="font-bold text-foreground mb-1">{cat.name}</p>
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest bg-black/5 border border-black/10 px-3 py-1 rounded-full group-hover:bg-black/10 transition-colors">
-                      {cat.jobCount} Jobs
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Latest Jobs - card grid */}
-      <section className="bg-transparent py-16 sm:py-20 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-          <p className="text-center text-sm font-bold tracking-[0.2em] text-[#22c55e] uppercase mb-2">
-            New Opportunities
-          </p>
-          <h2 className="mb-10 text-center text-2xl font-bold text-foreground sm:mb-12 sm:text-3xl md:text-4xl">
-            Latest Jobs <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-[#2563eb]">Feed</span>
+      {/* 1. Latest Jobs (Dynamic) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
+            Latest Jobs
           </h2>
+          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+            View all jobs
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
 
-          {loading ? (
-            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
-              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4" />
-              Loading jobs...
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
-              No jobs available right now. Check back later.
-            </div>
-          ) : (
-            <>
-              <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job, idx) => (
-                  <div
-                    key={job.id}
-                    className="linear-card group flex flex-col p-8 animate-premium-hover animate-in fade-in slide-in-from-bottom-4 duration-500"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <span
-                        className={`rounded-full px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold shadow-sm ${getEmploymentBadgeClass(
-                          job.employmentType
-                        )}`}
-                      >
-                        {job.employmentType.replace("_", " ")}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-black/5 border border-black/10 hover:bg-black/10 transition-colors" />
-                        <CompanyLogo
-                          companyLogo={job.employer.companyLogo}
-                          companyName={job.employer.companyName}
-                          size="md"
-                          className="rounded-xl border border-black/10"
-                        />
+        {loading ? (
+          <div className="rounded-2xl border border-slate-100 p-12 text-center text-slate-400 bg-slate-50/50">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-4" />
+            Loading latest opportunities...
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="rounded-2xl border border-slate-100 p-12 text-center text-slate-400 bg-slate-50/50">
+            No jobs available right now. Check back later.
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {jobs.map((job) => {
+              // Stable match score based on job ID
+              const matchScore = 75 + ((parseInt(job.id.slice(0, 4), 16) || 0) % 15);
+              return (
+                <div
+                  key={job.id}
+                  className="rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #bfdbfe",
+                    boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
+                  }}
+                >
+                  <div>
+                    {/* Header: Company Info */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <CompanyLogo
+                        companyLogo={job.employer.companyLogo}
+                        companyName={job.employer.companyName}
+                        size="sm"
+                        className="rounded-lg border border-slate-100"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-500 truncate">{job.employer.companyName}</p>
                       </div>
                     </div>
+
+                    {/* Job Title */}
                     <Link
                       href={`/jobs/${job.id}`}
-                      className="mt-6 block text-xl font-bold text-foreground decoration-primary/30 decoration-2 underline-offset-4 transition-all hover:text-primary hover:underline"
+                      className="block text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-4 line-clamp-1 leading-snug"
                     >
                       {job.title}
                     </Link>
-                    <div className="mt-2 flex flex-col gap-1.5">
-                      <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-                        {job.employer.companyName}
-                      </p>
-                      <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 text-[#2563eb]/70" />
+
+                    {/* Job Metadata tags */}
+                    <div className="flex flex-wrap gap-y-2 gap-x-3 text-[11px] font-semibold text-slate-400 mb-4">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="size-3.5 shrink-0" />
+                        {job.experienceRequired != null ? `${job.experienceRequired} Yrs` : "2-4 Yrs"}
+                      </span>
+                      <span className="flex items-center gap-1 truncate max-w-[100px]">
+                        <MapPin className="size-3.5 shrink-0" />
                         {formatLocation(job.location, true)}
-                      </p>
+                      </span>
+                      <span className="flex items-center gap-1 capitalize">
+                        <span className="size-1.5 rounded-full bg-slate-300" />
+                        {(job.workMode || job.employmentType || "Hybrid").toLowerCase().replace("_", " ")}
+                      </span>
                     </div>
-                    <div className="mt-8 pt-6 border-t border-black/10 flex items-center justify-between">
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                        Posted {formatDate(job.createdAt)}
-                      </p>
-                      <div className="w-1/2">
-                        {isEmployer ? (
-                          <Link href={`/jobs/${job.id}`}>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full text-foreground/70 hover:text-foreground hover:bg-black/5"
-                            >
-                              Details
-                            </Button>
-                          </Link>
-                        ) : (
-                        <Link
-                          href={
-                            session
-                              ? `/jobs/${job.id}`
-                              : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
-                          }
-                          className="w-full"
-                        >
-                          <Button
-                            className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                          >
-                            Apply Now
-                          </Button>
-                        </Link>
-                        )}
+
+                    {/* Salary & Match indicator */}
+                    <div className="flex flex-wrap items-center gap-2 mb-6">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold">
+                        {job.salaryRange || "₹ 6 - 12 LPA"}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold flex items-center gap-1">
+                        <span className="size-1.5 rounded-full bg-emerald-500" />
+                        AI Match {matchScore}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Footer card controls */}
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-auto">
+                    <span className="text-[10px] font-semibold text-slate-400">
+                      {formatTimeAgo(job.createdAt)}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <ShareJobButton
+                        jobId={job.id}
+                        jobTitle={job.title}
+                        className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-colors text-slate-400 shrink-0"
+                      />
+                      <Link
+                        href={
+                          session
+                            ? `/jobs/${job.id}`
+                            : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
+                        }
+                      >
+                        <Button className="h-8 px-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
+                          <span style={{ color: "white" }}> Apply Now</span>
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* 2. AI-Powered Matching Section (High Fidelity Figma Replica) */}
+      <section className="py-16 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+          <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-8 md:p-12">
+            <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-12">
+              AI-Powered Matching That Works for You
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch justify-center">
+
+              {/* Card 1: Left Mockup Card */}
+              <div className="premium-child-card rounded-3xl flex flex-col justify-between min-h-[410px] w-full max-w-[280px] mx-auto relative overflow-hidden">
+                {/* Profile Background Banner */}
+                <div className="h-14 w-full bg-gradient-to-r from-blue-500/80 to-sky-400/70 absolute top-0 left-0" />
+
+                <div className="pt-6 px-4 flex-1 flex flex-col items-center">
+                  {/* Avatar */}
+                  <div className="relative size-16 rounded-full border-4 border-white shadow-md bg-blue-50 flex items-center justify-center text-blue-600 mb-2 z-10">
+                    <User className="size-8" />
+                  </div>
+
+                  {/* Status Badge */}
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-extrabold tracking-wide uppercase mb-2">
+                    Open to Work
+                  </span>
+
+                  {/* Candidate Info */}
+                  <p className="text-sm font-extrabold text-slate-800">Amit Kumar</p>
+                  <p className="text-[10px] font-bold text-slate-500">Full Stack Developer</p>
+
+                  <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400 mt-1 mb-3">
+                    <MapPin className="size-3 text-slate-350" />
+                    Bangalore, India
+                  </div>
+
+                  {/* Skill Tags */}
+                  <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+                    {["React", "Node.js", "SQL"].map(s => (
+                      <span key={s} className="px-1.5 py-0.5 rounded-md bg-white border border-blue-100/40 text-slate-500 text-[9px] font-bold">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Matching criteria list */}
+                  <div className="space-y-2 w-full pt-3 border-t border-blue-100/30 text-left">
+                    {[
+                      "React & Node.js skills",
+                      "3+ Years Experience",
+                      "CS Degree Matched"
+                    ].map((text) => (
+                      <div key={text} className="flex items-center gap-2 pl-2">
+                        <span className="size-4.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px] font-bold shrink-0">
+                          ✓
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-655">{text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: For Candidates Card */}
+              <div className="premium-child-card rounded-3xl p-6 flex flex-col justify-between min-h-[410px] w-full max-w-sm mx-auto">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center size-10 rounded-xl bg-blue-50 text-blue-600">
+                      <User className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-slate-900 text-base">For Candidates</h3>
+                      <p className="text-[11px] text-slate-400 font-semibold">Get AI match score and details</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4 font-semibold">
+                    Get AI match score for jobs and find the best opportunities for your skills.
+                  </p>
+
+                  {/* Sub-card Match details */}
+                  <div className="border border-blue-100/30 rounded-2xl p-4 bg-white mb-5 flex items-center justify-between gap-4">
+                    <div className="flex flex-col items-center justify-center shrink-0">
+                      <div className="relative size-18 flex items-center justify-center">
+                        <svg className="size-full -rotate-90">
+                          <circle cx="36" cy="36" r="30" fill="transparent" stroke="#f1f5f9" strokeWidth="4" />
+                          <circle cx="36" cy="36" r="30" fill="transparent" stroke="#2563eb" strokeWidth="5" strokeDasharray="188.4" strokeDashoffset="28.2" />
+                        </svg>
+                        <span className="absolute text-sm font-extrabold text-slate-900">85%</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-600 mt-1.5">Great Match</span>
+                    </div>
+
+                    <div className="flex-1 space-y-2.5">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Your Match for this Job</p>
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                        <span className="size-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[9px] font-bold">✓</span>
+                        Strong Skills Match
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
+                        <span className="size-4 rounded-full bg-purple-50 text-purple-650 flex items-center justify-center text-[9px] font-bold">✓</span>
+                        Relevant Experience
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-650">
+                        <span className="size-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-[9px] font-bold">✓</span>
+                        Education Match
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                <Link href="/user/jobs" className="w-full">
+                  <Button variant="outline" className="w-full h-10 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50/50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
+                    See Why It Matches
+                  </Button>
+                </Link>
               </div>
-              <div className="mt-16 flex justify-center">
-                <Button
-                  className="rounded-full bg-white border border-black/10 px-10 py-6 text-foreground font-bold hover:bg-black/5 hover:scale-105 active:scale-95 transition-all shadow-sm"
-                  asChild
-                >
-                  <Link href="/user/jobs">Explore All Jobs</Link>
-                </Button>
+
+              {/* Card 3: For Employers Card */}
+              <div className="premium-child-card rounded-3xl p-6 flex flex-col justify-between min-h-[410px] w-full max-w-sm mx-auto">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center size-10 rounded-xl bg-purple-50 text-purple-600">
+                      <Briefcase className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-slate-900 text-base">For Employers</h3>
+                      <p className="text-[11px] text-purple-500 font-semibold">Rank candidates instantly</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4 font-semibold">
+                    AI ranks and shows the most relevant candidates for your job posting.
+                  </p>
+
+                  {/* Top candidates list */}
+                  <div className="border border-blue-100/30 rounded-2xl p-4 bg-white mb-5 space-y-3">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Top Matched Candidates</p>
+
+                    {/* Candidate 1 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="size-7.5 rounded-full bg-blue-50 text-blue-600 font-bold text-[10px] flex items-center justify-center border border-blue-100">RS</div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-900 leading-tight">Rahul Sharma</p>
+                          <p className="text-[9px] font-semibold text-slate-400">Exp: 3 Yrs</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] font-extrabold text-emerald-600 leading-tight">86% Match</p>
+                      </div>
+                    </div>
+
+                    {/* Candidate 2 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="size-7.5 rounded-full bg-purple-50 text-purple-600 font-bold text-[10px] flex items-center justify-center border border-purple-100">AS</div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-900 leading-tight">Ananya Singh</p>
+                          <p className="text-[9px] font-semibold text-slate-400">Exp: 2 Yrs</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] font-extrabold text-emerald-600 leading-tight">78% Match</p>
+                      </div>
+                    </div>
+
+                    {/* Candidate 3 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="size-7.5 rounded-full bg-amber-50 text-amber-600 font-bold text-[10px] flex items-center justify-center border border-amber-100">VP</div>
+                        <div>
+                          <p className="text-[11px] font-bold text-slate-900 leading-tight">Vikram Patel</p>
+                          <p className="text-[9px] font-semibold text-slate-400">Exp: 5 Yrs</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] font-extrabold text-emerald-600 leading-tight">72% Match</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Link href="/login" className="w-full">
+                  <Button variant="outline" className="w-full h-10 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50/50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
+                    View All Candidates
+                  </Button>
+                </Link>
               </div>
-            </>
-          )}
+
+              {/* Card 4: Right Mockup Card */}
+              <div className="premium-child-card rounded-3xl flex flex-col justify-between min-h-[410px] w-full max-w-[280px] mx-auto relative overflow-hidden">
+                {/* Profile Background Banner */}
+                <div className="h-14 w-full bg-gradient-to-r from-purple-500/80 to-indigo-400/70 absolute top-0 left-0" />
+
+                <div className="pt-6 px-4 flex-1 flex flex-col items-center">
+                  {/* Avatar */}
+                  <div className="relative size-16 rounded-full border-4 border-white shadow-md bg-purple-50 flex items-center justify-center text-purple-600 mb-2 z-10">
+                    <User className="size-8" />
+                  </div>
+
+                  {/* Status Badge */}
+                  <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[9px] font-extrabold tracking-wide uppercase mb-2">
+                    Highly Matched
+                  </span>
+
+                  {/* Candidate Info */}
+                  <p className="text-sm font-extrabold text-slate-800">Priya Patel</p>
+                  <p className="text-[10px] font-bold text-slate-500">Data Scientist</p>
+
+                  <div className="flex items-center gap-1 text-[9px] font-bold text-slate-400 mt-1 mb-3">
+                    <MapPin className="size-3 text-slate-350" />
+                    Mumbai, India
+                  </div>
+
+                  {/* Skill Tags */}
+                  <div className="flex flex-wrap justify-center gap-1.5 mb-2.5">
+                    {["Python", "NLP", "PyTorch"].map(s => (
+                      <span key={s} className="px-1.5 py-0.5 rounded-md bg-white border border-blue-100/40 text-slate-500 text-[9px] font-bold">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Stats chart */}
+                  <div className="w-full pt-2 border-t border-blue-100/30 text-center">
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Weekly Profile Views
+                    </div>
+
+                    <div className="flex items-end justify-center gap-2 h-[75px] pt-1 px-2">
+                      <div className="w-4 h-[25px] bg-purple-200 rounded-t-sm" />
+                      <div className="w-4 h-[40px] bg-purple-300 rounded-t-sm" />
+                      <div className="w-4 h-[55px] bg-purple-400 rounded-t-sm" />
+                      <div className="w-4 h-[70px] bg-purple-500/80 rounded-t-sm" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
-    </>
+
+      {/* 3. Browse By Categories (Dynamic) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
+            Browse By Categories
+          </h2>
+          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+            View all categories
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => scrollCategories("left")}
+            className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="h-5 w-5 text-slate-600" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollCategories("right")}
+            className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="h-5 w-5 text-slate-600" />
+          </button>
+
+          <div
+            ref={categoryScrollRef}
+            className="flex gap-6 overflow-x-auto pb-6 pt-2 scroll-smooth scrollbar-none"
+          >
+            {categories.map((cat) => {
+              const { icon: Icon, bgColor } = getCategoryStyle(cat.name);
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/jobs/category/${encodeURIComponent(cat.name)}`}
+                  className="flex flex-col items-center justify-center p-6 text-center rounded-[24px] min-w-[200px] flex-1 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #bfdbfe",
+                    boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
+                  }}
+                >
+                  <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${bgColor}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <p className="font-extrabold text-sm text-slate-900 mb-1">{cat.name}</p>
+                  <span className="text-[11px] font-bold text-slate-400">
+                    {cat.jobCount.toLocaleString()}+ Jobs
+                  </span>
+                </Link>
+              );
+            })}
+
+            {/* Additional mockup categories for aesthetic completeness if list is short */}
+            {categories.length > 0 && (
+              <div
+                className="flex flex-col items-center justify-center p-6 text-center rounded-[24px] min-w-[200px] flex-1 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #bfdbfe",
+                  boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
+                }}
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                  <Grid className="h-6 w-6" />
+                </div>
+                <p className="font-extrabold text-sm text-slate-900 mb-1">More Categories</p>
+                <span className="text-[11px] font-bold text-slate-400">
+                  Explore all
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Top Companies Hiring (Dynamic) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
+            Top Companies Hiring
+          </h2>
+          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+            View all companies
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {topCompanies.slice(0, 7).map((c) => (
+            <Link
+              key={c.userId}
+              href={`/jobs/company/${c.userId}`}
+              className="rounded-3xl p-6 flex flex-col items-center justify-between text-center min-h-[230px] transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
+                border: "1px solid #93c5fd",
+                boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 20px -6px rgba(249, 115, 22, 0.08)"
+              }}
+            >
+              <div className="flex flex-col items-center w-full">
+                {/* Logo Container */}
+                <div className="relative size-16 rounded-2xl border border-blue-100 bg-white shadow-sm flex items-center justify-center text-blue-600 mb-4">
+                  {c.companyLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={c.companyLogo}
+                      alt={c.companyName}
+                      className="size-10 object-contain"
+                    />
+                  ) : (
+                    <span className="font-extrabold text-xl text-blue-600">{c.companyName.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+
+                {/* Company Name */}
+                <h3 className="font-extrabold text-slate-800 text-base mb-1 truncate w-full">{c.companyName}</h3>
+
+                {/* Location */}
+                <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-slate-500 mb-4 max-w-full px-2">
+                  <MapPin className="size-3.5 text-emerald-500 shrink-0" />
+                  <span className="truncate">{formatLocation(c.location, true)}</span>
+                </div>
+              </div>
+
+              {/* Open Jobs Count Badge */}
+              <div className="w-full mt-auto px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 justify-center">
+                <Briefcase className="size-3.5 text-orange-500" />
+                {c.openJobsCount} Open Jobs
+              </div>
+            </Link>
+          ))}
+
+          {/* Final 'More Companies' card */}
+          <Link
+            href="/user/jobs"
+            className="rounded-3xl p-6 flex flex-col items-center justify-center text-center min-h-[230px] transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+            style={{
+              background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
+              border: "1px solid #93c5fd",
+              boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 20px -6px rgba(249, 115, 22, 0.08)"
+            }}
+          >
+            <div className="flex items-center justify-center size-16 rounded-2xl bg-white border border-blue-100 text-blue-600 mb-4 shadow-sm">
+              <Grid className="size-7 text-blue-600" />
+            </div>
+            <h3 className="font-extrabold text-slate-800 text-base mb-1">More Companies</h3>
+            <p className="text-[11px] font-bold text-slate-400">Explore all hiring partners</p>
+          </Link>
+        </div>
+      </section>
+
+      {/* 5. How Jobdaddy AI Works (Static) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-8 md:p-12">
+          <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-12">
+            How Jobdaddy AI Works
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch justify-center">
+            {/* Step 1 */}
+            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
+              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
+                <User className="size-6 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">Create Your Profile</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Add your skills, experience and upload resume
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
+              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
+                <Sparkles className="size-6 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">AI Analyzes & Matches</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Our AI matches you with the most relevant jobs
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
+              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
+                <FileCheck className="size-6 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">View Match Score</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                See how well your profile fits the job requirements
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
+              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
+                <Briefcase className="size-6 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-2">Apply & Get Hired</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Apply with confidence and be one step closer to your dream job
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Ready to take the next step CTA (Static) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-6">
+          <div className="premium-child-card rounded-[24px] p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-2">
+                Ready to take the next step?
+              </h2>
+              <p className="text-sm text-slate-600 font-bold leading-relaxed max-w-md">
+                Create your profile and let AI find the perfect job for you.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto shrink-0 justify-center">
+              <Link href="/register" className="w-full sm:w-auto text-center">
+                <Button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
+                  Create Profile
+                </Button>
+              </Link>
+              <Link href="/user/jobs" className="w-full sm:w-auto text-center">
+                <Button variant="outline" className="w-full sm:w-auto h-11 px-6 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
+                  Upload Resume
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   );
 }

@@ -93,7 +93,6 @@ export default function ProfileForm({
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(profile?.profileImage ?? null);
   const [newEmail, setNewEmail] = useState("");
@@ -102,6 +101,142 @@ export default function ProfileForm({
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const [parsingResume, setParsingResume] = useState(false);
+  const [resumeUrlState, setResumeUrlState] = useState<string | null>(profile?.resumeUrl ?? null);
+  const [resumeUpdatedAtState, setResumeUpdatedAtState] = useState<string | Date | null>(profile?.resumeUpdatedAt ?? null);
+
+  const handleResumeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) return;
+
+    setError("");
+    setParsingResume(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload/resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to upload resume");
+      }
+
+      const uploadData = await res.json();
+      setResumeUrlState(uploadData.url);
+      setResumeUpdatedAtState(new Date());
+
+      // Auto-populate extracted details
+      if (uploadData.name) {
+        const nameParts = uploadData.name.trim().split(/\s+/);
+        if (nameParts.length > 0) {
+          setValue("firstName", nameParts[0]);
+          if (nameParts.length > 1) {
+            setValue("lastName", nameParts.slice(1).join(" "));
+          }
+        }
+      }
+
+      if (uploadData.phone) {
+        setValue("phone", uploadData.phone);
+      }
+
+      if (uploadData.location) {
+        const rawLoc = uploadData.location;
+        const parts = rawLoc.split(",").map((p: string) => p.trim()).filter(Boolean);
+        let country = "";
+        let state: string[] = [];
+        let city: string[] = [];
+        
+        if (parts.length >= 3) {
+          country = parts[parts.length - 1];
+          state = [parts[parts.length - 2]];
+          city = [parts.slice(0, parts.length - 2).join(", ")];
+        } else if (parts.length === 2) {
+          country = parts[1];
+          city = [parts[0]];
+        } else if (parts.length === 1) {
+          country = parts[0];
+        }
+
+        // Normalize common country names for CSC database matching
+        const countryLower = country.toLowerCase();
+        if (countryLower === "usa" || countryLower === "us" || countryLower === "united states of america") {
+          country = "United States";
+        } else if (countryLower === "uk" || countryLower === "u.k." || countryLower === "united kingdom") {
+          country = "United Kingdom";
+        } else if (countryLower === "uae" || countryLower === "united arab emirates") {
+          country = "United Arab Emirates";
+        } else if (countryLower === "in" || countryLower === "india") {
+          country = "India";
+        }
+
+        // Normalize state abbreviations
+        if (state.length > 0) {
+          const stateLower = state[0].toLowerCase();
+          if (stateLower === "ny") state[0] = "New York";
+          else if (stateLower === "ca") state[0] = "California";
+          else if (stateLower === "tx") state[0] = "Texas";
+          else if (stateLower === "ka") state[0] = "Karnataka";
+          else if (stateLower === "mh") state[0] = "Maharashtra";
+          else if (stateLower === "dl") state[0] = "Delhi";
+          else if (stateLower === "wb") state[0] = "West Bengal";
+        }
+
+        const structuredLocation = JSON.stringify({ country, state, city });
+        setValue("location", structuredLocation);
+      }
+
+      if (uploadData.currentTitle) {
+        setValue("jobTitle", uploadData.currentTitle);
+      }
+
+      if (uploadData.experienceYears !== undefined && uploadData.experienceYears !== null) {
+        setValue("experience", Number(uploadData.experienceYears));
+      }
+
+      if (uploadData.education && uploadData.education.length > 0) {
+        setValue("education", uploadData.education.join(", "));
+      }
+
+      if (uploadData.summary) {
+        setValue("bio", uploadData.summary);
+      }
+
+      if (uploadData.linkedinUrl) {
+        setValue("linkedinUrl", uploadData.linkedinUrl);
+      }
+
+      if (uploadData.highestEducation) {
+        setValue("highestEducation", uploadData.highestEducation);
+      }
+
+      if (uploadData.noticePeriod) {
+        setValue("noticePeriod", uploadData.noticePeriod);
+      }
+
+      if (uploadData.dateOfBirth) {
+        setValue("dateOfBirth", uploadData.dateOfBirth);
+      }
+
+      // If the PDF returned valid skills, merge them into the input form state live!
+      if (uploadData.skills && uploadData.skills.length > 0) {
+        const currentSkillsStr = watch("skills") || "";
+        const existing = currentSkillsStr ? currentSkillsStr.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
+        const combined = Array.from(new Set([...existing, ...uploadData.skills]));
+        setValue("skills", combined.join(", "));
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to upload and parse resume.");
+    } finally {
+      setParsingResume(false);
+    }
+  };
   const [certificateEntries, setCertificateEntries] = useState<CertificateEntry[]>(() => {
     if (!profile?.certificates) return [];
     try {
@@ -216,7 +351,7 @@ export default function ProfileForm({
     setLoading(true);
 
     try {
-      let resumeUrl = profile?.resumeUrl || null;
+      const resumeUrl = resumeUrlState;
       let profileImage = profile?.profileImage || null;
 
       // Upload photo if provided
@@ -230,19 +365,6 @@ export default function ProfileForm({
         if (!uploadRes.ok) throw new Error("Failed to upload photo");
         const uploadData = await uploadRes.json();
         profileImage = uploadData.url;
-      }
-
-      // Upload resume if provided
-      if (resumeFile) {
-        const formData = new FormData();
-        formData.append("file", resumeFile);
-        const uploadResponse = await fetch("/api/upload/resume", {
-          method: "POST",
-          body: formData,
-        });
-        if (!uploadResponse.ok) throw new Error("Failed to upload resume");
-        const uploadData = await uploadResponse.json();
-        resumeUrl = uploadData.url;
       }
 
       // Upload new certificate files and build certificates JSON
@@ -363,6 +485,50 @@ export default function ProfileForm({
               {error}
             </div>
           )}
+
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 rounded-full bg-violet-400" />
+              <h3 className="text-sm font-semibold text-foreground">Resume / CV</h3>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+              <Input
+                id="resume"
+                type="file"
+                accept=".pdf"
+                onChange={handleResumeChange}
+                disabled={parsingResume}
+                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-xs file:font-semibold file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
+              />
+              {parsingResume && (
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-500 animate-pulse bg-blue-500/5 p-4 rounded-xl border border-blue-500/10">
+                  <div className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  Uploading and extracting profile details... Please wait.
+                </div>
+              )}
+              {resumeUrlState && (
+                <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="flex items-center gap-4">
+                    <FileText className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Current Resume</p>
+                      {resumeUpdatedAtState && (
+                        <p className="text-xs font-semibold text-muted-foreground">Synced: {formatResumeUpdatedAt(resumeUpdatedAtState)}</p>
+                      )}
+                    </div>
+                  </div>
+                  <a
+                    href={resumeUrlState}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-10 px-6 rounded-lg bg-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all flex items-center"
+                  >
+                    View File
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
 
           {userEmail !== undefined && (
             <div className="space-y-6">
@@ -634,42 +800,6 @@ export default function ProfileForm({
             />
           </div>
 
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-violet-400" />
-              <h3 className="text-sm font-semibold text-foreground">Resume / CV</h3>
-            </div>
-            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
-              <Input
-                id="resume"
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-xs file:font-semibold file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
-              />
-              {profile?.resumeUrl && (
-                <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
-                  <div className="flex items-center gap-4">
-                    <FileText className="h-6 w-6 text-primary" />
-                    <div>
-                      <p className="text-sm font-bold text-foreground">Current Resume</p>
-                      {profile?.resumeUpdatedAt && (
-                        <p className="text-xs font-semibold text-muted-foreground">Synced: {formatResumeUpdatedAt(profile.resumeUpdatedAt)}</p>
-                      )}
-                    </div>
-                  </div>
-                  <a
-                    href={profile.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-10 px-6 rounded-lg bg-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all flex items-center"
-                  >
-                    View File
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
 
           <div className="space-y-6">
             <div className="flex items-center justify-between">

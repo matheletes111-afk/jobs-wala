@@ -416,6 +416,30 @@ export default async function AdminUserDetailPage({
                 </a>
               </section>
             )}
+
+            {/* Resume / CV Document — Candidate only */}
+            {isJobSeeker && user.jobSeekerProfile?.resumeUrl && (
+              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                  <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Resume / CV</h2>
+                </div>
+                <a
+                  href={user.jobSeekerProfile.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-violet-500/5 hover:border-violet-500/20 transition-all group"
+                >
+                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-violet-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-foreground group-hover:text-violet-400 transition-colors">Download CV</p>
+                    <p className="text-[10px] font-semibold text-muted-foreground/40 italic mt-0.5">Click to view/download resume</p>
+                  </div>
+                </a>
+              </section>
+            )}
           </div>
         </div>
       </div>

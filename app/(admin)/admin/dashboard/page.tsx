@@ -162,8 +162,13 @@ export default async function AdminDashboardPage() {
                   <Link
                     key={job.id}
                     href={`/admin/jobs/${job.id}`}
-                    className="linear-card group flex flex-col rounded-[2.5rem] bg-white/50 border-black/10 p-8 transition-all hover:bg-white/80 animate-in fade-in slide-in-from-bottom-5 duration-700 h-full shadow-sm hover:shadow-md"
-                    style={{ animationDelay: `${idx * 150}ms` }}
+                    className="group flex flex-col rounded-[2.5rem] p-8 transition-all hover:bg-[#e0f2fe]/90 animate-in fade-in slide-in-from-bottom-5 duration-700 h-full hover:-translate-y-1.5"
+                    style={{
+                      background: "rgba(224, 242, 254, 0.75)",
+                      border: "1px solid #93c5fd",
+                      boxShadow: "0 12px 30px -5px rgba(37, 99, 235, 0.08), 0 8px 16px -6px rgba(37, 99, 235, 0.08)",
+                      animationDelay: `${idx * 150}ms`
+                    }}
                   >
                     <div className="flex items-start justify-between gap-4 mb-6">
                       <CompanyLogo

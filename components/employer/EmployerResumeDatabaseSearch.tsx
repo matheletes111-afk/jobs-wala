@@ -36,6 +36,8 @@ export default function EmployerResumeDatabaseSearch({
   const [skills, setSkills] = useState<string[]>(
     (initialParams.skills as string)?.split(",").filter(Boolean) || []
   );
+  const [isBooleanSearch, setIsBooleanSearch] = useState(false);
+  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState("");
   const [location, setLocation] = useState((initialParams.location as string) || "");
   const [minExperience, setMinExperience] = useState(
     (initialParams.minExperience as string) || ""
@@ -43,6 +45,7 @@ export default function EmployerResumeDatabaseSearch({
 
   const [appliedKeyword, setAppliedKeyword] = useState(keyword);
   const [appliedSkills, setAppliedSkills] = useState<string>((initialParams.skills as string) || "");
+  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(false);
   const [appliedLocation, setAppliedLocation] = useState(location);
   const [appliedMinExperience, setAppliedMinExperience] = useState(minExperience);
 
@@ -60,6 +63,7 @@ export default function EmployerResumeDatabaseSearch({
       pageNum: number,
       keywordVal: string,
       skillsVal: string,
+      isBooleanSearchVal: boolean,
       locationVal: string,
       minExpVal: string
     ) => {
@@ -71,6 +75,7 @@ export default function EmployerResumeDatabaseSearch({
         params.set("limit", String(limit));
         if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
         if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+        if (isBooleanSearchVal) params.set("isBooleanSearch", "true");
         if (locationVal.trim()) params.set("location", locationVal.trim());
         if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
         const res = await fetch(`/api/employer/resume-search?${params.toString()}`);
@@ -100,6 +105,7 @@ export default function EmployerResumeDatabaseSearch({
       page,
       appliedKeyword,
       appliedSkills,
+      appliedIsBooleanSearch,
       appliedLocation,
       appliedMinExperience
     );
@@ -107,6 +113,7 @@ export default function EmployerResumeDatabaseSearch({
     page,
     appliedKeyword,
     appliedSkills,
+    appliedIsBooleanSearch,
     appliedLocation,
     appliedMinExperience,
     fetchResumes,
@@ -115,7 +122,8 @@ export default function EmployerResumeDatabaseSearch({
 
   const apply = () => {
     setAppliedKeyword(keyword);
-    setAppliedSkills(skills.join(","));
+    setAppliedSkills(isBooleanSearch ? booleanSkillsExpr : skills.join(","));
+    setAppliedIsBooleanSearch(isBooleanSearch);
     setAppliedLocation(location);
     setAppliedMinExperience(minExperience);
     setPage(1);
@@ -125,10 +133,13 @@ export default function EmployerResumeDatabaseSearch({
   const clear = () => {
     setKeyword("");
     setSkills([]);
+    setIsBooleanSearch(false);
+    setBooleanSkillsExpr("");
     setLocation("");
     setMinExperience("");
     setAppliedKeyword("");
     setAppliedSkills("");
+    setAppliedIsBooleanSearch(false);
     setAppliedLocation("");
     setAppliedMinExperience("");
     setPage(1);
@@ -166,13 +177,38 @@ export default function EmployerResumeDatabaseSearch({
                   className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
                 />
               </div>
-              <div className="md:col-span-1">
-                <SkillTagInput
-                  value={skills}
-                  onChange={setSkills}
-                  placeholder="Skills..."
-                  className="w-full"
-                />
+              <div className="md:col-span-1 flex flex-col gap-1">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Skills</span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="checkbox"
+                      id="employer-boolean-search-toggle"
+                      checked={isBooleanSearch}
+                      onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <label htmlFor="employer-boolean-search-toggle" className="text-[9px] font-black uppercase tracking-wider text-black cursor-pointer select-none">
+                      Boolean Search
+                    </label>
+                  </div>
+                </div>
+                {isBooleanSearch ? (
+                  <Input
+                    placeholder="e.g. java AND react"
+                    value={booleanSkillsExpr}
+                    onChange={(e) => setBooleanSkillsExpr(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && apply()}
+                    className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
+                  />
+                ) : (
+                  <SkillTagInput
+                    value={skills}
+                    onChange={setSkills}
+                    placeholder="Skills..."
+                    className="w-full"
+                  />
+                )}
               </div>
               <Input
                 placeholder="Location..."
@@ -261,7 +297,19 @@ export default function EmployerResumeDatabaseSearch({
                   {resume.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {resume.skills.map((skill) => {
-                        const isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase());
+                        let isMatched = false;
+                        if (isBooleanSearch) {
+                          const terms = (booleanSkillsExpr.match(/AND|OR|NOT|\(|\)|"[^"]+"|[^\s()]+/gi) || [])
+                            .map(t => t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t)
+                            .filter(t => {
+                              const u = t.toUpperCase();
+                              return u !== 'AND' && u !== 'OR' && u !== 'NOT' && t !== '(' && t !== ')';
+                            })
+                            .map(t => t.toLowerCase());
+                          isMatched = terms.some(t => skill.toLowerCase().includes(t) || t.includes(skill.toLowerCase()));
+                        } else {
+                          isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase() || skill.toLowerCase().includes(s.toLowerCase()));
+                        }
                         return (
                           <span
                             key={`${resume.id}-${skill}`}

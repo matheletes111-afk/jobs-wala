@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { sendNewApplicationEmail } from "@/lib/email";
 import { canApplyForJobs } from "@/lib/profile-utils";
+import { extractS3KeyFromUrl } from "@/lib/s3";
+import { ResumeParseStatus } from "@prisma/client";
 
 const applicationSchema = z.object({
   jobId: z.string(),
@@ -63,6 +65,46 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Sync/verify resume exists in ResumeDocument database
+    try {
+      const existingDoc = await prisma.resumeDocument.findFirst({
+        where: { userId: user.id },
+      });
+
+      if (!existingDoc && profile && profile.resumeUrl) {
+        const r2Key = extractS3KeyFromUrl(profile.resumeUrl) || profile.resumeUrl;
+        await prisma.resumeDocument.create({
+          data: {
+            originalFileName: profile.resumeUrl.split("/").pop() || "resume.pdf",
+            mimeType: "application/pdf",
+            sizeBytes: 0,
+            r2Key,
+            r2Url: profile.resumeUrl,
+            parseStatus: ResumeParseStatus.PARSED,
+            extractedName: `${profile.firstName} ${profile.lastName}`,
+            extractedEmail: user.email || "",
+            extractedPhone: profile.phone,
+            extractedLocation: profile.location,
+            experienceYears: profile.experience,
+            currentTitle: profile.jobTitle,
+            extractedData: {
+              education: profile.education ? [profile.education] : [],
+              summary: profile.bio,
+              linkedinUrl: profile.linkedinUrl,
+              highestEducation: profile.highestEducation,
+              noticePeriod: profile.noticePeriod,
+              dateOfBirth: profile.dateOfBirth ? profile.dateOfBirth.toISOString().split("T")[0] : null,
+            },
+            skills: profile.skills,
+            userId: user.id,
+          },
+        });
+        console.log(`[APPLICATION RESUME SYNC] Created fallback ResumeDocument for user ${user.id}`);
+      }
+    } catch (syncErr) {
+      console.error("[APPLICATION RESUME SYNC] Failed to sync resume on application:", syncErr);
     }
 
     // Create application (cover letter optional)

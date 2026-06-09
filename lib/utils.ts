@@ -22,25 +22,25 @@ export function formatResumeUpdatedAt(date: Date | string | null | undefined): s
 
 export function formatLocation(location: string | null | undefined, short: boolean = false): string {
   if (!location || location.trim() === "") return "Not specified";
-  
+
   try {
     const locationData = JSON.parse(location);
     const parts: string[] = [];
-    
+
     // Handle both lowercase and capitalized keys for backward compatibility
     let city = locationData.city || locationData.City;
     let state = locationData.state || locationData.State;
     const country = locationData.country || locationData.Country;
-    
+
     // Ensure array for consistent handling
     const cities = Array.isArray(city) ? city : city ? [city] : [];
     const states = Array.isArray(state) ? state : state ? [state] : [];
-    
+
     if (short) {
       if (cities.length > 0) parts.push(cities[0]);
       if (states.length > 0) parts.push(states[0]);
       if (country) parts.push(country);
-      
+
       const moreCount = Math.max(0, cities.length - 1) + Math.max(0, states.length - 1);
       if (moreCount > 0) {
         return parts.join(", ") + ` and ${moreCount} more`;
@@ -50,7 +50,7 @@ export function formatLocation(location: string | null | undefined, short: boole
       if (cities.length > 0) parts.push(cities.join(", "));
       if (states.length > 0) parts.push(states.join(", "));
       if (country) parts.push(country);
-      
+
       return parts.length > 0 ? parts.join(" | ") : location;
     }
   } catch (_e) {
