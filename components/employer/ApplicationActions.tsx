@@ -61,8 +61,6 @@ export default function ApplicationActions({
           <SelectValue />
         )}
       </SelectTrigger>
-
-
       <SelectContent>
         <SelectItem value="PENDING">Pending</SelectItem>
         <SelectItem value="REVIEWED">Reviewed</SelectItem>
