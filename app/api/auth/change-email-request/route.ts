@@ -60,10 +60,9 @@ export async function POST(req: Request) {
       },
     });
 
-    const baseUrl =
-      process.env.NEXTAUTH_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const baseUrl = `${protocol}://${host}`;
     const encodedToken = encodeURIComponent(token);
     const verifyLink = `${baseUrl}/api/auth/verify-email-change?token=${encodedToken}`;
 

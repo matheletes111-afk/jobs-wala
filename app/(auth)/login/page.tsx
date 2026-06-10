@@ -18,6 +18,34 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError("Please enter your email address to resend the verification link.");
+      return;
+    }
+    setResendLoading(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Failed to resend verification link.");
+      } else {
+        setSuccess(data.message || "Verification link resent successfully! Check your inbox.");
+      }
+    } catch {
+      setError("An error occurred while trying to resend the verification link.");
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   useEffect(() => {
     const verified = searchParams.get("verified");
@@ -175,9 +203,19 @@ function LoginForm() {
                 {success}
               </div>
             )}
-            {error && (
+             {error && (
               <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-400">
-                {error}
+                <div>{error}</div>
+                {error.includes("verify your email") && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="mt-2 text-xs font-black text-blue-500 hover:text-blue-600 underline uppercase tracking-wider block focus:outline-none disabled:opacity-50 transition-colors"
+                  >
+                    {resendLoading ? "Sending Link..." : "Resend Verification Link"}
+                  </button>
+                )}
               </div>
             )}
             <div className="space-y-3">

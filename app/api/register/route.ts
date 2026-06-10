@@ -149,7 +149,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Send verification email
-    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const host = req.headers.get("host") || "localhost:3000";
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const baseUrl = `${protocol}://${host}`;
     // URL encode the token to handle special characters properly
     const encodedToken = encodeURIComponent(verificationToken);
     const verificationLink = `${baseUrl}/api/verify-email?token=${encodedToken}`;
