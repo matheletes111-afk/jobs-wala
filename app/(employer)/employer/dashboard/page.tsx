@@ -106,66 +106,70 @@ export default async function EmployerDashboardPage() {
           </div>
 
         {/* Subscription Warning Banner */}
-        {(!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
-          <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-            <div className="flex items-center gap-6">
-              <div className="h-16 w-16 shrink-0 rounded-3xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
-                <Zap className="h-8 w-8 text-orange-500 animate-pulse" />
+        {profile.approvalStatus === "APPROVED" && (
+          (!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
+            <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+              <div className="flex items-center gap-6">
+                <div className="h-16 w-16 shrink-0 rounded-3xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
+                  <Zap className="h-8 w-8 text-orange-500 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tight">Active Plan Required</h3>
+                  <p className="mt-1 text-sm font-medium text-white/50 italic">You don&apos;t have an active subscription. Subscribe now to post jobs and search candidates.</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-black text-white tracking-tight">Active Plan Required</h3>
-                <p className="mt-1 text-sm font-medium text-white/50 italic">You don&apos;t have an active subscription. Subscribe now to post jobs and search candidates.</p>
-              </div>
+              <Link href="/employer/subscription">
+                <Button className="h-12 px-8 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
+                  Browse Plans
+                </Button>
+              </Link>
             </div>
-            <Link href="/employer/subscription">
-              <Button className="h-12 px-8 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
-                Browse Plans
-              </Button>
-            </Link>
-          </div>
-        ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) ? (
-          <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-             <div className="flex items-center gap-6">
-              <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                <Clock className="h-8 w-8 text-blue-500 animate-pulse" />
+          ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) ? (
+            <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+               <div className="flex items-center gap-6">
+                <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                  <Clock className="h-8 w-8 text-blue-500 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tight">Plan Expiring Soon</h3>
+                  <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-black text-white tracking-tight">Plan Expiring Soon</h3>
-                <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
-              </div>
+              <Link href="/employer/subscription">
+                <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
+                  Renew Plan
+                </Button>
+              </Link>
             </div>
-            <Link href="/employer/subscription">
-              <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
-                Renew Plan
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-            <div className="flex items-center gap-6">
-              <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                <Zap className="h-8 w-8 text-blue-500 animate-pulse" />
+          ) : (
+            <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
+              <div className="flex items-center gap-6">
+                <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                  <Zap className="h-8 w-8 text-blue-500 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
+                  <p className="mt-1 text-sm font-medium text-white/50 italic">
+                    Your subscription is active and expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "long" })}.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
-                <p className="mt-1 text-sm font-medium text-white/50 italic">
-                  Your subscription is active and expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "long" })}.
-                </p>
-              </div>
+              <Link href="/employer/subscription">
+                <Button className="h-12 px-8 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                  Manage Plan
+                </Button>
+              </Link>
             </div>
-            <Link href="/employer/subscription">
-              <Button className="h-12 px-8 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
-                Manage Plan
-              </Button>
-            </Link>
-          </div>
+          )
         )}
+        {profile.approvalStatus === "APPROVED" && (
           <Link href="/employer/jobs/new">
             <Button className="h-14 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 gap-3">
               <Plus className="h-5 w-5" />
               Post a New Job
             </Button>
           </Link>
+        )}
         </div>
 
         {/* Profile Approval Pending Banner */}
