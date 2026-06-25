@@ -51,6 +51,7 @@ export async function PATCH(
     const { id } = await params;
     const body = (await req.json()) as { 
       resumeSearchEnabled?: boolean; 
+      resumeUploadEnabled?: boolean;
       approvalStatus?: "PENDING" | "APPROVED" | "REJECTED";
       rejectionReason?: string;
     };
@@ -77,6 +78,10 @@ export async function PATCH(
       updateData.resumeSearchEnabled = body.resumeSearchEnabled;
     }
 
+    if (typeof body.resumeUploadEnabled === "boolean") {
+      updateData.resumeUploadEnabled = body.resumeUploadEnabled;
+    }
+
     if (body.approvalStatus) {
       updateData.approvalStatus = body.approvalStatus;
       if (body.approvalStatus === "REJECTED") {
@@ -89,7 +94,7 @@ export async function PATCH(
     const updated = await prisma.employerProfile.update({
       where: { userId: id },
       data: updateData,
-      select: { userId: true, resumeSearchEnabled: true, approvalStatus: true },
+      select: { userId: true, resumeSearchEnabled: true, resumeUploadEnabled: true, approvalStatus: true },
     });
 
     // If employer was APPROVED and has never had a subscription, activate the default 0 Rs free plan

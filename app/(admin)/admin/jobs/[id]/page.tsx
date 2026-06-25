@@ -120,7 +120,7 @@ export default async function AdminJobDetailsPage({
             <div className="flex items-start gap-8">
               <CompanyLogo
                 companyLogo={job.employer.companyLogo}
-                companyName={job.employer.companyName}
+                companyName={job.companyName || job.employer.companyName}
                 size="lg"
                 className="h-24 w-24 rounded-3xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-105"
               />
@@ -133,7 +133,7 @@ export default async function AdminJobDetailsPage({
                   {job.title}
                 </h1>
                 <p className="text-lg font-medium text-muted-foreground italic mb-6">
-                  {job.employer.companyName} {" // "} {job.employer.industry || "Industry Information"}
+                  {job.companyName || job.employer.companyName} {" // "} {job.employer.industry || "Industry Information"}
                 </p>
                 
                 <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
@@ -369,7 +369,7 @@ export default async function AdminJobDetailsPage({
                     </div>
                     <div>
                         <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Company</p>
-                        <p className="text-lg font-black text-foreground tracking-tight">{job.employer.companyName}</p>
+                        <p className="text-lg font-black text-foreground tracking-tight">{job.companyName || job.employer.companyName}</p>
                     </div>
                  </div>
                  

@@ -167,6 +167,7 @@ model EmployerProfile {
   phone               String?
   msmeDocUrl          String?
   resumeSearchEnabled Boolean  @default(false)
+  resumeUploadEnabled Boolean  @default(true)
   xraySearchEnabled   Boolean  @default(false)
   savedXRayQueries    Json?    // Array of objects { query: string, label: string, createdAt: date }
   subscriptionId      String?
@@ -201,6 +202,7 @@ enum WorkMode {
 model Job {
   id                 String         @id @default(cuid())
   title              String
+  companyName        String?
   description        String         @db.Text
   category           String
   location           String
@@ -343,4 +345,37 @@ model ResumeDocument {
   @@index([skills])
   @@index([userId])
 }
+
+model CareerPackage {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  price       Float
+  features    String[] @default([])
+  tier        String   // "fresher", "mid_level", "executive", "add_on"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leads       CareerPurchaseLead[]
+}
+
+model CareerPurchaseLead {
+  id                String         @id @default(cuid())
+  name              String
+  email             String
+  mobile            String
+  packageId         String
+  package           CareerPackage  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  status            String         @default("PENDING") // PENDING, PAID, FAILED
+  amount            Float
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([email])
+  @@index([status])
+}
+
 

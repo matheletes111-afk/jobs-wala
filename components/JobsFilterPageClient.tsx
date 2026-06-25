@@ -20,6 +20,7 @@ type JobItem = {
   salaryRange?: string | null;
   employmentType: string;
   createdAt: string;
+  companyName?: string | null;
   employer: { companyName: string; companyLogo?: string | null };
 };
 
@@ -233,7 +234,7 @@ function JobCard({
           <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-9 w-9 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors" />
           <CompanyLogo
             companyLogo={job.employer.companyLogo}
-            companyName={job.employer.companyName}
+            companyName={job.companyName || job.employer.companyName}
             size="md"
             className="rounded-xl border border-white/10"
           />
@@ -247,7 +248,7 @@ function JobCard({
       </Link>
       <div className="mt-2 flex flex-col gap-1.5">
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-          {job.employer.companyName}
+          {job.companyName || job.employer.companyName}
         </p>
         <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 text-[#2563eb]/70" />

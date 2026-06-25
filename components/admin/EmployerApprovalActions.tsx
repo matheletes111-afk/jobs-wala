@@ -3,18 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Check, X, ShieldAlert, Sparkles } from "lucide-react";
+import { Check, X, ShieldAlert, Sparkles, Upload } from "lucide-react";
 
 interface EmployerApprovalActionsProps {
   userId: string;
   approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
   resumeSearchEnabled: boolean;
+  resumeUploadEnabled: boolean;
 }
 
 export default function EmployerApprovalActions({
   userId,
   approvalStatus,
   resumeSearchEnabled,
+  resumeUploadEnabled,
 }: EmployerApprovalActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -79,6 +81,27 @@ export default function EmployerApprovalActions({
     }
   };
 
+  const toggleUploadAccess = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeUploadEnabled: !resumeUploadEnabled }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update resume database upload access");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("Error updating resume database upload access:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       {approvalStatus !== "APPROVED" && (
@@ -116,19 +139,35 @@ export default function EmployerApprovalActions({
       )}
 
       {approvalStatus === "APPROVED" && (
-        <Button
-          type="button"
-          onClick={toggleResumeAccess}
-          disabled={loading}
-          className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
-            resumeSearchEnabled
-              ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
-              : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10"
-          }`}
-        >
-          <Sparkles className="h-4 w-4" />
-          Resume DB: {resumeSearchEnabled ? "ENABLED" : "DISABLED"}
-        </Button>
+        <>
+          <Button
+            type="button"
+            onClick={toggleResumeAccess}
+            disabled={loading}
+            className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
+              resumeSearchEnabled
+                ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
+                : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10"
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            Resume DB: {resumeSearchEnabled ? "ENABLED" : "DISABLED"}
+          </Button>
+
+          <Button
+            type="button"
+            onClick={toggleUploadAccess}
+            disabled={loading}
+            className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
+              resumeUploadEnabled
+                ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+                : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10"
+            }`}
+          >
+            <Upload className="h-4 w-4" />
+            Resume Upload: {resumeUploadEnabled ? "ENABLED" : "DISABLED"}
+          </Button>
+        </>
       )}
     </div>
   );

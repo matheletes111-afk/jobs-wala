@@ -108,7 +108,6 @@ export async function GET(req: NextRequest) {
         skills: true,
         createdAt: true,
       },
-      take: 500,
     });
 
     const requestedSkills = skillsParam

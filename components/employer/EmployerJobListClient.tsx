@@ -144,7 +144,7 @@ export default function EmployerJobListClient() {
     if (jobs.length === 0) return;
     const headers = [
       "ID", "Title", "Status", "Category", "Location", "Applications", 
-      "Min Salary", "Max Salary", "Currency", "Pay Type", 
+      "Min Salary", "Max Salary", "Currency", "Per Type", 
       "Min Experience", "Max Experience", "Employment Type", "Work Mode", 
       "Required Skills", "Created At", "Expires At"
     ];

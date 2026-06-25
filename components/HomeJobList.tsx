@@ -18,6 +18,7 @@ interface Job {
   employmentType: string;
   experienceRequired?: number | null;
   createdAt: Date;
+  companyName?: string | null;
   employer: {
     companyName: string;
     companyLogo?: string | null;
@@ -39,7 +40,7 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
             <div className="flex items-start gap-4">
               <CompanyLogo
                 companyLogo={job.employer.companyLogo}
-                companyName={job.employer.companyName}
+                companyName={job.companyName || job.employer.companyName}
                 size="md"
                 className="shrink-0 rounded-lg"
               />
@@ -49,7 +50,7 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                     {job.title}
                   </h3>
                 </Link>
-                <p className="mt-1 text-gray-600">{job.employer.companyName}</p>
+                <p className="mt-1 text-gray-600">{job.companyName || job.employer.companyName}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Badge variant="outline">{formatLocation(job.location, true)}</Badge>
                   <Badge variant="outline">{job.category}</Badge>

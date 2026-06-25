@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@prisma/client";
 import { CategoryStatus } from "@prisma/client";
 import HomePageClient from "@/components/HomePageClient";
+import Header from "@/components/Header";
 import { formatLocation } from "@/lib/utils";
 import { Briefcase, FileText, Search, Send, ChevronDown } from "lucide-react";
 
@@ -17,7 +18,10 @@ export default async function HomePage() {
   // Top companies: employers with ACTIVE jobs (ordered by job count) + location + open jobs count
   const jobCounts = await prisma.job.groupBy({
     by: ["postedBy"],
-    where: { status: "ACTIVE" },
+    where: {
+      status: "ACTIVE",
+      employer: { approvalStatus: "APPROVED" }
+    },
     _count: { postedBy: true },
     orderBy: { _count: { postedBy: "desc" } },
     take: 12,
@@ -29,7 +33,11 @@ export default async function HomePage() {
       select: { userId: true, companyName: true, companyLogo: true },
     }),
     prisma.job.findMany({
-      where: { postedBy: { in: userIds }, status: "ACTIVE" },
+      where: {
+        postedBy: { in: userIds },
+        status: "ACTIVE",
+        employer: { approvalStatus: "APPROVED" }
+      },
       select: { postedBy: true, location: true },
       orderBy: { createdAt: "desc" },
     }),
@@ -89,139 +97,23 @@ export default async function HomePage() {
     where: { status: "ACTIVE" },
   });
 
+  const clients = await prisma.employerProfile.findMany({
+    where: { approvalStatus: "APPROVED" },
+    take: 15,
+    select: {
+      userId: true,
+      companyName: true,
+      companyLogo: true,
+      industry: true,
+      description: true,
+      website: true,
+      companySize: true,
+    },
+  });
+
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
-      {/* Header - Premium Glassmorphism */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
-          <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
-            <div className="bg-white rounded-lg shadow-md flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
-              <img
-                src="/images/logo.jpeg"
-                alt="Jobs Portal"
-                className="h-8 md:h-10 object-contain"
-              />
-            </div>
-          </Link>
-
-          {/* Right Aligned Container */}
-          <div className="flex items-center gap-8">
-            {/* Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link href="#about" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
-                About <ChevronDown className="h-3 w-3 text-slate-400" />
-              </Link>
-
-              {/* Services Dropdown */}
-              <div className="relative group py-4">
-                <span className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1 cursor-pointer">
-                  Services <ChevronDown className="h-3 w-3 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
-                </span>
-
-                <div className="absolute right-0 top-full hidden group-hover:block w-[360px] bg-white border border-slate-100 rounded-2xl shadow-2xl p-5 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                  <div className="space-y-4 text-left">
-                    {/* Category 1: Talent Solutions */}
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Talent Solutions</p>
-                      <div className="grid gap-0.5">
-                        <Link href="#contingent" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Contingent Workforce Solution
-                        </Link>
-                        <Link href="#ats" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          AI Powered ATS
-                        </Link>
-                        <Link href="#contact" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Recruitment Solution <span className="text-[10px] text-slate-400 font-normal">(Contact Us)</span>
-                        </Link>
-                        <Link href="#hire-talent" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Hire a Talent
-                        </Link>
-                        <Link href="/employer/jobs/new" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Post a Job
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Category 2: Career Services */}
-                    <div className="space-y-1 pt-3 border-t border-slate-100">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Career Services</p>
-                      <div className="grid gap-0.5">
-                        <Link href="#super-resume" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Get your super resume
-                        </Link>
-                        <Link href="#linkedin-optimization" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          LinkedIn Optimization
-                        </Link>
-                        <Link href="#career-counselling" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Career Counselling
-                        </Link>
-                        <Link href="#interview-preparation" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                          Interview Preparation
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Category 3: IT & Digital Solutions */}
-                    <div className="space-y-1 pt-3 border-t border-slate-100">
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">IT & Digital Solutions</p>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                        <p className="text-[14px] font-medium text-slate-800">IT Product Development</p>
-                        <p className="text-xs text-slate-500 font-normal leading-relaxed mt-1">
-                          Mobile App Development, Website Development, Built your own CRM, POS system, Heavy Portal, SEO, SEM, Digital Marketing, Chat Bot, Workflow Automation
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <Link href="#products" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
-                Products <ChevronDown className="h-3 w-3 text-slate-400" />
-              </Link>
-              <Link href="/user/jobs" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">
-                Careers
-              </Link>
-              <Link href="#contact" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">
-                Contact us
-              </Link>
-            </nav>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
-              <Link href="#book-demo" className="hidden sm:inline-block">
-                <Button variant="outline" className="h-10 px-5 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95">
-                  Book Demo
-                </Button>
-              </Link>
-
-              {user ? (
-                <Link href="/dashboard">
-                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
-                    Dashboard
-                  </Button>
-                </Link>
-              ) : (
-                <>
-                  <Link href="#free-trial" className="hidden xs:inline-block">
-                    <Button className="bg-primary hover:bg-blue-600 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
-                      Free trial
-                    </Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button variant="ghost" className="text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-4">
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link href="/register" className="hidden sm:inline-block">
-                    <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-5">
-                      Register
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 relative bg-transparent">
         {/* Hero / Banner - Premium Clean Figma Style */}
@@ -239,9 +131,29 @@ export default async function HomePage() {
                 Get Matched. <br />
                 <span className="text-[#2563eb]">Grow Your Career.</span>
               </h1>
-              <p className="mb-10 text-sm md:text-base text-slate-500 max-w-xl leading-relaxed mx-auto lg:mx-0 font-medium text-left">
+              <p className="mb-8 text-sm md:text-base text-slate-500 max-w-xl leading-relaxed mx-auto lg:mx-0 font-medium text-left">
                 Our AI technology matches your skills with the right opportunities, so you can focus on what matters – building your future.
               </p>
+
+              {/* Action CTAs */}
+              <div className="flex flex-wrap gap-4 mb-8 justify-center lg:justify-start">
+                <Link href="/user/jobs">
+                  <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md shadow-blue-500/10">
+                    Find a Job
+                  </Button>
+                </Link>
+                <Link href="/career-services">
+                  <Button className="h-11 px-6 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md shadow-orange-500/10">
+                    Fix your resume
+                  </Button>
+                </Link>
+                <Link href="/employer/jobs/new">
+                  <Button variant="outline" className="h-11 px-6 rounded-xl border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 bg-white shadow-sm">
+                    Post a Job
+                  </Button>
+                </Link>
+              </div>
+
               {/* Search Section - High Fidelity replica of Figma */}
               <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_15px_50px_rgba(0,0,0,0.03)] p-6 md:p-8 w-full max-w-3xl mx-auto lg:mx-0 mb-8 relative z-20">
                 <form action="/user/jobs" method="get" className="flex flex-col md:flex-row items-end gap-5 mb-6">
@@ -382,7 +294,7 @@ export default async function HomePage() {
         </section>
 
         {/* Dynamic HomePageClient sections */}
-        <HomePageClient topCompanies={topCompanies} categories={categories} />
+        <HomePageClient topCompanies={topCompanies} categories={categories} clients={clients} />
       </main>
     </div>
   );

@@ -14,6 +14,7 @@ export default async function EmployerResumeSearchPage({
     where: { userId: user.id },
     select: { 
       resumeSearchEnabled: true, 
+      resumeUploadEnabled: true,
       subscriptionExpiry: true,
       subscriptionStatus: true
     },
@@ -37,7 +38,10 @@ export default async function EmployerResumeSearchPage({
         )}
 
         {!isRestricted ? (
-          <EmployerResumeDatabaseSearch searchParams={params} />
+          <EmployerResumeDatabaseSearch 
+            searchParams={params} 
+            resumeUploadEnabled={profile?.resumeUploadEnabled ?? true}
+          />
         ) : (
           <div className="rounded-[3rem] p-24 text-center border-dashed border-slate-200 bg-slate-50 opacity-50">
             <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">

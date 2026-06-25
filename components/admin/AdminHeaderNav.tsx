@@ -25,9 +25,9 @@ export default function AdminHeaderNav() {
   return (
     <>
       {/* Desktop nav: visible from md up */}
-      <div className="hidden items-center gap-6 md:flex">
+      <div className="hidden items-center gap-6 md:flex flex-1 justify-between ml-8">
         <AdminNavLinks />
-        <div className="flex items-center gap-4 h-10 border-l border-slate-200 pl-6">
+        <div className="flex items-center gap-4 h-10 border-l border-slate-200 pl-6 shrink-0">
           <LogoutButton />
           <span className="flex h-8 items-center rounded-full bg-blue-600/10 border border-blue-600/20 px-4 text-xs font-semibold text-[#2563eb] shadow-lg shadow-blue-500/5">
             Admin

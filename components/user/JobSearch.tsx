@@ -18,6 +18,8 @@ import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 
+import { useSession } from "next-auth/react";
+
 interface Job {
   id: string;
   title: string;
@@ -32,6 +34,7 @@ interface Job {
   employmentType: string;
   experienceRequired?: number | null;
   employer: { companyName: string; companyLogo?: string | null };
+  companyName?: string | null;
   createdAt: string;
 }
 
@@ -51,6 +54,7 @@ interface FetchResult {
 }
 
 export default function JobSearch() {
+  const { data: session } = useSession();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -249,7 +253,7 @@ export default function JobSearch() {
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-10">
                   <CompanyLogo
                     companyLogo={job.employer.companyLogo}
-                    companyName={job.employer.companyName}
+                    companyName={job.companyName || job.employer.companyName}
                     size="lg"
                     className="shrink-0 rounded-2xl border-2 border-white/10 bg-background/50 group-hover:border-primary/20 shadow-2xl transition-transform group-hover:scale-105 md:scale-110"
                   />
@@ -267,7 +271,7 @@ export default function JobSearch() {
                           </span>
                         )}
                       </div>
-                      <p className="mt-2 text-xs font-semibold text-muted-foreground/50">{job.employer.companyName}</p>
+                      <p className="mt-2 text-xs font-semibold text-muted-foreground/50">{job.companyName || job.employer.companyName}</p>
                       
                       <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
                         <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
@@ -299,11 +303,19 @@ export default function JobSearch() {
                              </p>
                            </div>
                         </div>
-                        <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
-                          <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
-                            Apply Now
-                          </Button>
-                        </Link>
+                        {(!session || session.user?.role === "JOB_SEEKER") ? (
+                          <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
+                            <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
+                              Apply Now
+                            </Button>
+                          </Link>
+                        ) : (
+                          <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
+                            <Button variant="ghost" className="w-full sm:w-auto h-14 px-10 rounded-2xl text-xs font-semibold hover:bg-white/5 border border-white/10 text-muted-foreground/60 transition-all">
+                              Details
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                 </div>

@@ -32,6 +32,7 @@ export default async function EditJobPage({
     salaryMax: job.salaryMax ?? undefined,
     experienceMin: job.experienceMin ?? undefined,
     experienceMax: job.experienceMax ?? undefined,
+    companyName: job.companyName ?? undefined,
   };
 
   return (

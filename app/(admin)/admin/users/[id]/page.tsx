@@ -154,6 +154,7 @@ export default async function AdminUserDetailPage({
                   userId={user.id}
                   approvalStatus={user.employerProfile.approvalStatus as any}
                   resumeSearchEnabled={user.employerProfile.resumeSearchEnabled}
+                  resumeUploadEnabled={user.employerProfile.resumeUploadEnabled}
                 />
               )}
               <Link href="/admin/users">

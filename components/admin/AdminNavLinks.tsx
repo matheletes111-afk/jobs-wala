@@ -9,6 +9,7 @@ import {
   FolderTree,
   BarChart3,
   FileText,
+  GraduationCap,
 } from "lucide-react";
 
 export const adminNavLinks = [
@@ -18,6 +19,7 @@ export const adminNavLinks = [
   { href: "/admin/resume-database", label: "Resume DB", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/plans", label: "Plans", icon: BarChart3 },
+  { href: "/admin/career-packages", label: "Career Svcs", icon: GraduationCap },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
 

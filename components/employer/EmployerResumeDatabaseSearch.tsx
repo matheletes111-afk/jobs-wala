@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays } from "lucide-react";
+import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays, Upload } from "lucide-react";
 import SkillTagInput from "@/components/common/SkillTagInput";
 
 interface ResumeRecord {
@@ -29,8 +29,10 @@ interface FetchResult {
 
 export default function EmployerResumeDatabaseSearch({
   searchParams: initialParams,
+  resumeUploadEnabled,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
+  resumeUploadEnabled: boolean;
 }) {
   const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
   const [skills, setSkills] = useState<string[]>(
@@ -57,6 +59,61 @@ export default function EmployerResumeDatabaseSearch({
   const [error, setError] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
   const limit = 12;
+
+  // Upload States
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
+
+  const onUpload = async () => {
+    if (files.length === 0 || uploading) return;
+    setUploading(true);
+    setUploadMessage("");
+
+    const CLIENT_BATCH_SIZE = 10;
+    const totalBatches = Math.ceil(files.length / CLIENT_BATCH_SIZE);
+    let totalSuccess = 0;
+    let totalFailed = 0;
+    let totalFiles = 0;
+
+    try {
+      for (let i = 0; i < files.length; i += CLIENT_BATCH_SIZE) {
+        const batchFiles = files.slice(i, i + CLIENT_BATCH_SIZE);
+        const batchNum = Math.floor(i / CLIENT_BATCH_SIZE) + 1;
+        setUploadMessage(
+          totalBatches > 1
+            ? `Uploading batch ${batchNum}/${totalBatches} (files ${i + 1}–${Math.min(i + CLIENT_BATCH_SIZE, files.length)} of ${files.length})… please wait`
+            : `Uploading ${files.length} file${files.length !== 1 ? "s" : ""}… please wait`
+        );
+
+        const formData = new FormData();
+        batchFiles.forEach((file) => formData.append("files", file));
+        const res = await fetch("/api/employer/resume-search/bulk-upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || "Request failed");
+        }
+        const result = await res.json();
+        totalFiles += result.totalFiles;
+        totalSuccess += result.successCount;
+        totalFailed += result.failedCount;
+      }
+
+      setUploadMessage(
+        `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`
+      );
+      setFiles([]);
+      setRefreshCount((prev) => prev + 1);
+      setPage(1);
+    } catch (error) {
+      setUploadMessage(error instanceof Error ? error.message : "Bulk upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const fetchResumes = useCallback(
     async (
@@ -166,6 +223,41 @@ export default function EmployerResumeDatabaseSearch({
            <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic max-w-2xl">
              Access the central resume database. Filter by candidate information, location, and key skills.
            </p>
+
+            {resumeUploadEnabled && (
+              <div className="mt-8 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-250 shadow-sm backdrop-blur-3xl">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center w-full md:w-auto flex-1">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <Input
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+                      className="h-14 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                    />
+                    <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-emerald-200 rounded-2xl bg-white/50 group hover:bg-white/80 transition-all">
+                      <p className="text-xs font-semibold text-muted-foreground/60 group-hover:text-emerald-600">
+                        {files.length > 0 ? `${files.length} FILES SELECTED` : "SELECT RESUMES TO UPLOAD"}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={onUpload}
+                    disabled={uploading || files.length === 0}
+                    className="h-14 px-10 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <Upload className="mr-3 h-4 w-4" />
+                    {uploading ? "Uploading..." : "Upload & Parse"}
+                  </Button>
+                </div>
+
+                {uploadMessage && (
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold italic animate-in slide-in-from-top-2">
+                    <span className="opacity-60">Log:</span> {uploadMessage}
+                  </div>
+                )}
+              </div>
+            )}
 
            <div className="mt-12 grid gap-4 p-4 rounded-3xl linear-card shadow-lg md:grid-cols-5">
               <div className="md:col-span-2">

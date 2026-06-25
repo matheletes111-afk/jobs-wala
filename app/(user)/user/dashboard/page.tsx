@@ -50,6 +50,7 @@ export default async function UserDashboardPage({
   const allActiveJobs = await prisma.job.findMany({
     where: {
       status: "ACTIVE",
+      employer: { approvalStatus: "APPROVED" }
     },
     include: {
       employer: {
@@ -197,7 +198,7 @@ export default async function UserDashboardPage({
                     >
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
-                        companyName={job.employer.companyName}
+                        companyName={job.companyName || job.employer.companyName}
                         size="md"
                         className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
                       />
@@ -213,7 +214,7 @@ export default async function UserDashboardPage({
                           </span>
                         </div>
                         <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                          <span>{job.employer.companyName}</span>
+                          <span>{job.companyName || job.employer.companyName}</span>
                           <span className="text-white/10">|</span>
                           <span>{formatLocation(job.location)}</span>
                         </div>
@@ -347,7 +348,7 @@ export default async function UserDashboardPage({
                 >
                   <CompanyLogo
                     companyLogo={application.job.employer.companyLogo}
-                    companyName={application.job.employer.companyName}
+                    companyName={application.job.companyName || application.job.employer.companyName}
                     size="md"
                     className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
                   />
@@ -356,7 +357,7 @@ export default async function UserDashboardPage({
                       {application.job.title}
                     </h3>
                     <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                      <span>{application.job.employer.companyName}</span>
+                      <span>{application.job.companyName || application.job.employer.companyName}</span>
                       <span className="text-white/10">|</span>
                       <span>{formatLocation(application.job.location)}</span>
                     </div>

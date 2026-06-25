@@ -44,6 +44,7 @@ interface UserItem {
     companySize?: string | null;
     description?: string | null;
     resumeSearchEnabled?: boolean;
+    resumeUploadEnabled?: boolean;
     website?: string | null;
     approvalStatus?: string;
     createdAt?: string | null;
@@ -229,6 +230,34 @@ export default function AdminUsersClient() {
               employerProfile: {
                 ...item.employerProfile,
                 resumeSearchEnabled: enabled,
+              },
+            }
+            : item
+        )
+      );
+    } finally {
+      setUpdatingAccessFor(null);
+    }
+  };
+
+  const toggleEmployerResumeUpload = async (userId: string, enabled: boolean) => {
+    if (updatingAccessFor) return;
+    setUpdatingAccessFor(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeUploadEnabled: enabled }),
+      });
+      if (!res.ok) throw new Error("Failed to update upload permission");
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === userId && item.employerProfile
+            ? {
+              ...item,
+              employerProfile: {
+                ...item.employerProfile,
+                resumeUploadEnabled: enabled,
               },
             }
             : item
@@ -476,6 +505,7 @@ export default function AdminUsersClient() {
                     key={user.id}
                     user={user}
                     onToggleResumeAccess={toggleEmployerResumeAccess}
+                    onToggleResumeUpload={toggleEmployerResumeUpload}
                     onUpdateApproval={updateEmployerApproval}
                     isUpdating={updatingAccessFor === user.id}
                     index={idx}
@@ -518,12 +548,14 @@ export default function AdminUsersClient() {
 function UserCard({
   user,
   onToggleResumeAccess,
+  onToggleResumeUpload,
   onUpdateApproval,
   isUpdating,
   index,
 }: {
   user: UserItem;
   onToggleResumeAccess: (userId: string, enabled: boolean) => Promise<void>;
+  onToggleResumeUpload: (userId: string, enabled: boolean) => Promise<void>;
   onUpdateApproval: (userId: string, status: "APPROVED" | "REJECTED") => Promise<void>;
   isUpdating: boolean;
   index: number;
@@ -673,6 +705,26 @@ function UserCard({
                   : user.employerProfile.resumeSearchEnabled
                     ? "DB ACCESS: ON"
                     : "DB ACCESS: OFF"}
+              </Button>
+              <Button
+                type="button"
+                className={`h-10 px-5 rounded-2xl text-xs font-semibold transition-all ${user.employerProfile.resumeUploadEnabled
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                    : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                  }`}
+                disabled={isUpdating || user.employerProfile.approvalStatus !== "APPROVED"}
+                onClick={() =>
+                  onToggleResumeUpload(
+                    user.id,
+                    !Boolean(user.employerProfile?.resumeUploadEnabled)
+                  )
+                }
+              >
+                {isUpdating
+                  ? "SYNCING..."
+                  : user.employerProfile.resumeUploadEnabled
+                    ? "RESUME UPLOAD: ON"
+                    : "RESUME UPLOAD: OFF"}
               </Button>
             </>
           ) : null}

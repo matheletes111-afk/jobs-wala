@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-import { requireJobSeeker } from "@/lib/auth-utils";
+import { getCurrentUser } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { UserRole } from "@prisma/client";
 
 /**
  * GET /api/user/jobs
- * For job seekers: browse ACTIVE jobs with backend pagination and filters.
+ * For job seekers/public: browse ACTIVE jobs with backend pagination and filters.
  * Query: page, limit, search, category, location (JSON: country, state, city).
  * Returns appliedJobIds for the current user so UI can show "Already applied".
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireJobSeeker();
+    const user = await getCurrentUser();
+    const isJobSeeker = user?.role === UserRole.JOB_SEEKER;
 
     const searchParams = req.nextUrl.searchParams;
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -40,6 +42,11 @@ export async function GET(req: NextRequest) {
 
     const andParts: Array<Record<string, unknown>> = [
       { status: "ACTIVE" as const },
+      {
+        employer: {
+          approvalStatus: "APPROVED",
+        },
+      },
     ];
     if (search) {
       andParts.push({
@@ -90,10 +97,12 @@ export async function GET(req: NextRequest) {
           employer: { select: { companyName: true, companyLogo: true } },
         },
       }),
-      prisma.application.findMany({
-        where: { jobSeekerId: user.id },
-        select: { jobId: true },
-      }),
+      isJobSeeker && user
+        ? prisma.application.findMany({
+            where: { jobSeekerId: user.id },
+            select: { jobId: true },
+          })
+        : Promise.resolve([]),
     ]);
 
     const appliedJobIds = applications.map((a) => a.jobId);

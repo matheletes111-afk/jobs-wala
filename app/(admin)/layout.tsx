@@ -32,7 +32,7 @@ export default async function AdminLayout({
                 <span className="text-[9px] font-black uppercase tracking-[0.4em] text-blue-500 opacity-80">Admin</span>
             </div>
           </Link>
-          <nav className="flex items-center">
+          <nav className="flex items-center flex-1 justify-between">
             <AdminHeaderNav />
           </nav>
         </div>

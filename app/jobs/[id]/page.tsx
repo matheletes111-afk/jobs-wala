@@ -51,7 +51,7 @@ export default async function PublicJobPage({
     secondarySkills: job.secondarySkills ?? [],
     createdAt: job.createdAt,
     employer: {
-      companyName: job.employer.companyName,
+      companyName: job.companyName || job.employer.companyName,
       companyLogo: job.employer.companyLogo,
       website: job.employer.website,
       description: job.employer.description,

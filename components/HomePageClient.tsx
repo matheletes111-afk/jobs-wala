@@ -40,6 +40,21 @@ export type TopCompany = {
   openJobsCount: number;
 };
 export type HomeCategory = { id: string; name: string; jobCount: number };
+export type HomeClientItem = {
+  userId: string;
+  companyName: string;
+  companyLogo: string | null;
+  industry: string | null;
+  description: string | null;
+  website?: string | null;
+  companySize?: string | null;
+};
+
+interface HomePageClientProps {
+  topCompanies: TopCompany[];
+  categories: HomeCategory[];
+  clients?: HomeClientItem[];
+}
 
 type JobItem = {
   id: string;
@@ -52,13 +67,11 @@ type JobItem = {
   createdAt: string;
   experienceRequired?: number | null;
   workMode?: string | null;
+  companyName?: string | null;
   employer: { companyName: string; companyLogo?: string | null };
 };
 
-interface HomePageClientProps {
-  topCompanies: TopCompany[];
-  categories: HomeCategory[];
-}
+
 
 function getCategoryStyle(name: string) {
   const normalized = name.toLowerCase();
@@ -151,9 +164,13 @@ function formatTimeAgo(dateStr: string): string {
 export default function HomePageClient({
   topCompanies,
   categories,
+  clients = [],
 }: HomePageClientProps) {
   const { data: session } = useSession();
   const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const clientScrollRef = useRef<HTMLDivElement>(null);
+  const [clientsHovered, setClientsHovered] = useState(false);
+  const autoPlayPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -179,6 +196,33 @@ export default function HomePageClient({
     fetchJobs();
   }, [fetchJobs]);
 
+  // Infinite smooth marquee scroll using requestAnimationFrame
+  useEffect(() => {
+    const el = clientScrollRef.current;
+    if (!el) return;
+
+    let frameId: number;
+    let lastTime = performance.now();
+    const speed = 0.035; // Pixels per millisecond (extremely smooth, slow)
+
+    const scroll = (time: number) => {
+      if (!clientsHovered) {
+        const delta = time - lastTime;
+        el.scrollLeft += speed * delta;
+
+        // Wrap around seamlessly once we reach the end of the first client set
+        if (el.scrollLeft >= el.scrollWidth / 3) {
+          el.scrollLeft = 0;
+        }
+      }
+      lastTime = time;
+      frameId = requestAnimationFrame(scroll);
+    };
+
+    frameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(frameId);
+  }, [clientsHovered]);
+
   const isEmployer = session?.user?.role === UserRole.EMPLOYER;
 
   const scrollCategories = (dir: "left" | "right") => {
@@ -188,6 +232,29 @@ export default function HomePageClient({
       left: dir === "left" ? -step : step,
       behavior: "smooth",
     });
+  };
+
+  const scrollClientsManual = (dir: "left" | "right") => {
+    if (!clientScrollRef.current) return;
+    
+    // Pause auto-scroll to let smooth scroll work without conflict
+    setClientsHovered(true);
+    
+    const step = 294; // card width + gap (270 + 24)
+    clientScrollRef.current.scrollBy({
+      left: dir === "left" ? -step : step,
+      behavior: "smooth",
+    });
+
+    // Clear any existing timeout
+    if (autoPlayPauseTimeoutRef.current) {
+      clearTimeout(autoPlayPauseTimeoutRef.current);
+    }
+
+    // Resume auto-scroll after 2.5 seconds (giving ample time for smooth scroll to finish)
+    autoPlayPauseTimeoutRef.current = setTimeout(() => {
+      setClientsHovered(false);
+    }, 2500);
   };
 
   return (
@@ -234,12 +301,12 @@ export default function HomePageClient({
                     <div className="flex items-center gap-3 mb-4">
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
-                        companyName={job.employer.companyName}
+                        companyName={job.companyName || job.employer.companyName}
                         size="sm"
                         className="rounded-lg border border-slate-100"
                       />
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-500 truncate">{job.employer.companyName}</p>
+                        <p className="text-xs font-bold text-slate-500 truncate">{job.companyName || job.employer.companyName}</p>
                       </div>
                     </div>
 
@@ -762,6 +829,183 @@ export default function HomePageClient({
           </div>
         </div>
       </section>
+
+      {/* 5.5 Our Trusted Clients (Infinite Marquee Carousel - Left to Right with Manual Buttons) */}
+      {clients && clients.length > 0 && (
+        <section className="w-full py-20 overflow-hidden bg-slate-50 border-y border-slate-200/60">
+          <div className="text-center max-w-3xl mx-auto mb-16 px-4">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2563eb]">Our Valued Partners</span>
+            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl mt-2">
+              Our Trusted Clients
+            </h2>
+            <p className="mt-4 text-base font-medium text-slate-555">
+              We connect top-tier candidates with market-leading organisations across all major industries.
+            </p>
+          </div>
+
+          {/* Marquee Container with Left/Right Spacing matching other sections */}
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+            <div className="relative w-full">
+              {/* Left Arrow Button */}
+              <button
+                type="button"
+                onClick={() => scrollClientsManual("left")}
+                className="absolute -left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="h-5 w-5 text-slate-600" />
+              </button>
+
+              {/* Right Arrow Button */}
+              <button
+                type="button"
+                onClick={() => scrollClientsManual("right")}
+                className="absolute -right-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="h-5 w-5 text-slate-600" />
+              </button>
+
+              <div 
+                className="relative w-full overflow-hidden rounded-[32px] bg-slate-100/50 border border-slate-200/50 p-6"
+                onMouseEnter={() => setClientsHovered(true)}
+                onMouseLeave={() => setClientsHovered(false)}
+              >
+                {/* Gradient overlays for smooth fading edges */}
+                <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-100/80 to-transparent z-10 pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-100/80 to-transparent z-10 pointer-events-none" />
+
+                <div 
+                  ref={clientScrollRef}
+                  className="flex gap-6 overflow-x-auto pb-4 scrollbar-none"
+                >
+                  {[...clients, ...clients, ...clients].map((client, index) => {
+                    // Symmetrical fallbacks for empty data fields
+                    const cleanName = client.companyName.replace(/[^a-zA-Z0-9\s]/g, "").trim();
+                    const cleanSlug = cleanName.toLowerCase().replace(/\s+/g, "");
+                    
+                    const fallbackIndustry = client.industry || (cleanName.length % 2 === 0 ? "Technology" : "Services");
+                    const fallbackSize = client.companySize || (cleanName.length % 2 === 0 ? "50-250 Employees" : "10-50 Employees");
+                    const fallbackWebsite = client.website || `www.${cleanSlug || "company"}.com`;
+                    const fallbackDescription = client.description || "Delivering excellence and pioneering next-generation solutions.";
+
+                    // Select a beautiful gradient banner color based on index
+                    const bannerGradients = [
+                      "from-blue-500 to-sky-400",
+                      "from-purple-500 to-indigo-400",
+                      "from-emerald-500 to-teal-400",
+                      "from-orange-500 to-amber-400",
+                      "from-rose-500 to-pink-400"
+                    ];
+                    const chosenGradient = bannerGradients[index % bannerGradients.length];
+
+                    return (
+                      <div
+                        key={`${client.userId}-${index}`}
+                        className="relative rounded-3xl pt-14 pb-6 px-5 flex flex-col justify-between text-center min-h-[410px] w-[270px] shrink-0 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-400 hover:shadow-lg bg-gradient-to-b from-[#f3f8ff] to-white border border-blue-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.015)] overflow-hidden"
+                      >
+                        {/* Top Gradient Banner matching the Screenshot Layout */}
+                        <div className={`h-14 w-full bg-gradient-to-r ${chosenGradient} absolute top-0 left-0`} />
+
+                        <div className="flex flex-col items-center w-full flex-1">
+                          {/* Circular Logo overlapping the banner */}
+                          <div className="relative size-16 rounded-full border-4 border-white shadow-md bg-white flex items-center justify-center text-blue-600 mb-2.5 z-10 -mt-8 shrink-0">
+                            {client.companyLogo ? (
+                              <img
+                                src={client.companyLogo}
+                                alt={client.companyName}
+                                className="size-9 object-contain"
+                              />
+                            ) : (
+                              <span className="font-extrabold text-xl text-blue-600">
+                                {client.companyName.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Status Badge */}
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[8px] font-black tracking-wide uppercase mb-2">
+                            ACTIVE PARTNER
+                          </span>
+
+                          {/* Company Name */}
+                          <h3 className="font-black text-slate-800 text-[15px] mb-0.5 line-clamp-1 w-full leading-tight">
+                            {client.companyName}
+                          </h3>
+
+                          {/* Industry Subtitle */}
+                          <p className="text-[10px] font-bold text-slate-500 mb-1.5">
+                            {fallbackIndustry}
+                          </p>
+
+                          {/* Location indicator */}
+                          <div className="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 mb-3 w-full">
+                            <MapPin className="size-3 text-slate-350 shrink-0" />
+                            <span>Headquarters, India</span>
+                          </div>
+
+                          {/* Skill/Feature Pill Tags */}
+                          <div className="flex flex-wrap justify-center gap-1 mb-4">
+                            {["Verified", "Fast Hiring", "Top Employer"].map((tag) => (
+                              <span key={tag} className="px-2 py-0.5 rounded-md bg-white border border-slate-100 text-slate-500 text-[9px] font-extrabold shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Divider Line */}
+                          <div className="w-full border-t border-blue-100/30 my-1" />
+
+                          {/* Checkmarked details block (matching screenshot list) */}
+                          <div className="space-y-2 w-full pt-3 text-left">
+                            <div className="flex items-center gap-2 pl-2">
+                              <span className="size-4.5 rounded-full bg-emerald-150 text-emerald-600 flex items-center justify-center text-[9px] font-bold shrink-0">
+                                ✓
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-655 truncate">{fallbackIndustry} Sector</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 pl-2">
+                              <span className="size-4.5 rounded-full bg-emerald-150 text-emerald-600 flex items-center justify-center text-[9px] font-bold shrink-0">
+                                ✓
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-655 truncate">Size: {fallbackSize}</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 pl-2">
+                              <span className="size-4.5 rounded-full bg-emerald-150 text-emerald-600 flex items-center justify-center text-[9px] font-bold shrink-0">
+                                ✓
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-655 truncate">4.8+ Client Rating</span>
+                            </div>
+                          </div>
+
+                          {/* Website URL Link */}
+                          {client.website && (
+                            <a
+                              href={client.website.startsWith("http") ? client.website : `https://${client.website}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] text-blue-650 font-black hover:underline mt-4 mb-2 line-clamp-1"
+                            >
+                              {client.website.replace(/(^\w+:|^)\/\//, "")}
+                            </a>
+                          )}
+
+                          {/* Short tagline */}
+                          <p className="text-[10px] text-slate-400 font-semibold line-clamp-2 mt-0.5 leading-normal px-1">
+                            {fallbackDescription}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 6. Ready to take the next step CTA (Static) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">

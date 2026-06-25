@@ -2,6 +2,7 @@ import Link from "next/link";
 import JobsFilterPageClient from "@/components/JobsFilterPageClient";
 import { getCurrentUser } from "@/lib/auth-utils";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
 
 export default async function JobsByCategoryPage({
   params,
@@ -14,42 +15,7 @@ export default async function JobsByCategoryPage({
 
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
-      {/* Header - Premium Glassmorphism */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between gap-2 px-4 sm:px-6 md:px-8 lg:px-10">
-          <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
-            <div className="bg-white rounded-lg shadow-md flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
-               <img
-                 src="/images/logo.jpeg"
-                 alt="Jobs Portal"
-                 className="h-8 md:h-10 object-contain"
-               />
-            </div>
-          </Link>
-          <nav className="flex items-center gap-3">
-            {user ? (
-              <Link href="/dashboard">
-                <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
-                  Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" className="text-foreground hover:bg-white/10">
-                    Sign in
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
-                    Register
-                  </Button>
-                </Link>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="flex-1 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-full max-w-7xl bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-30 z-10" />

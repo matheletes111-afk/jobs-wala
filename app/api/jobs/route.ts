@@ -14,6 +14,7 @@ const payTypeEnum = z.enum(["HOURLY", "DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", 
 
 const jobSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  companyName: z.string().nullish(),
   description: z.string().min(10, "Description must be at least 10 characters"),
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
@@ -57,34 +58,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const isEmployerApproved = profile.approvalStatus === "APPROVED";
     const activeSubscription = profile.subscriptions[0];
 
-    // Check if subscription exists and is not expired
-    if (!activeSubscription || new Date(activeSubscription.endDate) < new Date()) {
-      return NextResponse.json(
-        { error: "NO_ACTIVE_PLAN", message: "Please subscribe to a plan to post jobs" },
-        { status: 403 }
-      );
-    }
+    // Only enforce active subscription limits if the employer is approved.
+    // If they are unapproved/pending, they can save jobs as PENDING but they won't go live.
+    if (isEmployerApproved) {
+      if (!activeSubscription || new Date(activeSubscription.endDate) < new Date()) {
+        return NextResponse.json(
+          { error: "NO_ACTIVE_PLAN", message: "Please subscribe to a plan to post jobs" },
+          { status: 403 }
+        );
+      }
 
-    // Count jobs posted within the current subscription period
-    const jobCount = await prisma.job.count({
-      where: {
-        postedBy: user.id,
-        createdAt: { gte: activeSubscription.startDate },
-      },
-    });
+      // Count active/pending jobs posted within the current subscription period
+      const jobCount = await prisma.job.count({
+        where: {
+          postedBy: user.id,
+          createdAt: { gte: activeSubscription.startDate },
+        },
+      });
 
-    if (activeSubscription.plan.jobLimit !== -1 && jobCount >= activeSubscription.plan.jobLimit) {
-      return NextResponse.json(
-        { error: "PLAN_LIMIT_REACHED", message: `You have reached your limit of ${activeSubscription.plan.jobLimit} jobs for this plan.` },
-        { status: 403 }
-      );
+      if (activeSubscription.plan.jobLimit !== -1 && jobCount >= activeSubscription.plan.jobLimit) {
+        return NextResponse.json(
+          { error: "PLAN_LIMIT_REACHED", message: `You have reached your limit of ${activeSubscription.plan.jobLimit} jobs for this plan.` },
+          { status: 403 }
+        );
+      }
     }
 
     const job = await prisma.job.create({
       data: {
         title: data.title,
+        companyName: data.companyName || profile.companyName,
         description: data.description,
         category: data.category,
         location: data.location,
@@ -119,13 +125,12 @@ export async function POST(req: NextRequest) {
         await sendNewJobPostedNotificationToAdmin({
           to: admin.email,
           jobTitle: job.title,
-          companyName: profile.companyName,
+          companyName: data.companyName || profile.companyName,
           reviewUrl,
         });
       }
     } catch (emailErr) {
       console.error("[POST /api/jobs] Admin notification email failed:", emailErr);
-      // Do not fail job creation if email fails
     }
 
     return NextResponse.json(job, { status: 201 });
@@ -156,9 +161,14 @@ export async function GET(req: NextRequest) {
   const sort = (searchParams.get("sort") || "desc").trim();
   const usePagination = searchParams.get("page") !== null || searchParams.get("limit") !== null;
 
-  const where: { postedBy?: string; category?: string; status?: JobStatus } = {};
+  const where: any = {};
   // Public listing: default to ACTIVE only (no auth required)
   where.status = JobStatus.ACTIVE;
+  // Safely verify employer is approved
+  where.employer = {
+    approvalStatus: "APPROVED",
+  };
+  
   if (employerId) where.postedBy = employerId;
   if (category) where.category = category;
 
