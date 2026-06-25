@@ -143,10 +143,13 @@ export default function CareerServicesClient() {
     }, 180);
   };
 
+  function handlePurchaseSubmit2() {
+    return false;
+  }
+
   // Razorpay guest checkout — DB write happens here (PENDING lead)
   const handlePurchaseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    return;
     if (!selectedPackage) return;
 
     setIsCheckingOut(true);
@@ -563,7 +566,9 @@ export default function CareerServicesClient() {
               </div>
               <p className="text-lg font-black text-slate-900">₹{selectedPackage.price}</p>
             </div>
-            <form onSubmit={handlePurchaseSubmit} className="space-y-4">
+            {/*<form onSubmit={handlePurchaseSubmit} className="space-y-4">*/}
+            <form onSubmit={handlePurchaseSubmit2} className="space-y-4">
+
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 mb-1.5">
                   <User className="h-3.5 w-3.5 text-slate-400" /> Full Name
