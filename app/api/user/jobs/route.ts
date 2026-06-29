@@ -122,6 +122,7 @@ export async function GET(req: NextRequest) {
         payType: j.payType,
         employmentType: j.employmentType,
         experienceRequired: j.experienceRequired,
+        companyName: j.companyName ? j.companyName : j.employer.companyName,
         employer: j.employer,
         createdAt: j.createdAt,
       })),

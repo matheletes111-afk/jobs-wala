@@ -36,6 +36,7 @@ interface EmployerJob {
   requiredSkills?: string[];
   createdAt?: string;
   expiresAt?: string | null;
+  companyName?: string | null;
   employer?: { companyName: string; companyLogo?: string | null };
   _count: { applications: number };
 }
@@ -432,7 +433,10 @@ export default function EmployerJobListClient() {
                                   {job.title}
                                 </h3>
                               </Link>
-                              <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                              <p className="mt-2 text-xs font-semibold text-muted-foreground/70">
+                                {job.companyName || job.employer?.companyName}
+                              </p>
+                              <p className="mt-1 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                                 <MapPin className="h-3 w-3 text-primary" />
                                 {formatLocation(job.location, true)}
                               </p>
@@ -530,7 +534,8 @@ export default function EmployerJobListClient() {
                                     <Link href={`/employer/jobs/${job.id}`}>
                                       <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{job.title}</p>
                                     </Link>
-                                    <p className="text-xs font-semibold text-muted-foreground mt-0.5">{formatLocation(job.location, true)}</p>
+                                    <p className="text-xs font-semibold text-muted-foreground mt-0.5">{job.companyName || job.employer?.companyName}</p>
+                                    <p className="text-xs font-semibold text-muted-foreground/60 mt-0.5">{formatLocation(job.location, true)}</p>
                                   </div>
                                 </div>
                               </td>

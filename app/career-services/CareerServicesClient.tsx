@@ -567,7 +567,7 @@ export default function CareerServicesClient() {
               <p className="text-lg font-black text-slate-900">₹{selectedPackage.price}</p>
             </div>
             {/*<form onSubmit={handlePurchaseSubmit} className="space-y-4">*/}
-            <form onSubmit={handlePurchaseSubmit2} className="space-y-4">
+            <form onSubmit={handlePurchaseSubmit} className="space-y-4">
 
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 mb-1.5">

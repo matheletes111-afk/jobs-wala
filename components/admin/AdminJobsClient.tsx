@@ -31,6 +31,7 @@ import ShareJobButton from "@/components/ShareJobButton";
 interface JobItem {
   id: string;
   title: string;
+  companyName?: string | null;
   location: string;
   category: string;
   status: string;
@@ -556,14 +557,14 @@ function JobCard({
             size="lg"
             className="h-16 w-16 rounded-2xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-110"
           />
-          <div className="min-w-0">
+           <div className="min-w-0">
              <div className="flex items-center gap-3 mb-2">
                 <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-blue-500" : job.status === "PENDING" ? "bg-orange-500" : "bg-red-500"}`} />
                 <p className="text-xs font-semibold text-blue-500">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
              </div>
              <h3 className="text-xl font-bold text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{job.title}</h3>
              <p className="text-xs font-semibold text-muted-foreground/40 mt-1 italic">
-                 {job.employer.companyName} {" // "} {job.employer.industry || "General Exploration"}
+                 {job.companyName || job.employer.companyName} {" // "} {job.employer.industry || "General Exploration"}
              </p>
           </div>
         </div>

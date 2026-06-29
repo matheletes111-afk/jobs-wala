@@ -98,6 +98,7 @@ export async function GET(req: NextRequest) {
       jobs: jobs.map((j) => ({
         id: j.id,
         title: j.title,
+        companyName: j.companyName ? j.companyName : j.employer.companyName,
         location: j.location,
         category: j.category,
         status: j.status,

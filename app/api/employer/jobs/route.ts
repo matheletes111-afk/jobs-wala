@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
         requiredSkills: j.requiredSkills,
         createdAt: j.createdAt,
         expiresAt: j.expiresAt,
-        companyName: j.companyName,
+        companyName: j.companyName ? j.companyName : j.employer.companyName,
         employer: j.employer,
         _count: j._count,
       })),
