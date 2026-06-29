@@ -21,7 +21,7 @@ export async function GET() {
           const salary = j.salaryMin != null && j.salaryMax != null ? `${j.currency || ""} ${j.salaryMin}-${j.salaryMax} / ${j.payType || ""}` : "";
           const location = typeof j.location === 'string' ? j.location : typeof j.location === 'object' && j.location ? JSON.stringify(j.location).replace(/"/g, '""') : "";
           
-          return `"${j.id}","${(j.title || "").replace(/"/g, '""')}","${(j.employer?.companyName || "").replace(/"/g, '""')}","${(j.category || "").replace(/"/g, '""')}","${j.employmentType || ""}","${j.workMode || ""}","${location}","${j.status}","${exp}","${salary}","${j.createdAt.toISOString()}"`;
+          return `"${j.id}","${(j.title || "").replace(/"/g, '""')}","${((j.companyName || j.employer?.companyName) || "").replace(/"/g, '""')}","${(j.category || "").replace(/"/g, '""')}","${j.employmentType || ""}","${j.workMode || ""}","${location}","${j.status}","${exp}","${salary}","${j.createdAt.toISOString()}"`;
         }
       ),
     ].join("\n");

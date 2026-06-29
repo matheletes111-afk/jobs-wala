@@ -28,6 +28,7 @@ interface ApplicationItem {
     location: string;
     category: string;
     status: string;
+    companyName: string;
     employer: { companyName: string; companyLogo?: string | null };
   };
 }
@@ -274,7 +275,7 @@ export default function ApplicationSearch() {
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
                     <CompanyLogo
                       companyLogo={application.job.employer.companyLogo}
-                      companyName={application.job.employer.companyName}
+                      companyName={application.job.companyName || application.job.employer.companyName}
                       size="lg"
                       className="shrink-0 rounded-[1.25rem] border border-white/10 bg-white/5 group-hover:border-white/20 scale-110 md:scale-100"
                     />
@@ -298,7 +299,7 @@ export default function ApplicationSearch() {
                         </span>
                       </div>
                       <p className="mt-2 text-lg font-bold text-foreground opacity-80">
-                        {application.job.employer.companyName}
+                        {application.job.companyName || application.job.employer.companyName}
                       </p>
                       <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
                         <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground whitespace-nowrap">

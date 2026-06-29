@@ -187,13 +187,18 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
+  const resolvedJobs = jobs.map((j) => ({
+    ...j,
+    companyName: j.companyName ? j.companyName : j.employer.companyName,
+  }));
+
   if (!usePagination) {
-    return NextResponse.json(jobs);
+    return NextResponse.json(resolvedJobs);
   }
 
   const totalPages = Math.ceil(total / limit);
   return NextResponse.json({
-    jobs,
+    jobs: resolvedJobs,
     total,
     totalPages,
     page,

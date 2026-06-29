@@ -22,6 +22,7 @@ interface Job {
   requiredSkills?: string[];
   secondarySkills?: string[];
   createdAt: Date;
+  companyName?: string | null;
   employer: {
     companyName: string;
     companyLogo?: string | null;
@@ -44,7 +45,7 @@ export default function JobDetails({ job }: { job: Job }) {
       <div className="flex flex-col md:flex-row items-center md:items-start gap-10 border-b border-white/5 pb-10 mb-10">
         <CompanyLogo
           companyLogo={job.employer.companyLogo}
-          companyName={job.employer.companyName}
+          companyName={job.companyName || job.employer.companyName}
           size="lg"
           className="shrink-0 rounded-[1.5rem] border border-white/10 shadow-2xl scale-125 md:scale-100 bg-white/5"
         />
@@ -55,7 +56,7 @@ export default function JobDetails({ job }: { job: Job }) {
           </h1>
           <div className="flex flex-wrap justify-center md:justify-start gap-2">
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-xs font-semibold text-slate-700">
-              {job.employer.companyName}
+              {job.companyName || job.employer.companyName}
             </span>
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-700">
               {formatLocation(job.location)}
@@ -139,7 +140,7 @@ export default function JobDetails({ job }: { job: Job }) {
             <div className="space-y-6">
               <div>
                 <p className="text-xs font-semibold text-muted-foreground mb-2">Company Name</p>
-                <p className="text-sm font-bold text-foreground">{job.employer.companyName}</p>
+                <p className="text-sm font-bold text-foreground">{job.companyName || job.employer.companyName}</p>
               </div>
               <div>
                 <p className="text-xs font-semibold text-muted-foreground mb-2">Overview</p>

@@ -104,7 +104,14 @@ export async function GET(req: NextRequest) {
         take: limit,
         include: {
           job: {
-            include: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              location: true,
+              category: true,
+              status: true,
+              companyName: true,
               employer: { select: { companyName: true, companyLogo: true } },
             },
           },
@@ -127,6 +134,7 @@ export async function GET(req: NextRequest) {
           location: a.job.location,
           category: a.job.category,
           status: a.job.status,
+          companyName: a.job.companyName ? a.job.companyName : a.job.employer.companyName,
           employer: a.job.employer,
         },
       })),

@@ -199,7 +199,7 @@ export default function AdminJobsClient() {
       return [
         job.id,
         `"${(job.title || "").replace(/"/g, '""')}"`,
-        `"${(job.employer.companyName || "").replace(/"/g, '""')}"`,
+        `"${(job.companyName || job.employer.companyName || "").replace(/"/g, '""')}"`,
         `"${(job.employer.industry || "").replace(/"/g, '""')}"`,
         `"${location.replace(/"/g, '""')}"`,
         `"${(job.category || "").replace(/"/g, '""')}"`,
@@ -553,7 +553,7 @@ function JobCard({
         <div className="flex items-center gap-6">
           <CompanyLogo
             companyLogo={job.employer.companyLogo}
-            companyName={job.employer.companyName}
+            companyName={job.companyName || job.employer.companyName}
             size="lg"
             className="h-16 w-16 rounded-2xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-110"
           />

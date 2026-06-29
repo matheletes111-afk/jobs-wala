@@ -60,7 +60,7 @@ export async function PATCH(
         await sendApplicationNotificationEmail({
           to: application.jobSeeker.user.email,
           jobTitle: application.job.title,
-          companyName: application.job.employer.companyName,
+          companyName: application.job.companyName || application.job.employer.companyName,
           status: data.status,
           candidateName,
         });

@@ -173,7 +173,7 @@ export default async function AdminDashboardPage() {
                     <div className="flex items-start justify-between gap-4 mb-6">
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
-                        companyName={job.employer.companyName}
+                        companyName={job.companyName || job.employer.companyName}
                         size="md"
                         className="shrink-0 rounded-2xl border border-black/10 bg-white transition-transform group-hover:scale-110"
                       />
@@ -195,7 +195,7 @@ export default async function AdminDashboardPage() {
                         {job.title}
                       </h3>
                       <p className="text-sm font-bold text-muted-foreground/60 italic">
-                        {job.employer.companyName}
+                        {job.companyName || job.employer.companyName}
                       </p>
 
                       <div className="flex flex-wrap gap-2 pt-2">
