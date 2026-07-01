@@ -38,28 +38,51 @@ async function processFile(file: File) {
     const r2Key = extractS3KeyFromUrl(url) || url;
     const parsed = await parseResumeWithOpenAI(buffer, file.name, file.type);
 
-    const doc = await prisma.resumeDocument.create({
-      data: {
-        originalFileName: file.name,
-        mimeType: file.type,
-        sizeBytes: file.size,
-        r2Key,
-        r2Url: url,
-        parseStatus: ResumeParseStatus.PARSED,
-        extractedText: parsed.extractedText,
-        extractedName: parsed.name || guessNameFromFilename(file.name),
-        extractedEmail: parsed.email,
-        extractedPhone: parsed.phone,
-        extractedLocation: parsed.location,
-        experienceYears: parsed.experienceYears,
-        currentTitle: parsed.currentTitle,
-        extractedData: {
-          education: parsed.education,
-          summary: parsed.summary,
-        },
-        skills: parsed.skills,
+    let existingDoc = null;
+    if (parsed.email) {
+      existingDoc = await prisma.resumeDocument.findFirst({
+        where: { extractedEmail: parsed.email },
+      });
+    }
+    if (!existingDoc && parsed.phone) {
+      existingDoc = await prisma.resumeDocument.findFirst({
+        where: { extractedPhone: parsed.phone },
+      });
+    }
+
+    const docData = {
+      originalFileName: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+      r2Key,
+      r2Url: url,
+      parseStatus: ResumeParseStatus.PARSED,
+      extractedText: parsed.extractedText || "",
+      extractedName: parsed.name || guessNameFromFilename(file.name) || "Unknown",
+      extractedEmail: parsed.email,
+      extractedPhone: parsed.phone,
+      extractedLocation: parsed.location,
+      experienceYears: parsed.experienceYears,
+      currentTitle: parsed.currentTitle,
+      extractedData: {
+        education: parsed.education,
+        summary: parsed.summary,
       },
-    });
+      skills: parsed.skills,
+    };
+
+    let doc;
+    if (existingDoc) {
+      doc = await prisma.resumeDocument.update({
+        where: { id: existingDoc.id },
+        data: docData,
+      });
+      console.log(`[bulk-upload] Updated duplicate ResumeDocument (ID: ${existingDoc.id})`);
+    } else {
+      doc = await prisma.resumeDocument.create({
+        data: docData,
+      });
+    }
     return { success: true, doc };
   } catch (error) {
     const parseError =

@@ -434,42 +434,42 @@ export default function EmployerApplicationListClient({
                   {applications.map((app, idx) => (
                     <div
                       key={app.id}
-                      className="linear-card group flex flex-col gap-8 rounded-[2.5rem] shadow-md p-8 transition-all hover:shadow-xl hover:border-primary/30 animate-in slide-in-from-right-10 duration-700 fill-mode-both sm:flex-row sm:items-start sm:justify-between"
+                      className="linear-card group flex flex-col gap-6 rounded-2xl shadow-md p-5 transition-all hover:shadow-xl hover:border-primary/30 animate-in slide-in-from-right-10 duration-700 fill-mode-both sm:flex-row sm:items-start sm:justify-between"
                       style={{ animationDelay: `${idx * 100}ms` }}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-start gap-8">
+                        <div className="flex items-start gap-4">
                           <CandidateAvatar
                             profileImage={app.jobSeeker.profileImage}
                             firstName={app.jobSeeker.firstName}
                             lastName={app.jobSeeker.lastName}
-                            size="lg"
+                            size="md"
                             className="group-hover:scale-105 transition-transform"
                           />
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-semibold text-primary mb-1">Applicant ID: {app.jobSeeker.id.slice(0,8)}</p>
-                            <h3 className="text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors">
                               {app.jobSeeker.firstName} {app.jobSeeker.lastName}
                             </h3>
-                            <p className="mt-1 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                            <p className="mt-1 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                               Applied for: {app.job.title}
                             </p>
-                            <div className="mt-4 flex flex-wrap items-center gap-3">
-                              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
                                 <MapPin className="h-3 w-3 text-primary" />
                                 {formatLocation(app.job.location, true)}
                               </span>
-                              <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
+                              <span className="px-2.5 py-0.5 rounded-full bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
                                 {app.job.category}
                               </span>
-                              <span className="px-3 py-1 rounded-full bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-600">
+                              <span className="px-2.5 py-0.5 rounded-full bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-600">
                                 {formatEmploymentType(app.job.employmentType)}
                               </span>
-                              <span className="px-3 py-1 rounded-full bg-purple-55 border border-purple-200 text-xs font-semibold text-purple-600">
+                              <span className="px-2.5 py-0.5 rounded-full bg-purple-55 border border-purple-200 text-xs font-semibold text-purple-600">
                                 {app.job.workMode}
                               </span>
                               {formatSalary(app.job.salaryMin, app.job.salaryMax, app.job.currency, app.job.payType) && (
-                                <span className="px-3 py-1 rounded-full bg-emerald-55 border border-emerald-200 text-xs font-semibold text-emerald-600">
+                                <span className="px-2.5 py-0.5 rounded-full bg-emerald-55 border border-emerald-200 text-xs font-semibold text-emerald-600">
                                   {formatSalary(app.job.salaryMin, app.job.salaryMax, app.job.currency, app.job.payType)}
                                 </span>
                               )}
@@ -478,7 +478,7 @@ export default function EmployerApplicationListClient({
                               </span>
                             </div>
                             
-                            <div className="mt-8 p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200 space-y-6">
+                            <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
                               <SkillMatchBar
                                 percent={app.skillMatchPercent}
                                 matched={app.skillMatchMatched}
@@ -486,16 +486,16 @@ export default function EmployerApplicationListClient({
                                 matchedLabels={app.skillMatchLabels}
                               />
                               
-                              <div className="pt-4 border-t border-slate-200/60 space-y-4">
+                              <div className="pt-3 border-t border-slate-200/60 space-y-3">
                                 <div>
-                                  <h4 className="text-xs font-semibold text-slate-500 mb-2">Required Skills for this Job:</h4>
+                                  <h4 className="text-xs font-semibold text-slate-500 mb-1.5">Required Skills for this Job:</h4>
                                   <div className="flex flex-wrap gap-1.5">
                                     {app.job.requiredSkills.map((reqSkill, sIdx) => {
                                       const matched = app.skillMatchLabels.some(l => l.toLowerCase() === reqSkill.toLowerCase());
                                       return (
                                         <span
                                           key={sIdx}
-                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                                          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold border ${
                                             matched
                                               ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                               : "bg-slate-100 border-slate-200 text-slate-500"
@@ -510,14 +510,14 @@ export default function EmployerApplicationListClient({
                                 </div>
 
                                 <div>
-                                  <h4 className="text-xs font-semibold text-slate-500 mb-2">Candidate's Full Profile Skills:</h4>
+                                  <h4 className="text-xs font-semibold text-slate-500 mb-1.5">Candidate's Full Profile Skills:</h4>
                                   <div className="flex flex-wrap gap-1.5">
                                     {app.jobSeeker.skills.map((skill, sIdx) => {
                                       const isReq = app.job.requiredSkills.some(r => skillKeywordMatch(r, skill));
                                       return (
                                         <span
                                           key={sIdx}
-                                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                                          className={`px-2 py-0.5 rounded text-xs font-medium border ${
                                             isReq 
                                               ? "bg-blue-50 border-blue-200 text-blue-700 font-semibold"
                                               : "bg-slate-100 border-slate-200 text-slate-700"
@@ -533,8 +533,8 @@ export default function EmployerApplicationListClient({
                             </div>
                             
                             {app.coverLetter && (
-                              <div className="mt-6 p-6 rounded-[1.5rem] bg-blue-55 border-l-4 border-primary">
-                                <p className="text-xs font-semibold text-muted-foreground/50 mb-3">Cover Letter:</p>
+                              <div className="mt-4 p-4 rounded-xl bg-blue-55 border-l-4 border-primary">
+                                <p className="text-xs font-semibold text-muted-foreground/50 mb-2">Cover Letter:</p>
                                 <p className="text-sm text-muted-foreground leading-relaxed font-medium line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
                                   {app.coverLetter}
                                 </p>
@@ -546,18 +546,18 @@ export default function EmployerApplicationListClient({
                                 href={app.jobSeeker.resumeUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-6 inline-flex items-center gap-3 h-10 px-6 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+                                className="mt-4 inline-flex items-center gap-3.5 h-9 px-5 rounded-lg bg-primary/10 border border-primary/20 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
                               >
-                                <FileText className="h-4 w-4" />
+                                <FileText className="h-3.5 w-3.5" />
                                 View Resume
                               </a>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col items-center sm:items-end gap-6">
+                      <div className="flex shrink-0 flex-col items-center sm:items-end gap-4">
                         <span
-                          className={`h-10 px-6 rounded-xl border flex items-center justify-center text-xs font-semibold shadow-xl ${
+                          className={`h-9 px-5 rounded-lg border flex items-center justify-center text-xs font-semibold shadow-xl ${
                             app.status === "SHORTLISTED"
                               ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-emerald-500/5"
                               : app.status === "REJECTED"
@@ -567,8 +567,8 @@ export default function EmployerApplicationListClient({
                         >
                           {app.status}
                         </span>
-                        <div className="flex flex-col gap-3 w-full sm:w-auto">
-                          <div className="h-10 px-2 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                        <div className="flex flex-col gap-2.5 w-full sm:w-auto">
+                          <div className="h-9 px-2 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
                             <ApplicationActions
                               applicationId={app.id}
                               currentStatus={app.status}
@@ -576,7 +576,7 @@ export default function EmployerApplicationListClient({
                             />
                           </div>
                           <Link href={`/employer/applications/${app.id}`}>
-                            <Button variant="ghost" className="w-full h-10 px-6 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 gap-2 transition-all">
+                            <Button variant="ghost" className="w-full h-9 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-foreground hover:bg-slate-200 gap-2 transition-all">
                               <FileText className="h-3.5 w-3.5" />
                               View Details
                             </Button>

@@ -42,6 +42,7 @@ const profileSchema = z.object({
   desiredLocation: z.string().optional(),
   noticePeriod: z.string().optional(),
   dateOfBirth: z.string().optional(),
+  preferredCategories: z.array(z.string()).optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -70,6 +71,7 @@ interface ProfileFormProps {
     desiredLocation?: string | null;
     noticePeriod?: string | null;
     dateOfBirth?: Date | string | null;
+    preferredCategories?: string[] | null;
   };
   userEmail?: string;
   emailChangeStatus?: string;
@@ -101,6 +103,16 @@ export default function ProfileForm({
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(profile?.preferredCategories || []);
+
+  useEffect(() => {
+    fetch("/api/categories?activeOnly=true")
+      .then((res) => res.json())
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+  }, []);
 
   const [parsingResume, setParsingResume] = useState(false);
   const [resumeUrlState, setResumeUrlState] = useState<string | null>(profile?.resumeUrl ?? null);
@@ -399,6 +411,7 @@ export default function ProfileForm({
           profileImage,
           resumeUrl,
           certificates: certificatesJson,
+          preferredCategories: selectedCategories,
         }),
       });
 
@@ -727,6 +740,40 @@ export default function ProfileForm({
               />
             </div>
           </div>
+
+          {categories.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <h3 className="text-sm font-semibold text-foreground">Preferred Job Categories</h3>
+              </div>
+              <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8">
+                <p className="text-xs text-muted-foreground mb-4">Select the job categories you are interested in. We will recommend jobs based on these preferences.</p>
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  {categories.map((cat) => {
+                    const isChecked = selectedCategories.includes(cat.name);
+                    return (
+                      <label key={cat.id} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 cursor-pointer transition-all">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {
+                            if (isChecked) {
+                              setSelectedCategories(selectedCategories.filter(c => c !== cat.name));
+                            } else {
+                              setSelectedCategories([...selectedCategories, cat.name]);
+                            }
+                          }}
+                          className="rounded border-white/20 text-primary focus:ring-primary/20 bg-transparent size-4"
+                        />
+                        <span className="text-xs font-semibold text-foreground">{cat.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="space-y-3">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth-utils";
 import Header from "@/components/Header";
+import { prisma } from "@/lib/prisma";
 import { 
   ChevronDown, 
   Sparkles, 
@@ -24,6 +25,25 @@ export const metadata = {
 
 export default async function AtsPage() {
   const user = await getCurrentUser();
+
+  const employerPlans = await prisma.plan.findMany({
+    where: {
+      amount: { gt: 0 },
+      status: "ACTIVE",
+    },
+    orderBy: {
+      amount: "asc",
+    },
+  });
+
+  const careerPackages = await prisma.careerPackage.findMany({
+    where: {
+      tier: { in: ["fresher", "mid_level", "executive"] }
+    },
+    orderBy: {
+      price: "asc",
+    },
+  });
 
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
@@ -48,7 +68,7 @@ export default async function AtsPage() {
                 Enterprise <br />
                 <span className="text-blue-600">Applicant Tracking.</span>
               </h1>
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-medium">
+              <p className="text-base sm:text-lg text-slate-650 leading-relaxed font-medium">
                 Automate candidate sourcing, screening, ranking, and pipeline management. Transition from legacy software in under 24 hours and identify top-tier matches with absolute semantic precision.
               </p>
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start pt-2">
@@ -131,160 +151,123 @@ export default async function AtsPage() {
         <section id="pricing" className="bg-slate-50/70 border-y border-slate-100 py-20 text-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
             <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary">ATS Recruitment Suites</span>
+              <h2 className="text-3xl font-black tracking-tight sm:text-4xl mt-2 text-slate-900">
+                Employer ATS Pricing & Subscriptions
+              </h2>
+              <p className="mt-4 text-base font-medium text-slate-500">
+                Choose the perfect recruiter package designed to scale your placement speed and sourcing pipelines.
+              </p>
+            </div>
+
+            {/* Employer Plans Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto items-stretch">
+              {employerPlans.map((plan) => {
+                let icon = "🌱";
+                let badge = "Growth";
+                if (plan.amount >= 5000) {
+                  icon = "⚡";
+                  badge = "Enterprise";
+                } else if (plan.amount >= 3000) {
+                  icon = "🚀";
+                  badge = "Pro";
+                }
+                
+                return (
+                  <div key={plan.id} className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{icon}</span>
+                        <div>
+                          <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">{badge}</span>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex items-baseline">
+                        <span className="text-4xl font-extrabold text-blue-600">₹{plan.amount}</span>
+                        <span className="text-slate-500 font-medium text-xs ml-2">/ {plan.durationDays} Days</span>
+                      </div>
+                      <p className="text-xs text-slate-550 mt-4 leading-relaxed font-semibold">
+                        {plan.description || `Optimized recruiting pipeline access for ${plan.durationDays} days.`}
+                      </p>
+                      <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-655">
+                        <li className="flex items-center gap-3">
+                          <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> {plan.jobLimit} Active Job Pipelines
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <CheckCircle2 className="size-4 text-blue-600 shrink-0" />
+                          <span>Resume Search: {plan.resumeSearchEnabled ? "Enabled" : "Disabled"}</span>
+                        </li>
+                        <li className="flex items-center gap-3">
+                          <CheckCircle2 className="size-4 text-blue-600 shrink-0" />
+                          <span>AI X-Ray Search: {plan.xraySearchEnabled ? "Enabled" : "Disabled"}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="mt-8">
+                      <Link href="/register">
+                        <Button className="w-full bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl h-11 font-bold text-xs uppercase tracking-wider transition-all">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Career Packages Grid */}
+            <div className="text-center max-w-3xl mx-auto mb-16 mt-20">
               <span className="text-[10px] font-black uppercase tracking-widest text-primary">Exclusive Resume Blueprints</span>
               <h2 className="text-3xl font-black tracking-tight sm:text-4xl mt-2 text-slate-900">
-                Pricing & Subscription Plans
+                Candidate Career Packages
               </h2>
               <p className="mt-4 text-base font-medium text-slate-500">
                 Choose the perfect career accelerator package designed to maximize your professional impact.
               </p>
             </div>
-
-            {/* Pricing Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch mb-16 max-w-6xl mx-auto">
-              {/* Fresher Blueprint */}
-              <div className="bg-blue-50/75 rounded-3xl p-8 border border-blue-150 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🎓</span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch mb-16 max-w-6xl mx-auto">
+              {careerPackages.map((pkg) => {
+                let icon = "🎓";
+                if (pkg.tier === "mid_level") icon = "🚀";
+                else if (pkg.tier === "executive") icon = "👑";
+                
+                return (
+                  <div key={pkg.id} className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
                     <div>
-                      <h3 className="text-xl font-bold text-slate-900">Fresher Blueprint</h3>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">Entry-Level</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{icon}</span>
+                        <div>
+                          <h3 className="text-xl font-bold text-slate-900">{pkg.name}</h3>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-purple-650">{pkg.tier}</span>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex items-baseline">
+                        <span className="text-4xl font-extrabold text-purple-650">₹{pkg.price}</span>
+                        <span className="text-slate-500 font-medium text-xs ml-2">/ one-time</span>
+                      </div>
+                      <p className="text-xs text-slate-550 mt-4 leading-relaxed font-semibold">
+                        {pkg.description || "Expertly crafted career optimization plan."}
+                      </p>
+                      <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-655">
+                        {pkg.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-center gap-3">
+                            <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="mt-8">
+                      <Link href="/register">
+                        <Button className="w-full bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl h-11 font-bold text-xs uppercase tracking-wider transition-all">
+                          Choose Package
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-                  <div className="mt-6 flex items-baseline">
-                    <span className="text-4xl font-extrabold text-blue-600">₹999</span>
-                    <span className="text-slate-500 font-medium text-xs ml-2">/ one-time</span>
-                  </div>
-                  <p className="text-xs text-slate-550 mt-4 leading-relaxed font-semibold">
-                    For students & 0–2 yr professionals stepping into their first role.
-                  </p>
-                  <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-650">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> Complete ATS-friendly rewrite
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> Single-page recruiter format
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> Keyword optimization (entry roles)
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> Cover letter template
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> 48-hour delivery
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> 1 round of revision
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-8">
-                  <Link href="/register">
-                    <Button className="w-full bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl h-11 font-bold text-xs uppercase tracking-wider transition-all">
-                      Choose Fresher
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Mid-Level Accelerator */}
-              <div className="bg-[#485c96] rounded-3xl p-8 border-2 border-[#eab308] shadow-2xl relative flex flex-col justify-between transition-all scale-[1.03] z-10 text-white mx-2 my-4 lg:my-0">
-                <div className="absolute top-0 right-8 -translate-y-1/2 bg-[#eab308] text-slate-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
-                  Most Popular
-                </div>
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🚀</span>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Mid-Level Accelerator</h3>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#eab308]">Professional</span>
-                    </div>
-                  </div>
-                  <div className="mt-6 flex items-baseline">
-                    <span className="text-4xl font-extrabold text-[#eab308]">₹2,449</span>
-                    <span className="text-blue-200 font-medium text-xs ml-2">/ one-time</span>
-                  </div>
-                  <p className="text-xs text-blue-100 mt-4 leading-relaxed font-semibold">
-                    For 3–8 yr professionals targeting senior IC and lead roles.
-                  </p>
-                  <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-100">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> Strategic positioning rewrite
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> Role-specific keyword engineering
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> Quantified impact statements
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> LinkedIn headline + About rewrite
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> Personalised cover letter
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-[#eab308] shrink-0" /> Unlimited revisions (7 days)
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-8">
-                  <Link href="/register">
-                    <Button className="w-full bg-[#eab308] hover:bg-[#ca8a04] text-slate-900 rounded-xl h-11 font-bold text-xs uppercase tracking-wider transition-all">
-                      Choose Mid-Level
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Executive Empire */}
-              <div className="bg-purple-50/75 rounded-3xl p-8 border border-purple-150 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">👑</span>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Executive Empire</h3>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-purple-650">Leadership</span>
-                    </div>
-                  </div>
-                  <div className="mt-6 flex items-baseline">
-                    <span className="text-4xl font-extrabold text-purple-650">₹4,999</span>
-                    <span className="text-slate-500 font-medium text-xs ml-2">/ one-time</span>
-                  </div>
-                  <p className="text-xs text-slate-550 mt-4 leading-relaxed font-semibold">
-                    For Directors, VPs & C-suite shaping the next chapter of their career.
-                  </p>
-                  <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-655">
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> Executive narrative & branding
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> Board / leadership formatting
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> Full LinkedIn profile overhaul
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> Bio + recruiter pitch document
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> 1-on-1 strategy call (30 min)
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-purple-650 shrink-0" /> Priority delivery (24h)
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-8">
-                  <Link href="/register">
-                    <Button className="w-full bg-[#2563eb] hover:bg-blue-700 text-white rounded-xl h-11 font-bold text-xs uppercase tracking-wider transition-all">
-                      Choose Executive
-                    </Button>
-                  </Link>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
         </section>

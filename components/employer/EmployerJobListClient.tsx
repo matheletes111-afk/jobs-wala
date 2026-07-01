@@ -410,30 +410,30 @@ export default function EmployerJobListClient() {
                     {jobs.map((job, idx) => (
                       <div
                         key={job.id}
-                        className="linear-card group flex flex-col overflow-hidden rounded-[2.5rem] shadow-md p-8 transition-all hover:shadow-xl hover:border-primary/30 animate-in slide-in-from-bottom-10 duration-700 fill-mode-both"
+                        className="linear-card group flex flex-col overflow-hidden rounded-2xl shadow-md p-5 transition-all hover:shadow-xl hover:border-primary/30 animate-in slide-in-from-bottom-10 duration-700 fill-mode-both"
                         style={{ animationDelay: `${idx * 100}ms` }}
                       >
                         <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-6 min-w-0">
+                          <div className="flex items-start gap-4 min-w-0">
                             <CompanyLogo
                               companyLogo={job.employer?.companyLogo}
-                              companyName={job.employer?.companyName ?? job.title}
-                              size="lg"
-                              className="h-16 w-16 shrink-0 rounded-2xl bg-slate-100 border border-slate-200 group-hover:scale-105 transition-transform"
+                              companyName={job.companyName || job.employer?.companyName || job.title}
+                              size="md"
+                              className="h-12 w-12 shrink-0 rounded-xl bg-slate-100 border border-slate-200 group-hover:scale-105 transition-transform"
                             />
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-3 mb-1.5">
                                 <span className={`h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-emerald-400" : "bg-primary"}`} />
                                 <span className={`text-xs font-semibold ${job.status === "ACTIVE" ? "text-emerald-400" : "text-primary opacity-60"}`}>
                                   {job.status}
                                 </span>
                               </div>
                               <Link href={`/employer/jobs/${job.id}`}>
-                                <h3 className="text-xl font-bold text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
+                                <h3 className="text-lg font-bold text-foreground tracking-tight group-hover:text-primary transition-colors line-clamp-1">
                                   {job.title}
                                 </h3>
                               </Link>
-                              <p className="mt-2 text-xs font-semibold text-muted-foreground/70">
+                              <p className="mt-1 text-xs font-semibold text-muted-foreground/70">
                                 {job.companyName || job.employer?.companyName}
                               </p>
                               <p className="mt-1 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
@@ -446,32 +446,32 @@ export default function EmployerJobListClient() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-10 w-10 bg-slate-100 border border-slate-200 hover:bg-primary/20 hover:border-primary/30 text-primary rounded-xl transition-all"
+                              className="h-9 w-9 bg-slate-100 border border-slate-200 hover:bg-primary/20 hover:border-primary/30 text-primary rounded-lg transition-all"
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                           </Link>
                         </div>
 
-                        <div className="mt-6 flex flex-wrap gap-2">
-                          <span className="px-3 py-1 rounded-full bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
+                        <div className="mt-4 flex flex-wrap gap-1.5">
+                          <span className="px-2.5 py-0.5 rounded-full bg-primary/5 border border-primary/20 text-[11px] font-semibold text-primary">
                             {job.category}
                           </span>
-                          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-600">
                             {job.status === "PAUSED" ? "Paused" : job.status === "CLOSED" ? "Closed" : job.status}
                           </span>
-                          <span className="px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                            <Calendar className="h-3.5 w-3.5 text-primary" />
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-600 flex items-center gap-1.5">
+                            <Calendar className="h-3 w-3 text-primary" />
                             Posted: {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : ""}
                           </span>
                           {formatSalary(job) && (
-                            <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary shadow-lg shadow-primary/5">
+                            <span className="px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[11px] font-semibold text-primary shadow-lg shadow-primary/5">
                               {formatSalary(job)}
                             </span>
                           )}
                         </div>
 
-                        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-200">
+                        <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
                           <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
                             <FileText className="h-3.5 w-3.5 text-primary" />
                             {job._count.applications} Applications Received
@@ -480,9 +480,9 @@ export default function EmployerJobListClient() {
                             <ShareJobButton
                               jobId={job.id}
                               jobTitle={job.title}
-                              className="h-10 w-10 bg-slate-100 border-slate-200 hover:bg-slate-200 text-foreground rounded-xl"
+                              className="h-9 w-9 bg-slate-100 border-slate-200 hover:bg-slate-200 text-foreground rounded-lg"
                             />
-                            <div className="h-10 px-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center">
+                            <div className="h-9 px-2 rounded-lg bg-slate-100 border border-slate-200 flex items-center">
                               <JobStatusActions
                                 jobId={job.id}
                                 jobTitle={job.title}
@@ -492,11 +492,11 @@ export default function EmployerJobListClient() {
                           </div>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-3">
                           <Link href={`/employer/jobs/${job.id}`} className="w-full">
                             <Button
                               variant="default"
-                              className="w-full h-12 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-xs transition-all shadow-lg shadow-primary/20"
+                              className="w-full h-11 rounded-lg bg-primary hover:bg-blue-600 text-white font-bold text-xs transition-all shadow-lg shadow-primary/20"
                             >
                               Manage Job Details
                             </Button>
@@ -526,7 +526,7 @@ export default function EmployerJobListClient() {
                                 <div className="flex items-center gap-4">
                                   <CompanyLogo
                                     companyLogo={job.employer?.companyLogo}
-                                    companyName={job.employer?.companyName ?? job.title}
+                                    companyName={job.companyName || job.employer?.companyName || job.title}
                                     size="sm"
                                     className="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200"
                                   />

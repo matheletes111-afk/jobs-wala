@@ -10,7 +10,7 @@ import { Briefcase, FileText, User, ChevronRight, Plus, Sparkles } from "lucide-
 export default async function UserDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ skillsPage?: string; prefPage?: string; page?: string }>;
 }) {
   const user = await requireJobSeeker();
 
@@ -23,7 +23,8 @@ export default async function UserDashboardPage({
   }
 
   const resolvedSearchParams = await searchParams;
-  const currentPage = Math.max(1, parseInt(resolvedSearchParams.page || "1", 10));
+  const currentSkillsPage = Math.max(1, parseInt(resolvedSearchParams.skillsPage || resolvedSearchParams.page || "1", 10));
+  const currentPrefPage = Math.max(1, parseInt(resolvedSearchParams.prefPage || "1", 10));
 
   const applicationsCount = await prisma.application.count({
     where: { jobSeekerId: user.id },
@@ -81,10 +82,40 @@ export default async function UserDashboardPage({
     .filter((job) => job.matchPercentage > 0)
     .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
+  const preferredCategories = profile.preferredCategories || [];
+  const preferredJobs = allActiveJobs
+    .filter((job) =>
+      preferredCategories.some(
+        (cat) => cat.toLowerCase() === job.category.toLowerCase()
+      )
+    )
+    .map((job) => {
+      const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
+      let matchPercentage = 0;
+      let matchedSkills: string[] = [];
+      if (jobSkills.length > 0) {
+        const matched = jobSkills.filter((js) =>
+          candidateSkills.some(
+            (cs) =>
+              cs.toLowerCase().includes(js.toLowerCase()) ||
+              js.toLowerCase().includes(cs.toLowerCase())
+          )
+        );
+        matchPercentage = Math.round((matched.length / jobSkills.length) * 100);
+        matchedSkills = matched;
+      }
+      return { ...job, matchPercentage, matchedSkills };
+    })
+    .sort((a, b) => b.matchPercentage - a.matchPercentage);
+
   const limit = 10;
   const totalMatchedJobs = matchedJobs.length;
-  const totalPages = Math.ceil(totalMatchedJobs / limit);
-  const paginatedJobs = matchedJobs.slice((currentPage - 1) * limit, currentPage * limit);
+  const totalSkillsPages = Math.ceil(totalMatchedJobs / limit);
+  const paginatedSkillsJobs = matchedJobs.slice((currentSkillsPage - 1) * limit, currentSkillsPage * limit);
+
+  const totalPreferredJobs = preferredJobs.length;
+  const totalPrefPages = Math.ceil(totalPreferredJobs / limit);
+  const paginatedPrefJobs = preferredJobs.slice((currentPrefPage - 1) * limit, currentPrefPage * limit);
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent">
@@ -183,12 +214,12 @@ export default async function UserDashboardPage({
               </div>
             </div>
             <div className="divide-y divide-white/5 overflow-x-auto">
-              {paginatedJobs.length === 0 ? (
+              {paginatedSkillsJobs.length === 0 ? (
                 <div className="px-8 py-20 text-center text-muted-foreground font-medium italic">
                   No recommended jobs found. Update your profile skills to match with open positions!
                 </div>
               ) : (
-                paginatedJobs.map((job, idx) => {
+                paginatedSkillsJobs.map((job, idx) => {
                   const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
                   return (
                     <div
@@ -280,23 +311,23 @@ export default async function UserDashboardPage({
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {totalSkillsPages > 1 && (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-8 pb-8 border-t border-white/5 pt-8">
                 <Link
-                  href={currentPage > 1 ? `/user/dashboard?page=${currentPage - 1}` : "#"}
+                  href={currentSkillsPage > 1 ? `/user/dashboard?skillsPage=${currentSkillsPage - 1}&prefPage=${currentPrefPage}` : "#"}
                   className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentPage <= 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                    currentSkillsPage <= 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
                   }`}
                 >
                   ← Previous Page
                 </Link>
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  {Array.from({ length: totalSkillsPages }, (_, i) => i + 1).map((p) => (
                     <Link
                       key={p}
-                      href={`/user/dashboard?page=${p}`}
+                      href={`/user/dashboard?skillsPage=${p}&prefPage=${currentPrefPage}`}
                       className={`h-10 w-10 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
-                        currentPage === p
+                        currentSkillsPage === p
                           ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40"
                           : "text-muted-foreground/45 hover:bg-white/5 hover:text-foreground"
                       }`}
@@ -306,9 +337,135 @@ export default async function UserDashboardPage({
                   ))}
                 </div>
                 <Link
-                  href={currentPage < totalPages ? `/user/dashboard?page=${currentPage + 1}` : "#"}
+                  href={currentSkillsPage < totalSkillsPages ? `/user/dashboard?skillsPage=${currentSkillsPage + 1}&prefPage=${currentPrefPage}` : "#"}
                   className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentPage >= totalPages ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                    currentSkillsPage >= totalSkillsPages ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  }`}
+                >
+                  Next Page →
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Jobs in Your Preferred Categories */}
+        {profile.preferredCategories && profile.preferredCategories.length > 0 && (
+          <section className="linear-card rounded-[2.5rem] overflow-hidden mb-16 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+            <div className="flex items-center justify-between border-b border-white/5 px-8 py-8">
+              <div>
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-blue-500" />
+                  Jobs in Your Preferred Categories
+                </h2>
+                <p className="text-sm font-medium text-muted-foreground mt-1">
+                  Active job listings under your selected categories
+                </p>
+              </div>
+            </div>
+            <div className="divide-y divide-white/5 overflow-x-auto">
+              {paginatedPrefJobs.length === 0 ? (
+                <div className="px-8 py-20 text-center text-muted-foreground font-medium italic">
+                  No jobs found in your preferred categories. Update your preferences to see listings!
+                </div>
+              ) : (
+                paginatedPrefJobs.map((job, idx) => {
+                  const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
+                  return (
+                    <div
+                      key={job.id}
+                      className="flex flex-col lg:flex-row lg:items-center gap-6 px-8 py-8 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
+                      style={{ animationDelay: `${idx * 50}ms` }}
+                    >
+                      <CompanyLogo
+                        companyLogo={job.employer.companyLogo}
+                        companyName={job.companyName || job.employer.companyName}
+                        size="md"
+                        className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <Link href={`/jobs/${job.id}`}>
+                            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                              {job.title}
+                            </h3>
+                          </Link>
+                          <span className="text-xs font-semibold bg-white/5 px-3 py-1 rounded-full text-foreground/45 leading-none">
+                            {job.category}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                          <span>{job.companyName || job.employer.companyName}</span>
+                          <span className="text-white/10">|</span>
+                          <span>{formatLocation(job.location)}</span>
+                        </div>
+
+                        {job.matchPercentage > 0 && (
+                          <div className="mt-4 max-w-md">
+                            <div className="flex items-center justify-between text-xs mb-1.5">
+                              <span className="font-bold text-muted-foreground flex items-center gap-1">
+                                Skills Match
+                              </span>
+                              <span className="text-sm font-black text-orange-500">
+                                {job.matchPercentage}% Match
+                              </span>
+                            </div>
+                            <div className="h-2 w-full bg-black/10 rounded-full overflow-hidden border border-black/5">
+                              <div
+                                className={`h-full rounded-full transition-all duration-1000 ${
+                                  job.matchPercentage >= 75
+                                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                                    : "bg-gradient-to-r from-blue-500 to-indigo-400"
+                                }`}
+                                style={{ width: `${job.matchPercentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center shrink-0">
+                        <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
+                          <Button className="w-full lg:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
+                            Apply Now
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPrefPages > 1 && (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-8 pb-8 border-t border-white/5 pt-8">
+                <Link
+                  href={currentPrefPage > 1 ? `/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${currentPrefPage - 1}` : "#"}
+                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
+                    currentPrefPage <= 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  }`}
+                >
+                  ← Previous Page
+                </Link>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPrefPages }, (_, i) => i + 1).map((p) => (
+                    <Link
+                      key={p}
+                      href={`/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${p}`}
+                      className={`h-10 w-10 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
+                        currentPrefPage === p
+                          ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40"
+                          : "text-muted-foreground/45 hover:bg-white/5 hover:text-foreground"
+                      }`}
+                    >
+                      {p.toString().padStart(2, "0")}
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  href={currentPrefPage < totalPrefPages ? `/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${currentPrefPage + 1}` : "#"}
+                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
+                    currentPrefPage >= totalPrefPages ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
                   }`}
                 >
                   Next Page →

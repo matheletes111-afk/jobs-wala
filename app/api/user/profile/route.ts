@@ -27,6 +27,7 @@ const profileSchema = z.object({
   desiredLocation: z.string().optional().nullable(),
   noticePeriod: z.string().optional().nullable(),
   dateOfBirth: z.preprocess((v) => (v === "" || v === undefined || v === null ? null : typeof v === "string" ? new Date(v) : v), z.date().optional().nullable()),
+  preferredCategories: z.array(z.string()).optional(),
 });
 
 export async function GET(req: NextRequest) {

@@ -9,6 +9,7 @@ const payTypeEnum = z.enum(["HOURLY", "DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", 
 
 const jobSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  companyName: z.string().nullish(),
   description: z.string().min(10, "Description must be at least 10 characters"),
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
@@ -76,6 +77,7 @@ export async function PUT(
       where: { id },
       data: {
         title: data.title,
+        companyName: data.companyName,
         description: data.description,
         category: data.category,
         location: data.location,
