@@ -192,7 +192,7 @@ export default async function AtsPage() {
                       </p>
                       <ul className="mt-8 space-y-4 text-xs font-semibold text-slate-655">
                         <li className="flex items-center gap-3">
-                          <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> {plan.jobLimit} Active Job Pipelines
+                          <CheckCircle2 className="size-4 text-blue-600 shrink-0" /> {plan.jobLimit === -1 ? "Unlimited" : plan.jobLimit} Active Job Pipelines
                         </li>
                         <li className="flex items-center gap-3">
                           <CheckCircle2 className="size-4 text-blue-600 shrink-0" />
