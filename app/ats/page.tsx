@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth-utils";
 import Header from "@/components/Header";
 import { prisma } from "@/lib/prisma";
-import { 
-  ChevronDown, 
-  Sparkles, 
-  Cpu, 
-  HelpCircle, 
-  Zap, 
-  ShieldCheck, 
+import {
+  ChevronDown,
+  Sparkles,
+  Cpu,
+  HelpCircle,
+  Zap,
+  ShieldCheck,
   ArrowRight,
   TrendingUp,
   Globe,
@@ -89,7 +89,7 @@ export default async function AtsPage() {
             <div className="lg:col-span-6 relative flex justify-center">
               <div className="relative w-full max-w-lg aspect-video lg:aspect-auto lg:h-[400px] rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-blue-500/10 bg-white/50 backdrop-blur-md p-2 hover:scale-[1.02] transition-transform duration-500">
                 <img
-                  src="/images/ats_preview.png"
+                  src="/images/ats_preview.jpeg"
                   alt="JobDaddy ATS Dashboard Preview"
                   className="w-full h-full object-cover rounded-xl shadow-inner"
                 />
@@ -172,7 +172,7 @@ export default async function AtsPage() {
                   icon = "🚀";
                   badge = "Pro";
                 }
-                
+
                 return (
                   <div key={plan.id} className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
                     <div>
@@ -226,13 +226,13 @@ export default async function AtsPage() {
                 Choose the perfect career accelerator package designed to maximize your professional impact.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch mb-16 max-w-6xl mx-auto">
               {careerPackages.map((pkg) => {
                 let icon = "🎓";
                 if (pkg.tier === "mid_level") icon = "🚀";
                 else if (pkg.tier === "executive") icon = "👑";
-                
+
                 return (
                   <div key={pkg.id} className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl flex flex-col justify-between transition-all hover:scale-[1.01] text-slate-850 mx-2 my-4 lg:my-0">
                     <div>

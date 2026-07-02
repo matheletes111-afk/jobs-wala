@@ -2,12 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth-utils";
 import Header from "@/components/Header";
-import { 
-  ChevronDown, 
-  Sparkles, 
-  HelpCircle, 
-  Zap, 
-  ShieldCheck, 
+import {
+  ChevronDown,
+  Sparkles,
+  HelpCircle,
+  Zap,
+  ShieldCheck,
   ArrowRight,
   Globe,
   CheckCircle2,
@@ -70,7 +70,7 @@ export default async function ExecutiveSearchPage() {
             <div className="lg:col-span-6 relative flex justify-center">
               <div className="relative w-full max-w-lg aspect-video lg:aspect-auto lg:h-[400px] rounded-2xl overflow-hidden border border-slate-200 shadow-2xl shadow-blue-500/10 bg-white/50 backdrop-blur-md p-2 hover:scale-[1.02] transition-transform duration-500">
                 <img
-                  src="/images/executive_search.png"
+                  src="/images/executive_search.jpeg"
                   alt="JobDaddy Global Recruitment"
                   className="w-full h-full object-cover rounded-xl shadow-inner"
                 />

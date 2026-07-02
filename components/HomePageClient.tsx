@@ -181,10 +181,16 @@ export default function HomePageClient({
       params.set("page", "1");
       params.set("limit", "8"); // Figma layout works great with 8 cards
       const res = await fetch(`/api/jobs?${params.toString()}`);
-      if (!res.ok) throw new Error("Failed to fetch jobs");
+      if (!res.ok) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to fetch jobs. Status:", res.status);
+        setJobs([]);
+        return;
+      }
       const data = await res.json();
       setJobs(data.jobs ?? []);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       setJobs([]);
     } finally {
@@ -1031,6 +1037,47 @@ export default function HomePageClient({
                   Upload Resume
                 </Button>
               </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Client Logos Auto-movement Slider */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10 mt-12 mb-16">
+        <div className="text-center mb-6">
+          <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+            Trusted by Industry Leaders & Fast-Growing Companies
+          </p>
+        </div>
+        <div className="relative w-full overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-200/50 rounded-[24px] py-8 shadow-sm">
+          {/* Gradient overlays for smooth fading edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none" />
+          
+          <div className="flex overflow-hidden">
+            <div className="animate-marquee flex gap-16 items-center">
+              {/* First loop */}
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((num) => (
+                <div key={`logo-1-${num}`} className="flex items-center justify-center shrink-0 w-60 h-28 bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/client/c${num}.jpeg`}
+                    alt={`Client Logo ${num}`}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                </div>
+              ))}
+              {/* Second loop (for seamless scrolling) */}
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((num) => (
+                <div key={`logo-2-${num}`} className="flex items-center justify-center shrink-0 w-60 h-28 bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/client/c${num}.jpeg`}
+                    alt={`Client Logo ${num}`}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

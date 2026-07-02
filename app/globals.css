@@ -445,3 +445,22 @@ textarea:focus {
   border-color: #2563eb !important;
   box-shadow: 0 22px 35px -8px rgba(37, 99, 235, 0.16), 0 12px 20px -5px rgba(37, 99, 235, 0.12) !important;
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
