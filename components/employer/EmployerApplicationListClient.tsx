@@ -283,7 +283,7 @@ export default function EmployerApplicationListClient({
                 disabled={loading}
                 className="h-12 px-8 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
               >
-                Search
+                <span style={{ color: "white" }}>Search</span>
               </Button>
               <Button
                 variant="ghost"
@@ -356,7 +356,7 @@ export default function EmployerApplicationListClient({
                     onClick={handleSearch}
                     className="w-full h-14 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold shadow-xl shadow-primary/20 transition-all active:scale-95"
                   >
-                    Update View
+                    <span style={{ color: "white" }}>Update View</span>
                   </Button>
                   <Button
                     variant="ghost"

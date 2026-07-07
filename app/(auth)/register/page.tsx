@@ -127,7 +127,7 @@ export default function RegisterPage() {
           {/* Logo */}
           <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
             <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-8 shadow-xl inline-block">
-              <img src="/images/logo.jpeg" alt="Jobs Portal" width={400} height={160}
+              <img src="/images/logo.png" alt="Jobs Portal" width={400} height={160}
                 className="h-32 w-auto object-contain mix-blend-multiply" />
             </div>
           </Link>
@@ -168,7 +168,7 @@ export default function RegisterPage() {
         <div className="mb-8 w-full max-w-md xl:hidden">
           <Link href="/" className="inline-flex">
             <img
-              src="/images/logo.jpeg"
+              src="/images/logo.png"
               alt="Jobs Portal"
               width={240}
               height={240}
@@ -199,8 +199,8 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "JOB_SEEKER" })}
                   className={`flex-1 rounded-xl py-3.5 text-xs font-black uppercase tracking-widest transition-all ${formData.role === "JOB_SEEKER"
-                      ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+                    ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
                     }`}
                 >
                   Candidate
@@ -209,8 +209,8 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() => setFormData({ ...formData, role: "EMPLOYER" })}
                   className={`flex-1 rounded-xl py-3.5 text-xs font-black uppercase tracking-widest transition-all ${formData.role === "EMPLOYER"
-                      ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
+                    ? "bg-white text-slate-900 shadow-md ring-1 ring-slate-200/50"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
                     }`}
                 >
                   Employer
@@ -328,14 +328,17 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="mt-4 h-16 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all text-sm"
+              style={{ color: "white" }}
+              className="mt-4 h-16 w-full rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest shadow-xl transition-all text-sm"
               disabled={loading}
             >
-              {loading
-                ? "Securing..."
-                : formData.role === "EMPLOYER"
-                  ? "Create Employer Account"
-                  : "Create account"}
+              <span style={{ color: "white" }}>
+                {loading
+                  ? "Securing..."
+                  : formData.role === "EMPLOYER"
+                    ? "Create Employer Account"
+                    : "Create account"}
+              </span>
             </Button>
           </form>
 

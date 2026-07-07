@@ -119,8 +119,8 @@ export default async function UserDashboardPage({
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
-        <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
               User Dashboard
@@ -130,14 +130,14 @@ export default async function UserDashboardPage({
             </p>
           </div>
           <Link href="/user/jobs">
-            <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
-              <Plus className="h-5 w-5 mr-2" />
-              Browse Jobs
+            <Button style={{ color: "white" }} className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
+              <Plus className="h-5 w-5 mr-2" style={{ color: "white" }} />
+              <span style={{ color: "white" }}>Browse Jobs</span>
             </Button>
           </Link>
         </div>
 
-        <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
               label: "Profile Status",
@@ -177,7 +177,7 @@ export default async function UserDashboardPage({
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`relative overflow-hidden flex flex-col justify-between h-48 rounded-[2rem] p-8 border transition-all duration-500 animate-in zoom-in-95 ${colors[card.color]}`}
+                  className={`relative overflow-hidden flex flex-col justify-between h-36 rounded-2xl p-5 border transition-all duration-500 animate-in zoom-in-95 ${colors[card.color]}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className="flex items-start justify-between text-white">
@@ -201,8 +201,8 @@ export default async function UserDashboardPage({
 
         {/* Recommended Jobs Based on Skills */}
         {profile.skills && profile.skills.length > 0 && (
-          <section className="linear-card rounded-[2.5rem] overflow-hidden mb-16 animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            <div className="flex items-center justify-between border-b border-white/5 px-8 py-8">
+          <section className="linear-card rounded-2xl overflow-hidden mb-10 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+            <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
               <div>
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-amber-400" />
@@ -224,7 +224,7 @@ export default async function UserDashboardPage({
                   return (
                     <div
                       key={job.id}
-                      className="flex flex-col lg:flex-row lg:items-center gap-6 px-8 py-8 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
+                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
                       style={{ animationDelay: `${idx * 50}ms` }}
                     >
                       <CompanyLogo
@@ -299,8 +299,8 @@ export default async function UserDashboardPage({
                       </div>
                       <div className="flex items-center shrink-0">
                         <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
-                          <Button className="w-full lg:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
-                            Apply Now
+                          <Button style={{ color: "white" }} className="w-full lg:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
+                            <span style={{ color: "white" }}>Apply Now</span>
                           </Button>
                         </Link>
                       </div>
@@ -351,8 +351,8 @@ export default async function UserDashboardPage({
 
         {/* Jobs in Your Preferred Categories */}
         {profile.preferredCategories && profile.preferredCategories.length > 0 && (
-          <section className="linear-card rounded-[2.5rem] overflow-hidden mb-16 animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            <div className="flex items-center justify-between border-b border-white/5 px-8 py-8">
+          <section className="linear-card rounded-2xl overflow-hidden mb-10 animate-in fade-in slide-in-from-bottom-5 duration-1000">
+            <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
               <div>
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                   <Briefcase className="h-5 w-5 text-blue-500" />
@@ -374,7 +374,7 @@ export default async function UserDashboardPage({
                   return (
                     <div
                       key={job.id}
-                      className="flex flex-col lg:flex-row lg:items-center gap-6 px-8 py-8 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
+                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
                       style={{ animationDelay: `${idx * 50}ms` }}
                     >
                       <CompanyLogo
@@ -425,8 +425,8 @@ export default async function UserDashboardPage({
                       </div>
                       <div className="flex items-center shrink-0">
                         <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
-                          <Button className="w-full lg:w-auto h-11 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
-                            Apply Now
+                          <Button style={{ color: "white" }} className="w-full lg:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
+                            <span style={{ color: "white" }}>Apply Now</span>
                           </Button>
                         </Link>
                       </div>
@@ -438,7 +438,7 @@ export default async function UserDashboardPage({
 
             {/* Pagination Controls */}
             {totalPrefPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-8 pb-8 border-t border-white/5 pt-8">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-6 pb-6 border-t border-white/5 pt-6">
                 <Link
                   href={currentPrefPage > 1 ? `/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${currentPrefPage - 1}` : "#"}
                   className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
@@ -475,8 +475,8 @@ export default async function UserDashboardPage({
           </section>
         )}
 
-        <section className="linear-card rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-1000">
-          <div className="flex items-center justify-between border-b border-white/5 px-8 py-8">
+        <section className="linear-card rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-1000">
+          <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
             <div>
               <h2 className="text-xl font-bold text-foreground">Recent Applications</h2>
               <p className="text-sm font-medium text-muted-foreground mt-1">
@@ -500,7 +500,7 @@ export default async function UserDashboardPage({
                 <Link
                   key={application.id}
                   href="/user/applications"
-                  className="flex items-center gap-6 px-8 py-6 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
+                  className="flex items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   <CompanyLogo

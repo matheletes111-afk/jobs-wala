@@ -212,14 +212,20 @@ export default function JobStatusActions({
       </Dialog>
 
       {/* Success */}
-      <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
+      <Dialog open={successOpen} onOpenChange={(open) => {
+        setSuccessOpen(open);
+        if (!open) window.location.reload();
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Status updated</DialogTitle>
             <DialogDescription>{successMessage}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={() => setSuccessOpen(false)}>OK</Button>
+            <Button onClick={() => {
+              setSuccessOpen(false);
+              window.location.reload();
+            }}>OK</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

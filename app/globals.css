@@ -257,19 +257,19 @@
   stroke: red !important;
 }
 
-/* Override primary button to blue-orange gradient */
+/* Override primary button to solid blue */
 .bg-primary {
-  background: linear-gradient(to right, #2563eb, #f97316) !important;
+  background: #2563eb !important;
   color: white !important;
   border: none !important;
-  box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3) !important;
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3) !important;
 }
 
 /* Hover */
 .bg-primary:hover {
-  background: linear-gradient(to right, #1d4ed8, #ea580c) !important;
+  background: #1d4ed8 !important;
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px -5px rgba(249, 115, 22, 0.4) !important;
+  box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.4) !important;
 }
 
 /* Icon inside button */
@@ -371,6 +371,7 @@ textarea:focus {
   background-color: transparent !important;
   padding: 0 !important;
 }
+
 .hero-input:focus {
   border: none !important;
   box-shadow: none !important;
@@ -388,20 +389,24 @@ textarea:focus {
   font-weight: 500 !important;
   font-size: 0.875rem !important;
 }
+
 .search-input::placeholder {
   color: #94a3b8 !important;
 }
+
 .search-input:focus {
   border-color: #2563eb !important;
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2) !important;
   outline: none !important;
 }
+
 .premium-category-card {
   background-color: #ffffff !important;
   border: 1px solid #bfdbfe !important;
   box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+
 .premium-category-card:hover {
   transform: translateY(-6px) !important;
   border-color: #3b82f6 !important;
@@ -414,6 +419,7 @@ textarea:focus {
   box-shadow: 0 12px 30px -5px rgba(37, 99, 235, 0.08), 0 8px 16px -6px rgba(37, 99, 235, 0.08) !important;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+
 .premium-child-card:hover {
   box-shadow: 0 22px 35px -8px rgba(37, 99, 235, 0.16), 0 12px 20px -5px rgba(37, 99, 235, 0.12) !important;
 }
@@ -425,6 +431,7 @@ textarea:focus {
   box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1), 0 8px 20px -6px rgba(249, 115, 22, 0.08) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
+
 .premium-company-card:hover {
   transform: translateY(-6px) !important;
   border-color: #2563eb !important;
@@ -439,6 +446,7 @@ textarea:focus {
   border-color: #93c5fd !important;
   box-shadow: 0 12px 30px -5px rgba(37, 99, 235, 0.08), 0 8px 16px -6px rgba(37, 99, 235, 0.08) !important;
 }
+
 .bg-gradient-to-br.from-blue-50.to-orange-50:hover,
 .bg-gradient-to-br.from-blue-50.to-orange-50\/50:hover {
   background: rgba(224, 242, 254, 0.85) !important;
@@ -450,6 +458,7 @@ textarea:focus {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -463,4 +472,25 @@ textarea:focus {
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Global Override: Convert blue-orange gradient buttons to solid blue with white text */
+button[class*="from-blue-600"][class*="to-orange-500"],
+a[class*="from-blue-600"][class*="to-orange-500"],
+div[class*="from-blue-600"][class*="to-orange-500"],
+.btn-gradient {
+  background: #2563eb !important;
+  background-image: none !important;
+  color: white !important;
+  border-color: #2563eb !important;
+}
+
+button[class*="from-blue-600"][class*="to-orange-500"]:hover,
+a[class*="from-blue-600"][class*="to-orange-500"]:hover,
+div[class*="from-blue-600"][class*="to-orange-500"]:hover,
+.btn-gradient:hover {
+  background: #1d4ed8 !important;
+  background-image: none !important;
+  color: white !important;
+  border-color: #1d4ed8 !important;
 }

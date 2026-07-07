@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
 
       setSuccess(
         data.message ||
-          "If an account exists with this email, you will receive a password reset link shortly."
+        "If an account exists with this email, you will receive a password reset link shortly."
       );
       setEmail("");
     } catch {
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
       <div className="hidden flex-col justify-center pl-8 pr-6 xl:flex xl:w-[45%] xl:pl-12 xl:pr-10 2xl:pl-16 2xl:pr-12">
         <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">
           <img
-            src="/images/logo.jpeg"
+            src="/images/logo.png"
             alt="Jobs Portal"
             width={320}
             height={320}
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
         <div className="mb-8 w-full max-w-md xl:hidden">
           <Link href="/" className="inline-flex">
             <img
-              src="/images/logo.jpeg"
+              src="/images/logo.png"
               alt="Jobs Portal"
               width={240}
               height={240}
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
             />
           </Link>
         </div>
-        
+
         <div className="linear-card w-full max-w-md rounded-[2.5rem] p-10 sm:p-12 animate-in zoom-in-95 duration-500">
           <h1 className="text-2xl font-black text-foreground mb-2">
             Forgot Password
@@ -116,7 +116,7 @@ export default function ForgotPasswordPage() {
                 required
               />
             </div>
-            
+
             <Button
               type="submit"
               className="h-14 w-full rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"

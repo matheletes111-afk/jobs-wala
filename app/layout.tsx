@@ -7,15 +7,15 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Job Portal - Find Your Dream Job",
-  description: "Connect with top employers and discover opportunities that match your skills",
+  title: "JobDaddy - AI-Powered Job Portal | Wolf of the Job Street | India, USA, UK, Gulf",
+  description: "India's AI-powered job portal & career launchpad. Resume enhancement from ₹999. Expert recruitment across India, USA, UK & Gulf.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   icons: {
     icon: [
-      { url: "/images/logo.jpeg", type: "image/jpeg", sizes: "any" },
+      { url: "/images/logo.png", type: "image/jpeg", sizes: "any" },
     ],
-    shortcut: "/images/logo.jpeg",
-    apple: "/images/logo.jpeg",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
   },
 };
 

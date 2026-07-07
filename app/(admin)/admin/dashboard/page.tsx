@@ -79,23 +79,23 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
         {/* Header */}
-        <div className="mb-16">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Admin Dashboard</p>
           </div>
-          <h1 className="text-4xl font-black md:text-6xl tracking-tighter text-foreground">
+          <h1 className="text-4xl font-black md:text-5xl tracking-tighter text-foreground">
             Platform <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Overview</span>
           </h1>
-          <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+          <p className="mt-3 text-base font-medium text-muted-foreground/60 italic">
             Monitor system metrics, user engagement, and platform activity.
           </p>
         </div>
 
         {/* Intelligence Nodes - Color cards */}
-        <div className="mb-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {colorCards.map((card, idx) => {
             const Icon = card.icon;
             const accentColors = {
@@ -110,18 +110,18 @@ export default async function AdminDashboardPage() {
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`relative flex flex-col justify-between h-48 rounded-[2rem] p-8 border transition-all duration-500 animate-in zoom-in-95 cursor-pointer ${colorClass}`}
+                  className={`relative flex flex-col justify-between h-36 rounded-2xl p-5 border transition-all duration-500 animate-in zoom-in-95 cursor-pointer ${colorClass}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-black/5 p-3 group-hover:scale-110 transition-transform">
-                      <Icon className="h-7 w-7" />
+                    <div className="rounded-2xl bg-black/5 p-2 group-hover:scale-110 transition-transform">
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <ChevronRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-800 mb-1">{card.label}</p>
-                    <p className="text-4xl font-black tracking-tighter text-black">{card.value}</p>
+                    <p className="text-3xl font-black tracking-tighter text-black">{card.value}</p>
                     <p className="text-[10px] font-bold text-slate-700 mt-1 italic uppercase tracking-widest">Metric</p>
                   </div>
                 </div>
@@ -131,46 +131,46 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Recent jobs list */}
-        <section className="space-y-10">
-          <div className="flex flex-wrap items-end justify-between gap-6 border-b border-black/10 pb-10">
-            <div className="space-y-3">
+        <section className="space-y-6">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-black/10 pb-6">
+            <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">
                 Recent Activity
               </p>
-              <h2 className="text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
+              <h2 className="text-3xl font-black text-foreground lg:text-4xl tracking-tighter">
                 Latest Jobs
               </h2>
             </div>
             <Link href="/admin/jobs">
-              <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 group">
+              <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 group">
                 View All Jobs
-                <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ChevronRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
 
-          <div className="grid gap-6">
+          <div className="grid gap-4">
             {recentJobs.length === 0 ? (
-              <div className="linear-card rounded-[2.5rem] px-6 py-24 text-center border-dashed border-black/10">
+              <div className="linear-card rounded-2xl px-6 py-16 text-center border-dashed border-black/10">
                 <p className="text-lg font-black text-muted-foreground/40 uppercase tracking-widest italic" >
                   No recent job activity detected.
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {recentJobs.map((job, idx) => (
                   <Link
                     key={job.id}
                     href={`/admin/jobs/${job.id}`}
-                    className="group flex flex-col rounded-[2.5rem] p-8 transition-all hover:bg-[#e0f2fe]/90 animate-in fade-in slide-in-from-bottom-5 duration-700 h-full hover:-translate-y-1.5"
+                    className="group flex flex-col rounded-2xl p-5 transition-all hover:bg-[#e0f2fe]/90 animate-in fade-in slide-in-from-bottom-5 duration-700 h-full hover:-translate-y-1.5"
                     style={{
                       background: "rgba(224, 242, 254, 0.75)",
                       border: "1px solid #93c5fd",
-                      boxShadow: "0 12px 30px -5px rgba(37, 99, 235, 0.08), 0 8px 16px -6px rgba(37, 99, 235, 0.08)",
+                      boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.08), 0 4px 10px -5px rgba(37, 99, 235, 0.08)",
                       animationDelay: `${idx * 150}ms`
                     }}
                   >
-                    <div className="flex items-start justify-between gap-4 mb-6">
+                    <div className="flex items-start justify-between gap-4 mb-4">
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
                         companyName={job.companyName || job.employer.companyName}

@@ -93,10 +93,10 @@ export default async function EmployerDashboardPage() {
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-16">
-        <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-3">Dashboard Overview</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Dashboard Overview</p>
             <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Employer <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Portal</span>
             </h1>
@@ -108,54 +108,54 @@ export default async function EmployerDashboardPage() {
         {/* Subscription Warning Banner */}
         {profile.approvalStatus === "APPROVED" && (
           (!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
-            <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-              <div className="flex items-center gap-6">
-                <div className="h-16 w-16 shrink-0 rounded-3xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
-                  <Zap className="h-8 w-8 text-orange-500 animate-pulse" />
+            <div className="mb-8 rounded-2xl bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 shrink-0 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
+                  <Zap className="h-6 w-6 text-orange-500 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-tight">Active Plan Required</h3>
-                  <p className="mt-1 text-sm font-medium text-white/50 italic">You don&apos;t have an active subscription. Subscribe now to post jobs and search candidates.</p>
+                  <h3 className="text-lg font-black text-white tracking-tight">Active Plan Required</h3>
+                  <p className="mt-1 text-xs font-medium text-white/50 italic">You don&apos;t have an active subscription. Subscribe now to post jobs and search candidates.</p>
                 </div>
               </div>
               <Link href="/employer/subscription">
-                <Button className="h-12 px-8 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
+                <Button className="h-10 px-6 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
                   Browse Plans
                 </Button>
               </Link>
             </div>
           ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) ? (
-            <div className="mb-12 rounded-[2rem] bg-blue-500/5 border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-               <div className="flex items-center gap-6">
-                <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                  <Clock className="h-8 w-8 text-blue-500 animate-pulse" />
+            <div className="mb-8 rounded-2xl bg-blue-500/5 border border-blue-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
+               <div className="flex items-center gap-4">
+                <div className="h-12 w-12 shrink-0 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                  <Clock className="h-6 w-6 text-blue-500 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-tight">Plan Expiring Soon</h3>
-                  <p className="mt-1 text-sm font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
+                  <h3 className="text-lg font-black text-white tracking-tight">Plan Expiring Soon</h3>
+                  <p className="mt-1 text-xs font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
                 </div>
               </div>
               <Link href="/employer/subscription">
-                <Button className="h-12 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
+                <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
                   Renew Plan
                 </Button>
               </Link>
             </div>
           ) : (
-            <div className="mb-12 rounded-[2rem] bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700">
-              <div className="flex items-center gap-6">
-                <div className="h-16 w-16 shrink-0 rounded-3xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                  <Zap className="h-8 w-8 text-blue-500 animate-pulse" />
+            <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 shrink-0 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
+                  <Zap className="h-6 w-6 text-blue-500 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
-                  <p className="mt-1 text-sm font-medium text-white/50 italic">
+                  <h3 className="text-lg font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
+                  <p className="mt-1 text-xs font-medium text-white/50 italic">
                     Your subscription is active and expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "long" })}.
                   </p>
                 </div>
               </div>
               <Link href="/employer/subscription">
-                <Button className="h-12 px-8 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                <Button className="h-10 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
                   Manage Plan
                 </Button>
               </Link>
@@ -174,28 +174,28 @@ export default async function EmployerDashboardPage() {
 
         {/* Profile Approval Pending Banner */}
         {profile.approvalStatus !== "APPROVED" && (
-          <div className={`mb-12 rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6 animate-in slide-in-from-top-4 duration-700 border ${
+          <div className={`mb-8 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700 border ${
             profile.approvalStatus === "REJECTED"
               ? "bg-gradient-to-r from-red-500/10 via-red-500/5 to-transparent border-red-500/20"
               : "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/20"
           }`}>
-            <div className="flex items-center gap-6">
-              <div className={`h-16 w-16 shrink-0 rounded-3xl flex items-center justify-center border ${
+            <div className="flex items-center gap-4">
+              <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center border ${
                 profile.approvalStatus === "REJECTED"
                   ? "bg-red-500/20 border-red-500/20"
                   : "bg-amber-500/20 border-amber-500/20"
               }`}>
-                <svg className={`h-8 w-8 animate-pulse ${
+                <svg className={`h-6 w-6 animate-pulse ${
                   profile.approvalStatus === "REJECTED" ? "text-red-500" : "text-amber-500"
                 }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-black text-white tracking-tight">
+                <h3 className="text-lg font-black text-white tracking-tight">
                   {profile.approvalStatus === "REJECTED" ? "Profile Rejected by Admin" : "Admin Approval Pending"}
                 </h3>
-                <p className="mt-1 text-sm font-medium text-white/50 italic">
+                <p className="mt-1 text-xs font-medium text-white/50 italic">
                   {profile.approvalStatus === "REJECTED"
                     ? `Reason: ${profile.rejectionReason || "No reason provided."}. Please correct the profile details to submit again.`
                     : "Your profile is pending admin approval. Please ensure all profile fields are completed."}
@@ -203,7 +203,7 @@ export default async function EmployerDashboardPage() {
               </div>
             </div>
             <Link href="/employer/profile">
-              <Button className={`h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
+              <Button className={`h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
                 profile.approvalStatus === "REJECTED"
                   ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/20"
                   : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
@@ -215,7 +215,7 @@ export default async function EmployerDashboardPage() {
         )}
 
         {/* Color cards */}
-        <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {colorCards.map((card, idx) => {
             const Icon = card.icon;
             const accentColors = {
@@ -228,19 +228,19 @@ export default async function EmployerDashboardPage() {
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`relative flex flex-col justify-between h-48 rounded-[2.5rem] p-8 text-white border-0 transition-all duration-300 hover:scale-[1.03] animate-in zoom-in-95 cursor-pointer ${colorClass}`}
+                  className={`relative flex flex-col justify-between h-36 rounded-2xl p-5 text-white border-0 transition-all duration-300 hover:scale-[1.03] animate-in zoom-in-95 cursor-pointer ${colorClass}`}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-white/20 p-3 group-hover:scale-110 transition-transform">
-                      <Icon className="h-7 w-7 text-white" />
+                    <div className="rounded-2xl bg-white/20 p-2 group-hover:scale-110 transition-transform">
+                      <Icon className="h-5 w-5 text-white" />
                     </div>
-                    <ChevronRight className="h-5 w-5 text-white/70 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-4 w-4 text-white/70 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-1">{card.label}</p>
-                    <p className="text-5xl font-black tracking-tighter text-white">{card.value}</p>
-                    <p className="text-xs font-bold text-white/60 mt-1">Manage your {card.label.toLowerCase()}</p>
+                    <p className="text-3xl font-black tracking-tighter text-white">{card.value}</p>
+                    <p className="text-[11px] font-bold text-white/60 mt-1">Manage your {card.label.toLowerCase()}</p>
                   </div>
                 </div>
               </Link>
@@ -249,17 +249,17 @@ export default async function EmployerDashboardPage() {
         </div>
 
         {/* Recent Applications */}
-        <section className="linear-card rounded-[2.5rem] overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
-          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-white/5 p-10 gap-6">
+        <section className="linear-card rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
+          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-white/5 p-6 gap-4">
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-blue-500" />
                 <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Recent Applications</h2>
               </div>
               <p className="mt-1 text-sm font-medium text-muted-foreground italic">Review and manage the latest applications received for your job postings.</p>
             </div>
             <Link href="/employer/applications">
-              <Button className="h-10 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-widest gap-2 transition-all shadow-lg shadow-blue-500/10">
+              <Button className="h-9 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-widest gap-2 transition-all shadow-lg shadow-blue-500/10">
                 View All Applications
                 <ChevronRight className="h-3 w-3" />
               </Button>
@@ -277,10 +277,10 @@ export default async function EmployerDashboardPage() {
               recentApplications.map((app, idx) => (
                 <div
                   key={app.id}
-                  className="group flex flex-col md:flex-row items-center justify-between gap-8 p-10 transition-all hover:bg-white/[0.02] animate-in slide-in-from-right-10 duration-500 fill-mode-both"
+                  className="group flex flex-col md:flex-row items-center justify-between gap-6 p-6 transition-all hover:bg-white/[0.02] animate-in slide-in-from-right-10 duration-500 fill-mode-both"
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className="flex flex-col md:flex-row items-center gap-8 min-w-0 flex-1">
+                  <div className="flex flex-col md:flex-row items-center gap-6 min-w-0 flex-1">
                     <CandidateAvatar
                       profileImage={app.jobSeeker.profileImage}
                       firstName={app.jobSeeker.firstName}

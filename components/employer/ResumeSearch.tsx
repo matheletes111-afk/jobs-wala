@@ -204,9 +204,9 @@ export default function ResumeSearch({
             <Button
               onClick={handleSearch}
               disabled={loading}
-              className="h-12 px-8 rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-12 px-8 rounded-xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all"
             >
-              Search Now
+              <span style={{ color: "white" }}>Search Now</span>
             </Button>
           </div>
         </div>
@@ -260,9 +260,9 @@ export default function ResumeSearch({
                 <div className="pt-6 flex flex-col gap-3">
                   <Button
                     onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
+                    className="h-14 w-full rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95"
                   >
-                    Apply Filters
+                    <span style={{ color: "white" }}>Apply Filters</span>
                   </Button>
                   <Button
                     variant="ghost"

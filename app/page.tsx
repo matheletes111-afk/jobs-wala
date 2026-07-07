@@ -52,6 +52,7 @@ export default async function HomePage() {
   const countByEmployer = Object.fromEntries(
     jobCounts.map((j) => [j.postedBy, j._count.postedBy])
   );
+  const seenTopNames = new Set<string>();
   const topCompanies = userIds
     .map((uid) => {
       const profile = employerProfiles.find((e) => e.userId === uid);
@@ -64,7 +65,30 @@ export default async function HomePage() {
         openJobsCount: countByEmployer[uid] ?? 0,
       };
     })
-    .filter(Boolean) as {
+    .filter(Boolean)
+    .filter((c) => {
+      if (!c) return false;
+      const name = c.companyName.toLowerCase().trim();
+      const isDummy =
+        name.includes("asdf") ||
+        name.includes("xyz") ||
+        name.includes("demo") ||
+        name.includes("vipro") ||
+        name.includes("srv") ||
+        name.includes("test") ||
+        name.includes("abc") ||
+        name.includes("abac") ||
+        name.includes("temp") ||
+        name.includes("qwer") ||
+        name.includes("sample") ||
+        name.includes("dummy") ||
+        name.length <= 3;
+
+      if (isDummy) return false;
+      if (seenTopNames.has(name)) return false;
+      seenTopNames.add(name);
+      return true;
+    }) as {
       userId: string;
       companyName: string;
       companyLogo: string | null;
@@ -99,9 +123,9 @@ export default async function HomePage() {
     where: { status: "ACTIVE" },
   });
 
-  const clients = await prisma.employerProfile.findMany({
+  const rawClients = await prisma.employerProfile.findMany({
     where: { approvalStatus: "APPROVED" },
-    take: 15,
+    take: 30,
     select: {
       userId: true,
       companyName: true,
@@ -112,6 +136,32 @@ export default async function HomePage() {
       companySize: true,
     },
   });
+
+  const seenClientNames = new Set<string>();
+  const clients = rawClients
+    .filter((c) => {
+      const name = c.companyName.toLowerCase().trim();
+      const isDummy =
+        name.includes("asdf") ||
+        name.includes("xyz") ||
+        name.includes("demo") ||
+        name.includes("vipro") ||
+        name.includes("srv") ||
+        name.includes("test") ||
+        name.includes("abc") ||
+        name.includes("abac") ||
+        name.includes("temp") ||
+        name.includes("qwer") ||
+        name.includes("sample") ||
+        name.includes("dummy") ||
+        name.length <= 3;
+
+      if (isDummy) return false;
+      if (seenClientNames.has(name)) return false;
+      seenClientNames.add(name);
+      return true;
+    })
+    .slice(0, 15);
 
   return (
     <div className="flex min-h-screen w-full min-w-0 flex-col bg-transparent selection:bg-primary/20">
@@ -126,10 +176,11 @@ export default async function HomePage() {
 
                 {/* Left Column: Title, Description, and Search */}
                 <div className="min-w-0 max-w-2xl flex-1 text-center lg:text-left relative z-20">
-                  <h1 className="mb-6 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl leading-tight">
-                    Find Jobs. <br />
-                    Get Matched. <br />
-                    <span className="text-[#2563eb]">Grow Your Career.</span>
+                  <h1 className="mb-6 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl leading-tight">
+                    <span style={{ color: "#ffffff" }}>Stop Getting Rejected</span> <br />
+                    <span style={{ color: "#ffffff" }}>Get Your Super Resume</span> <br />
+                    <span style={{ color: "#ff6a00ff" }}>+ AI-Matched Jobs</span> <br />
+                    <span className="text-sm font-semibold tracking-wide uppercase opacity-90 block mt-2 text-sky-200">- Built by India's Wolf of the Job Street</span>
                   </h1>
 
                   {/* Action CTAs */}
@@ -141,7 +192,7 @@ export default async function HomePage() {
                     </Link>
                     <Link href="/career-services">
                       <Button className="h-11 px-6 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md shadow-orange-500/10">
-                        Fix your resume
+                        Get Super Resume ₹999+
                       </Button>
                     </Link>
                     <Link href="/employer/jobs/new">
@@ -152,7 +203,7 @@ export default async function HomePage() {
                   </div>
 
                   {/* Search Section - High Fidelity replica of Figma */}
-                  <div className="bg-sky-50/95 backdrop-blur-md rounded-3xl border border-slate-200/80 shadow-[0_15px_40px_rgba(0,0,0,0.08)] p-6 md:p-8 w-full max-w-xl mx-auto lg:mx-0 mb-8 relative z-20">
+                  <div className="bg-sky-50/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.06)] p-5 md:p-6 w-full max-w-xl mx-auto lg:mx-0 mb-6 relative z-20">
                     <p className="mb-6 text-xs md:text-sm text-slate-500 font-semibold text-left leading-relaxed">
                       Our AI technology matches your skills with the right opportunities, so you can focus on what matters – building your future.
                     </p>

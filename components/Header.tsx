@@ -9,22 +9,21 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md w-full">
       <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
-        <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105 active:scale-95">
-          <div className="bg-white rounded-lg shadow-md flex items-center justify-center shrink-0 p-1 px-3 mt-1.5 transition-transform hover:scale-105 active:scale-95">
+        <Link href="/" className="flex shrink-0 items-center">
+          <div className="flex items-center justify-center shrink-0 h-10 md:h-12 overflow-hidden">
             <img
-              src="/images/logo.jpeg"
+              src="/images/logo.png"
               alt="Jobs Portal"
-              className="h-8 md:h-10 object-contain"
+              className="h-[140%] w-auto max-w-none object-contain"
             />
           </div>
         </Link>
-
         {/* Right Aligned Container */}
         <div className="flex items-center gap-8">
           {/* Navigation Links */}
           <nav className="hidden lg:flex items-center gap-6">
             <Link href="/about-us" className="text-sm font-semibold text-slate-600 hover:text-primary transition-colors flex items-center gap-1">
-              About <ChevronDown className="h-3 w-3 text-slate-400" />
+              About
             </Link>
 
             {/* Services Dropdown */}

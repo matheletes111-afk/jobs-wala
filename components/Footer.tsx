@@ -31,16 +31,17 @@ export default async function Footer() {
       {/* Main footer */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:px-8 lg:px-10">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          
+
           {/* Logo & Description Column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <img
-                src="/images/logo.jpeg"
-                alt="Jobdaddy"
-                className="h-8 md:h-9 object-contain rounded-lg border border-[#bae6fd] bg-white p-1"
-              />
-              <span className="font-extrabold text-lg text-slate-900 tracking-tight">Jobdaddy</span>
+              <div className="flex items-center justify-center shrink-0 h-10 md:h-12 overflow-hidden">
+                <img
+                  src="/images/logo.png"
+                  alt="Jobdaddy"
+                  className="h-[140%] w-auto max-w-none object-contain"
+                />
+              </div>
             </div>
             <p className="text-xs font-semibold text-slate-500 leading-relaxed max-w-xs mb-6">
               AI-powered job portal that connects talent with the right opportunities.
@@ -89,15 +90,17 @@ export default async function Footer() {
             {/* Social Icons */}
             <div className="flex items-center gap-2">
               {[
-                { icon: Facebook, label: "Facebook" },
-                { icon: Twitter, label: "Twitter" },
-                { icon: Instagram, label: "Instagram" },
-                { icon: Linkedin, label: "LinkedIn" },
-                { icon: Youtube, label: "YouTube" },
-              ].map(({ icon: Icon, label }) => (
+                { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/share/1DRWCYWX43/?mibextid=wwXIfr" },
+                { icon: Twitter, label: "Twitter", href: "#" },
+                { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/jobdaddy.co.in?igsh=MXV4amF5OGI5b2poaA%3D%3D&utm_source=qr" },
+                { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/company/jobdaddy-jobs/" },
+                { icon: Youtube, label: "YouTube", href: "#" },
+              ].map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
-                  href="#"
+                  href={href}
+                  target={href !== "#" ? "_blank" : undefined}
+                  rel={href !== "#" ? "noopener noreferrer" : undefined}
                   className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 hover:bg-sky-200 text-blue-600 transition-colors"
                   aria-label={label}
                 >

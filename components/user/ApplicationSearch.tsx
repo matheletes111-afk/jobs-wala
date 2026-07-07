@@ -214,8 +214,8 @@ export default function ApplicationSearch() {
             </div>
           </div>
           <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
-            <Button onClick={handleSearch} disabled={loading} className="h-12 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
-              Search Applications
+            <Button onClick={handleSearch} disabled={loading} style={{ color: "white" }} className="h-12 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
+              <span style={{ color: "white" }}>Search Applications</span>
             </Button>
             <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-12 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 font-bold">
               Reset
@@ -249,8 +249,8 @@ export default function ApplicationSearch() {
                     Discover opportunities matched to your profile and start your next career move.
                   </p>
                   <Link href="/user/jobs">
-                    <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-                      Explore Jobs Feed
+                    <Button style={{ color: "white" }} className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+                      <span style={{ color: "white" }}>Explore Jobs Feed</span>
                     </Button>
                   </Link>
                 </>

@@ -1074,7 +1074,7 @@ export default function XRaySearch() {
                       className="flex-1 h-14 rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                      Execute Global Search
+                      <span style={{ color: "white" }}>Execute Global Search</span>
                     </Button>
                     <a
                       href={`https://www.google.com/search?q=${encodeURIComponent(xrayQuery)}`}

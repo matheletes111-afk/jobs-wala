@@ -142,7 +142,7 @@ function LoginForm() {
           {/* Logo */}
           <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
             <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-8 shadow-xl inline-block">
-              <img src="/images/logo.jpeg" alt="Jobs Portal" width={400} height={160}
+              <img src="/images/logo.png" alt="Jobs Portal" width={400} height={160}
                 className="h-32 w-auto object-contain mix-blend-multiply" />
             </div>
           </Link>
@@ -181,7 +181,7 @@ function LoginForm() {
         <div className="mb-8 w-full max-w-md xl:hidden">
           <Link href="/" className="inline-flex">
             <img
-              src="/images/logo.jpeg"
+              src="/images/logo.png"
               alt="Jobs Portal"
               width={240}
               height={240}
@@ -203,7 +203,7 @@ function LoginForm() {
                 {success}
               </div>
             )}
-             {error && (
+            {error && (
               <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-400">
                 <div>{error}</div>
                 {error.includes("verify your email") && (
@@ -254,10 +254,11 @@ function LoginForm() {
             </div>
             <Button
               type="submit"
-              className="mt-4 h-16 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 hover:scale-[1.02] active:scale-95 transition-all text-sm"
+              style={{ color: "white" }}
+              className="mt-4 h-16 w-full rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest shadow-xl transition-all text-sm"
               disabled={loading}
             >
-              {loading ? "Verifying..." : "Sign In"}
+              <span style={{ color: "white" }}>{loading ? "Verifying..." : "Sign In"}</span>
             </Button>
           </form>
 

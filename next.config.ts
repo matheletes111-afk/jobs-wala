@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "prisma"],
   async rewrites() {
     return [
-      { source: "/favicon.ico", destination: "/images/logo.jpeg" },
+      { source: "/favicon.ico", destination: "/images/logo.png" },
     ];
   },
   images: {

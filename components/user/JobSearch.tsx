@@ -273,22 +273,65 @@ export default function JobSearch() {
                       </div>
                       <p className="mt-2 text-xs font-semibold text-muted-foreground/50">{job.companyName || job.employer.companyName}</p>
                       
-                      <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                          {formatLocation(job.location, true)}
-                        </span>
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                          {job.category}
-                        </span>
-                        <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                          {job.employmentType}
-                        </span>
-                        {formatSalary(job) && (
-                          <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary whitespace-nowrap shadow-xl shadow-primary/10">
-                            {formatSalary(job)}
-                          </span>
-                        )}
+                      {/* Job Metadata Row */}
+                      <div className="mt-4 flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-xs font-semibold text-muted-foreground/60">
+                        <span className="text-primary font-bold">{`#JOB-${job.id.substring(0, 6).toUpperCase()}`}</span>
+                        <span className="text-slate-300">|</span>
+                        <span>Client: {job.companyName || job.employer.companyName}</span>
+                        <span className="text-slate-300">|</span>
+                        <span>Status: <span className="text-emerald-500 font-bold">Active</span></span>
+                        <span className="text-slate-300">|</span>
+                        <span>Recruiter: Tarun Upadhyay</span>
                       </div>
+                      
+                      {/* Parse location JSON */}
+                      {(() => {
+                        let locationCity = "N/A";
+                        let locationState = "N/A";
+                        try {
+                          const parsed = JSON.parse(job.location);
+                          if (parsed.city && Array.isArray(parsed.city) && parsed.city.length > 0) {
+                            locationCity = parsed.city[0];
+                          } else if (parsed.city && typeof parsed.city === "string") {
+                            locationCity = parsed.city;
+                          } else if (parsed.country) {
+                            locationCity = parsed.country;
+                          }
+                          
+                          if (parsed.state && Array.isArray(parsed.state) && parsed.state.length > 0) {
+                            locationState = parsed.state[0];
+                          } else if (parsed.state && typeof parsed.state === "string") {
+                            locationState = parsed.state;
+                          } else {
+                            locationState = parsed.country || "India";
+                          }
+                        } catch {
+                          const locParts = job.location.split(",");
+                          locationCity = locParts[0]?.trim() || job.location;
+                          locationState = locParts[1]?.trim() || "India";
+                        }
+                        return (
+                          <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
+                            <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
+                              City: {locationCity}
+                            </span>
+                            <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
+                              State: {locationState}
+                            </span>
+                            <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
+                              {job.category}
+                            </span>
+                            <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
+                              {job.employmentType}
+                            </span>
+                            {formatSalary(job) && (
+                              <span className="px-5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-semibold text-primary whitespace-nowrap shadow-xl shadow-primary/10">
+                                {formatSalary(job)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
                       <p className="mt-8 line-clamp-2 text-base font-medium text-muted-foreground/60 italic leading-relaxed">
                         &quot;{job.description}&quot;
                       </p>

@@ -49,8 +49,9 @@ export default function HomeSlider({ children }: HomeSliderProps) {
             </div>
           );
         })}
-        {/* Soft overlay gradient to ensure text readability on the left, leaving the right side of the images completely clear */}
-        <div className="absolute left-0 top-0 bottom-0 w-full md:w-[60%] bg-gradient-to-r from-white/50 via-white/15 to-transparent z-10" />
+        {/* Soft dark overlay gradient and blur to ensure white text readability on the left */}
+        <div className="absolute left-0 top-0 bottom-0 w-[50%] md:w-[25%] backdrop-blur-[2px] z-10" />
+        <div className="absolute left-0 top-0 bottom-0 w-full md:w-[60%] bg-gradient-to-r from-black/75 via-black/40 to-transparent z-10" />
       </div>
 
       {/* Slide Navigation Dots */}

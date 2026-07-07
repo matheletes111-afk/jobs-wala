@@ -288,23 +288,23 @@ export default function HomePageClient({
             No jobs available right now. Check back later.
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {jobs.map((job) => {
               // Stable match score based on job ID
               const matchScore = 75 + ((parseInt(job.id.slice(0, 4), 16) || 0) % 15);
               return (
                 <div
                   key={job.id}
-                  className="rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
+                  className="rounded-xl p-4 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
                   style={{
                     backgroundColor: "#ffffff",
                     border: "1px solid #bfdbfe",
-                    boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
+                    boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
                   }}
                 >
                   <div>
                     {/* Header: Company Info */}
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
                         companyName={job.companyName || job.employer.companyName}
@@ -319,13 +319,13 @@ export default function HomePageClient({
                     {/* Job Title */}
                     <Link
                       href={`/jobs/${job.id}`}
-                      className="block text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-4 line-clamp-1 leading-snug"
+                      className="block text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-1 leading-snug"
                     >
                       {job.title}
                     </Link>
 
                     {/* Job Metadata tags */}
-                    <div className="flex flex-wrap gap-y-2 gap-x-3 text-[11px] font-semibold text-slate-400 mb-4">
+                    <div className="flex flex-wrap gap-y-2 gap-x-3 text-[11px] font-semibold text-slate-400 mb-3">
                       <span className="flex items-center gap-1">
                         <Briefcase className="size-3.5 shrink-0" />
                         {job.experienceRequired != null ? `${job.experienceRequired} Yrs` : "2-4 Yrs"}
@@ -341,7 +341,7 @@ export default function HomePageClient({
                     </div>
 
                     {/* Salary & Match indicator */}
-                    <div className="flex flex-wrap items-center gap-2 mb-6">
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
                       <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold">
                         {job.salaryRange || "₹ 6 - 12 LPA"}
                       </span>
@@ -386,14 +386,14 @@ export default function HomePageClient({
       {/* 2. AI-Powered Matching Section (High Fidelity Figma Replica) */}
       <section className="py-16 overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-          <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-8 md:p-12">
-            <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-12">
+          <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-2xl p-6 md:p-8">
+            <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-10">
               AI-Powered Matching That Works for You
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch justify-center">
 
               {/* Card 1: Left Mockup Card */}
-              <div className="premium-child-card rounded-3xl flex flex-col justify-between min-h-[410px] w-full max-w-[280px] mx-auto relative overflow-hidden">
+              <div className="premium-child-card rounded-2xl flex flex-col justify-between min-h-[350px] w-full max-w-[250px] mx-auto relative overflow-hidden">
                 {/* Profile Background Banner */}
                 <div className="h-14 w-full bg-gradient-to-r from-blue-500/80 to-sky-400/70 absolute top-0 left-0" />
 
@@ -445,7 +445,7 @@ export default function HomePageClient({
               </div>
 
               {/* Card 2: For Candidates Card */}
-              <div className="premium-child-card rounded-3xl p-6 flex flex-col justify-between min-h-[410px] w-full max-w-sm mx-auto">
+              <div className="premium-child-card rounded-2xl p-4 flex flex-col justify-between min-h-[350px] w-full max-w-xs mx-auto">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex items-center justify-center size-10 rounded-xl bg-blue-50 text-blue-600">
@@ -499,7 +499,7 @@ export default function HomePageClient({
               </div>
 
               {/* Card 3: For Employers Card */}
-              <div className="premium-child-card rounded-3xl p-6 flex flex-col justify-between min-h-[410px] w-full max-w-sm mx-auto">
+              <div className="premium-child-card rounded-2xl p-4 flex flex-col justify-between min-h-[350px] w-full max-w-xs mx-auto">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex items-center justify-center size-10 rounded-xl bg-purple-50 text-purple-600">
@@ -570,7 +570,7 @@ export default function HomePageClient({
               </div>
 
               {/* Card 4: Right Mockup Card */}
-              <div className="premium-child-card rounded-3xl flex flex-col justify-between min-h-[410px] w-full max-w-[280px] mx-auto relative overflow-hidden">
+              <div className="premium-child-card rounded-2xl flex flex-col justify-between min-h-[350px] w-full max-w-[250px] mx-auto relative overflow-hidden">
                 {/* Profile Background Banner */}
                 <div className="h-14 w-full bg-gradient-to-r from-purple-500/80 to-indigo-400/70 absolute top-0 left-0" />
 
@@ -624,214 +624,36 @@ export default function HomePageClient({
         </div>
       </section>
 
-      {/* 3. Browse By Categories (Dynamic) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
-            Browse By Categories
-          </h2>
-          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-            View all categories
-            <ArrowRight className="size-4" />
-          </Link>
-        </div>
-
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => scrollCategories("left")}
-            className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="h-5 w-5 text-slate-600" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollCategories("right")}
-            className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="h-5 w-5 text-slate-600" />
-          </button>
-
-          <div
-            ref={categoryScrollRef}
-            className="flex gap-6 overflow-x-auto pb-6 pt-2 scroll-smooth scrollbar-none"
-          >
-            {categories.map((cat) => {
-              const { icon: Icon, bgColor } = getCategoryStyle(cat.name);
-              return (
-                <Link
-                  key={cat.id}
-                  href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                  className="flex flex-col items-center justify-center p-6 text-center rounded-[24px] min-w-[200px] flex-1 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #bfdbfe",
-                    boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
-                  }}
-                >
-                  <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${bgColor}`}>
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <p className="font-extrabold text-sm text-slate-900 mb-1">{cat.name}</p>
-                  <span className="text-[11px] font-bold text-slate-400">
-                    {cat.jobCount.toLocaleString()}+ Jobs
-                  </span>
-                </Link>
-              );
-            })}
-
-            {/* Additional mockup categories for aesthetic completeness if list is short */}
-            {categories.length > 0 && (
-              <div
-                className="flex flex-col items-center justify-center p-6 text-center rounded-[24px] min-w-[200px] flex-1 transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
-                style={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #bfdbfe",
-                  boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 20px -6px rgba(37, 99, 235, 0.08)"
-                }}
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
-                  <Grid className="h-6 w-6" />
-                </div>
-                <p className="font-extrabold text-sm text-slate-900 mb-1">More Categories</p>
-                <span className="text-[11px] font-bold text-slate-400">
-                  Explore all
-                </span>
-              </div>
-            )}
+      {/* Free Assessment Section Card */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10 mb-16">
+        <div className="bg-gradient-to-r from-sky-50 to-indigo-50/60 rounded-[2rem] p-8 sm:p-10 text-slate-800 border-2 border-blue-400 shadow-[0_25px_50px_rgba(0,0,0,0.22)] flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+          {/* Decorative light gradient glows */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl -translate-y-12 translate-x-12" />
+          <div className="absolute bottom-0 left-0 w-60 h-60 bg-indigo-300/10 rounded-full blur-2xl translate-y-12 -translate-x-12" />
+          
+          <div className="relative z-10 max-w-2xl text-center md:text-left">
+            <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-600 text-white px-3.5 py-1.5 rounded-full shadow-sm">
+              Limited Time Free Offer
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-4 mb-2 text-slate-900">
+              Free Resume Assessment
+            </h2>
+            <p className="text-sm text-slate-650 font-semibold leading-relaxed">
+              Submit your resume for a professional evaluation. Discover formatting flaws, impact metrics gaps, and receive an AI match optimization score in 2 hours.
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* 4. Top Companies Hiring (Dynamic) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
-            Top Companies Hiring
-          </h2>
-          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-            View all companies
-            <ArrowRight className="size-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {topCompanies.slice(0, 7).map((c) => (
-            <Link
-              key={c.userId}
-              href={`/jobs/company/${c.userId}`}
-              className="rounded-3xl p-6 flex flex-col items-center justify-between text-center min-h-[230px] transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
-                border: "1px solid #93c5fd",
-                boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 20px -6px rgba(249, 115, 22, 0.08)"
-              }}
+          
+          <div className="relative z-10 shrink-0 w-full md:w-auto text-center">
+            <a
+              href="https://forms.gle/N3RjJVVzBC5xQ6eY9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full sm:w-auto text-center"
             >
-              <div className="flex flex-col items-center w-full">
-                {/* Logo Container */}
-                <div className="relative size-16 rounded-2xl border border-blue-100 bg-white shadow-sm flex items-center justify-center text-blue-600 mb-4">
-                  {c.companyLogo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.companyLogo}
-                      alt={c.companyName}
-                      className="size-10 object-contain"
-                    />
-                  ) : (
-                    <span className="font-extrabold text-xl text-blue-600">{c.companyName.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-
-                {/* Company Name */}
-                <h3 className="font-extrabold text-slate-800 text-base mb-1 truncate w-full">{c.companyName}</h3>
-
-                {/* Location */}
-                <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-slate-500 mb-4 max-w-full px-2">
-                  <MapPin className="size-3.5 text-emerald-500 shrink-0" />
-                  <span className="truncate">{formatLocation(c.location, true)}</span>
-                </div>
-              </div>
-
-              {/* Open Jobs Count Badge */}
-              <div className="w-full mt-auto px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 justify-center">
-                <Briefcase className="size-3.5 text-orange-500" />
-                {c.openJobsCount} Open Jobs
-              </div>
-            </Link>
-          ))}
-
-          {/* Final 'More Companies' card */}
-          <Link
-            href="/user/jobs"
-            className="rounded-3xl p-6 flex flex-col items-center justify-center text-center min-h-[230px] transition-all duration-300 hover:-translate-y-1.5 hover:border-blue-500 hover:shadow-lg"
-            style={{
-              background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
-              border: "1px solid #93c5fd",
-              boxShadow: "0 10px 25px -5px rgba(37, 99, 235, 0.12), 0 8px 20px -6px rgba(249, 115, 22, 0.08)"
-            }}
-          >
-            <div className="flex items-center justify-center size-16 rounded-2xl bg-white border border-blue-100 text-blue-600 mb-4 shadow-sm">
-              <Grid className="size-7 text-blue-600" />
-            </div>
-            <h3 className="font-extrabold text-slate-800 text-base mb-1">More Companies</h3>
-            <p className="text-[11px] font-bold text-slate-400">Explore all hiring partners</p>
-          </Link>
-        </div>
-      </section>
-
-      {/* 5. How Jobdaddy AI Works (Static) */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-8 md:p-12">
-          <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-12">
-            How Jobdaddy AI Works
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch justify-center">
-            {/* Step 1 */}
-            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
-              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
-                <User className="size-6 text-blue-600" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base mb-2">Create Your Profile</h3>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                Add your skills, experience and upload resume
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
-              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
-                <Sparkles className="size-6 text-blue-600" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base mb-2">AI Analyzes & Matches</h3>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                Our AI matches you with the most relevant jobs
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
-              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
-                <FileCheck className="size-6 text-blue-600" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base mb-2">View Match Score</h3>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                See how well your profile fits the job requirements
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="premium-child-card rounded-3xl p-6 flex flex-col items-center text-center justify-start min-h-[220px] w-full max-w-[280px] mx-auto">
-              <div className="flex items-center justify-center size-14 rounded-2xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-4 shrink-0">
-                <Briefcase className="size-6 text-blue-600" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base mb-2">Apply & Get Hired</h3>
-              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
-                Apply with confidence and be one step closer to your dream job
-              </p>
-            </div>
+              <Button className="w-full sm:w-auto h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/10">
+                <span style={{ color: "white" }}>Get Free Assessment</span>
+              </Button>
+            </a>
           </div>
         </div>
       </section>
@@ -1013,6 +835,220 @@ export default function HomePageClient({
         </section>
       )}
 
+      {/* 3. Browse By Categories (Dynamic) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
+            Browse By Categories
+          </h2>
+          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+            View all categories
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => scrollCategories("left")}
+            className="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="h-5 w-5 text-slate-600" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollCategories("right")}
+            className="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white shadow-md transition-all hover:bg-slate-50 cursor-pointer"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="h-5 w-5 text-slate-600" />
+          </button>
+
+          <div
+            ref={categoryScrollRef}
+            className="flex gap-4 overflow-x-auto pb-4 pt-2 scroll-smooth scrollbar-none"
+          >
+            {categories.map((cat) => {
+              const { icon: Icon, bgColor } = getCategoryStyle(cat.name);
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/jobs/category/${encodeURIComponent(cat.name)}`}
+                  className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #bfdbfe",
+                    boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
+                  }}
+                >
+                  <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${bgColor}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <p className="font-extrabold text-sm text-slate-900 mb-1">{cat.name}</p>
+                  <span className="text-[11px] font-bold text-slate-400">
+                    {cat.jobCount.toLocaleString()}+ Jobs
+                  </span>
+                </Link>
+              );
+            })}
+
+            {/* Additional mockup categories for aesthetic completeness if list is short */}
+            {categories.length > 0 && (
+              <div
+                className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
+                style={{
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #bfdbfe",
+                  boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
+                }}
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                  <Grid className="h-6 w-6" />
+                </div>
+                <p className="font-extrabold text-sm text-slate-900 mb-1">More Categories</p>
+                <span className="text-[11px] font-bold text-slate-400">
+                  Explore all
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Top Companies Hiring (Dynamic) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
+            Top Companies Hiring
+          </h2>
+          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+            View all companies
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {topCompanies.slice(0, 7).map((c) => (
+            <Link
+              key={c.userId}
+              href={`/jobs/company/${c.userId}`}
+              className="rounded-2xl p-4 flex flex-col items-center justify-between text-center min-h-[190px] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
+              style={{
+                background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
+                border: "1px solid #93c5fd",
+                boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.08), 0 4px 10px -5px rgba(249, 115, 22, 0.06)"
+              }}
+            >
+              <div className="flex flex-col items-center w-full">
+                {/* Logo Container */}
+                <div className="relative size-12 rounded-xl border border-blue-100 bg-white shadow-sm flex items-center justify-center text-blue-600 mb-2">
+                  {c.companyLogo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={c.companyLogo}
+                      alt={c.companyName}
+                      className="size-8 object-contain"
+                    />
+                  ) : (
+                    <span className="font-extrabold text-lg text-blue-600">{c.companyName.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+
+                {/* Company Name */}
+                <h3 className="font-extrabold text-slate-800 text-base mb-1 truncate w-full">{c.companyName}</h3>
+
+                {/* Location */}
+                <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-slate-500 mb-4 max-w-full px-2">
+                  <MapPin className="size-3.5 text-emerald-500 shrink-0" />
+                  <span className="truncate">{formatLocation(c.location, true)}</span>
+                </div>
+              </div>
+
+              {/* Open Jobs Count Badge */}
+              <div className="w-full mt-auto px-4 py-1 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 justify-center">
+                <Briefcase className="size-3.5 text-orange-500" />
+                {c.openJobsCount} Open Jobs
+              </div>
+            </Link>
+          ))}
+
+          {/* Final 'More Companies' card */}
+          <Link
+            href="/user/jobs"
+            className="rounded-2xl p-4 flex flex-col items-center justify-center text-center min-h-[190px] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
+            style={{
+              background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",
+              border: "1px solid #93c5fd",
+              boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.08), 0 4px 10px -5px rgba(249, 115, 22, 0.06)"
+            }}
+          >
+            <div className="flex items-center justify-center size-12 rounded-xl bg-white border border-blue-100 text-blue-600 mb-2 shadow-sm">
+              <Grid className="size-6 text-blue-600" />
+            </div>
+            <h3 className="font-extrabold text-slate-800 text-sm mb-1">More Companies</h3>
+            <p className="text-[10px] font-bold text-slate-400">Explore all hiring partners</p>
+          </Link>
+        </div>
+      </section>
+
+      {/* 5. How Jobdaddy AI Works (Static) */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-2xl p-6 md:p-8">
+          <h2 className="text-center text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-10">
+            How Jobdaddy AI Works
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch justify-center">
+            {/* Step 1 */}
+            <div className="premium-child-card rounded-2xl p-4 flex flex-col items-center text-center justify-start min-h-[180px] w-full max-w-[240px] mx-auto">
+              <div className="flex items-center justify-center size-12 rounded-xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-3 shrink-0">
+                <User className="size-5 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-1">Create Your Profile</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Add your skills, experience and upload resume
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="premium-child-card rounded-2xl p-4 flex flex-col items-center text-center justify-start min-h-[180px] w-full max-w-[240px] mx-auto">
+              <div className="flex items-center justify-center size-12 rounded-xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-3 shrink-0">
+                <Sparkles className="size-5 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-1">AI Analyzes & Matches</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Our AI matches you with the most relevant jobs
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="premium-child-card rounded-2xl p-4 flex flex-col items-center text-center justify-start min-h-[180px] w-full max-w-[240px] mx-auto">
+              <div className="flex items-center justify-center size-12 rounded-xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-3 shrink-0">
+                <FileCheck className="size-5 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-1">View Match Score</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                See how well your profile fits the job requirements
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="premium-child-card rounded-2xl p-4 flex flex-col items-center text-center justify-start min-h-[180px] w-full max-w-[240px] mx-auto">
+              <div className="flex items-center justify-center size-12 rounded-xl bg-white border border-blue-100 shadow-sm text-blue-600 mb-3 shrink-0">
+                <Briefcase className="size-5 text-blue-600" />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-base mb-1">Apply & Get Hired</h3>
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                Apply with confidence and be one step closer to your dream job
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
       {/* 6. Ready to take the next step CTA (Static) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
         <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-6">
@@ -1032,11 +1068,16 @@ export default function HomePageClient({
                   Create Profile
                 </Button>
               </Link>
-              <Link href="/user/jobs" className="w-full sm:w-auto text-center">
+              <a
+                href="https://forms.gle/N3RjJVVzBC5xQ6eY9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto text-center"
+              >
                 <Button variant="outline" className="w-full sm:w-auto h-11 px-6 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
-                  Upload Resume
+                  Get Free Assessment
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>
