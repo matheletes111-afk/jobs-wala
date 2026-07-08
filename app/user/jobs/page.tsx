@@ -5,6 +5,9 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@prisma/client";
 import JobSearch from "@/components/user/JobSearch";
 import { ChevronDown } from "lucide-react";
+import { Suspense } from "react";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Job Search - JobDaddy",
@@ -38,9 +41,17 @@ export default async function JobsPage() {
                Discover your next career move. Browse and apply for the latest job opportunities across our global network.
              </p>
           </div>
-          <JobSearch />
+          <Suspense fallback={
+            <div className="linear-card rounded-[2.5rem] p-24 text-center">
+              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mb-6" />
+              <p className="text-sm font-semibold text-muted-foreground">Loading Job Search...</p>
+            </div>
+          }>
+            <JobSearch />
+          </Suspense>
         </div>
       </main>
     </div>
   );
 }
+
