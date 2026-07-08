@@ -75,6 +75,7 @@ export default function EmployerResumeDatabaseSearch({
     let totalSuccess = 0;
     let totalFailed = 0;
     let totalFiles = 0;
+    const failedFilesList: Array<{ name: string; error: string }> = [];
 
     try {
       for (let i = 0; i < files.length; i += CLIENT_BATCH_SIZE) {
@@ -100,11 +101,24 @@ export default function EmployerResumeDatabaseSearch({
         totalFiles += result.totalFiles;
         totalSuccess += result.successCount;
         totalFailed += result.failedCount;
+
+        if (result.createdDocs && Array.isArray(result.createdDocs)) {
+          result.createdDocs.forEach((doc: any) => {
+            if (doc.parseStatus === "FAILED") {
+              failedFilesList.push({
+                name: doc.originalFileName,
+                error: doc.parseError || "Unknown error",
+              });
+            }
+          });
+        }
       }
 
-      setUploadMessage(
-        `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`
-      );
+      let msg = `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`;
+      if (failedFilesList.length > 0) {
+        msg += "\n\nFailed files:\n" + failedFilesList.map((f) => `• ${f.name}: ${f.error}`).join("\n");
+      }
+      setUploadMessage(msg);
       setFiles([]);
       setRefreshCount((prev) => prev + 1);
       setPage(1);
@@ -252,8 +266,8 @@ export default function EmployerResumeDatabaseSearch({
                 </div>
 
                 {uploadMessage && (
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold italic animate-in slide-in-from-top-2">
-                    <span className="opacity-60">Log:</span> {uploadMessage}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold italic animate-in slide-in-from-top-2 whitespace-pre-wrap">
+                    <span className="opacity-60 font-bold uppercase tracking-wider block mb-2">Log:</span> {uploadMessage}
                   </div>
                 )}
               </div>

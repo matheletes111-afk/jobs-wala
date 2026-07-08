@@ -31,21 +31,39 @@ async function processFile(file: File) {
   }
 
   try {
+    if (file.name) {
+      const nameExists = await prisma.resumeDocument.findFirst({
+        where: { originalFileName: file.name },
+      });
+      if (nameExists) {
+        throw new Error(`Duplicate file: A document named "${file.name}" has already been uploaded.`);
+      }
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const url = await uploadFileToS3(buffer, file.name, file.type, "resume-database");
     const r2Key = extractS3KeyFromUrl(url) || url;
     const parsed = await parseResumeWithOpenAI(buffer, file.name, file.type);
 
-    let existingDoc = null;
+    if (parsed.isResume === false) {
+      throw new Error("Invalid document format: The uploaded file does not appear to be a candidate's resume/CV.");
+    }
+
     if (parsed.email) {
-      existingDoc = await prisma.resumeDocument.findFirst({
+      const emailExists = await prisma.resumeDocument.findFirst({
         where: { extractedEmail: parsed.email },
       });
+      if (emailExists) {
+        throw new Error(`Duplicate candidate: A resume for email "${parsed.email}" already exists.`);
+      }
     }
-    if (!existingDoc && parsed.phone) {
-      existingDoc = await prisma.resumeDocument.findFirst({
+    if (parsed.phone) {
+      const phoneExists = await prisma.resumeDocument.findFirst({
         where: { extractedPhone: parsed.phone },
       });
+      if (phoneExists) {
+        throw new Error(`Duplicate candidate: A resume for phone number "${parsed.phone}" already exists.`);
+      }
     }
 
     const docData = {
@@ -69,18 +87,9 @@ async function processFile(file: File) {
       skills: parsed.skills,
     };
 
-    let doc;
-    if (existingDoc) {
-      doc = await prisma.resumeDocument.update({
-        where: { id: existingDoc.id },
-        data: docData,
-      });
-      console.log(`[employer-bulk-upload] Updated duplicate ResumeDocument (ID: ${existingDoc.id})`);
-    } else {
-      doc = await prisma.resumeDocument.create({
-        data: docData,
-      });
-    }
+    const doc = await prisma.resumeDocument.create({
+      data: docData,
+    });
     return { success: true, doc };
   } catch (error) {
     const parseError =

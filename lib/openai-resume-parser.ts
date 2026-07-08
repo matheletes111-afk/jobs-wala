@@ -7,6 +7,7 @@ const openai = process.env.OPENAI_API_KEY
   : null;
 
 export interface StructuredResumeData {
+  isResume?: boolean;
   extractedText: string;
   name: string | null;
   email: string | null;
@@ -20,6 +21,7 @@ export interface StructuredResumeData {
 }
 
 const resumeSchema = z.object({
+  isResume: z.boolean().default(true),
   extractedText: z.string().default(""),
   name: z.string().nullable().default(null),
   email: z.string().nullable().default(null),
@@ -59,6 +61,7 @@ function fallbackParse(text: string): StructuredResumeData {
   // Filter out random non-resume documents that don't have basic contact details
   if (!emailMatch && !phoneMatch && !nameCandidate) {
     return {
+      isResume: false,
       extractedText: text.trim(),
       name: null,
       email: null,
@@ -95,6 +98,7 @@ function fallbackParse(text: string): StructuredResumeData {
   const skills = defaultSkills.filter((skill) => lower.includes(skill));
 
   return {
+    isResume: true,
     extractedText: text.trim(),
     name: nameCandidate,
     email: emailMatch?.[0] ?? null,
@@ -144,8 +148,8 @@ export async function parseResumeWithOpenAI(
             {
               type: "input_text",
               text:
-                "Extract this resume into strict JSON with keys: extractedText, name, email, phone, location, skills, experienceYears, currentTitle, education, summary. " +
-                "Rules: return only valid JSON. Keep extractedText as plain text summary of resume content (max 12000 chars). skills must be string[]. experienceYears must be number or null.",
+                "Extract this resume into strict JSON with keys: isResume, extractedText, name, email, phone, location, skills, experienceYears, currentTitle, education, summary. " +
+                "Rules: return only valid JSON. Set isResume to true if the document is a candidate's resume/CV, or false if it is a general document, answer sheet, tutorial, assignment, or non-CV text. Keep extractedText as plain text summary of resume content (max 12000 chars). skills must be string[]. experienceYears must be number or null.",
             },
           ],
         },
@@ -159,6 +163,7 @@ export async function parseResumeWithOpenAI(
             type: "object",
             additionalProperties: false,
             properties: {
+              isResume: { type: "boolean", description: "Whether this document is a candidate's resume/CV" },
               extractedText: { type: "string" },
               name: { type: ["string", "null"] },
               email: { type: ["string", "null"] },
@@ -171,6 +176,7 @@ export async function parseResumeWithOpenAI(
               summary: { type: ["string", "null"] },
             },
             required: [
+              "isResume",
               "extractedText",
               "name",
               "email",
@@ -192,6 +198,7 @@ export async function parseResumeWithOpenAI(
     const parsed = resumeSchema.parse(JSON.parse(raw));
 
     return {
+      isResume: parsed.isResume,
       extractedText: parsed.extractedText.slice(0, 12000),
       name: parsed.name,
       email: parsed.email,
@@ -219,6 +226,7 @@ export async function parseResumeWithOpenAI(
 }
 
 export interface DetailedResumeData {
+  isResume?: boolean;
   extractedText: string;
   name: string | null;
   email: string | null;
@@ -236,6 +244,7 @@ export interface DetailedResumeData {
 }
 
 const detailedResumeSchema = z.object({
+  isResume: z.boolean().default(true),
   extractedText: z.string().default(""),
   name: z.string().nullable().default(null),
   email: z.string().nullable().default(null),
@@ -304,8 +313,8 @@ export async function parseResumeDetailedWithOpenAI(
             {
               type: "input_text",
               text:
-                "Extract this resume into strict JSON with keys: extractedText, name, email, phone, location, skills, experienceYears, currentTitle, education, summary, linkedinUrl, highestEducation, noticePeriod, dateOfBirth. " +
-                "Rules: return only valid JSON. Keep extractedText as plain text summary of resume content (max 12000 chars). skills must be string[]. experienceYears must be number or null. Extract linkedinUrl as string or null. Extract highestEducation (e.g. B.Tech, MBA) as string or null. Extract noticePeriod as string or null. Extract dateOfBirth (YYYY-MM-DD) as string or null.",
+                "Extract this resume into strict JSON with keys: isResume, extractedText, name, email, phone, location, skills, experienceYears, currentTitle, education, summary, linkedinUrl, highestEducation, noticePeriod, dateOfBirth. " +
+                "Rules: return only valid JSON. Set isResume to true if the document is a candidate's resume/CV, or false if it is a general document, answer sheet, tutorial, assignment, or non-CV text. Keep extractedText as plain text summary of resume content (max 12000 chars). skills must be string[]. experienceYears must be number or null. Extract linkedinUrl as string or null. Extract highestEducation (e.g. B.Tech, MBA) as string or null. Extract noticePeriod as string or null. Extract dateOfBirth (YYYY-MM-DD) as string or null.",
             },
           ],
         },
@@ -319,6 +328,7 @@ export async function parseResumeDetailedWithOpenAI(
             type: "object",
             additionalProperties: false,
             properties: {
+              isResume: { type: "boolean", description: "Whether this document is a candidate's resume/CV" },
               extractedText: { type: "string" },
               name: { type: ["string", "null"] },
               email: { type: ["string", "null"] },
@@ -335,6 +345,7 @@ export async function parseResumeDetailedWithOpenAI(
               dateOfBirth: { type: ["string", "null"] },
             },
             required: [
+              "isResume",
               "extractedText",
               "name",
               "email",
@@ -363,6 +374,7 @@ export async function parseResumeDetailedWithOpenAI(
     const parsed = detailedResumeSchema.parse(JSON.parse(raw));
 
     return {
+      isResume: parsed.isResume,
       extractedText: parsed.extractedText.slice(0, 12000),
       name: parsed.name,
       email: parsed.email,

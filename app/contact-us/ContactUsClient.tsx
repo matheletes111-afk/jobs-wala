@@ -21,15 +21,106 @@ export default function ContactUsClient() {
     subject: "Career Services",
     message: "",
   });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    message: "",
+  });
+  const [touched, setTouched] = useState({
+    name: false,
+    email: false,
+    mobile: false,
+    message: false,
+  });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const validateField = (name: keyof typeof errors, value: string) => {
+    let error = "";
+    switch (name) {
+      case "name":
+        if (!value.trim()) {
+          error = "Name is required.";
+        } else if (value.trim().length < 3) {
+          error = "Name must be at least 3 characters long.";
+        } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+          error = "Name can only contain letters and spaces.";
+        }
+        break;
+      case "email":
+        if (!value.trim()) {
+          error = "Email address is required.";
+        } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+          error = "Please enter a valid email address.";
+        }
+        break;
+      case "mobile": {
+        const digitCount = value.replace(/[^0-9]/g, "").length;
+        if (!value.trim()) {
+          error = "Mobile number is required.";
+        } else if (!/^\+?[0-9\s\-\(\)]+$/.test(value)) {
+          error = "Invalid characters in phone number.";
+        } else if (digitCount < 10) {
+          error = "Phone number must contain at least 10 digits.";
+        } else if (digitCount > 15) {
+          error = "Phone number must not exceed 15 digits.";
+        }
+        break;
+      }
+      case "message":
+        if (!value.trim()) {
+          error = "Message is required.";
+        } else if (value.trim().length < 10) {
+          error = "Message must be at least 10 characters long.";
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field !== "subject") {
+      if (touched[field]) {
+        const error = validateField(field, value);
+        setErrors((prev) => ({ ...prev, [field]: error }));
+      }
+    }
+  };
+
+  const handleBlur = (field: keyof typeof touched) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const error = validateField(field, formData[field]);
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.mobile || !formData.message) {
-      alert("Please fill in all fields.");
+
+    // Touch all fields on submit attempt
+    const allTouched = { name: true, email: true, mobile: true, message: true };
+    setTouched(allTouched);
+
+    const nameError = validateField("name", formData.name);
+    const emailError = validateField("email", formData.email);
+    const mobileError = validateField("mobile", formData.mobile);
+    const messageError = validateField("message", formData.message);
+
+    const newErrors = {
+      name: nameError,
+      email: emailError,
+      mobile: mobileError,
+      message: messageError,
+    };
+    setErrors(newErrors);
+
+    if (nameError || emailError || mobileError || messageError) {
       return;
     }
+
     setLoading(true);
 
     try {
@@ -44,6 +135,8 @@ export default function ContactUsClient() {
       if (res.ok) {
         setSubmitted(true);
         setFormData({ name: "", email: "", mobile: "", subject: "Career Services", message: "" });
+        setErrors({ name: "", email: "", mobile: "", message: "" });
+        setTouched({ name: false, email: false, mobile: false, message: false });
       } else {
         const data = await res.json();
         alert(data.error || "Something went wrong. Please try again.");
@@ -163,19 +256,26 @@ export default function ContactUsClient() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} noValidate className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Name */}
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Your Name</label>
                       <input
                         type="text"
-                        required
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        onBlur={() => handleBlur("name")}
                         placeholder="e.g. Tarun Upadhyay"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-xs"
+                        className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 font-semibold transition-all text-xs ${
+                          touched.name && errors.name
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
+                        }`}
                       />
+                      {touched.name && errors.name && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1">{errors.name}</p>
+                      )}
                     </div>
 
                     {/* Email */}
@@ -183,12 +283,19 @@ export default function ContactUsClient() {
                       <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Email Address</label>
                       <input
                         type="email"
-                        required
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        onBlur={() => handleBlur("email")}
                         placeholder="e.g. info@jobdaddy.in"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-xs"
+                        className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 font-semibold transition-all text-xs ${
+                          touched.email && errors.email
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
+                        }`}
                       />
+                      {touched.email && errors.email && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1">{errors.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -198,12 +305,19 @@ export default function ContactUsClient() {
                       <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Mobile Number</label>
                       <input
                         type="tel"
-                        required
                         value={formData.mobile}
-                        onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                        onChange={(e) => handleInputChange("mobile", e.target.value)}
+                        onBlur={() => handleBlur("mobile")}
                         placeholder="e.g. +91 8800614884"
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-xs"
+                        className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 font-semibold transition-all text-xs ${
+                          touched.mobile && errors.mobile
+                            ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                            : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
+                        }`}
                       />
+                      {touched.mobile && errors.mobile && (
+                        <p className="text-[10px] text-red-500 font-bold mt-1">{errors.mobile}</p>
+                      )}
                     </div>
 
                     {/* Subject */}
@@ -226,13 +340,20 @@ export default function ContactUsClient() {
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Your Message</label>
                     <textarea
-                      required
                       rows={5}
                       value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      onChange={(e) => handleInputChange("message", e.target.value)}
+                      onBlur={() => handleBlur("message")}
                       placeholder="Tell us how we can help you accelerate your recruitment or career growth..."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-semibold transition-all text-xs resize-none"
+                      className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 font-semibold transition-all text-xs resize-none ${
+                        touched.message && errors.message
+                          ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+                          : "border-slate-200 focus:ring-blue-500/20 focus:border-blue-500"
+                      }`}
                     />
+                    {touched.message && errors.message && (
+                      <p className="text-[10px] text-red-500 font-bold mt-1">{errors.message}</p>
+                    )}
                   </div>
 
                   <div className="pt-2">

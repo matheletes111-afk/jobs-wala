@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const search = (searchParams.get("search") || "").trim();
+    const title = (searchParams.get("title") || "").trim();
     const category = (searchParams.get("category") || "").trim();
     const sort = (searchParams.get("sort") || "desc").trim();
     let country = "";
@@ -54,6 +55,11 @@ export async function GET(req: NextRequest) {
           { title: { contains: search, mode: "insensitive" as const } },
           { description: { contains: search, mode: "insensitive" as const } },
         ],
+      });
+    }
+    if (title) {
+      andParts.push({
+        title: { contains: title, mode: "insensitive" as const },
       });
     }
     if (category) andParts.push({ category });

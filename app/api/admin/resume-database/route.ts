@@ -210,7 +210,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -218,6 +218,26 @@ export async function DELETE() {
     }
     if (session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const searchParams = req.nextUrl.searchParams;
+    const id = searchParams.get("id");
+
+    if (id) {
+      const resume = await prisma.resumeDocument.findUnique({
+        where: { id },
+        select: { id: true, r2Key: true },
+      });
+      if (!resume) {
+        return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+      }
+      if (resume.r2Key && resume.r2Key.includes("/") && !resume.r2Key.startsWith("upload-failed") && !resume.r2Key.startsWith("invalid-file-type")) {
+        await deleteFileFromS3(resume.r2Key);
+      }
+      await prisma.resumeDocument.delete({
+        where: { id },
+      });
+      return NextResponse.json({ success: true, message: "Resume deleted successfully." });
     }
 
     const failedResumes = await prisma.resumeDocument.findMany({
@@ -242,7 +262,7 @@ export async function DELETE() {
   } catch (error) {
     console.error("[DELETE /api/admin/resume-database]", error);
     return NextResponse.json(
-      { error: "Failed to delete failed resumes." },
+      { error: "Failed to delete resumes." },
       { status: 500 }
     );
   }

@@ -17,6 +17,7 @@ import LocationDropdown from "@/components/user/LocationDropdown";
 import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 import { useSession } from "next-auth/react";
 
@@ -54,6 +55,10 @@ interface FetchResult {
 }
 
 export default function JobSearch() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const { data: session } = useSession();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
@@ -62,10 +67,12 @@ export default function JobSearch() {
   const [loading, setLoading] = useState(true);
   const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [title, setTitle] = useState("");
   const [category, setCategory] = useState("all");
   const [location, setLocation] = useState("");
   const [sort, setSort] = useState("desc");
   const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedTitle, setAppliedTitle] = useState("");
   const [appliedCategory, setAppliedCategory] = useState("all");
   const [appliedLocation, setAppliedLocation] = useState("");
   const [appliedSort, setAppliedSort] = useState("desc");
@@ -73,10 +80,102 @@ export default function JobSearch() {
 
   const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
 
+  const escapeRegExp = (string: string) => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  };
+
+  const extractLocationTerms = (locationStr: string): string[] => {
+    if (!locationStr || !locationStr.trim()) return [];
+    try {
+      const parsed = JSON.parse(decodeURIComponent(locationStr));
+      const terms: string[] = [];
+      if (parsed.country) terms.push(parsed.country);
+      if (parsed.state) {
+        if (Array.isArray(parsed.state)) terms.push(...parsed.state);
+        else if (typeof parsed.state === "string") terms.push(parsed.state);
+      }
+      if (parsed.city) {
+        if (Array.isArray(parsed.city)) terms.push(...parsed.city);
+        else if (typeof parsed.city === "string") terms.push(parsed.city);
+      }
+      return terms.map((t) => t.trim()).filter(Boolean);
+    } catch {
+      return [locationStr.trim()];
+    }
+  };
+
+  const highlightText = (text: string, queries: string[]) => {
+    if (!text || !queries || queries.length === 0) return text;
+    const activeQueries = queries
+      .map((q) => q.trim())
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+
+    if (activeQueries.length === 0) return text;
+
+    const escaped = activeQueries.map((q) => escapeRegExp(q));
+    const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+    const parts = text.split(pattern);
+    return (
+      <>
+        {parts.map((part, index) => {
+          const isMatch = activeQueries.some((q) => q.toLowerCase() === part.toLowerCase());
+          return isMatch ? (
+            <mark key={index} className="bg-lime-400 text-black font-semibold px-1 rounded">
+              {part}
+            </mark>
+          ) : (
+            part
+          );
+        })}
+      </>
+    );
+  };
+
+  const activeQueries = useMemo(() => {
+    return [
+      appliedSearch,
+      appliedTitle,
+      appliedCategory !== "all" ? appliedCategory : "",
+      ...extractLocationTerms(appliedLocation),
+    ].map((q) => q?.trim()).filter(Boolean);
+  }, [appliedSearch, appliedTitle, appliedCategory, appliedLocation]);
+
+  const updateUrl = (
+    pageNum: number,
+    searchVal: string,
+    titleVal: string,
+    categoryVal: string,
+    locationVal: string,
+    sortVal: string
+  ) => {
+    const params = new URLSearchParams();
+    if (pageNum > 1) params.set("page", String(pageNum));
+    if (searchVal.trim()) params.set("search", searchVal.trim());
+    if (titleVal.trim()) params.set("title", titleVal.trim());
+    if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+    if (locationVal.trim()) params.set("location", locationVal.trim());
+    if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
+    const query = params.toString();
+    router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+  };
+
+  const getJobDetailUrl = (jobId: string) => {
+    const params = new URLSearchParams();
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedTitle.trim()) params.set("title", appliedTitle.trim());
+    if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    if (appliedSort && appliedSort !== "desc") params.set("sort", appliedSort);
+    const query = params.toString();
+    return `/jobs/${jobId}${query ? `?${query}` : ""}`;
+  };
+
   const fetchJobs = useCallback(
     async (
       pageNum: number,
       searchVal: string,
+      titleVal: string,
       categoryVal: string,
       locationVal: string,
       sortVal: string
@@ -88,6 +187,7 @@ export default function JobSearch() {
         params.set("limit", "10");
         params.set("sort", sortVal);
         if (searchVal.trim()) params.set("search", searchVal.trim());
+        if (titleVal.trim()) params.set("title", titleVal.trim());
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
         if (locationVal.trim())
@@ -120,27 +220,40 @@ export default function JobSearch() {
   }, []);
 
   useEffect(() => {
-    fetchJobs(page, appliedSearch, appliedCategory, appliedLocation, appliedSort);
-  }, [page, appliedSearch, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
+    const searchVal = searchParams.get("search") || "";
+    const titleVal = searchParams.get("title") || "";
+    const categoryVal = searchParams.get("category") || "all";
+    const locationVal = searchParams.get("location") || "";
+    const sortVal = searchParams.get("sort") || "desc";
+    const pageVal = parseInt(searchParams.get("page") || "1", 10);
+
+    setSearch(searchVal);
+    setTitle(titleVal);
+    setCategory(categoryVal);
+    setLocation(locationVal);
+    setSort(sortVal);
+    setPage(pageVal);
+
+    setAppliedSearch(searchVal);
+    setAppliedTitle(titleVal);
+    setAppliedCategory(categoryVal);
+    setAppliedLocation(locationVal);
+    setAppliedSort(sortVal);
+  }, [searchParams]);
+
+  useEffect(() => {
+    fetchJobs(page, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [page, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedCategory(category);
-    setAppliedLocation(location);
-    setAppliedSort(sort);
-    setPage(1);
+    updateUrl(1, search, title, category, location, sort);
   };
 
   const handleClear = () => {
-    setSearch("");
-    setCategory("all");
-    setLocation("");
-    setSort("desc");
-    setAppliedSearch("");
-    setAppliedCategory("all");
-    setAppliedLocation("");
-    setAppliedSort("desc");
-    setPage(1);
+    updateUrl(1, "", "", "all", "", "desc");
   };
 
   const start = total === 0 ? 0 : (page - 1) * 10 + 1;
@@ -163,6 +276,16 @@ export default function JobSearch() {
                   placeholder="Search keywords..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+                  className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-muted-foreground">Job Title Search</label>
+                <Input
+                  placeholder="Search job titles..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
                   className="h-12 rounded-2xl bg-white/[0.03] border-white/5 focus:ring-primary/20 focus:border-primary/40 transition-all"
                 />
@@ -259,9 +382,9 @@ export default function JobSearch() {
                   />
                   <div className="min-w-0 flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <Link href={`/jobs/${job.id}`}>
+                        <Link href={getJobDetailUrl(job.id)}>
                           <h3 className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors tracking-tight">
-                            {job.title}
+                            {highlightText(job.title, activeQueries)}
                           </h3>
                         </Link>
                         {appliedSet.has(job.id) && (
@@ -313,13 +436,13 @@ export default function JobSearch() {
                         return (
                           <div className="mt-8 flex flex-wrap justify-center md:justify-start gap-3">
                             <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                              City: {locationCity}
+                              City: {highlightText(locationCity, activeQueries)}
                             </span>
                             <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                              State: {locationState}
+                              State: {highlightText(locationState, activeQueries)}
                             </span>
                             <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
-                              {job.category}
+                              {highlightText(job.category, activeQueries)}
                             </span>
                             <span className="px-5 py-2 rounded-xl bg-white/5 border border-white/5 text-xs font-semibold text-muted-foreground/60 whitespace-nowrap">
                               {job.employmentType}
@@ -333,7 +456,7 @@ export default function JobSearch() {
                         );
                       })()}
                       <p className="mt-8 line-clamp-2 text-base font-medium text-muted-foreground/60 italic leading-relaxed">
-                        &quot;{job.description}&quot;
+                        &quot;{highlightText(job.description, activeQueries)}&quot;
                       </p>
                       
                       <div className="mt-10 pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-8">
@@ -347,13 +470,13 @@ export default function JobSearch() {
                            </div>
                         </div>
                         {(!session || session.user?.role === "JOB_SEEKER") ? (
-                          <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
+                          <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
                             <Button className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 group shadow-lg shadow-blue-500/10">
                               Apply Now
                             </Button>
                           </Link>
                         ) : (
-                          <Link href={`/jobs/${job.id}`} className="w-full sm:w-auto">
+                          <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
                             <Button variant="ghost" className="w-full sm:w-auto h-14 px-10 rounded-2xl text-xs font-semibold hover:bg-white/5 border border-white/10 text-muted-foreground/60 transition-all">
                               Details
                             </Button>
@@ -372,7 +495,7 @@ export default function JobSearch() {
             variant="ghost"
             size="sm"
             disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => updateUrl(Math.max(1, page - 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
             className="h-10 px-6 rounded-xl text-xs font-semibold text-muted-foreground/40 hover:text-foreground transition-all"
           >
             ← Previous Page
@@ -416,7 +539,7 @@ export default function JobSearch() {
                         ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40" 
                         : "text-muted-foreground/40 hover:bg-white/5 hover:text-foreground"
                     }`}
-                    onClick={() => setPage(p)}
+                    onClick={() => updateUrl(p, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
                   >
                     {p.toString().padStart(2, '0')}
                   </Button>
@@ -428,7 +551,7 @@ export default function JobSearch() {
             variant="ghost"
             size="sm"
             disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => updateUrl(Math.min(totalPages, page + 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
             className="h-10 px-6 rounded-xl text-xs font-semibold text-muted-foreground/40 hover:text-foreground transition-all"
           >
             Next Page →

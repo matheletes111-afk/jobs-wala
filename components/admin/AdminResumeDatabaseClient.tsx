@@ -55,6 +55,11 @@ interface BulkUploadResult {
   totalFiles: number;
   successCount: number;
   failedCount: number;
+  createdDocs?: Array<{
+    originalFileName: string;
+    parseStatus: string;
+    parseError?: string | null;
+  }>;
 }
 
 async function readApiError(res: Response): Promise<string> {
@@ -216,6 +221,7 @@ export default function AdminResumeDatabaseClient() {
     let totalSuccess = 0;
     let totalFailed = 0;
     let totalFiles = 0;
+    const failedFilesList: Array<{ name: string; error: string }> = [];
 
     try {
       for (let i = 0; i < files.length; i += CLIENT_BATCH_SIZE) {
@@ -240,11 +246,24 @@ export default function AdminResumeDatabaseClient() {
         totalFiles += result.totalFiles;
         totalSuccess += result.successCount;
         totalFailed += result.failedCount;
+
+        if (result.createdDocs && Array.isArray(result.createdDocs)) {
+          result.createdDocs.forEach((doc: any) => {
+            if (doc.parseStatus === "FAILED") {
+              failedFilesList.push({
+                name: doc.originalFileName,
+                error: doc.parseError || "Unknown error",
+              });
+            }
+          });
+        }
       }
 
-      setMessage(
-        `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`
-      );
+      let msg = `✅ Done! Uploaded ${totalFiles} files: ${totalSuccess} parsed, ${totalFailed} failed.`;
+      if (failedFilesList.length > 0) {
+        msg += "\n\nFailed files:\n" + failedFilesList.map((f) => `• ${f.name}: ${f.error}`).join("\n");
+      }
+      setMessage(msg);
       setFiles([]);
       await fetchResumes(
         1,
@@ -263,41 +282,28 @@ export default function AdminResumeDatabaseClient() {
     }
   };
 
-  const onDeleteFailed = async () => {
+
+
+  const onDeleteResume = async (id: string, fileName: string) => {
     if (loading || uploading) return;
     const confirmed = window.confirm(
-      "Delete all FAILED resumes from database? This action cannot be undone."
+      `Delete resume "${fileName}" from database? This action cannot be undone.`
     );
     if (!confirmed) return;
 
     setMessage("");
     try {
-      const res = await fetch("/api/admin/resume-database", {
+      const res = await fetch(`/api/admin/resume-database?id=${id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         throw new Error(await readApiError(res));
       }
-      const data = (await res.json()) as {
-        deletedCount: number;
-        deletedS3Objects: number;
-      };
-      setMessage(
-        `Deleted ${data.deletedCount} failed resumes (${data.deletedS3Objects} file objects removed from storage).`
-      );
-      await fetchResumes(
-        1,
-        appliedKeyword,
-        appliedSkills,
-        appliedIsBooleanSearch,
-        appliedLocation,
-        appliedParseStatus,
-        appliedMinExperience
-      );
-      setPage(1);
+      setMessage(`Successfully deleted resume "${fileName}".`);
+      setRefreshCount((prev) => prev + 1);
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Failed to delete failed resumes."
+        error instanceof Error ? error.message : "Failed to delete resume."
       );
     }
   };
@@ -352,8 +358,8 @@ export default function AdminResumeDatabaseClient() {
             </div>
 
             {message && (
-              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-semibold italic animate-in slide-in-from-top-2">
-                <span className="opacity-60">Log:</span> {message}
+              <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-semibold italic animate-in slide-in-from-top-2 whitespace-pre-wrap">
+                <span className="opacity-60 font-bold uppercase tracking-wider block mb-2">Log:</span> {message}
               </div>
             )}
           </div>
@@ -458,15 +464,6 @@ export default function AdminResumeDatabaseClient() {
             </div>
             <div className="flex items-center gap-6">
               <p className="text-xs font-semibold text-muted-foreground/30 tabular-nums italic">{rangeText}</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onDeleteFailed}
-                disabled={loading || uploading}
-                className="h-10 px-6 rounded-xl bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-semibold hover:scale-105 transition-all"
-              >
-                Delete Failed Resumes
-              </Button>
             </div>
           </div>
         </div>
@@ -592,6 +589,13 @@ export default function AdminResumeDatabaseClient() {
                       VIEW RESUME
                       <Upload className="h-3.5 w-3.5 rotate-45 transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
                     </Link>
+                    <Button
+                      variant="ghost"
+                      onClick={() => onDeleteResume(resume.id, resume.originalFileName)}
+                      className="h-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider text-red-500 hover:text-white hover:bg-red-500 transition-all mt-2"
+                    >
+                      DELETE RESUME
+                    </Button>
                   </div>
                 </div>
               </div>

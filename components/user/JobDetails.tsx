@@ -33,12 +33,84 @@ interface Job {
 
 
 
-export default function JobDetails({ job }: { job: Job }) {
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(text: string, queries: string[]) {
+  if (!text || !queries || queries.length === 0) return text;
+  const activeQueries = queries
+    .map((q) => q.trim())
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+
+  if (activeQueries.length === 0) return text;
+
+  const escaped = activeQueries.map((q) => escapeRegExp(q));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(pattern);
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        const isMatch = activeQueries.some((q) => q.toLowerCase() === part.toLowerCase());
+        return isMatch ? (
+          <mark key={index} className="bg-lime-400 text-black font-semibold px-1 rounded">
+            {part}
+          </mark>
+        ) : (
+          part
+        );
+      })}
+    </>
+  );
+}
+
+export default function JobDetails({
+  job,
+  search = "",
+  title = "",
+  category = "",
+  location = "",
+}: {
+  job: Job;
+  search?: string;
+  title?: string;
+  category?: string;
+  location?: string;
+}) {
   const salaryStr = formatSalary(job);
   const hasExperienceRange = job.experienceMin != null || job.experienceMax != null;
   const experienceStr = hasExperienceRange
     ? [job.experienceMin, job.experienceMax].filter((n) => n != null).join(" - ") + " years"
     : `${job.experienceRequired ?? 0} years`;
+
+  const extractLocationTerms = (locationStr: string): string[] => {
+    if (!locationStr || !locationStr.trim()) return [];
+    try {
+      const parsed = JSON.parse(decodeURIComponent(locationStr));
+      const terms: string[] = [];
+      if (parsed.country) terms.push(parsed.country);
+      if (parsed.state) {
+        if (Array.isArray(parsed.state)) terms.push(...parsed.state);
+        else if (typeof parsed.state === "string") terms.push(parsed.state);
+      }
+      if (parsed.city) {
+        if (Array.isArray(parsed.city)) terms.push(...parsed.city);
+        else if (typeof parsed.city === "string") terms.push(parsed.city);
+      }
+      return terms.map((t) => t.trim()).filter(Boolean);
+    } catch {
+      return [locationStr.trim()];
+    }
+  };
+
+  const activeQueries = [
+    search,
+    title,
+    category !== "all" ? category : "",
+    ...extractLocationTerms(location),
+  ].map((q) => q?.trim()).filter(Boolean);
 
   return (
     <div className="linear-card rounded-[2.5rem] p-10 sm:p-14 animate-in fade-in slide-in-from-bottom-5 duration-1000">
@@ -52,17 +124,17 @@ export default function JobDetails({ job }: { job: Job }) {
         <div className="min-w-0 flex-1 text-center md:text-left">
           <p className="text-xs font-semibold text-primary mb-3">Job Listing</p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-6xl mb-6">
-            {job.title}
+            {highlightText(job.title, activeQueries)}
           </h1>
           <div className="flex flex-wrap justify-center md:justify-start gap-2">
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-100 border border-slate-300 text-xs font-semibold text-slate-700">
               {job.companyName || job.employer.companyName}
             </span>
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-700">
-              {formatLocation(job.location)}
+              {highlightText(formatLocation(job.location), activeQueries)}
             </span>
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-violet-50 border border-violet-200 text-xs font-semibold text-violet-700">
-              {job.category}
+              {highlightText(job.category, activeQueries)}
             </span>
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
               {(job.employmentType || "FULL_TIME").replace("_", " ")}
@@ -83,7 +155,7 @@ export default function JobDetails({ job }: { job: Job }) {
             </div>
             <div className="prose prose-invert max-w-none">
               <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed font-medium text-lg">
-                {job.description}
+                {highlightText(job.description, activeQueries)}
               </p>
             </div>
           </div>
