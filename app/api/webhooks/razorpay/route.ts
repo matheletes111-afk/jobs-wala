@@ -162,14 +162,22 @@ export async function POST(req: Request) {
           data: { status: "EXPIRED" },
         });
 
-        await prisma.employerProfile.update({
+        // Only expire the employer profile if this subscription is currently the active one!
+        const profile = await prisma.employerProfile.findUnique({
           where: { userId: sub.employerId },
-          data: { 
-            subscriptionStatus: "EXPIRED",
-            resumeSearchEnabled: false,
-            xraySearchEnabled: false 
-          },
+          select: { subscriptionId: true }
         });
+
+        if (profile && profile.subscriptionId === sub.id) {
+          await prisma.employerProfile.update({
+            where: { userId: sub.employerId },
+            data: { 
+              subscriptionStatus: "EXPIRED",
+              resumeSearchEnabled: false,
+              xraySearchEnabled: false 
+            },
+          });
+        }
       }
     }
 

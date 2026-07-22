@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays, Upload } from "lucide-react";
+import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays, Upload, HelpCircle } from "lucide-react";
 import SkillTagInput from "@/components/common/SkillTagInput";
 
 interface ResumeRecord {
@@ -44,12 +44,16 @@ export default function EmployerResumeDatabaseSearch({
   const [minExperience, setMinExperience] = useState(
     (initialParams.minExperience as string) || ""
   );
+  const [maxExperience, setMaxExperience] = useState(
+    (initialParams.maxExperience as string) || ""
+  );
 
   const [appliedKeyword, setAppliedKeyword] = useState(keyword);
   const [appliedSkills, setAppliedSkills] = useState<string>((initialParams.skills as string) || "");
   const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(false);
   const [appliedLocation, setAppliedLocation] = useState(location);
   const [appliedMinExperience, setAppliedMinExperience] = useState(minExperience);
+  const [appliedMaxExperience, setAppliedMaxExperience] = useState(maxExperience);
 
   const [resumes, setResumes] = useState<ResumeRecord[]>([]);
   const [total, setTotal] = useState(0);
@@ -136,7 +140,8 @@ export default function EmployerResumeDatabaseSearch({
       skillsVal: string,
       isBooleanSearchVal: boolean,
       locationVal: string,
-      minExpVal: string
+      minExpVal: string,
+      maxExpVal: string
     ) => {
       setLoading(true);
       setError("");
@@ -149,21 +154,20 @@ export default function EmployerResumeDatabaseSearch({
         if (isBooleanSearchVal) params.set("isBooleanSearch", "true");
         if (locationVal.trim()) params.set("location", locationVal.trim());
         if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
+        if (maxExpVal.trim()) params.set("maxExperience", maxExpVal.trim());
+
         const res = await fetch(`/api/employer/resume-search?${params.toString()}`);
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(text || "Failed to fetch resumes");
-        }
+        if (!res.ok) throw new Error("Failed to fetch resumes");
         const data: FetchResult = await res.json();
         setResumes(data.resumes ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 1);
         setPage(data.page ?? 1);
-      } catch (e) {
+      } catch (err: any) {
+        setError(err.message || "Failed to load database search results");
         setResumes([]);
         setTotal(0);
         setTotalPages(1);
-        setError(e instanceof Error ? e.message : "Failed to fetch resumes");
       } finally {
         setLoading(false);
       }
@@ -172,13 +176,15 @@ export default function EmployerResumeDatabaseSearch({
   );
 
   useEffect(() => {
+    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
     fetchResumes(
       page,
       appliedKeyword,
-      appliedSkills,
+      formattedSkills,
       appliedIsBooleanSearch,
       appliedLocation,
-      appliedMinExperience
+      appliedMinExperience,
+      appliedMaxExperience
     );
   }, [
     page,
@@ -187,16 +193,22 @@ export default function EmployerResumeDatabaseSearch({
     appliedIsBooleanSearch,
     appliedLocation,
     appliedMinExperience,
-    fetchResumes,
+    appliedMaxExperience,
     refreshCount,
+    fetchResumes,
   ]);
 
   const apply = () => {
     setAppliedKeyword(keyword);
-    setAppliedSkills(isBooleanSearch ? booleanSkillsExpr : skills.join(","));
-    setAppliedIsBooleanSearch(isBooleanSearch);
     setAppliedLocation(location);
     setAppliedMinExperience(minExperience);
+    setAppliedMaxExperience(maxExperience);
+    setAppliedIsBooleanSearch(isBooleanSearch);
+    if (isBooleanSearch) {
+      setAppliedSkills(booleanSkillsExpr);
+    } else {
+      setAppliedSkills(skills.join(","));
+    }
     setPage(1);
     setRefreshCount((prev) => prev + 1);
   };
@@ -208,11 +220,13 @@ export default function EmployerResumeDatabaseSearch({
     setBooleanSkillsExpr("");
     setLocation("");
     setMinExperience("");
+    setMaxExperience("");
     setAppliedKeyword("");
     setAppliedSkills("");
     setAppliedIsBooleanSearch(false);
     setAppliedLocation("");
     setAppliedMinExperience("");
+    setAppliedMaxExperience("");
     setPage(1);
   };
 
@@ -224,184 +238,244 @@ export default function EmployerResumeDatabaseSearch({
   }, [limit, page, total]);
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-16 border-b border-slate-200 pb-10">
-           <div className="flex items-center gap-3 mb-4">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-xs font-semibold text-emerald-500">Talent Database</p>
-           </div>
-           <h1 className="text-4xl font-bold md:text-6xl tracking-tighter text-foreground leading-tight">
-             Resume <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-600">Library</span>
-           </h1>
-           <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic max-w-2xl">
-             Access the central resume database. Filter by candidate information, location, and key skills.
-           </p>
+    <div className="w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      {/* Page Header */}
+      <div className="mb-8 flex flex-col gap-4 border-b border-slate-200/60 pb-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1.5">Talent Database</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Resume Library</h1>
+          <p className="mt-1 text-sm font-medium text-slate-500">Access the central resume database. Filter by candidate details, location, and key skills.</p>
+        </div>
+      </div>
 
-            {resumeUploadEnabled && (
-              <div className="mt-8 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-250 shadow-sm backdrop-blur-3xl">
-                <div className="flex flex-col gap-6 md:flex-row md:items-center w-full md:w-auto flex-1">
-                  <div className="relative flex-1 min-w-[200px]">
-                    <Input
-                      type="file"
-                      multiple
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-                      className="h-14 opacity-0 absolute inset-0 z-10 cursor-pointer"
-                    />
-                    <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-emerald-200 rounded-2xl bg-white/50 group hover:bg-white/80 transition-all">
-                      <p className="text-xs font-semibold text-muted-foreground/60 group-hover:text-emerald-600">
-                        {files.length > 0 ? `${files.length} FILES SELECTED` : "SELECT RESUMES TO UPLOAD"}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={onUpload}
-                    disabled={uploading || files.length === 0}
-                    className="h-14 px-10 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Upload className="mr-3 h-4 w-4" />
-                    {uploading ? "Uploading..." : "Upload & Parse"}
-                  </Button>
-                </div>
+      {/* Bulk Upload Widget */}
+      {resumeUploadEnabled && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8 flex flex-col gap-4 transition-all hover:shadow-md">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <Upload className="h-4 w-4 text-emerald-500" />
+            <h3 className="text-sm font-bold text-slate-800">Add Resumes to Library</h3>
+          </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <input
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+                className="h-14 opacity-0 absolute inset-0 z-10 cursor-pointer w-full"
+              />
+              <div className="h-14 w-full flex items-center justify-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 hover:border-emerald-400 transition-colors">
+                <p className="text-xs font-bold text-slate-500 flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-slate-400" />
+                  {files.length > 0 ? `${files.length} FILES SELECTED` : "DRAG & DROP OR CLICK TO CHOOSE RESUME FILES (PDF/DOC)"}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={onUpload}
+              disabled={uploading || files.length === 0}
+              className="h-14 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50"
+            >
+              <span style={{ color: "white" }}>
+                {uploading ? "Uploading..." : "Upload & Parse"}
+              </span>
+            </Button>
+          </div>
 
-                {uploadMessage && (
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-semibold italic animate-in slide-in-from-top-2 whitespace-pre-wrap">
-                    <span className="opacity-60 font-bold uppercase tracking-wider block mb-2">Log:</span> {uploadMessage}
-                  </div>
-                )}
-              </div>
-            )}
+          {uploadMessage && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-650 text-xs font-semibold whitespace-pre-wrap">
+              <span className="font-bold text-slate-800 uppercase tracking-wider block mb-1">Process Log:</span>
+              {uploadMessage}
+            </div>
+          )}
+        </div>
+      )}
 
-           <div className="mt-12 grid gap-4 p-4 rounded-3xl linear-card shadow-lg md:grid-cols-5">
-              <div className="md:col-span-2">
-                <Input
-                  placeholder="Search candidates (Name, Email, etc)..."
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && apply()}
-                  className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
-                />
-              </div>
-              <div className="md:col-span-1 flex flex-col gap-1">
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Skills</span>
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="checkbox"
-                      id="employer-boolean-search-toggle"
-                      checked={isBooleanSearch}
-                      onChange={(e) => setIsBooleanSearch(e.target.checked)}
-                      className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                    />
-                    <label htmlFor="employer-boolean-search-toggle" className="text-[9px] font-black uppercase tracking-wider text-black cursor-pointer select-none">
-                      Boolean Search
-                    </label>
-                  </div>
-                </div>
-                {isBooleanSearch ? (
-                  <Input
-                    placeholder="e.g. java AND react"
-                    value={booleanSkillsExpr}
-                    onChange={(e) => setBooleanSkillsExpr(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && apply()}
-                    className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
-                  />
-                ) : (
-                  <SkillTagInput
-                    value={skills}
-                    onChange={setSkills}
-                    placeholder="Skills..."
-                    className="w-full"
-                  />
-                )}
-              </div>
-              <Input
-                placeholder="Location..."
+      {/* Indeed-Style Combined Search Box */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-8 overflow-hidden transition-all hover:shadow-md">
+        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 items-stretch">
+          {/* Keywords / Role Search */}
+          <div className="flex-1 p-5 flex items-center gap-3">
+            <Search className="h-5 w-5 text-slate-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">What</label>
+              <input
+                type="text"
+                placeholder="Job title, keywords, name or email..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Location Search */}
+          <div className="flex-1 p-5 flex items-center gap-3">
+            <MapPin className="h-5 w-5 text-slate-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Where</label>
+              <input
+                type="text"
+                placeholder="City, state, or country..."
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
+                className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
               />
-              <Input
+            </div>
+          </div>
+
+          {/* Skills Search */}
+          <div className="flex-1 p-5 flex items-center gap-3">
+            <Briefcase className="h-5 w-5 text-slate-400 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-0.5">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Skills</label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="checkbox"
+                    id="employer-boolean-search-toggle"
+                    checked={isBooleanSearch}
+                    onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                    className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  />
+                  <label htmlFor="employer-boolean-search-toggle" className="text-[9px] font-bold uppercase tracking-wider text-slate-500 cursor-pointer select-none">
+                    Boolean
+                  </label>
+                </div>
+              </div>
+              {isBooleanSearch ? (
+                <input
+                  type="text"
+                  placeholder="e.g. java AND (react OR angular)"
+                  value={booleanSkillsExpr}
+                  onChange={(e) => setBooleanSkillsExpr(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && apply()}
+                  className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                />
+              ) : (
+                <SkillTagInput
+                  value={skills}
+                  onChange={setSkills}
+                  placeholder="React, Node.js..."
+                  className="w-full border-0 p-0 shadow-none bg-transparent hover:bg-transparent focus:bg-transparent"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Actions Bar */}
+        <div className="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
+          <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Min Experience</span>
+              <input
                 type="number"
                 min={0}
-                placeholder="Years Exp..."
+                placeholder="Min Yrs"
                 value={minExperience}
                 onChange={(e) => setMinExperience(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                 className="h-12 bg-white border border-slate-200 shadow-sm rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/40 italic"
+                className="h-9 w-20 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
-           </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Max Experience</span>
+              <input
+                type="number"
+                min={0}
+                placeholder="Max Yrs"
+                value={maxExperience}
+                onChange={(e) => setMaxExperience(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                className="h-9 w-20 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              />
+            </div>
+          </div>
 
-           <div className="mt-6 flex flex-wrap items-center gap-4">
-              <Button onClick={apply} className="h-12 px-10 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-semibold shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all">
-                <Search className="mr-2 h-4 w-4" />
-                Search Database
-              </Button>
-              <Button variant="ghost" onClick={clear} className="h-12 px-6 rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-slate-100 transition-all">
-                Clear Filters
-              </Button>
-              <span className="text-xs font-semibold text-muted-foreground/40 italic ml-auto">{rangeText}</span>
-           </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <Button
+              variant="ghost"
+              onClick={clear}
+              className="h-11 px-6 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-650 hover:bg-slate-100 transition-all active:scale-95"
+            >
+              Reset Filters
+            </Button>
+            <Button
+              onClick={apply}
+              className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-500/10 transition-all hover:scale-105 active:scale-95"
+            >
+              <span style={{ color: "white" }}>Find Resumes</span>
+            </Button>
+          </div>
         </div>
+      </div>
 
-        <div className="grid gap-6 grid-cols-1">
-          {loading ? (
-            <div className="col-span-full rounded-[3rem] p-32 text-center animate-pulse border border-slate-200 bg-white">
-               <p className="text-sm font-semibold text-emerald-500">Accessing Resume Archives...</p>
-            </div>
-          ) : error ? (
-            <div className="col-span-full p-8 rounded-[2rem] bg-red-50 border border-red-200 text-red-700 text-center font-bold italic">
-               &lt;Error: {error}&gt;
-            </div>
-          ) : resumes.length === 0 ? (
-            <div className="col-span-full rounded-[3rem] p-32 text-center border-dashed border-slate-200 bg-slate-50">
-               <p className="text-xl font-bold text-muted-foreground/40 italic leading-relaxed">
-                  No records match your search criteria.
-               </p>
-            </div>
-          ) : (
-            resumes.map((resume, idx) => (
-              <div
-                key={resume.id}
-                className="linear-card group flex flex-col lg:flex-row lg:items-center justify-between gap-10 rounded-[2.5rem] shadow-md p-10 transition-all hover:shadow-xl animate-in fade-in slide-in-from-bottom-5 duration-700"
-                style={{ animationDelay: `${idx * 50}ms` }}
-              >
-                <div className="flex-1 min-w-0 space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <p className="text-xs font-semibold text-muted-foreground/30 italic truncate tabular-nums">
-                      {resume.originalFileName}
+      {/* Results Header Metadata */}
+      {!loading && resumes.length > 0 && (
+        <div className="mb-6 flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            {rangeText}
+          </span>
+        </div>
+      )}
+
+      {/* Candidates List Results */}
+      <div className="grid gap-6">
+        {loading ? (
+          <div className="rounded-2xl p-24 text-center border border-slate-200 bg-white shadow-sm animate-pulse">
+            <p className="text-sm font-semibold text-slate-400 italic">Accessing Resume Archives...</p>
+          </div>
+        ) : error ? (
+          <div className="p-8 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-center font-semibold text-sm">
+            Error: {error}
+          </div>
+        ) : resumes.length === 0 ? (
+          <div className="rounded-2xl p-24 text-center border border-slate-200 bg-white shadow-sm">
+            <p className="text-sm font-semibold text-slate-450">
+              No matching records found in the database.
+            </p>
+          </div>
+        ) : (
+          resumes.map((resume, idx) => (
+            <div
+              key={resume.id}
+              className="bg-white border-l-4 border-l-emerald-500 border border-slate-200 group flex flex-col justify-between gap-5 rounded-2xl shadow-sm hover:shadow-md transition-all p-6 animate-in slide-in-from-bottom-2 duration-500"
+              style={{ animationDelay: `${idx * 50}ms` }}
+            >
+              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                <div className="flex-1 min-w-0 space-y-3.5">
+                  {/* Title & Name */}
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 tracking-tight group-hover:text-emerald-600 transition-colors">
+                      {resume.extractedName || "Unknown Name"}
+                    </h3>
+                    <p className="text-sm font-bold text-emerald-700 mt-1">
+                      {resume.currentTitle || "Role Not Specified"}
                     </p>
                   </div>
 
-                  <div>
-                    <h3 className="text-2xl font-bold text-foreground tracking-tighter group-hover:text-emerald-400 transition-colors">
-                      {resume.extractedName || "Unknown Subject"}
-                    </h3>
-                    <div className="mt-4 flex flex-wrap items-center gap-6">
-                      <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/60 italic">
-                        <Mail className="h-3.5 w-3.5 text-emerald-500/50" />
-                        {resume.extractedEmail || "DATA ENCRYPTED"}
-                      </span>
-                      <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground/60 italic">
-                        <MapPin className="h-3.5 w-3.5 text-emerald-500/50" />
-                        {resume.extractedLocation || "ORBITAL / REMOTE"}
-                      </span>
-                      <span className="text-xs font-semibold text-emerald-700 px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200">
-                        {resume.currentTitle || "UNDEFINED ROLE"}
-                      </span>
-                      <span className="text-xs font-semibold text-muted-foreground/40 tabular-nums">
-                        {resume.experienceYears != null ? `${resume.experienceYears}YRS EXP` : "N/A"}
-                      </span>
-                    </div>
+                  {/* Metadata Row */}
+                  <div className="flex flex-wrap items-center gap-y-2 gap-x-6">
+                    <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                      <Mail className="h-4 w-4 text-slate-400" />
+                      {resume.extractedEmail || "No Email Provided"}
+                    </span>
+                    <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                      <MapPin className="h-4 w-4 text-slate-400" />
+                      {resume.extractedLocation || "Remote"}
+                    </span>
+                    <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                      <Briefcase className="h-4 w-4 text-slate-400" />
+                      {resume.experienceYears != null ? `${resume.experienceYears} Years Exp` : "Experience Not Specified"}
+                    </span>
                   </div>
 
+                  {/* Skills Grid */}
                   {resume.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 pt-2">
                       {resume.skills.map((skill) => {
                         let isMatched = false;
                         if (isBooleanSearch) {
@@ -419,10 +493,10 @@ export default function EmployerResumeDatabaseSearch({
                         return (
                           <span
                             key={`${resume.id}-${skill}`}
-                            className={`px-3 py-1 rounded-xl border text-xs font-semibold transition-all ${
-                              isMatched 
-                                ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                                : "bg-slate-100 border-slate-200 text-slate-600"
+                            className={`px-3 py-1 rounded-lg border text-xs font-semibold transition-all ${
+                              isMatched
+                                ? "bg-emerald-600 border-emerald-500 text-white"
+                                : "bg-slate-50 border-slate-200 text-slate-650"
                             }`}
                           >
                             {skill}
@@ -433,50 +507,51 @@ export default function EmployerResumeDatabaseSearch({
                   )}
                 </div>
 
-                <div className="flex flex-col items-end gap-6 shrink-0">
-                  <p className="text-xs font-semibold text-muted-foreground/20 italic tabular-nums">
-                    ARCHIVED: {new Date(resume.createdAt).toLocaleDateString("en-GB")}
-                  </p>
+                {/* Right Side Action Box */}
+                <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start gap-4 lg:gap-3 shrink-0 pt-4 lg:pt-0 border-t lg:border-0 border-slate-100">
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
+                    <CalendarDays className="h-3.5 w-3.5 text-slate-300" />
+                    Added: {new Date(resume.createdAt).toLocaleDateString()}
+                  </span>
                   <a
                     href={resume.r2Url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 flex items-center text-xs font-semibold text-foreground hover:bg-slate-200 transition-all active:scale-95 shadow-sm hover:shadow-md"
+                    className="h-10 px-5 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 flex items-center text-xs font-bold text-slate-700 transition-all shadow-sm shrink-0 uppercase tracking-wider"
                   >
-                    SYNC PDF
+                    View Resume PDF
                   </a>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-
-        {!loading && totalPages > 1 && (
-           <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-            <Button
-              variant="ghost"
-              className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-semibold hover:bg-slate-200 disabled:opacity-30 transition-all text-foreground"
-              disabled={page <= 1}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-            >
-              Previous Set
-            </Button>
-            <div className="px-8 flex flex-col items-center">
-               <p className="text-xs font-semibold text-emerald-500">Query Page</p>
-               <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
             </div>
-            <Button
-              variant="ghost"
-              className="h-12 px-8 rounded-2xl bg-slate-100 border border-slate-200 text-xs font-semibold hover:bg-slate-200 disabled:opacity-30 transition-all text-foreground"
-              disabled={page >= totalPages}
-              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-            >
-              Next Set
-            </Button>
-          </div>
+          ))
         )}
       </div>
+
+      {/* Pagination */}
+      {!loading && totalPages > 1 && (
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
+          <Button
+            variant="ghost"
+            className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
+            disabled={page <= 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Previous Page
+          </Button>
+          <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="ghost"
+            className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next Page
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
-

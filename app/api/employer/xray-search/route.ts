@@ -223,6 +223,122 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ draft: response.choices[0]?.message?.content?.trim() });
     }
 
+    if (action === "db-search") {
+      if (!prompt) {
+        return NextResponse.json({ error: "Search query is required" }, { status: 400 });
+      }
+
+      let parsedCriteria = {
+        skills: [] as string[],
+        location: "",
+        jobTitle: "",
+        minExperience: null as number | null
+      };
+
+      if (openai) {
+        try {
+          const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content: "You are a professional recruiting assistant. Your task is to extract search parameters from a natural language candidate search query. Extract: 'skills' (array of strings, e.g. React, Node.js), 'location' (string, e.g. Bangalore, Remote), 'jobTitle' (string, e.g. Developer, Manager), and 'minExperience' (integer or null, e.g. 3). Return ONLY a JSON object with these keys."
+              },
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            temperature: 0,
+            response_format: { type: "json_object" }
+          });
+          parsedCriteria = JSON.parse(response.choices[0]?.message?.content || "{}");
+        } catch (e) {
+          console.error("OpenAI parsing failed, falling back to simple keywords:", e);
+        }
+      }
+
+      const whereClause: any = {};
+      const conditions: any[] = [];
+
+      if (parsedCriteria.location) {
+        conditions.push({
+          location: {
+            contains: parsedCriteria.location,
+            mode: "insensitive"
+          }
+        });
+      }
+
+      if (parsedCriteria.jobTitle) {
+        conditions.push({
+          jobTitle: {
+            contains: parsedCriteria.jobTitle,
+            mode: "insensitive"
+          }
+        });
+      }
+
+      if (parsedCriteria.minExperience != null && !isNaN(Number(parsedCriteria.minExperience))) {
+        conditions.push({
+          experience: {
+            gte: Number(parsedCriteria.minExperience)
+          }
+        });
+      }
+
+      if (parsedCriteria.skills && Array.isArray(parsedCriteria.skills) && parsedCriteria.skills.length > 0) {
+        conditions.push({
+          OR: [
+            {
+              skills: {
+                hasSome: parsedCriteria.skills
+              }
+            },
+            ...parsedCriteria.skills.map((skill: string) => ({
+              bio: {
+                contains: skill,
+                mode: "insensitive"
+              }
+            }))
+          ]
+        });
+      }
+
+      if (conditions.length > 0) {
+        whereClause.AND = conditions;
+      }
+
+      const results = await prisma.jobSeekerProfile.findMany({
+        where: whereClause,
+        include: {
+          user: {
+            select: { email: true }
+          }
+        },
+        take: 30
+      });
+
+      return NextResponse.json({
+        results: results.map((profile: any) => ({
+          id: profile.id,
+          userId: profile.userId,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          email: profile.user?.email,
+          phone: profile.phone,
+          location: profile.location,
+          skills: profile.skills,
+          experience: profile.experience,
+          jobTitle: profile.jobTitle,
+          bio: profile.bio,
+          resumeUrl: profile.resumeUrl,
+          education: profile.education
+        })),
+        criteria: parsedCriteria
+      });
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     console.error("[xray-search-api] Error:", error);

@@ -272,7 +272,7 @@ export default function HomePageClient({
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
             Latest Jobs
           </h2>
-          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
             View all jobs
             <ArrowRight className="size-4" />
           </Link>
@@ -290,8 +290,6 @@ export default function HomePageClient({
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {jobs.map((job) => {
-              // Stable match score based on job ID
-              const matchScore = 75 + ((parseInt(job.id.slice(0, 4), 16) || 0) % 15);
               return (
                 <div
                   key={job.id}
@@ -344,10 +342,6 @@ export default function HomePageClient({
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                       <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold">
                         {job.salaryRange || "₹ 6 - 12 LPA"}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold flex items-center gap-1">
-                        <span className="size-1.5 rounded-full bg-emerald-500" />
-                        AI Match {matchScore}%
                       </span>
                     </div>
                   </div>
@@ -491,7 +485,7 @@ export default function HomePageClient({
                   </div>
                 </div>
 
-                <Link href="/user/jobs" className="w-full">
+                <Link href="/jobs/browse" className="w-full">
                   <Button variant="outline" className="w-full h-10 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50/50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
                     See Why It Matches
                   </Button>
@@ -841,7 +835,7 @@ export default function HomePageClient({
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
             Browse By Categories
           </h2>
-          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
             View all categories
             <ArrowRight className="size-4" />
           </Link>
@@ -922,7 +916,7 @@ export default function HomePageClient({
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
             Top Companies Hiring
           </h2>
-          <Link href="/user/jobs" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
+          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
             View all companies
             <ArrowRight className="size-4" />
           </Link>
@@ -975,7 +969,7 @@ export default function HomePageClient({
 
           {/* Final 'More Companies' card */}
           <Link
-            href="/user/jobs"
+            href="/jobs/browse"
             className="rounded-2xl p-4 flex flex-col items-center justify-center text-center min-h-[190px] transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
             style={{
               background: "linear-gradient(135deg, rgba(224, 242, 254, 0.75) 0%, rgba(255, 247, 237, 0.6) 100%)",

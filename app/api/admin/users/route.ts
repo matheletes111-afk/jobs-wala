@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     await requireAdmin();
 
     const searchParams = req.nextUrl.searchParams;
+    const isExport = searchParams.get("export") === "true";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const search = (searchParams.get("search") || "").trim();
@@ -42,8 +43,7 @@ export async function GET(req: NextRequest) {
       prisma.user.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
+        ...(isExport ? {} : { skip: (page - 1) * limit, take: limit }),
         include: {
           jobSeekerProfile: {
             select: {

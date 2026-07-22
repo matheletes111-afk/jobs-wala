@@ -27,6 +27,8 @@ interface Payment {
   status: string;
   startDate: string;
   endDate: string;
+  refundAmount?: number | null;
+  refundStatus?: string | null;
 }
 
 interface RazorpayResponse {
@@ -38,9 +40,9 @@ interface RazorpayResponse {
 export default function EmployerSubscriptionPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
-  const [scheduledPlanId, setScheduledPlanId] = useState<string | null>(null);
   const [activePlanEndDate, setActivePlanEndDate] = useState<string | null>(null);
   const [activePlanDetails, setActivePlanDetails] = useState<{ name: string, amount: number, currency: string } | null>(null);
+  const [scheduledPlanId, setScheduledPlanId] = useState<string | null>(null);
   const [scheduledPlanDetails, setScheduledPlanDetails] = useState<{ name: string, amount: number, currency: string } | null>(null);
   const [hadFreePlan, setHadFreePlan] = useState(false);
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -69,10 +71,10 @@ export default function EmployerSubscriptionPage() {
       const data = await response.json();
       setPlans(data.plans);
       setActivePlanId(data.activePlanId);
-      setScheduledPlanId(data.scheduledPlanId);
       setActivePlanEndDate(data.activePlanEndDate);
       setActivePlanDetails(data.activePlanDetails);
-      setScheduledPlanDetails(data.scheduledPlanDetails);
+      setScheduledPlanId(data.scheduledPlanId || null);
+      setScheduledPlanDetails(data.scheduledPlanDetails || null);
       setHadFreePlan(data.hadFreePlan || false);
     } catch (error) {
       console.error("Failed to fetch plans:", error);
@@ -82,21 +84,11 @@ export default function EmployerSubscriptionPage() {
   };
 
   const handleSubscribe = async (plan: Plan) => {
-    if (scheduledPlanId) {
-      alert("You already have a pending upgrade scheduled. Please wait for it to activate before switching plans again.");
-      return;
-    }
-
-    // Show dynamic transition confirmation if upgrading
     if (activePlanId && activePlanDetails && plan.amount > 0 && plan.id !== activePlanId) {
-      const formattedDate = activePlanEndDate
-        ? new Date(activePlanEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : 'your cycle end';
-
-      const confirmMessage = `You are currently on the ${activePlanDetails.name} Plan (${activePlanDetails.amount} ${activePlanDetails.currency}).\n\nIf you upgrade to the ${plan.name} Plan, you will not be charged for the ${activePlanDetails.name} Plan anymore.\n\nStarting on ${formattedDate}, your new ${plan.name} Plan will activate and you will be charged ${plan.amount} ${plan.currency}.`;
+      const confirmMessage = `You are currently on the ${activePlanDetails.name} Plan (${activePlanDetails.amount} ${activePlanDetails.currency}).\n\nIf you switch to the ${plan.name} Plan, it will start immediately.\n\nYour existing plan will be cancelled immediately, and any unused days will be automatically calculated and refunded to your original payment method. Would you like to proceed?`;
 
       if (!window.confirm(confirmMessage)) {
-        return; // User cancelled
+        return;
       }
     }
 
@@ -118,14 +110,6 @@ export default function EmployerSubscriptionPage() {
         return;
       }
 
-      if (data.isUpgradeScheduled) {
-        const formattedDate = activePlanEndDate ? new Date(activePlanEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "the end of your cycle";
-        alert(`Success! Your ${plan.name} Plan has been scheduled.\n\nIt will activate automatically on ${formattedDate}, and you will be charged ${plan.amount} ${plan.currency} at that time.`);
-        window.location.reload();
-        return;
-      }
-
-      // Initialize Razorpay for paid plans
       const options = {
         key: data.razorpayKeyId,
         subscription_id: data.subscriptionId,
@@ -144,20 +128,14 @@ export default function EmployerSubscriptionPage() {
           });
 
           if (verifyRes.ok) {
-            const verifyData = await verifyRes.json();
-            if (verifyData.isUpgradeScheduled) {
-              const formattedDate = activePlanEndDate ? new Date(activePlanEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "the end of your cycle";
-              alert(`Success! Your ${plan.name} Plan has been scheduled.\n\nIt will activate automatically on ${formattedDate}, and you will be charged ${plan.amount} ${plan.currency} at that time.`);
-            } else {
-              alert("Subscription activated successfully!");
-            }
+            alert("Subscription activated successfully!");
             window.location.reload();
           } else {
             alert("Verification failed. Please contact support.");
           }
         },
         theme: {
-          color: "#ea580c", // JobDaddy Orange
+          color: "#2563eb",
         },
       };
 
@@ -175,44 +153,40 @@ export default function EmployerSubscriptionPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading plans...</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading plans...</span>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 md:px-8 lg:px-10">
+    <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 md:px-8 lg:px-10">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
-        <div className="mb-3 flex items-center justify-center gap-3">
-          <div className="h-px w-8 bg-blue-500/50" />
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Premium Membership</span>
-          <div className="h-px w-8 bg-blue-500/50" />
-        </div>
-        <h1 className="text-5xl font-black tracking-tight text-foreground md:text-6xl">
-          Choose the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Perfect Plan</span>
+      {/* Header */}
+      <div className="mb-10 text-center animate-in fade-in duration-700">
+        <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">Premium Membership</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          Choose the Perfect Plan
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg font-medium text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-slate-500">
           Scale your hiring with our flexible subscription plans. Unlock advanced features and reach more candidates.
         </p>
       </div>
 
-      <div className="mb-12 flex justify-center animate-in fade-in duration-700">
+      {/* Navigation Tabs */}
+      <div className="mb-10 flex justify-center animate-in fade-in duration-700">
         <div className="inline-flex rounded-full bg-slate-100 p-1 border border-slate-200">
           <button
             onClick={() => setActiveTab("plans")}
-            className={`rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${activeTab === "plans" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25" : "text-slate-500 hover:text-slate-900"
-              }`}
+            className={`rounded-full px-6 py-2 text-xs font-semibold transition-all ${activeTab === "plans" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
           >
-            Subscription Plans
+            {activeTab === "plans" ? <span style={{ color: "white" }}>Subscription Plans</span> : "Subscription Plans"}
           </button>
           <button
             onClick={() => setActiveTab("history")}
-            className={`rounded-full px-8 py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${activeTab === "history" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25" : "text-slate-500 hover:text-slate-900"
-              }`}
+            className={`rounded-full px-6 py-2 text-xs font-semibold transition-all ${activeTab === "history" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
           >
-            Payment History
+            {activeTab === "history" ? <span style={{ color: "white" }}>Payment History</span> : "Payment History"}
           </button>
         </div>
       </div>
@@ -220,84 +194,83 @@ export default function EmployerSubscriptionPage() {
       {activeTab === "plans" ? (
         <div className="space-y-8">
           {scheduledPlanDetails && activePlanDetails && activePlanEndDate && (
-            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-6 text-center shadow-md">
-              <div className="mb-2 flex items-center justify-center gap-2 text-orange-600">
-                <Rocket className="h-5 w-5" />
-                <h3 className="text-lg font-black uppercase tracking-widest">Upgrade Pending</h3>
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6 text-center shadow-sm">
+              <div className="mb-1.5 flex items-center justify-center gap-2 text-blue-600">
+                <Rocket className="h-4.5 w-4.5" />
+                <h3 className="text-sm font-bold uppercase tracking-wider">Upgrade Pending</h3>
               </div>
-              <p className="text-sm font-medium text-orange-800 leading-relaxed">
+              <p className="text-xs font-semibold text-blue-800 leading-relaxed">
                 Success! Your <strong>{scheduledPlanDetails.name}</strong> has been scheduled.<br />
                 It will activate automatically on <strong>{new Date(activePlanEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>, and you will be charged <strong>{scheduledPlanDetails.amount} {scheduledPlanDetails.currency}</strong> at that time.
               </p>
             </div>
           )}
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {plans.map((plan, idx) => (
               <div
                 key={plan.id}
-                className={`linear-card group relative flex flex-col rounded-[2.5rem] p-10 shadow-md transition-all duration-500 hover:shadow-xl animate-in fade-in slide-in-from-bottom-10 fill-mode-both ${plan.amount > 0 ? "border-primary/20" : ""
-                  }`}
+                className="bg-white border border-slate-200 group relative flex flex-col rounded-2xl p-8 shadow-sm transition-all hover:shadow-md animate-in slide-in-from-bottom-2 duration-500"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
                 {scheduledPlanId === plan.id ? (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 px-6 py-1.5 text-[9px] font-black uppercase tracking-widest text-white shadow-xl flex items-center gap-2">
-                    <Rocket className="h-3 w-3" />
-                    Upgrade Scheduled
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm flex items-center gap-1.5">
+                    <Rocket className="h-3 w-3" style={{ color: "white" }} />
+                    <span style={{ color: "white" }}>Upgrade Scheduled</span>
                   </div>
                 ) : activePlanId === plan.id ? (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-green-600 px-6 py-1.5 text-[9px] font-black uppercase tracking-widest text-white shadow-xl flex items-center gap-2">
-                    <Check className="h-3 w-3" />
-                    Your Active Plan
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm flex items-center gap-1.5">
+                    <Check className="h-3 w-3" style={{ color: "white" }} />
+                    <span style={{ color: "white" }}>Active Plan</span>
                   </div>
                 ) : plan.amount > 0 ? (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-1.5 text-[9px] font-black uppercase tracking-widest text-white shadow-xl">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-blue-100 border border-blue-200 px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-600">
                     Recommended
                   </div>
                 ) : null}
 
-                <div className="mb-8">
-                  <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 border border-blue-100 text-blue-600 group-hover:scale-110 transition-transform duration-500 shadow-sm">
-                    {plan.amount === 0 ? <Shield className="h-7 w-7" /> : <Rocket className="h-7 w-7" />}
+                <div className="mb-6">
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 group-hover:scale-105 transition-transform duration-300">
+                    {plan.amount === 0 ? <Shield className="h-5 w-5" /> : <Rocket className="h-5 w-5" />}
                   </div>
-                  <h3 className="text-2xl font-black text-foreground">{plan.name}</h3>
-                  <p className="mt-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{plan.durationDays} Days Duration</p>
+                  <h3 className="text-xl font-bold text-slate-800">{plan.name}</h3>
+                  <p className="mt-1 text-[11px] font-semibold text-slate-400">{plan.durationDays} Days Validity</p>
                 </div>
 
-                <div className="mb-10 flex items-baseline gap-2">
-                  <span className="text-5xl font-black tracking-tighter text-foreground">{plan.amount}</span>
-                  <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">{plan.currency}</span>
-                  <span className="text-[10px] font-bold text-muted-foreground/60">/ period</span>
+                <div className="mb-6 flex items-baseline gap-1.5">
+                  <span className="text-4xl font-bold tracking-tight text-slate-800">{plan.amount}</span>
+                  <span className="text-xs font-bold uppercase text-slate-400">{plan.currency}</span>
+                  <span className="text-xs font-semibold text-slate-400">/ Period</span>
                 </div>
 
-                <div className="mb-10 space-y-5">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <Check className="h-3.5 w-3.5" />
+                <div className="mb-8 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 border border-blue-100 text-blue-600">
+                      <Check className="h-3 w-3" />
                     </div>
-                    <span className="text-sm font-bold text-slate-700 tracking-tight">
+                    <span className="text-xs font-bold text-slate-600">
                       {plan.jobLimit === -1 ? "Unlimited" : plan.jobLimit} Job Postings
                     </span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${plan.resumeSearchEnabled ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                      {plan.resumeSearchEnabled ? <Check className="h-3.5 w-3.5" /> : <Zap className="h-3.5 w-3.5" />}
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${plan.resumeSearchEnabled ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                      {plan.resumeSearchEnabled ? <Check className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
                     </div>
-                    <span className={`text-sm font-bold tracking-tight ${plan.resumeSearchEnabled ? 'text-slate-700' : 'text-slate-400 line-through'}`}>
+                    <span className={`text-xs font-bold ${plan.resumeSearchEnabled ? 'text-slate-600' : 'text-slate-400 line-through'}`}>
                       Resume Database Search
                     </span>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${plan.xraySearchEnabled ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                      {plan.xraySearchEnabled ? <Check className="h-3.5 w-3.5" /> : <Zap className="h-3.5 w-3.5" />}
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${plan.xraySearchEnabled ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
+                      {plan.xraySearchEnabled ? <Check className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
                     </div>
-                    <span className={`text-sm font-bold tracking-tight ${plan.xraySearchEnabled ? 'text-slate-700' : 'text-slate-400 line-through'}`}>
+                    <span className={`text-xs font-bold ${plan.xraySearchEnabled ? 'text-slate-600' : 'text-slate-400 line-through'}`}>
                       X-Ray Search Access
                     </span>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <Check className="h-3.5 w-3.5" />
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 border border-blue-100 text-blue-600">
+                      <Check className="h-3 w-3" />
                     </div>
                     <p className="text-[11px] font-medium leading-relaxed text-slate-500 italic">
                       {plan.description || "Standard platform support included."}
@@ -313,58 +286,65 @@ export default function EmployerSubscriptionPage() {
                     !!scheduledPlanId ||
                     (plan.amount === 0 && (hadFreePlan || (activePlanDetails ? activePlanDetails.amount > 0 : false)))
                   }
-                  className={`mt-auto w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-lg ${
+                  className={`mt-auto w-full rounded-xl px-4 py-3 text-xs font-bold uppercase transition-all duration-300 ${
                     activePlanId === plan.id
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                      ? "bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-200"
                       : scheduledPlanId === plan.id
-                        ? "bg-orange-50 text-orange-500 cursor-not-allowed border border-orange-200 shadow-none"
+                        ? "bg-blue-50 text-blue-550 cursor-not-allowed border border-blue-200"
                         : !!scheduledPlanId
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
+                          ? "bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-200"
                           : plan.amount === 0 && (hadFreePlan || (activePlanDetails ? activePlanDetails.amount > 0 : false))
-                            ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none"
-                            : "bg-primary text-white hover:bg-blue-600 hover:shadow-primary/25 active:scale-[0.98]"
+                            ? "bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-200"
+                            : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
                   }`}
                 >
-                  {processingId === plan.id ? (
-                    "Processing..."
-                  ) : activePlanId === plan.id ? (
-                    "Currently Active"
-                  ) : scheduledPlanId !== null ? (
-                    "Action Locked"
-                  ) : plan.amount === 0 && activePlanDetails && activePlanDetails.amount > 0 ? (
-                    "Unavailable (Premium Active)"
-                  ) : plan.amount === 0 && hadFreePlan ? (
-                    "Already Used"
-                  ) : (
-                    plan.amount === 0 ? "Activate Free Plan" : "Subscribe Now"
-                  )}
+                  <span style={
+                    (activePlanId === plan.id ||
+                    processingId === plan.id ||
+                    (plan.amount === 0 && (hadFreePlan || (activePlanDetails ? activePlanDetails.amount > 0 : false))))
+                      ? {}
+                      : { color: "white" }
+                  }>
+                    {processingId === plan.id ? (
+                      "Processing..."
+                    ) : activePlanId === plan.id ? (
+                      "Currently Active"
+                    ) : plan.amount === 0 && activePlanDetails && activePlanDetails.amount > 0 ? (
+                      "Unavailable (Premium Active)"
+                    ) : plan.amount === 0 && hadFreePlan ? (
+                      "Already Used"
+                    ) : (
+                      plan.amount === 0 ? "Activate Free Plan" : "Subscribe Now"
+                    )}
+                  </span>
                 </button>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="linear-card rounded-[2.5rem] shadow-md p-8 md:p-12 animate-in fade-in duration-700">
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-2xl font-black text-foreground">Payment History</h2>
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 animate-in fade-in duration-700">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-bold text-slate-800">Payment History</h2>
             <input
               type="text"
-              placeholder="SEARCH PLANS..."
+              placeholder="Search plans..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-foreground placeholder-muted-foreground/40 outline-hidden focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"
+              className="w-full sm:w-64 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-xs text-slate-700 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
             />
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+            <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 text-xs font-bold uppercase tracking-widest text-muted-foreground/60 bg-slate-50">
-                  <th className="p-4 rounded-tl-xl">Plan</th>
+                <tr className="border-b border-slate-200 font-bold uppercase text-slate-500 bg-slate-50">
+                  <th className="p-4">Plan</th>
                   <th className="p-4">Amount</th>
                   <th className="p-4">Status</th>
+                  <th className="p-4">Refund Details</th>
                   <th className="p-4">Start Date</th>
-                  <th className="p-4 text-right rounded-tr-xl">End Date</th>
+                  <th className="p-4 text-right">End Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -372,16 +352,26 @@ export default function EmployerSubscriptionPage() {
                   .filter((p) => p.plan.name.toLowerCase().includes(searchQuery.toLowerCase()))
                   .map((payment) => (
                     <tr key={payment.id} className="text-slate-700 transition-colors hover:bg-slate-50/50">
-                      <td className="p-4 font-black text-foreground">{payment.plan.name}</td>
-                      <td className="p-4 font-bold">{payment.plan.amount === 0 ? "Free" : `${payment.plan.amount} ${payment.plan.currency}`}</td>
+                      <td className="p-4 font-bold text-slate-800">{payment.plan.name}</td>
+                      <td className="p-4 font-semibold">{payment.plan.amount === 0 ? "Free" : `${payment.plan.amount} ${payment.plan.currency}`}</td>
                       <td className="p-4">
-                        <span className={`inline-flex rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${payment.status === "ACTIVE" ? "bg-emerald-50 border-emerald-200 text-emerald-600" :
-                          payment.status === "SCHEDULED" ? "bg-orange-50 border-orange-200 text-orange-600" :
-                            payment.status === "CANCELLED" ? "bg-red-50 border-red-200 text-red-600" :
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase border ${payment.status === "ACTIVE" ? "bg-emerald-50 border-emerald-150 text-emerald-600" :
+                          payment.status === "SCHEDULED" ? "bg-blue-50 border-blue-150 text-blue-600" :
+                            payment.status === "CANCELLED" ? "bg-red-50 border-red-150 text-red-600" :
                               "bg-slate-100 border-slate-200 text-slate-500"
                           }`}>
                           {payment.status}
                         </span>
+                      </td>
+                      <td className="p-4 whitespace-nowrap text-slate-500 font-medium">
+                        {payment.refundAmount ? (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-bold text-amber-700">₹{payment.refundAmount.toFixed(2)}</span>
+                            <span className="text-[9px] font-bold uppercase text-slate-400">{payment.refundStatus}</span>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic">N/A</span>
+                        )}
                       </td>
                       <td className="p-4 whitespace-nowrap text-slate-500 font-medium">
                         {new Date(payment.startDate).toLocaleDateString()}
@@ -393,7 +383,7 @@ export default function EmployerSubscriptionPage() {
                   ))}
                 {payments.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground/60 italic font-bold">
+                    <td colSpan={6} className="py-8 text-center text-slate-400 italic font-semibold">
                       No payment history found.
                     </td>
                   </tr>

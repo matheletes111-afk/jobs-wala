@@ -23,7 +23,10 @@ interface Subscriber {
   id: string;
   employer: {
     companyName: string;
+    pointOfContact?: string | null;
+    phone?: string | null;
     user: {
+      name?: string | null;
       email: string;
     };
   };
@@ -32,8 +35,19 @@ interface Subscriber {
     amount: number;
     currency: string;
   };
+  startDate: string;
   endDate: string;
   status: string;
+  razorpaySubscriptionId?: string | null;
+  razorpayOrderId?: string | null;
+  razorpayPaymentId?: string | null;
+  razorpaySignature?: string | null;
+  refundAmount?: number | null;
+  refundedAt?: string | null;
+  refundId?: string | null;
+  refundStatus?: string | null;
+  refundError?: string | null;
+  createdAt: string;
 }
 
 export default function AdminPlansPage() {
@@ -42,11 +56,24 @@ export default function AdminPlansPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const searchQueryRef = useRef(searchQuery);
+  const startDateRef = useRef(startDate);
+  const endDateRef = useRef(endDate);
 
   useEffect(() => {
     searchQueryRef.current = searchQuery;
   }, [searchQuery]);
+
+  useEffect(() => {
+    startDateRef.current = startDate;
+  }, [startDate]);
+
+  useEffect(() => {
+    endDateRef.current = endDate;
+  }, [endDate]);
 
   const fetchPlans = useCallback(async () => {
     setLoading(true);
@@ -64,7 +91,11 @@ export default function AdminPlansPage() {
   const fetchSubscribers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/subscriptions?query=${searchQueryRef.current}`);
+      const params = new URLSearchParams();
+      if (searchQueryRef.current) params.set("search", searchQueryRef.current);
+      if (startDateRef.current) params.set("startDate", startDateRef.current);
+      if (endDateRef.current) params.set("endDate", endDateRef.current);
+      const response = await fetch(`/api/admin/subscribers?${params.toString()}`);
       const data = await response.json();
       setSubscribers(data);
     } catch (error) {
@@ -80,7 +111,7 @@ export default function AdminPlansPage() {
     } else {
       fetchSubscribers();
     }
-  }, [activeTab, fetchSubscribers, fetchPlans]);
+  }, [activeTab, fetchSubscribers, fetchPlans, startDate, endDate, searchQuery]);
 
 
 
@@ -110,180 +141,282 @@ export default function AdminPlansPage() {
     }
   };
 
+  const handleRetryRefund = async (subId: string) => {
+    try {
+      const res = await fetch(`/api/admin/subscriptions/${subId}/retry-refund`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to retry refund");
+      alert("Refund processed successfully!");
+      fetchSubscribers();
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message || "Failed to retry refund");
+    }
+  };
+
   const filteredPlans = plans.filter((plan) =>
     plan.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 md:px-8 lg:px-10">
-      <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-        <div>
-          <div className="mb-2 flex items-center gap-3">
-             <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Subscription System</span>
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-8 border-b border-slate-200/60 pb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+               <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">Subscription System</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              Subscription <span className="text-blue-600">Hub</span>
+            </h1>
+            <p className="mt-1.5 text-sm font-medium text-slate-500">
+              Manage your plans and track subscriber activity in one place.
+            </p>
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-white md:text-5xl">
-            Subscription <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">Hub</span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-base font-medium text-white/50 leading-relaxed">
-            Manage your plans and track subscriber activity in one place.
-          </p>
+          {activeTab === "plans" && (
+            <Link href="/admin/plans/new">
+              <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm">
+                <Plus className="h-4 w-4 text-white" />
+                <span style={{ color: "white" }}>Create New Plan</span>
+              </Button>
+            </Link>
+          )}
         </div>
-        {activeTab === "plans" && (
-          <Link href="/admin/plans/new">
-            <Button className="group h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 px-8 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-              <Plus className="mr-3 h-4 w-4 transition-transform group-hover:rotate-90" />
-              Create New Plan
-            </Button>
-          </Link>
-        )}
-      </div>
 
-      {/* Tab Switcher */}
-      <div className="mb-10 flex w-fit items-center rounded-2xl bg-white/5 p-1.5 backdrop-blur-3xl border border-white/5">
-        <button
-          onClick={() => setActiveTab("plans")}
-          className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
-            activeTab === "plans" ? "bg-white/10 text-white shadow-xl" : "text-white/40 hover:text-white/60"
-          }`}
-        >
-          Manage Plans
-        </button>
-        <button
-          onClick={() => setActiveTab("subscribers")}
-          className={`px-8 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
-            activeTab === "subscribers" ? "bg-white/10 text-white shadow-xl" : "text-white/40 hover:text-white/60"
-          }`}
-        >
-          Subscriber History
-        </button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="group relative mb-10 w-full max-w-md">
-        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-white/30 transition-colors group-focus-within:text-blue-500" />
+        {/* Tab Switcher */}
+        <div className="mb-8 flex w-fit items-center rounded-xl bg-slate-100 p-1 border border-slate-200 shadow-sm">
+          <button
+            onClick={() => setActiveTab("plans")}
+            className={`px-6 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeTab === "plans" ? "bg-white text-slate-800 shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            Manage Plans
+          </button>
+          <button
+            onClick={() => setActiveTab("subscribers")}
+            className={`px-6 py-2 text-xs font-semibold rounded-lg transition-all ${
+              activeTab === "subscribers" ? "bg-white text-slate-800 shadow-sm border border-slate-200" : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            Subscriber History
+          </button>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if(activeTab === "subscribers") fetchSubscribers(); }}>
-          <input
-            type="text"
-            placeholder={activeTab === "plans" ? "Search plans by name..." : "Search by Employer or Plan..."}
-            className="h-14 w-full rounded-2xl border border-white/5 bg-white/5 pl-14 pr-6 text-[11px] font-bold uppercase tracking-widest text-white outline-hidden transition-all placeholder:text-white/20 focus:border-blue-500/50 focus:bg-white/10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </form>
-      </div>
 
-      <div className="overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl">
-        {activeTab === "plans" ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/5 bg-white/[0.02]">
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40">Plan Details</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Price (INR)</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Limits</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Status</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {loading ? (
-                  <tr><td colSpan={5} className="px-8 py-20 text-center text-white/20">Loading...</td></tr>
-                ) : filteredPlans.map((plan) => (
-                  <tr key={plan.id} className="group transition-colors hover:bg-white/[0.02]">
-                    <td className="px-8 py-8">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-black text-white">{plan.name}</span>
-                        <span className="text-[10px] font-medium text-white/40 italic">{plan.description || "No description"}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                      <div className="inline-flex h-9 items-center rounded-xl bg-white/5 border border-white/5 px-4">
-                         <span className="text-xs font-black text-white">{plan.amount}</span>
-                         <span className="ml-2 text-[9px] font-bold text-white/30 uppercase">{plan.currency}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                       <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter">
-                         {plan.jobLimit === -1 ? "Unlimited" : `${plan.jobLimit} Jobs`}
-                       </span>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                        plan.status === "ACTIVE" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                      }`}>
-                        {plan.status}
-                      </span>
-                    </td>
-                    <td className="px-8 py-8 text-right">
-                       <div className="flex justify-end gap-3">
-                         <Link href={`/admin/plans/${plan.id}/edit`}>
-                           <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 hover:text-blue-500"><Edit2 className="h-4 w-4" /></Button>
-                         </Link>
-                         <Button 
-                           onClick={() => deletePlan(plan.id)}
-                           variant="ghost" 
-                           size="icon" 
-                           className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 hover:text-red-500 hover:bg-red-500/10"
-                         >
-                           <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Search Bar & Date Filters */}
+        <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <form onSubmit={(e) => { e.preventDefault(); if(activeTab === "subscribers") fetchSubscribers(); }}>
+              <input
+                type="text"
+                placeholder={activeTab === "plans" ? "Search plans by name..." : "Search by Customer, Email, Order ID, Payment ID..."}
+                className="h-11 w-full rounded-xl bg-white border border-slate-200 pl-10 pr-4 text-xs font-medium text-slate-700 outline-hidden transition-all focus:bg-white focus:border-blue-500/50"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/5 bg-white/[0.02]">
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40">Employer</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Plan Purchased</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Amount</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-center">Expiry Date</th>
-                  <th className="px-8 py-6 text-[9px] font-black uppercase tracking-[0.3em] text-white/40 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {loading ? (
-                  <tr><td colSpan={5} className="px-8 py-20 text-center text-white/20">Loading subscribers...</td></tr>
-                ) : subscribers.length === 0 ? (
-                  <tr><td colSpan={5} className="px-8 py-20 text-center text-white/20">No subscribers found</td></tr>
-                ) : subscribers.map((sub) => (
-                  <tr key={sub.id} className="group transition-colors hover:bg-white/[0.02]">
-                    <td className="px-8 py-8">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-black text-white">{sub.employer.companyName}</span>
-                        <span className="text-[10px] font-medium text-white/40 italic">{sub.employer.user.email}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                      <span className="text-xs font-black text-white">{sub.plan.name}</span>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                      <span className="text-xs font-black text-white">{sub.plan.amount} {sub.plan.currency}</span>
-                    </td>
-                    <td className="px-8 py-8 text-center">
-                      <span className="text-xs font-medium text-white/60">{new Date(sub.endDate).toLocaleDateString()}</span>
-                    </td>
-                    <td className="px-8 py-8 text-right">
-                       <span className={`inline-flex rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                         sub.status === "ACTIVE" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                       }`}>
-                         {sub.status}
-                       </span>
-                    </td>
+
+          {activeTab === "subscribers" && (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">From</span>
+                <input
+                  type="date"
+                  className="h-11 rounded-xl bg-white border border-slate-200 px-3 text-xs font-semibold text-slate-750 focus:border-blue-500/50 outline-hidden"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">To</span>
+                <input
+                  type="date"
+                  className="h-11 rounded-xl bg-white border border-slate-200 px-3 text-xs font-semibold text-slate-750 focus:border-blue-500/50 outline-hidden"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => { setStartDate(""); setEndDate(""); setSearchQuery(""); }}
+                className="h-11 px-4 rounded-xl border-slate-200 hover:bg-slate-50 text-xs font-semibold"
+              >
+                Clear Filters
+              </Button>
+            </>
+          )}
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {activeTab === "plans" ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">Plan Details</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Price</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Limits</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Status</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loading ? (
+                    <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">Loading...</td></tr>
+                  ) : filteredPlans.map((plan) => (
+                    <tr key={plan.id} className="group transition-colors hover:bg-slate-50/30">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-bold text-slate-800">{plan.name}</span>
+                          <span className="text-xs font-medium text-slate-400 italic">{plan.description || "No description"}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="inline-flex h-8 items-center rounded-lg bg-slate-50 border border-slate-200 px-3">
+                           <span className="text-xs font-bold text-slate-800">₹{plan.amount}</span>
+                           <span className="ml-1 text-[9px] font-bold text-slate-400 uppercase">{plan.currency}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                         <span className="text-xs font-semibold text-slate-600">
+                           {plan.jobLimit === -1 ? "Unlimited" : `${plan.jobLimit} Jobs`}
+                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold border transition-all ${
+                          plan.status === "ACTIVE" 
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                            : "bg-red-50 text-red-600 border-red-100"
+                        }`}>
+                          {plan.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                         <div className="flex justify-end gap-2">
+                           <Link href={`/admin/plans/${plan.id}/edit`}>
+                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-500/50 hover:bg-blue-50"><Edit2 className="h-3.5 w-3.5" /></Button>
+                           </Link>
+                           <Button 
+                             onClick={() => deletePlan(plan.id)}
+                             variant="ghost" 
+                             size="icon" 
+                             className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 hover:text-red-600 hover:bg-red-50 hover:border-red-500/50"
+                           >
+                             <Trash2 className="h-3.5 w-3.5" />
+                           </Button>
+                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">Employer & Contact Details</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Plan Purchased</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Duration</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">Transaction & Payment IDs</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Refund Info</th>
+                    <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loading ? (
+                    <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">Loading subscribers...</td></tr>
+                  ) : subscribers.length === 0 ? (
+                    <tr><td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-xs font-medium">No subscribers found</td></tr>
+                  ) : subscribers.map((sub) => (
+                    <tr key={sub.id} className="group transition-colors hover:bg-slate-50/30">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-bold text-slate-800">{sub.employer.companyName}</span>
+                          <div className="text-[11px] font-semibold text-slate-450 space-y-0.5">
+                            <p>POC: {sub.employer.pointOfContact || "N/A"}</p>
+                            <p>Email: {sub.employer.user.email}</p>
+                            <p>Phone: {sub.employer.phone || "N/A"}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex flex-col gap-1.5 items-center justify-center">
+                          <span className="text-xs font-bold text-slate-700">{sub.plan.name}</span>
+                          <span className="inline-flex h-6 items-center rounded bg-blue-50 border border-blue-150 px-2 text-[10px] font-bold text-blue-600">
+                            ₹{sub.plan.amount} {sub.plan.currency}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex flex-col gap-0.5 items-center justify-center">
+                          <span className="text-[10px] font-semibold text-slate-450">Start: {new Date(sub.startDate).toLocaleDateString()}</span>
+                          <span className="text-[10px] font-semibold text-slate-450">End: {new Date(sub.endDate).toLocaleDateString()}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">Created: {new Date(sub.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-[11px] font-semibold text-slate-500 space-y-1 bg-slate-50 border border-slate-100 p-3 rounded-xl max-w-sm font-mono">
+                          <p className="truncate"><span className="text-slate-400">Sub ID:</span> {sub.razorpaySubscriptionId || "N/A"}</p>
+                          <p className="truncate"><span className="text-slate-400">Order ID:</span> {sub.razorpayOrderId || "N/A"}</p>
+                          <p className="truncate"><span className="text-slate-400">Payment ID:</span> {sub.razorpayPaymentId || "N/A"}</p>
+                          <p className="truncate"><span className="text-slate-400">Signature:</span> {sub.razorpaySignature || "N/A"}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {sub.refundAmount ? (
+                          <div className="flex flex-col gap-1 items-center justify-center">
+                            <span className="inline-flex items-center rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                              Refund: ₹{sub.refundAmount.toFixed(2)}
+                            </span>
+                            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${
+                              sub.refundStatus === "SUCCESS" 
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                : "bg-rose-50 text-rose-600 border-rose-100"
+                            }`}>
+                              {sub.refundStatus}
+                            </span>
+                            {sub.refundStatus === "FAILED" && (
+                              <Button
+                                onClick={() => handleRetryRefund(sub.id)}
+                                variant="ghost"
+                                size="sm"
+                                className="mt-1.5 h-6 px-2 text-[9px] font-bold uppercase bg-rose-50 text-rose-600 border border-rose-250 hover:bg-rose-100"
+                              >
+                                Retry Refund
+                              </Button>
+                            )}
+                            {sub.refundError && (
+                              <span className="text-[9px] font-medium text-rose-500 max-w-[125px] truncate mt-0.5" title={sub.refundError}>
+                                {sub.refundError}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs font-medium text-slate-400 italic">No Refund</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold border transition-all ${
+                           sub.status === "ACTIVE" 
+                             ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                             : "bg-red-50 text-red-600 border-red-100"
+                         }`}>
+                           {sub.status}
+                         </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

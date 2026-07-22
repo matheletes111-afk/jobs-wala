@@ -30,32 +30,53 @@ export function formatLocation(location: string | null | undefined, short: boole
     // Handle both lowercase and capitalized keys for backward compatibility
     let city = locationData.city || locationData.City;
     let state = locationData.state || locationData.State;
-    const country = locationData.country || locationData.Country;
+    let country = locationData.country || locationData.Country;
 
-    // Ensure array for consistent handling
-    const cities = Array.isArray(city) ? city : city ? [city] : [];
-    const states = Array.isArray(state) ? state : state ? [state] : [];
+    // Parse stringified arrays if any
+    if (typeof city === "string") {
+      if (city.startsWith("[")) {
+        try { city = JSON.parse(city); } catch { city = city.replace(/[\[\]"]/g, ""); }
+      } else {
+        city = city.replace(/[\[\]"]/g, "");
+      }
+    }
+    if (typeof state === "string") {
+      if (state.startsWith("[")) {
+        try { state = JSON.parse(state); } catch { state = state.replace(/[\[\]"]/g, ""); }
+      } else {
+        state = state.replace(/[\[\]"]/g, "");
+      }
+    }
+    if (typeof country === "string") {
+      country = country.replace(/[\[\]"]/g, "");
+    }
+
+    // Ensure array for consistent handling and clean elements
+    const cleanElement = (el: any): string => typeof el === "string" ? el.replace(/[\[\]"]/g, "").trim() : String(el);
+    const cities = (Array.isArray(city) ? city : city ? [city] : []).map(cleanElement).filter(Boolean);
+    const states = (Array.isArray(state) ? state : state ? [state] : []).map(cleanElement).filter(Boolean);
+    const cleanCountry = country ? cleanElement(country) : "";
 
     if (short) {
       if (cities.length > 0) parts.push(cities[0]);
       if (states.length > 0) parts.push(states[0]);
-      if (country) parts.push(country);
+      if (cleanCountry) parts.push(cleanCountry);
 
       const moreCount = Math.max(0, cities.length - 1) + Math.max(0, states.length - 1);
       if (moreCount > 0) {
         return parts.join(", ") + ` and ${moreCount} more`;
       }
-      return parts.length > 0 ? parts.join(", ") : location;
+      return parts.length > 0 ? parts.join(", ") : location.replace(/[\[\]"]/g, "");
     } else {
       if (cities.length > 0) parts.push(cities.join(", "));
       if (states.length > 0) parts.push(states.join(", "));
-      if (country) parts.push(country);
+      if (cleanCountry) parts.push(cleanCountry);
 
-      return parts.length > 0 ? parts.join(" | ") : location;
+      return parts.length > 0 ? parts.join(" | ") : location.replace(/[\[\]"]/g, "");
     }
   } catch (_e) {
-    // If it's not JSON, return as is (for backward compatibility)
-    return location;
+    // If it's not JSON, return as is (for backward compatibility) but clean any brackets
+    return location.replace(/[\[\]"]/g, "");
   }
 }
 

@@ -120,7 +120,7 @@ export default async function AboutUsPage() {
             JobDaddy combines advanced AI-powered applicant matching with deep recruitment expertise to bridge the gap between ambitious professionals and high-growth enterprises. Reach the top 1% of talent globally in record time.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/user/jobs">
+            <Link href="/jobs/browse">
               <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all rounded-xl h-12 px-6 font-bold text-xs uppercase tracking-wider">
                 Explore Jobs <ArrowRight className="size-4 ml-1" />
               </Button>
@@ -260,7 +260,7 @@ export default async function AboutUsPage() {
                   Get Started Free
                 </Button>
               </Link>
-              <Link href="/user/jobs">
+              <Link href="/jobs/browse">
                 <Button variant="outline" className="border-white/30 text-white bg-transparent hover:bg-white/10 font-bold text-xs uppercase tracking-wider h-11 px-6 rounded-xl transition-all hover:scale-105 active:scale-95">
                   Browse Openings
                 </Button>

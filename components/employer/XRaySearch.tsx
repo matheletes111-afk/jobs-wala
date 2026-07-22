@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ import {
   Trash2,
   Bookmark,
   List,
+  MapPin,
   MessageSquare,
   Mail,
   RefreshCw,
@@ -60,6 +62,37 @@ interface ActiveJob {
 }
 
 export default function XRaySearch() {
+  const [searchMode, setSearchMode] = useState<"web" | "db">("db");
+  const [dbPrompt, setDbPrompt] = useState("");
+  const [dbResults, setDbResults] = useState<any[]>([]);
+  const [dbLoading, setDbLoading] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
+  const [dbCriteria, setDbCriteria] = useState<any>(null);
+
+  const handleDbSearch = async () => {
+    if (!dbPrompt.trim()) return;
+    setDbLoading(true);
+    setDbError(null);
+    setDbResults([]);
+    setDbCriteria(null);
+    try {
+      const res = await fetch("/api/employer/xray-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "db-search", prompt: dbPrompt }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setDbResults(data.results || []);
+      setDbCriteria(data.criteria || null);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch candidates from database";
+      setDbError(errorMessage);
+    } finally {
+      setDbLoading(false);
+    }
+  };
+
   const [prompt, setPrompt] = useState("");
   const [xrayQuery, setXrayQuery] = useState("");
   const [results, setResults] = useState<GoogleSearchResult[]>([]);
@@ -731,19 +764,13 @@ export default function XRaySearch() {
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10">
 
         {/* Header Section */}
-        <div className="mb-12 border-b border-slate-200 pb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div className="mb-8 border-b border-slate-200 pb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <p className="text-xs font-semibold text-blue-500">Global Talent Acquisition</p>
-            </div>
-            <h1 className="text-4xl font-bold md:text-6xl tracking-tighter leading-tight text-foreground">
-              X-Ray{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
-                Search
-              </span>
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">Global Talent Acquisition</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              X-Ray <span className="text-blue-600">Search</span>
             </h1>
-            <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic max-w-2xl">
+            <p className="mt-1.5 text-sm font-medium text-slate-500 max-w-2xl leading-relaxed">
               Find candidates directly from LinkedIn using natural language prompts and Google X-Ray search.
             </p>
           </div>
@@ -761,57 +788,242 @@ export default function XRaySearch() {
 
         {/* Stats Overview Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-          <Card className="linear-card p-6 rounded-[2rem] flex flex-col gap-2 group hover:shadow-md transition-all">
+          <Card className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-2 group hover:shadow-md transition-all shadow-sm">
             <div className="flex items-center gap-3 mb-1">
               <Search className="h-4 w-4 text-blue-500/50 group-hover:text-blue-500 transition-colors" />
-              <p className="text-xs font-semibold text-muted-foreground/40">Candidates Found</p>
+              <p className="text-xs font-semibold text-slate-400">Candidates Found</p>
             </div>
-            <p className="text-3xl font-bold tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-slate-800">
               {Number(totalResults).toLocaleString()}
             </p>
           </Card>
-          <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-amber-500/[0.03] transition-all">
+          <Card className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-2 group hover:bg-amber-500/[0.02] transition-all shadow-sm">
             <div className="flex items-center gap-3 mb-1">
               <Star className="h-4 w-4 text-amber-500/50 group-hover:text-amber-500 transition-colors" />
-              <p className="text-xs font-semibold text-muted-foreground/40">Shortlisted</p>
+              <p className="text-xs font-semibold text-slate-400">Shortlisted</p>
             </div>
-            <p className="text-3xl font-bold tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-slate-800">
               {shortlist.length}
             </p>
           </Card>
-          <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-indigo-500/[0.03] transition-all">
+          <Card className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-2 group hover:bg-indigo-500/[0.02] transition-all shadow-sm">
             <div className="flex items-center gap-3 mb-1">
               <Wand2 className="h-4 w-4 text-indigo-500/50 group-hover:text-indigo-500 transition-colors" />
-              <p className="text-xs font-semibold text-muted-foreground/40">AI Insights</p>
+              <p className="text-xs font-semibold text-slate-400">AI Insights</p>
             </div>
-            <p className="text-3xl font-bold tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-slate-800">
               {sessionInsightsCount}
             </p>
           </Card>
-          <Card className="bg-white/[0.02] border-white/5 p-6 rounded-[2rem] flex flex-col gap-2 group hover:bg-emerald-500/[0.03] transition-all">
+          <Card className="bg-white border border-slate-200 p-6 rounded-2xl flex flex-col gap-2 group hover:bg-emerald-500/[0.02] transition-all shadow-sm">
             <div className="flex items-center gap-3 mb-1">
               <List className="h-4 w-4 text-emerald-500/50 group-hover:text-emerald-500 transition-colors" />
-              <p className="text-xs font-semibold text-muted-foreground/40">Saved Queries</p>
+              <p className="text-xs font-semibold text-slate-400">Saved Queries</p>
             </div>
-            <p className="text-3xl font-bold tracking-tighter text-foreground">
+            <p className="text-3xl font-bold tracking-tighter text-slate-800">
               {savedQueries.length}
             </p>
           </Card>
         </div>
 
-        <div className="flex flex-col gap-8 lg:flex-row">
-          {/* Controls Sidebar */}
+        {/* Search Mode Selection */}
+        <div className="mb-8 flex border-b border-slate-200">
+          <button
+            onClick={() => setSearchMode("db")}
+            className="pb-4 px-6 text-sm font-bold border-b-2 border-blue-600 text-blue-600 font-extrabold cursor-pointer"
+          >
+            X-Ray Search
+          </button>
+        </div>
+
+        {searchMode === "db" ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Database Search Input Panel */}
+            <Card className="p-8 bg-white border border-slate-200 rounded-[2.5rem] shadow-sm">
+              <div className="max-w-3xl">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Search Local Database</h3>
+                <p className="text-xs text-slate-500 font-semibold mb-6">
+                  Search registered candidate profiles using standard keywords or full natural language sentences.
+                </p>
+
+                <div className="flex gap-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
+                    <Input
+                      placeholder="e.g. React developer in Bangalore with 3 years experience"
+                      value={dbPrompt}
+                      onChange={(e) => setDbPrompt(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleDbSearch()}
+                      className="pl-12 h-14 rounded-2xl bg-slate-50 border-slate-200 focus-visible:ring-blue-600/20 text-sm font-semibold text-slate-700 placeholder:text-slate-400 shadow-inner"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleDbSearch}
+                    disabled={dbLoading}
+                    className="h-14 px-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+                  >
+                    {dbLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
+                  </Button>
+                </div>
+
+                {dbCriteria && (
+                  <div className="mt-6 flex flex-wrap gap-2 items-center animate-in fade-in slide-in-from-top-1">
+                    <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Search Filters Extracted:</span>
+                    {dbCriteria.jobTitle && (
+                      <Badge className="bg-blue-50 text-blue-600 border border-blue-150 text-xs font-semibold px-2.5 py-1">
+                        Title: {dbCriteria.jobTitle}
+                      </Badge>
+                    )}
+                    {dbCriteria.location && (
+                      <Badge className="bg-indigo-50 text-indigo-650 border border-indigo-150 text-xs font-semibold px-2.5 py-1">
+                        Location: {dbCriteria.location}
+                      </Badge>
+                    )}
+                    {dbCriteria.minExperience != null && (
+                      <Badge className="bg-amber-50 text-amber-650 border border-amber-150 text-xs font-semibold px-2.5 py-1">
+                        Exp: {dbCriteria.minExperience}+ yrs
+                      </Badge>
+                    )}
+                    {dbCriteria.skills && dbCriteria.skills.map((skill: string) => (
+                      <Badge key={skill} className="bg-emerald-50 text-emerald-600 border border-emerald-150 text-xs font-semibold px-2.5 py-1">
+                        Skill: {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {dbError && (
+              <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-4 text-sm text-rose-650 font-bold animate-in slide-in-from-top-4">
+                {dbError}
+              </div>
+            )}
+
+            {/* Database Search Results */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <p className="text-xs font-bold text-slate-450 uppercase tracking-wider">
+                  Matched Candidates ({dbResults.length})
+                </p>
+              </div>
+
+              {dbResults.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2">
+                  {dbResults.map((candidate) => (
+                    <Card
+                      key={candidate.id}
+                      className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    >
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="text-lg font-bold text-slate-800">
+                              {candidate.firstName} {candidate.lastName}
+                            </h4>
+                            {candidate.jobTitle && (
+                              <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mt-0.5">
+                                {candidate.jobTitle}
+                              </p>
+                            )}
+                          </div>
+                          <Badge className="bg-slate-100 text-slate-650 border border-slate-200 font-semibold px-2.5 py-1 text-xs">
+                            {candidate.experience != null ? `${candidate.experience} Yrs Exp` : "N/A Exp"}
+                          </Badge>
+                        </div>
+
+                        {/* Contact details */}
+                        <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500 font-semibold border-t border-slate-100 pt-3">
+                          {candidate.email && (
+                            <span className="flex items-center gap-1.5">
+                              <Mail className="h-3.5 w-3.5 text-slate-400" />
+                              {candidate.email}
+                            </span>
+                          )}
+                          {candidate.phone && (
+                            <span className="flex items-center gap-1.5">
+                              <Info className="h-3.5 w-3.5 text-slate-400" />
+                              {candidate.phone}
+                            </span>
+                          )}
+                          {candidate.location && (
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                              {candidate.location}
+                            </span>
+                          )}
+                        </div>
+
+                        {candidate.bio && (
+                          <p className="text-xs text-slate-500 font-medium leading-relaxed italic line-clamp-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            &quot;{candidate.bio}&quot;
+                          </p>
+                        )}
+
+                        {candidate.skills && candidate.skills.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-2">
+                            {candidate.skills.map((skill: string) => (
+                              <span
+                                key={skill}
+                                className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold border bg-slate-50 border-slate-200 text-slate-500"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex justify-end gap-3 mt-6 border-t border-slate-100 pt-4">
+                        {candidate.resumeUrl && (
+                          <a
+                            href={candidate.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all shadow-sm active:scale-95 gap-1.5"
+                          >
+                            <FileText className="h-4 w-4 text-slate-400" />
+                            View Resume
+                          </a>
+                        )}
+                        <Link
+                          href={`/employer/candidates/${candidate.id}`}
+                          className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white transition-all shadow-sm active:scale-95 gap-1.5"
+                        >
+                          <User className="h-4 w-4" style={{ color: "white" }} />
+                          <span style={{ color: "white" }}>View Details</span>
+                        </Link>
+                      </div>
+                    </Card>
+                  ))}`
+                </div>
+              ) : (
+                !dbLoading && (
+                  <div className="p-12 text-center bg-slate-50 border border-slate-200 rounded-[2rem]">
+                    <Search className="h-8 w-8 text-slate-300 mx-auto mb-3" />
+                    <p className="text-sm font-bold text-slate-600">No candidates found</p>
+                    <p className="text-xs text-slate-400 font-medium mt-1">
+                      Try typing a sentence search or different keywords above.
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-8 lg:flex-row">
+            {/* Controls Sidebar */}
           <aside className="w-full shrink-0 lg:w-96">
             <div className="sticky top-32 space-y-6">
 
               {/* Step 1: Extraction */}
-              <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
+              <div className="rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-xs font-bold">1</div>
-                    <h2 className="text-sm font-semibold text-foreground">Extract Keywords</h2>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200">1</div>
+                    <h2 className="text-sm font-semibold text-slate-800">Extract Keywords</h2>
                   </div>
-                  <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-xs font-semibold">
+                  <Badge className="bg-blue-50 text-blue-600 border border-blue-200 text-xs font-semibold">
                     AI Powered
                   </Badge>
                 </div>
@@ -819,17 +1031,17 @@ export default function XRaySearch() {
                 <div className="space-y-4">
                   {activeJobs.length > 0 && (
                     <div className="space-y-2 mb-4 animate-in fade-in slide-in-from-left-2">
-                      <p className="text-xs font-semibold text-blue-500/60">
+                      <p className="text-xs font-semibold text-blue-600">
                         Select an Active Job to Source
                       </p>
                       <select
                         value={selectedJobId || ""}
                         onChange={(e) => handleJobSourcing(e.target.value)}
-                        className="w-full h-12 bg-blue-55 border border-blue-200 rounded-2xl px-4 text-xs font-bold text-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer"
+                        className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500/50 appearance-none cursor-pointer"
                       >
-                        <option value="" className="bg-black">-- Pick a job to auto-generate prompt --</option>
+                        <option value="" className="bg-white text-slate-800">-- Pick a job to auto-generate prompt --</option>
                         {activeJobs.map(job => (
-                          <option key={job.id} value={job.id} className="bg-black">
+                          <option key={job.id} value={job.id} className="bg-white text-slate-800">
                             {job.title}
                           </option>
                         ))}
@@ -842,14 +1054,14 @@ export default function XRaySearch() {
                       <Button
                         variant="ghost"
                         onClick={() => setShowJobContext(!showJobContext)}
-                        className="w-full h-10 rounded-xl bg-blue-55 border border-blue-200 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+                        className="w-full h-10 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                       >
                         {showJobContext ? "Hide Job Details" : "View Job Context"}
                       </Button>
                       {showJobContext && (
-                        <div className="mt-3 p-4 rounded-2xl bg-blue-55 border border-blue-100 animate-in fade-in slide-in-from-top-2">
-                          <p className="text-xs font-semibold text-blue-500/60 mb-2">Active Requirements</p>
-                          <p className="text-xs leading-relaxed text-muted-foreground/80 line-clamp-4">
+                        <div className="mt-3 p-4 rounded-xl bg-slate-50 border border-slate-200 animate-in fade-in slide-in-from-top-2">
+                          <p className="text-xs font-semibold text-slate-500 mb-2">Active Requirements</p>
+                          <p className="text-xs leading-relaxed text-slate-500 line-clamp-4">
                             {activeJobs.find(j => j.id === selectedJobId)?.description}
                           </p>
                         </div>
@@ -893,12 +1105,12 @@ export default function XRaySearch() {
                   {recentSearches.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-slate-200">
                       <div className="flex items-center justify-between mb-3">
-                        <p className="text-xs font-semibold text-muted-foreground/40">
+                        <p className="text-xs font-semibold text-slate-400">
                           Recent History
                         </p>
                         <button
                           onClick={clearHistory}
-                          className="text-xs font-semibold text-red-500/50 hover:text-red-500 transition-colors"
+                          className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors"
                         >
                           Clear
                         </button>
@@ -908,7 +1120,7 @@ export default function XRaySearch() {
                           <button
                             key={i}
                             onClick={() => setXrayQuery(q)}
-                            className="w-full text-left text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors line-clamp-1 truncate"
+                            className="w-full text-left text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors line-clamp-1 truncate"
                           >
                             {q}
                           </button>
@@ -949,11 +1161,11 @@ export default function XRaySearch() {
               </div>
 
               {/* Step 2: Search Query */}
-              <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
+              <div className="rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-xs font-bold">2</div>
-                    <h2 className="text-sm font-semibold text-foreground">X-Ray Search String</h2>
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200">2</div>
+                    <h2 className="text-sm font-semibold text-slate-800">X-Ray Search String</h2>
                   </div>
                   <div className="flex gap-1.5">
                     {regions.map((r) => (
@@ -966,7 +1178,7 @@ export default function XRaySearch() {
                           }`}
                         title={`Search in ${r.label}`}
                       >
-                        {r.value || "GL"}
+                        {region === r.value ? <span style={{ color: "white" }}>{r.value || "GL"}</span> : (r.value || "GL")}
                       </button>
                     ))}
                   </div>
@@ -984,7 +1196,7 @@ export default function XRaySearch() {
                           }`}
                       >
                         {p.icon}
-                        {p.label}
+                        {xrayQuery.includes(p.value) ? <span style={{ color: "white" }}>{p.label}</span> : p.label}
                       </button>
                     ))}
                   </div>
@@ -1073,7 +1285,7 @@ export default function XRaySearch() {
                       disabled={loading || !xrayQuery}
                       className="flex-1 h-14 rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
-                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                      {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" style={{ color: "white" }} /> : <Search className="mr-2 h-4 w-4" style={{ color: "white" }} />}
                       <span style={{ color: "white" }}>Execute Global Search</span>
                     </Button>
                     <a
@@ -1096,28 +1308,27 @@ export default function XRaySearch() {
                 </div>
               )}
 
-              {/* Tips Section */}
-              <div className="rounded-[2.5rem] p-8 linear-card shadow-md">
+              <div className="rounded-2xl p-6 bg-white border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <Info className="h-4 w-4 text-blue-500" />
-                  <h2 className="text-sm font-semibold text-foreground">Search Tips</h2>
+                  <h2 className="text-sm font-semibold text-slate-800">Search Tips</h2>
                 </div>
                 <ul className="space-y-4">
                   <li className="flex gap-3">
                     <div className="h-1 w-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                     <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
-                      Use quotes for exact matches: <code className="text-blue-400 not-italic">&quot;React Developer&quot;</code>
+                      Use quotes for exact matches: <code className="text-blue-600 not-italic">&quot;React Developer&quot;</code>
                     </p>
                   </li>
                   <li className="flex gap-3">
                     <div className="h-1 w-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                    <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
-                      Add locations for better accuracy: <code className="text-blue-400 not-italic">&quot;Bangalore&quot;</code> or <code className="text-blue-400 not-italic">&quot;Remote&quot;</code>
+                    <p className="text-[10px] font-medium text-slate-500 leading-relaxed italic">
+                      Add locations for better accuracy: <code className="text-blue-600 not-italic">&quot;Bangalore&quot;</code> or <code className="text-blue-600 not-italic">&quot;Remote&quot;</code>
                     </p>
                   </li>
                   <li className="flex gap-3">
                     <div className="h-1 w-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                    <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
+                    <p className="text-[10px] font-medium text-slate-500 leading-relaxed italic">
                       AI handles synonyms automatically, but being specific helps.
                     </p>
                   </li>
@@ -1564,6 +1775,7 @@ export default function XRaySearch() {
             </Tabs>
           </div>
         </div>
+      )}
       </div>
 
       {/* Scroll to Top Button */}
@@ -1662,13 +1874,13 @@ function CandidateCard({
 
   return (
     <div
-      className={`group relative flex flex-col gap-6 p-6 rounded-[2.5rem] border transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 ${borderColor} ${bgColor} ${isContacted ? "grayscale-[0.5]" : ""}`}
+      className={`group relative flex flex-col gap-6 p-6 rounded-2xl border transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 ${borderColor} ${bgColor} ${isContacted ? "grayscale-[0.5]" : ""}`}
       style={{ animationDelay: `${idx * 100}ms` }}
     >
       <div className="flex flex-col sm:flex-row gap-6">
         <div className="shrink-0 flex flex-col items-center gap-4">
           {item.pagemap?.cse_thumbnail?.[0] ? (
-            <div className="h-16 w-16 rounded-2xl border border-slate-200 overflow-hidden linear-card shadow-sm relative">
+            <div className="h-16 w-16 rounded-2xl border border-slate-200 overflow-hidden bg-white shadow-sm relative">
               <img
                 src={item.pagemap.cse_thumbnail[0].src}
                 alt=""
@@ -1681,7 +1893,7 @@ function CandidateCard({
               )}
             </div>
           ) : (
-            <div className="h-16 w-16 rounded-2xl border border-slate-200 linear-card flex items-center justify-center shadow-sm relative">
+            <div className="h-16 w-16 rounded-2xl border border-slate-200 bg-white flex items-center justify-center shadow-sm relative">
               <User className="h-8 w-8 text-slate-300" />
               {isContacted && (
                 <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center rounded-2xl">

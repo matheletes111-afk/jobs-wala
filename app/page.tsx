@@ -185,14 +185,14 @@ export default async function HomePage() {
 
                   {/* Action CTAs */}
                   <div className="flex flex-wrap gap-4 mb-8 justify-center lg:justify-start">
-                    <Link href="/user/jobs">
+                    <Link href="/jobs/browse">
                       <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md shadow-blue-500/10">
-                        Find a Job
+                        <span style={{ color: "white" }}>Find a Job</span>
                       </Button>
                     </Link>
                     <Link href="/career-services">
                       <Button className="h-11 px-6 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white font-bold text-xs uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md shadow-orange-500/10">
-                        Get Super Resume ₹999+
+                        <span style={{ color: "white" }}>Get Super Resume ₹999+</span>
                       </Button>
                     </Link>
                     <Link href="/employer/jobs/new">
@@ -207,7 +207,7 @@ export default async function HomePage() {
                     <p className="mb-6 text-xs md:text-sm text-slate-500 font-semibold text-left leading-relaxed">
                       Our AI technology matches your skills with the right opportunities, so you can focus on what matters – building your future.
                     </p>
-                    <form action="/user/jobs" method="get" className="flex flex-col md:flex-row items-end gap-5 mb-6">
+                    <form action="/jobs/browse" method="get" className="flex flex-col md:flex-row items-end gap-5 mb-6">
 
                       {/* Input block 1: Job title, skills or company */}
                       <div className="flex-1 flex flex-col gap-2 w-full text-left">
@@ -250,7 +250,7 @@ export default async function HomePage() {
                       {["Software Developer", "Sales", "Marketing", "Data Analyst", "Customer Support"].map((tag) => (
                         <Link
                           key={tag}
-                          href={`/user/jobs?search=${encodeURIComponent(tag)}`}
+                          href={`/jobs/browse?search=${encodeURIComponent(tag)}`}
                           className="px-3 py-1.5 rounded-lg bg-blue-50/60 hover:bg-blue-100/80 text-[#2563eb] font-semibold transition-colors"
                         >
                           {tag}
@@ -307,7 +307,7 @@ export default async function HomePage() {
                         </div>
                       ))}
                     </div>
-                    <Link href="/user/jobs" className="text-[10px] font-bold text-blue-600 hover:underline mt-1">
+                    <Link href="/jobs/browse" className="text-[10px] font-bold text-blue-600 hover:underline mt-1">
                       + 6 more
                     </Link>
                   </div>

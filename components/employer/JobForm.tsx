@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
@@ -19,6 +19,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import LocationDropdown from "@/components/user/LocationDropdown";
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(
+  () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center font-semibold text-xs text-slate-400 animate-pulse">
+        Loading TinyMCE Editor...
+      </div>
+    ),
+  }
+);
 
 // Simplified schema to avoid TypeScript mismatches with zodResolver
 const jobSchema = z.object({
@@ -70,6 +83,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<JobFormData>({
     resolver: zodResolver(jobSchema),
@@ -189,7 +203,13 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save job");
+        let errMsg = errorData.message || errorData.error || "Failed to save job";
+        if (errorData.error === "NO_ACTIVE_PLAN") {
+          errMsg = "You do not have an active job posting plan. Please subscribe or upgrade to a plan to post new jobs.";
+        } else if (errorData.error === "PLAN_LIMIT_REACHED") {
+          errMsg = "You have reached the job posting limit for your current subscription plan. Please upgrade your plan to post more jobs.";
+        }
+        throw new Error(errMsg);
       }
 
       router.push("/employer/jobs");
@@ -198,6 +218,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
       const errorMessage = err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
       setLoading(false);
+      alert(errorMessage);
     }
   };
 
@@ -333,13 +354,33 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
             {/* Description */}
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="description" className="text-xs font-bold text-slate-500">Job Description *</Label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder="Outline the responsibilities, expected outcomes, and requirements..."
-                rows={8}
-                className="rounded-[2rem] bg-white border-slate-200 focus-visible:ring-blue-600/20 p-6 font-semibold leading-relaxed shadow-sm text-slate-850"
-              />
+              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Editor
+                      apiKey="no-api-key"
+                      value={value || ""}
+                      onEditorChange={onChange}
+                      init={{
+                        height: 400,
+                        menubar: false,
+                        plugins: [
+                          'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                          'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                          'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                        ],
+                        toolbar: 'undo redo | blocks | ' +
+                          'bold italic forecolor | alignleft aligncenter ' +
+                          'alignright alignjustify | bullist numlist outdent indent | ' +
+                          'removeformat | help',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                      }}
+                    />
+                  )}
+                />
+              </div>
               {errors.description && (
                 <p className="text-xs font-semibold text-rose-500 mt-2">{errors.description.message}</p>
               )}
@@ -545,6 +586,12 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
               </div>
             )}
           </>
+        )}
+
+        {error && (
+          <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-4 text-sm text-rose-600 font-bold animate-in slide-in-from-top-4">
+            {error}
+          </div>
         )}
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-12 border-t border-slate-200">

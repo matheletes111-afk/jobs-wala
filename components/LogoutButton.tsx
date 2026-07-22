@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+  className?: string;
+  showText?: boolean;
+}
+
+export default function LogoutButton({ className, showText = true }: LogoutButtonProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -31,10 +36,10 @@ export default function LogoutButton() {
       variant="ghost"
       size="sm"
       onClick={handleSignOut}
-      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+      className={className || "text-red-600 hover:bg-red-50 hover:text-red-700"}
     >
-      <LogOut className="h-4 w-4 text-red-600" />
-      Logout
+      <LogOut className="h-4.5 w-4.5 shrink-0" />
+      {showText && <span>Logout</span>}
     </Button>
   );
 }

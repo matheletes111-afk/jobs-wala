@@ -2,7 +2,7 @@ import { Loader2, ShieldCheck } from "lucide-react";
 
 export default function DashboardLoader() {
   return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-10 linear-card px-4 relative overflow-hidden rounded-[3rem] shadow-xl my-12 mx-4 md:mx-8">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 bg-white border border-slate-200 px-4 relative overflow-hidden rounded-2xl shadow-sm my-10 mx-4 md:mx-8">
       {/* Background Atmosphere */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 blur-[120px] rounded-full" />
       

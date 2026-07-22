@@ -106,47 +106,41 @@ export default async function AdminJobDetailsPage({
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      {/* Hero Banner */}
-      <div className="relative h-64 overflow-hidden rounded-b-[3rem] bg-white/[0.02] border-b border-white/5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.05)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%232563eb%22 fill-opacity=%220.03%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
-      </div>
-
+    <div className="w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
       {/* Main Content Area */}
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 -mt-32 relative z-10 sm:px-6 md:px-8 lg:px-10">
-        <div className="linear-card group rounded-[3rem] bg-background/80 border border-white/10 p-10 shadow-2xl backdrop-blur-3xl">
-          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
-            <div className="flex items-start gap-8">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="flex items-start gap-5">
               <CompanyLogo
                 companyLogo={job.employer.companyLogo}
                 companyName={job.companyName || job.employer.companyName}
-                size="lg"
-                className="h-24 w-24 rounded-3xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-105"
+                size="md"
+                className="h-16 w-16 rounded-xl border border-slate-200 bg-white"
               />
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                   <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Job Details</p>
+                <div className="flex items-center gap-2 mb-1">
+                   <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                   <p className="text-xs font-semibold uppercase tracking-wider text-blue-600">Job Details</p>
                 </div>
-                <h1 className="text-3xl font-black md:text-5xl tracking-tighter leading-tight mb-2 text-gradient">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl mb-1">
                   {job.title}
                 </h1>
-                <p className="text-lg font-medium text-muted-foreground italic mb-6">
+                <p className="text-sm font-semibold text-slate-500 mb-4">
                   {job.companyName || job.employer.companyName} {" // "} {job.employer.industry || "Industry Information"}
                 </p>
                 
-                <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-3.5 w-3.5 text-blue-500" />
+                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4 text-blue-500" />
                     {formatLocation(job.location)}
                   </span>
-                  <span className="flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-blue-500" />
                     POSTED {new Date(job.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="flex items-center gap-2">
-                    <Users className="h-3.5 w-3.5 text-blue-500" />
+                  <span className="flex items-center gap-1.5">
+                    <Users className="h-4 w-4 text-blue-500" />
                     {job._count.applications} Applications
                   </span>
                 </div>
@@ -155,56 +149,63 @@ export default async function AdminJobDetailsPage({
             
             <div className="flex shrink-0 flex-col sm:flex-row gap-3">
               <Link href="/admin/jobs">
-                <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all">
+                <Button variant="ghost" className="h-10 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-all">
                   ← Back to Jobs
                 </Button>
               </Link>
-              <div className="[&_button]:h-14 [&_button]:px-10 [&_button]:rounded-2xl [&_button]:text-[10px] [&_button]:font-black [&_button]:uppercase [&_button]:tracking-widest [&_button]:shadow-xl">
+              <div className="[&_button]:h-10 [&_button]:px-6 [&_button]:rounded-xl [&_button]:text-xs [&_button]:font-semibold [&_button]:shadow-sm">
                  <JobApprovalActions jobId={job.id} currentStatus={job.status} />
               </div>
             </div>
           </div>
 
-          <div className="mt-10 pt-10 border-t border-white/5 flex flex-wrap gap-3">
-             <span className={`rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] border transition-colors ${
-                job.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+          <div className="mt-6 pt-6 border-t border-slate-100 flex flex-wrap gap-2.5">
+             <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider border transition-colors ${
+                job.status === "ACTIVE" ? "bg-emerald-50 text-emerald-600 border-emerald-250" : "bg-amber-50 text-amber-600 border-amber-250"
              }`}>{statusLabel} Status</span>
-             <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-blue-500/10 text-blue-400 border border-blue-500/20">
+             <span className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-200">
                 Type: {(job.employmentType || "FULL_TIME").replace("_", " ")}
              </span>
-             <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-orange-500/10 text-orange-400 border border-orange-500/20">
+             <span className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-orange-50 text-orange-650 border border-orange-200">
                 Mode: {(job.workMode || "ONSITE").replace("_", " ")}
              </span>
-             <span className="rounded-full px-5 py-2 text-[9px] font-black uppercase tracking-[0.2em] bg-white/5 text-muted-foreground/60 border border-white/10 italic">
+             <span className="rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-slate-50 text-slate-505 border border-slate-200 italic">
                 Category: {job.category}
              </span>
           </div>
         </div>
 
         {/* Content Grid */}
-        <div className="mt-12 grid gap-10 lg:grid-cols-3 pb-20">
-          <div className="space-y-10 lg:col-span-2">
-            {/* Description Card */}
-            <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Job Description</h2>
+        <div className="mt-8 grid gap-8 lg:grid-cols-3 pb-16">
+          <div className="space-y-8 lg:col-span-2">
+            <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-450">Job Description</h2>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground font-medium italic leading-relaxed text-lg">
-                {job.description}
-              </p>
+              <div
+                className="text-slate-600 font-medium leading-relaxed text-base
+                           [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ul]:space-y-1.5
+                           [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_ol]:space-y-1.5
+                           [&_p]:mb-4 [&_p]:last:mb-0
+                           [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-slate-800 [&_h1]:mt-6 [&_h1]:mb-3
+                           [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-slate-800 [&_h2]:mt-5 [&_h2]:mb-2
+                           [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-slate-800 [&_h3]:mt-4 [&_h3]:mb-2
+                           [&_strong]:font-extrabold [&_strong]:text-slate-800"
+                dangerouslySetInnerHTML={{ __html: job.description }}
+              />
             </section>
 
             {/* Skills Card */}
             {skills.length > 0 && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Required Skills</h2>
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-450">Required Skills</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((s) => (
-                    <span key={s} className="rounded-xl px-5 py-2 bg-blue-500/5 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest text-blue-500/80">
+                    <span key={s} className="rounded-xl px-4 py-2 bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-650">
                       {s}
                     </span>
                   ))}
@@ -214,38 +215,39 @@ export default async function AdminJobDetailsPage({
 
             {/* Applications List */}
             {job.applications.length > 0 && (
-              <section className="space-y-8">
-                <div className="flex items-center gap-3 px-4">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Applications ({job.applications.length})</h2>
+              <section className="space-y-6">
+                <div className="flex items-center gap-2 px-1">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-450">Applications ({job.applications.length})</h2>
                 </div>
                 <div className="grid gap-4">
-                  {job.applications.map((app, idx) => {
+                  {job.applications.map((app: any, idx: number) => {
                     const skillMatch = computeSkillMatch(
                       [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
-                      app.jobSeeker.skills ?? []
+                      app.jobSeeker.skills ?? [],
+                      app.jobSeeker.bio
                     );
                     return (
                       <div
                         key={app.id}
-                        className="linear-card group flex flex-col gap-6 rounded-[2.25rem] bg-white/[0.01] border border-white/5 p-8 transition-all hover:bg-white/[0.04] animate-in fade-in slide-in-from-right-4 duration-500"
+                        className="bg-white border border-slate-200 shadow-sm flex flex-col gap-5 rounded-2xl p-6 transition-all hover:border-slate-300"
                         style={{ animationDelay: `${idx * 50}ms` }}
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                          <div className="flex items-center gap-6">
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div className="flex items-center gap-4">
                             <CandidateAvatar
                               profileImage={app.jobSeeker.profileImage}
                               firstName={app.jobSeeker.firstName}
                               lastName={app.jobSeeker.lastName}
                               size="md"
-                              className="rounded-2xl border border-white/10"
+                              className="rounded-xl border border-slate-200"
                             />
                             <div>
-                              <h4 className="text-xl font-black text-foreground tracking-tight group-hover:text-blue-500 transition-colors">
+                              <h4 className="text-lg font-bold text-slate-800">
                                 {app.jobSeeker.firstName} {app.jobSeeker.lastName}
                               </h4>
-                              <div className="flex items-center gap-3 mt-1.5">
-                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic tabular-nums flex items-center gap-2">
+                              <div className="flex items-center gap-2 mt-1">
+                                 <p className="text-xs font-semibold text-blue-600 flex items-center gap-1.5">
                                    <Mail className="h-3.5 w-3.5" />
                                    {app.jobSeeker.user.email}
                                  </p>
@@ -253,9 +255,9 @@ export default async function AdminJobDetailsPage({
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-3">
-                             <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-widest border transition-colors ${
-                                app.status === "SHORTLISTED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : app.status === "REJECTED" ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-muted-foreground/40 border-white/10"
+                          <div className="flex items-center gap-2">
+                             <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border transition-colors ${
+                                app.status === "SHORTLISTED" ? "bg-emerald-50 text-emerald-600 border-emerald-250" : app.status === "REJECTED" ? "bg-red-50 text-red-600 border-red-250" : "bg-slate-50 text-slate-500 border-slate-200"
                              }`}>
                                {app.status}
                              </span>
@@ -264,13 +266,13 @@ export default async function AdminJobDetailsPage({
                                  href={app.jobSeeker.resumeUrl}
                                  target="_blank"
                                  rel="noopener noreferrer"
-                                 className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95"
+                                 className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-all shadow-sm active:scale-95"
                                >
                                  View Resume
                                </a>
                              )}
                              <Link href={`/admin/users/${app.jobSeeker.userId}`}>
-                                <Button variant="ghost" size="sm" className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 hover:border-blue-500/20 transition-all active:scale-95">
+                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100 transition-all active:scale-95">
                                   <UserCircle className="h-4 w-4" />
                                 </Button>
                              </Link>
@@ -278,38 +280,38 @@ export default async function AdminJobDetailsPage({
                         </div>
 
                         {app.jobSeeker.jobTitle && (
-                          <div className="px-5 py-3 rounded-2xl bg-white/5 border border-white/5">
-                             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 italic">
+                          <div className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-200">
+                             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider italic">
                                {app.jobSeeker.jobTitle} {" // "} {app.jobSeeker.experience != null ? `${app.jobSeeker.experience}Y Experience` : "N/A Experience"}
                              </p>
                           </div>
                         )}
 
-                        <div className="p-6 rounded-[1.5rem] bg-slate-50 border border-slate-200 space-y-6 text-foreground">
+                        <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4 text-slate-800">
                           <SkillMatchBar
                             percent={skillMatch.percent}
                             matched={skillMatch.matched}
                             total={skillMatch.total}
                             matchedLabels={skillMatch.matchedLabels}
-                            className="max-w-none text-foreground"
+                            className="max-w-none text-slate-850"
                           />
                           
-                          <div className="pt-4 border-t border-slate-200 space-y-4">
+                          <div className="pt-3 border-t border-slate-200 space-y-3">
                             <div>
-                              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Required & Secondary Skills for this Job:</h4>
+                              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-1.5">Required & Secondary Skills for this Job:</h4>
                               <div className="flex flex-wrap gap-1.5">
-                                {[...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].map((reqSkill, sIdx) => {
+                                {[...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].map((reqSkill: string, sIdx: number) => {
                                   const matched = skillMatch.matchedLabels.some(l => l.toLowerCase() === reqSkill.toLowerCase());
                                   return (
                                     <span
                                       key={sIdx}
-                                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold border ${
                                         matched
-                                          ? "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold"
-                                          : "bg-slate-100 border-slate-200 text-slate-500"
+                                          ? "bg-emerald-55/10 border-emerald-200 text-emerald-700"
+                                          : "bg-slate-100 border-slate-200/60 text-slate-450"
                                       }`}
                                     >
-                                      <span className="text-[10px] font-bold">{matched ? "✓" : "✗"}</span>
+                                      <span className="text-[10px]">{matched ? "✓" : "✗"}</span>
                                       {reqSkill}
                                     </span>
                                   );
@@ -318,20 +320,20 @@ export default async function AdminJobDetailsPage({
                             </div>
 
                             <div>
-                              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Candidate's Full Profile Skills:</h4>
+                              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-450 mb-1.5">Candidate's Full Profile Skills:</h4>
                               <div className="flex flex-wrap gap-1.5">
-                                {(app.jobSeeker.skills ?? []).map((skill, sIdx) => {
+                                {(app.jobSeeker.skills ?? []).map((skill: string, sIdx: number) => {
                                   const isReq = [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])].some(r => skillKeywordMatch(r, skill));
                                   return (
                                     <span
                                       key={sIdx}
-                                      className={`px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                                      className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border ${
                                         isReq 
                                           ? "bg-blue-50 border-blue-200 text-blue-700 font-semibold"
-                                          : "bg-slate-100 border-slate-200 text-slate-700"
+                                          : "bg-slate-100 border-slate-200 text-slate-650"
                                       }`}
                                     >
-                                      {skill} {isReq && <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest ml-1">(Matched)</span>}
+                                      {skill} {isReq && <span className="text-[9px] font-bold text-blue-600 uppercase tracking-wider ml-1">(Matched)</span>}
                                     </span>
                                   );
                                 })}
@@ -341,9 +343,9 @@ export default async function AdminJobDetailsPage({
                         </div>
                         
                         {app.coverLetter && (
-                          <div className="flex items-start gap-4 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 italic">
-                            <FileText className="h-4 w-4 shrink-0 text-blue-500 opacity-40" />
-                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 font-medium">&quot;{app.coverLetter}&quot;</p>
+                          <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 italic">
+                            <FileText className="h-4 w-4 shrink-0 text-slate-400 mt-0.5" />
+                            <p className="text-xs text-slate-500 leading-relaxed max-w-none font-medium">&quot;{app.coverLetter}&quot;</p>
                           </div>
                         )}
                       </div>
@@ -355,62 +357,62 @@ export default async function AdminJobDetailsPage({
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-10">
-            <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Job Overview</h2>
+          <div className="space-y-6">
+            <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="flex items-center gap-2.5 mb-6">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-450">Job Overview</h2>
               </div>
               
-              <div className="space-y-10">
-                 <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-500/40 shrink-0">
-                       <Building2 className="h-5 w-5" />
+              <div className="space-y-6">
+                 <div className="flex items-start gap-3.5">
+                    <div className="h-9 w-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                       <Building2 className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Company</p>
-                        <p className="text-lg font-black text-foreground tracking-tight">{job.companyName || job.employer.companyName}</p>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Company</p>
+                        <p className="text-base font-bold text-slate-800">{job.companyName || job.employer.companyName}</p>
                     </div>
                  </div>
                  
-                 <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-500/40 shrink-0">
-                       <Lightbulb className="h-5 w-5" />
+                 <div className="flex items-start gap-3.5">
+                    <div className="h-9 w-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                       <Lightbulb className="h-4.5 w-4.5" />
                     </div>
                     <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Experience</p>
-                        <p className="text-lg font-black text-foreground tracking-tight tabular-nums">{experienceStr}</p>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Experience</p>
+                        <p className="text-base font-bold text-slate-800">{experienceStr}</p>
                     </div>
                  </div>
 
                  {salaryStr && (
-                   <div className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-500/40 shrink-0">
-                         <Briefcase className="h-5 w-5" />
+                   <div className="flex items-start gap-3.5">
+                      <div className="h-9 w-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                         <Briefcase className="h-4.5 w-4.5" />
                       </div>
                       <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Salary</p>
-                          <p className="text-lg font-black text-foreground tracking-tight tabular-nums">{salaryStr}</p>
+                          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Salary</p>
+                          <p className="text-base font-bold text-slate-800">{salaryStr}</p>
                       </div>
                    </div>
                  )}
 
-                 <div className="flex items-start gap-4 pt-10 border-t border-white/5">
-                    <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-500/40 shrink-0">
-                       <Globe className="h-5 w-5" />
+                 <div className="flex items-start gap-3.5 pt-6 border-t border-slate-100">
+                    <div className="h-9 w-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                       <Globe className="h-4.5 w-4.5" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">About Company</p>
-                        <p className="text-sm font-medium text-muted-foreground italic line-clamp-2 mb-4">
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">About Company</p>
+                        <p className="text-xs font-medium text-slate-550 italic line-clamp-3 mb-2.5">
                            {job.employer.description || "No description provided."}
                         </p>
                         {job.employer.website && (
                            <Link
                              href={job.employer.website.startsWith("http") ? job.employer.website : `https://${job.employer.website}`}
                              target="_blank"
-                             className="text-[10px] font-black uppercase tracking-widest text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-2"
+                             className="text-xs font-semibold text-blue-600 hover:text-blue-755 transition-colors flex items-center gap-1"
                            >
-                              Website <Globe className="h-3 w-3" />
+                              Website <span>→</span>
                            </Link>
                         )}
                     </div>

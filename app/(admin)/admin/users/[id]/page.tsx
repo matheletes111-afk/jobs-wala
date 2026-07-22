@@ -15,6 +15,7 @@ import {
   FileText,
   ImageIcon,
   Award,
+  ArrowLeft,
 } from "lucide-react";
 import { formatLocation } from "@/lib/utils";
 import EmployerApprovalActions from "@/components/admin/EmployerApprovalActions";
@@ -54,93 +55,89 @@ export default async function AdminUserDetailPage({
       : null;
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      {/* Tactical Hero Banner */}
-      <div className="relative h-64 overflow-hidden rounded-b-[3rem] bg-white/[0.02] border-b border-white/5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.05)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%232563eb%22 fill-opacity=%220.03%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
-      </div>
+    <div className="min-h-screen w-full min-w-0 bg-slate-50 text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
 
-      {/* Profile Node */}
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 -mt-32 relative z-10 sm:px-6 md:px-8 lg:px-10">
-        <div className="linear-card group rounded-[3rem] bg-background/80 border border-white/10 p-10 shadow-2xl backdrop-blur-3xl">
-          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
-            <div className="flex items-start gap-8">
-              <Avatar className="h-28 w-28 shrink-0 rounded-3xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-105 md:h-32 md:w-32">
+        {/* Back Navigation */}
+        <div className="mb-6">
+          <Link href="/admin/users">
+            <Button variant="ghost" className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all group gap-2">
+              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+              Back to Users
+            </Button>
+          </Link>
+        </div>
+
+        {/* Profile Header Card */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm mb-8 animate-in slide-in-from-top-4 duration-500">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+            <div className="flex items-start gap-6">
+              <Avatar className="h-20 w-20 shrink-0 rounded-2xl border border-slate-200 shadow-sm">
                 {isEmployer && user.employerProfile?.companyLogo ? (
                   <AvatarImage src={user.employerProfile.companyLogo} alt={displayName} />
                 ) : null}
-                <AvatarFallback className="bg-blue-500/10 text-3xl font-black text-blue-500 uppercase">
+                <AvatarFallback className="bg-blue-50 text-2xl font-bold text-blue-600 uppercase rounded-2xl">
                   {displayName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                 <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">
-                      {isEmployer ? "Employer Profile" : "User Profile"}
-                   </p>
-                </div>
-                
-                {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
-                  <span className="mb-4 inline-block rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">
-                    STATUS: {user.jobSeekerProfile.availabilityStatus}
-                  </span>
-                )}
-                
-                {isEmployer && user.employerProfile?.approvalStatus && (
-                  <span className={`mb-4 inline-block rounded-lg px-3 py-1 text-[9px] font-black uppercase tracking-widest border ${
-                    user.employerProfile.approvalStatus === "APPROVED"
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                      : user.employerProfile.approvalStatus === "REJECTED"
-                      ? "bg-red-500/10 border-red-500/20 text-red-400"
-                      : "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                  }`}>
-                    APPROVAL: {user.employerProfile.approvalStatus}
-                  </span>
-                )}
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">
+                  {isEmployer ? "Employer Profile" : "User Profile"}
+                </p>
 
-                <h1 className="text-3xl font-black md:text-5xl tracking-tighter leading-tight mb-2 text-gradient">
-                  {displayName}
-                </h1>
-                
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">{displayName}</h1>
+
                 {tagline && (
-                  <p className="text-lg font-medium text-muted-foreground italic mb-6">
-                    {tagline}
-                  </p>
+                  <p className="text-sm font-medium text-slate-500 mb-3">{tagline}</p>
                 )}
 
-                <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 tabular-nums">
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
+                    <span className="inline-block rounded-full bg-emerald-50 border border-emerald-200 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                      {user.jobSeekerProfile.availabilityStatus}
+                    </span>
+                  )}
+                  {isEmployer && user.employerProfile?.approvalStatus && (
+                    <span className={`inline-block rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                      user.employerProfile.approvalStatus === "APPROVED"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                        : user.employerProfile.approvalStatus === "REJECTED"
+                        ? "bg-red-50 border-red-200 text-red-700"
+                        : "bg-amber-50 border-amber-200 text-amber-700"
+                    }`}>
+                      {user.employerProfile.approvalStatus}
+                    </span>
+                  )}
                   {isJobSeeker && (
                     <>
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
                         <MapPin className="h-3.5 w-3.5 text-primary" />
-                        {user.jobSeekerProfile?.location ? formatLocation(user.jobSeekerProfile.location) : "COORD_NULL"}
+                        {user.jobSeekerProfile?.location ? formatLocation(user.jobSeekerProfile.location) : "Not set"}
                       </span>
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
                         <Calendar className="h-3.5 w-3.5 text-primary" />
-                        EXP: {user.jobSeekerProfile?.experience != null ? `${user.jobSeekerProfile.experience}Y` : "N/A"}
+                        {user.jobSeekerProfile?.experience != null ? `${user.jobSeekerProfile.experience} yrs exp` : "N/A"}
                       </span>
                     </>
                   )}
                   {isEmployer && (
                     <>
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
                         <Briefcase className="h-3.5 w-3.5 text-primary" />
-                        SIZE: {user.employerProfile?.companySize || "UNKNOWN"}
+                        {user.employerProfile?.companySize || "Size unknown"}
                       </span>
-                      <span className="flex items-center gap-2">
-                         <Globe className="h-3.5 w-3.5 text-primary" />
-                         INDUSTRY: {user.employerProfile?.industry || "UNSET"}
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                        <Globe className="h-3.5 w-3.5 text-primary" />
+                        {user.employerProfile?.industry || "Industry unset"}
                       </span>
                     </>
                   )}
                 </div>
 
                 {isJobSeeker && user.jobSeekerProfile?.skills?.length ? (
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-1.5">
                     {user.jobSeekerProfile.skills.map((s) => (
-                      <span key={s} className="rounded-xl px-4 py-1.5 bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                      <span key={s} className="rounded-full px-3 py-1 bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600">
                         {s}
                       </span>
                     ))}
@@ -148,7 +145,7 @@ export default async function AdminUserDetailPage({
                 ) : null}
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-4 shrink-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               {isEmployer && user.employerProfile && (
                 <EmployerApprovalActions
                   userId={user.id}
@@ -157,111 +154,94 @@ export default async function AdminUserDetailPage({
                   resumeUploadEnabled={user.employerProfile.resumeUploadEnabled}
                 />
               )}
-              <Link href="/admin/users">
-                <Button variant="ghost" className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-white/10 transition-all">
-                  ← Back to Users
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
 
-        {/* Intelligence Grid */}
-        <div className="mt-12 grid gap-10 lg:grid-cols-3 pb-20">
-          <div className="lg:col-span-2 space-y-10">
-            {/* Bio/Description Node */}
+        {/* Content Grid */}
+        <div className="grid gap-6 lg:grid-cols-3 pb-12">
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Bio / Description */}
             {((isJobSeeker && user.jobSeekerProfile?.bio) || (isEmployer && user.employerProfile?.description)) && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">
-                    {isJobSeeker ? "About" : "Company Description"}
-                  </h2>
-                </div>
-                <p className="whitespace-pre-wrap text-muted-foreground font-medium italic leading-relaxed text-lg">
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">
+                  {isJobSeeker ? "About" : "Company Description"}
+                </h2>
+                <p className="text-sm text-slate-600 leading-relaxed">
                   {isJobSeeker ? user.jobSeekerProfile?.bio : user.employerProfile?.description}
                 </p>
               </section>
             )}
 
-            {/* Education Node */}
+            {/* Education */}
             {isJobSeeker && user.jobSeekerProfile?.education && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                 <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Education</h2>
-                </div>
-                <p className="text-muted-foreground font-medium italic leading-relaxed text-lg">{user.jobSeekerProfile.education}</p>
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Education</h2>
+                <p className="text-sm text-slate-600 leading-relaxed">{user.jobSeekerProfile.education}</p>
               </section>
             )}
 
-            {/* Candidate Details Node */}
+            {/* Candidate Professional Details */}
             {isJobSeeker && user.jobSeekerProfile && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl space-y-8">
-                <div className="flex items-center gap-3">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Candidate Professional Details</h2>
-                </div>
-                
-                <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">Candidate Professional Details</h2>
+                <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
                   {user.jobSeekerProfile.highestEducation && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Highest Education</p>
-                      <p className="text-sm font-bold text-foreground">{user.jobSeekerProfile.highestEducation}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Highest Education</p>
+                      <p className="text-sm font-semibold text-slate-800">{user.jobSeekerProfile.highestEducation}</p>
                     </div>
                   )}
                   {user.jobSeekerProfile.noticePeriod && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Notice Period / LWD</p>
-                      <p className="text-sm font-bold text-foreground">{user.jobSeekerProfile.noticePeriod}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Notice Period / LWD</p>
+                      <p className="text-sm font-semibold text-slate-800">{user.jobSeekerProfile.noticePeriod}</p>
                     </div>
                   )}
                   {user.jobSeekerProfile.dateOfBirth && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Date of Birth</p>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Date of Birth</p>
+                      <p className="text-sm font-semibold text-slate-800">
                         {new Date(user.jobSeekerProfile.dateOfBirth).toLocaleDateString(undefined, { dateStyle: "long" })}
                       </p>
                     </div>
                   )}
                   {user.jobSeekerProfile.linkedinUrl && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">LinkedIn Profile</p>
-                      <a href={user.jobSeekerProfile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary hover:underline break-all">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">LinkedIn Profile</p>
+                      <a href={user.jobSeekerProfile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline break-all">
                         View LinkedIn
                       </a>
                     </div>
                   )}
                   {user.jobSeekerProfile.currentSalary !== null && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Current Salary</p>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Current Salary</p>
+                      <p className="text-sm font-semibold text-slate-800">
                         {user.jobSeekerProfile.currentSalaryCurrency || "INR"} {user.jobSeekerProfile.currentSalary.toLocaleString()}
                       </p>
                     </div>
                   )}
                   {user.jobSeekerProfile.expectedSalary !== null && (
                     <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Expected Salary</p>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Expected Salary</p>
+                      <p className="text-sm font-semibold text-slate-800">
                         {user.jobSeekerProfile.expectedSalaryCurrency || "INR"} {user.jobSeekerProfile.expectedSalary.toLocaleString()}
                       </p>
                     </div>
                   )}
                 </div>
-
                 {user.jobSeekerProfile.desiredLocation && (
-                  <div className="pt-6 border-t border-white/5 space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Desired Location(s)</p>
-                    <p className="text-sm font-bold text-foreground">
-                      {formatLocation(user.jobSeekerProfile.desiredLocation)}
-                    </p>
+                  <div className="pt-4 border-t border-slate-100 space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Desired Location(s)</p>
+                    <p className="text-sm font-semibold text-slate-800">{formatLocation(user.jobSeekerProfile.desiredLocation)}</p>
                   </div>
                 )}
               </section>
             )}
 
-            {/* Certificates Node */}
+            {/* Certificates */}
             {isJobSeeker && user.jobSeekerProfile?.certificates && (() => {
               let list: { url: string; type: "image" | "pdf"; description: string }[];
               try {
@@ -271,27 +251,24 @@ export default async function AdminUserDetailPage({
                 return null;
               }
               return (
-                <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                   <div className="flex items-center gap-3 mb-10">
-                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                    <h2 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Certificates</h2>
-                  </div>
-                  <div className="grid gap-4">
+                <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-5">Certificates</h2>
+                  <div className="grid gap-3">
                     {list.map((cert, idx) => (
-                      <div key={idx} className="flex items-center justify-between gap-6 p-6 rounded-2xl bg-white/[0.02] border border-white/5 transition-all hover:bg-white/[0.05]">
-                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                               <Award className="h-6 w-6" />
-                            </div>
-                            <div>
-                               <p className="text-sm font-black text-foreground tracking-tight">{cert.description || "VERIFIED_ACC_0"+(idx+1)}</p>
-                               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 italic">Signed Certificate</p>
-                            </div>
-                         </div>
-                         <Link href={cert.url} target="_blank" className="h-10 px-6 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 transition-all flex items-center gap-2">
-                            {cert.type === "image" ? <ImageIcon className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
-                            Access File
-                         </Link>
+                      <div key={idx} className="flex items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
+                            <Award className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-800">{cert.description || `Certificate ${idx + 1}`}</p>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Signed Certificate</p>
+                          </div>
+                        </div>
+                        <a href={cert.url} target="_blank" className="h-9 px-4 rounded-lg bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2">
+                          {cert.type === "image" ? <ImageIcon className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
+                          View
+                        </a>
                       </div>
                     ))}
                   </div>
@@ -300,143 +277,132 @@ export default async function AdminUserDetailPage({
             })()}
           </div>
 
-          {/* Account Snapshot Sidebar */}
-          <div className="space-y-10">
-            <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Contact Information</h2>
-              </div>
-              
-              <div className="space-y-10">
-                 <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary/40 shrink-0">
-                       <Mail className="h-5 w-5" />
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Contact Information */}
+            <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-5">Contact Information</h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Email Address</p>
+                    <p className="text-sm font-semibold text-slate-800 break-all">{user.email}</p>
+                  </div>
+                </div>
+
+                {isJobSeeker && user.jobSeekerProfile?.phone && (
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                      <Phone className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Email Address</p>
-                        <p className="text-sm font-black text-foreground tracking-tight break-all">{user.email}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Phone Number</p>
+                      <p className="text-sm font-semibold text-slate-800">{user.jobSeekerProfile.phone}</p>
                     </div>
-                 </div>
-                 
-                 {isJobSeeker && user.jobSeekerProfile?.phone && (
-                   <div className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
-                         <Phone className="h-5 w-5" />
-                      </div>
-                      <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Phone Number</p>
-                          <p className="text-sm font-black text-foreground tracking-tight tabular-nums">{user.jobSeekerProfile.phone}</p>
-                      </div>
-                   </div>
-                 )}
+                  </div>
+                )}
 
-                 {isEmployer && user.employerProfile?.website && (
-                   <div className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-primary/40 shrink-0">
-                         <Globe className="h-5 w-5" />
-                      </div>
-                      <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Website</p>
-                          <a
-                            href={user.employerProfile.website.startsWith("http") ? user.employerProfile.website : `https://${user.employerProfile.website}`}
-                            target="_blank"
-                            className="text-sm font-black text-primary hover:text-blue-400 transition-colors tracking-tight"
-                          >
-                            {user.employerProfile.website}
-                          </a>
-                      </div>
-                   </div>
-                 )}
-
-                 {isEmployer && user.employerProfile?.pointOfContact && (
-                   <div className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
-                         <Briefcase className="h-5 w-5" />
-                      </div>
-                      <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Point of Contact</p>
-                          <p className="text-sm font-black text-foreground tracking-tight">{user.employerProfile.pointOfContact}</p>
-                      </div>
-                   </div>
-                 )}
-
-                 {isEmployer && user.employerProfile?.phone && (
-                   <div className="flex items-start gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 shrink-0">
-                         <Phone className="h-5 w-5" />
-                      </div>
-                      <div>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Phone Number</p>
-                          <p className="text-sm font-black text-foreground tracking-tight tabular-nums">{user.employerProfile.phone}</p>
-                      </div>
-                   </div>
-                 )}
-
-                 <div className="pt-10 border-t border-white/5 grid grid-cols-2 gap-6">
-                    <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Role</p>
-                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest">{user.role.replace("_", " ")}</p>
+                {isEmployer && user.employerProfile?.website && (
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                      <Globe className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Auth Status</p>
-                        <p className={`text-[10px] font-black uppercase tracking-widest ${user.emailVerified ? "text-emerald-400" : "text-amber-400"}`}>
-                           {user.emailVerified ? "VERIFIED" : "UNVERIFIED"}
-                        </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Website</p>
+                      <a
+                        href={user.employerProfile.website.startsWith("http") ? user.employerProfile.website : `https://${user.employerProfile.website}`}
+                        target="_blank"
+                        className="text-sm font-semibold text-primary hover:underline"
+                      >
+                        {user.employerProfile.website}
+                      </a>
                     </div>
-                    <div className="col-span-2">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Joined Date</p>
-                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest tabular-nums">
-                           {new Date(user.createdAt).toLocaleDateString()}
-                        </p>
+                  </div>
+                )}
+
+                {isEmployer && user.employerProfile?.pointOfContact && (
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                      <Briefcase className="h-4 w-4" />
                     </div>
-                 </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Point of Contact</p>
+                      <p className="text-sm font-semibold text-slate-800">{user.employerProfile.pointOfContact}</p>
+                    </div>
+                  </div>
+                )}
+
+                {isEmployer && user.employerProfile?.phone && (
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shrink-0">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Phone Number</p>
+                      <p className="text-sm font-semibold text-slate-800">{user.employerProfile.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-slate-100 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Role</p>
+                    <p className="text-xs font-bold text-slate-800 uppercase">{user.role.replace("_", " ")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Auth Status</p>
+                    <p className={`text-xs font-bold uppercase ${user.emailVerified ? "text-emerald-600" : "text-amber-600"}`}>
+                      {user.emailVerified ? "Verified" : "Unverified"}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Joined Date</p>
+                    <p className="text-xs font-bold text-slate-800">{new Date(user.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
               </div>
             </section>
 
-            {/* MSME / Authority Registration Document — Employer only */}
+            {/* MSME Document */}
             {isEmployer && user.employerProfile?.msmeDocUrl && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Registration Document</h2>
-                </div>
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Registration Document</h2>
                 <a
                   href={user.employerProfile.msmeDocUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-amber-500/5 hover:border-amber-500/20 transition-all group"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-all group"
                 >
-                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-amber-400" />
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-amber-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-foreground group-hover:text-amber-400 transition-colors">MSME / Authority Registration</p>
-                    <p className="text-[10px] font-semibold text-muted-foreground/40 italic mt-0.5">Click to view document</p>
+                    <p className="text-sm font-semibold text-slate-800 group-hover:text-amber-700 transition-colors">MSME / Authority Registration</p>
+                    <p className="text-[10px] font-semibold text-slate-500 mt-0.5">Click to view document</p>
                   </div>
                 </a>
               </section>
             )}
 
-            {/* Resume / CV Document — Candidate only */}
+            {/* Resume / CV */}
             {isJobSeeker && user.jobSeekerProfile?.resumeUrl && (
-              <section className="linear-card rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-10 shadow-xl">
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-1.5 w-1.5 rounded-full bg-violet-500" />
-                  <h2 className="text-xs font-black uppercase tracking-[0.4em] text-foreground">Resume / CV</h2>
-                </div>
+              <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Resume / CV</h2>
                 <a
                   href={user.jobSeekerProfile.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-violet-500/5 hover:border-violet-500/20 transition-all group"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-violet-50 border border-violet-200 hover:bg-violet-100 transition-all group"
                 >
-                  <div className="h-12 w-12 shrink-0 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                    <FileText className="h-5 w-5 text-violet-400" />
+                  <div className="h-10 w-10 shrink-0 rounded-xl bg-violet-100 border border-violet-200 flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-violet-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-foreground group-hover:text-violet-400 transition-colors">Download CV</p>
-                    <p className="text-[10px] font-semibold text-muted-foreground/40 italic mt-0.5">Click to view/download resume</p>
+                    <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">Download CV</p>
+                    <p className="text-[10px] font-semibold text-slate-500 mt-0.5">Click to view/download resume</p>
                   </div>
                 </a>
               </section>

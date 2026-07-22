@@ -38,27 +38,27 @@ export default async function EditJobPage({
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-12">
-        <div className="linear-card rounded-[2.5rem] p-8 sm:p-12 mb-12 shadow-md animate-in fade-in-up duration-500 fill-mode-both hover:scale-100">
-          <div className="mb-8">
+        <div className="bg-white border border-slate-200 rounded-2xl p-7 sm:p-10 mb-8 shadow-sm animate-in fade-in duration-500">
+          <div className="mb-6">
             <Link
               href="/employer/jobs"
-              className="inline-flex items-center gap-3 h-10 px-5 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-slate-200 transition-all active:scale-95 group"
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-slate-100 border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-primary hover:bg-slate-200 transition-all active:scale-95 group"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               Back to Job List
             </Link>
           </div>
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.4em] text-blue-600">
             Employer Portal
           </p>
-          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
-            Edit <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-400">Job</span>
+          <h1 className="mb-2 text-2xl font-bold text-slate-900 lg:text-3xl tracking-tight">
+            Edit Job
           </h1>
-          <p className="text-muted-foreground font-semibold max-w-2xl">
+          <p className="text-sm text-slate-500 font-medium max-w-2xl">
             Update the details of your job opening. Changes will be reflected once you save.
           </p>
         </div>
-        <div className="linear-card rounded-[3rem] p-1 shadow-md overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           <JobForm jobId={job.id} initialData={initialData} />
         </div>
       </div>

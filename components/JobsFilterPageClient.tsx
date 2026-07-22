@@ -99,8 +99,8 @@ export default function JobsFilterPageClient({
       </div>
 
       {loading ? (
-        <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#f97316] border-t-transparent mb-4" />
+        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-500">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-4" />
           Loading jobs...
         </div>
       ) : (
@@ -150,7 +150,7 @@ export default function JobsFilterPageClient({
           </div>
 
           {jobs.length === 0 ? (
-            <div className="linear-card rounded-2xl p-12 text-center text-muted-foreground">
+            <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-500">
               No jobs found in this category.
             </div>
           ) : (
@@ -221,7 +221,7 @@ function JobCard({
   };
 
   return (
-    <div className="linear-card group flex flex-col p-8 animate-premium-hover animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="bg-white border border-slate-200 hover:shadow-md hover:border-slate-300 group flex flex-col p-6 rounded-2xl transition-all shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-start justify-between gap-4">
         <span
           className={`rounded-full px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold shadow-sm ${getEmploymentBadgeClass(
@@ -255,7 +255,7 @@ function JobCard({
           {formatLocation(job.location, true)}
         </p>
       </div>
-      <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+      <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
           Posted {formatDate(job.createdAt)}
         </p>
@@ -282,7 +282,7 @@ function JobCard({
               <Button
                 className="w-full btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest"
               >
-                Apply Now
+                <span style={{ color: "white" }}>Apply Now</span>
               </Button>
             </Link>
           )}

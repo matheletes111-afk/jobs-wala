@@ -9,9 +9,6 @@ import CandidateAvatar from "@/components/CandidateAvatar";
 export default async function EmployerDashboardPage() {
   const user = await requireEmployer();
 
-  // eslint-disable-next-line react-hooks/purity
-  const now = Date.now();
-
   const profile = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
     include: {
@@ -24,33 +21,38 @@ export default async function EmployerDashboardPage() {
     },
   });
 
-    if (!profile) {
-      return (
-        <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
-          <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-24">
-            <div className="linear-card rounded-[2.5rem] p-12 text-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
-              <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-amber-500/10 border border-amber-500/20">
-                 <Briefcase className="h-10 w-10 text-amber-500 animate-pulse" />
-              </div>
-              <p className="mb-8 text-xl font-bold text-muted-foreground italic">Operation Pending: Identity Authentication Required</p>
-              <Link href="/employer/profile">
-                <Button className="h-14 px-10 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-                  Complete Your Profile
-                </Button>
-              </Link>
+  if (!profile) {
+    return (
+      <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
+        <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-16 sm:px-6 md:px-8 lg:px-10 lg:py-24">
+          <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center animate-in fade-in slide-in-from-bottom-6 duration-700">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-amber-50 border border-amber-200">
+               <Briefcase className="h-9 w-9 text-amber-500" />
             </div>
+            <p className="mb-6 text-base font-semibold text-slate-600">Complete your company profile to get started.</p>
+            <Link href="/employer/profile">
+              <Button className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold uppercase tracking-widest shadow-sm transition-all hover:scale-105 active:scale-95">
+                <span style={{ color: "white" }}>Complete Your Profile</span>
+              </Button>
+            </Link>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-  const [jobsCount, applicationsCount, activeJobs] = await Promise.all([
+  const [jobsCount, applicationsCount, activeJobs, recentJobs] = await Promise.all([
     prisma.job.count({ where: { postedBy: profile.userId } }),
     prisma.application.count({
       where: { job: { postedBy: profile.userId } },
     }),
     prisma.job.count({
       where: { postedBy: profile.userId, status: "ACTIVE" },
+    }),
+    prisma.job.findMany({
+      where: { postedBy: profile.userId },
+      orderBy: { createdAt: "desc" },
+      take: 4,
     }),
   ]);
 
@@ -64,288 +66,297 @@ export default async function EmployerDashboardPage() {
     },
   });
 
-    const colorCards = [
-      {
-        label: "Total Jobs",
-        value: jobsCount,
-        icon: Briefcase,
-        href: "/employer/jobs",
-        accent: "blue",
-        glow: "shadow-blue-500/10",
-      },
-      {
-        label: "Active Jobs",
-        value: activeJobs,
-        icon: Clock,
-        href: "/employer/jobs",
-        accent: "violet",
-        glow: "shadow-violet-500/10",
-      },
-      {
-        label: "Total Applications",
-        value: applicationsCount,
-        icon: FileText,
-        href: "/employer/applications",
-        accent: "emerald",
-        glow: "shadow-emerald-500/10",
-      },
-    ];
+  const metrics = [
+    {
+      label: "Active Jobs",
+      value: activeJobs,
+      icon: Clock,
+      description: "Live postings open for applications",
+      color: "text-blue-600 bg-blue-50 border-blue-100",
+    },
+    {
+      label: "Total Applications",
+      value: applicationsCount,
+      icon: FileText,
+      description: "Candidates applied across all jobs",
+      color: "text-emerald-600 bg-emerald-50 border-emerald-100",
+    },
+    {
+      label: "Total Job Listings",
+      value: jobsCount,
+      icon: Briefcase,
+      description: "Total jobs created in portal",
+      color: "text-indigo-600 bg-indigo-50 border-indigo-100",
+    },
+  ];
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="min-h-screen w-full min-w-0 bg-slate-50/50 text-foreground animate-in fade-in duration-1000">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        {/* Welcome Header */}
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200/60 pb-6">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Dashboard Overview</p>
-            <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Employer <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Portal</span>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              Hello, {profile.companyName || user.name || "Employer"}
             </h1>
-            <p className="mt-2 text-muted-foreground font-medium max-w-lg">
-              Manage your job listings, track candidate applications, and oversee your recruitment process from one place.
+            <p className="mt-1.5 text-sm font-medium text-slate-500">
+              Here is your recruitment activity at a glance.
             </p>
           </div>
-
-        {/* Subscription Warning Banner */}
-        {profile.approvalStatus === "APPROVED" && (
-          (!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
-            <div className="mb-8 rounded-2xl bg-gradient-to-r from-orange-500/10 via-orange-500/5 to-transparent border border-orange-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 shrink-0 rounded-xl bg-orange-500/20 flex items-center justify-center border border-orange-500/20">
-                  <Zap className="h-6 w-6 text-orange-500 animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white tracking-tight">Active Plan Required</h3>
-                  <p className="mt-1 text-xs font-medium text-white/50 italic">You don&apos;t have an active subscription. Subscribe now to post jobs and search candidates.</p>
-                </div>
-              </div>
-              <Link href="/employer/subscription">
-                <Button className="h-10 px-6 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-500/20 transition-all active:scale-95">
-                  Browse Plans
+          {profile.approvalStatus === "APPROVED" && (
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/employer/jobs/new">
+                <Button className="h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 transition-all flex items-center gap-2">
+                  <Plus className="h-4 w-4" style={{ color: "white" }} />
+                  <span style={{ color: "white" }}>Post a Job</span>
                 </Button>
               </Link>
             </div>
-          ) : new Date(profile.subscriptions[0].endDate) < new Date(now + 3 * 24 * 60 * 60 * 1000) ? (
-            <div className="mb-8 rounded-2xl bg-blue-500/5 border border-blue-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
-               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 shrink-0 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                  <Clock className="h-6 w-6 text-blue-500 animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white tracking-tight">Plan Expiring Soon</h3>
-                  <p className="mt-1 text-xs font-medium text-white/50 italic">Your current plan ({profile.subscriptions[0].plan.name}) will expire on {new Date(profile.subscriptions[0].endDate).toLocaleDateString()}. Renew now to avoid interruption.</p>
-                </div>
-              </div>
-              <Link href="/employer/subscription">
-                <Button className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 transition-all active:scale-95">
-                  Renew Plan
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="mb-8 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 shrink-0 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/20">
-                  <Zap className="h-6 w-6 text-blue-500 animate-pulse" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white tracking-tight">Active Plan: {profile.subscriptions[0].plan.name}</h3>
-                  <p className="mt-1 text-xs font-medium text-white/50 italic">
-                    Your subscription is active and expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "long" })}.
-                  </p>
-                </div>
-              </div>
-              <Link href="/employer/subscription">
-                <Button className="h-10 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
-                  Manage Plan
-                </Button>
-              </Link>
-            </div>
-          )
-        )}
-        {profile.approvalStatus === "APPROVED" && (
-          <Link href="/employer/jobs/new">
-            <Button className="h-14 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 gap-3">
-              <Plus className="h-5 w-5" />
-              Post a New Job
-            </Button>
-          </Link>
-        )}
+          )}
         </div>
 
-        {/* Profile Approval Pending Banner */}
+        {/* Profile Approval / Warning Banners */}
         {profile.approvalStatus !== "APPROVED" && (
-          <div className={`mb-8 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-top-4 duration-700 border ${
+          <div className={`mb-8 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 border animate-in slide-in-from-top-4 duration-700 ${
             profile.approvalStatus === "REJECTED"
-              ? "bg-gradient-to-r from-red-500/10 via-red-500/5 to-transparent border-red-500/20"
-              : "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/20"
+              ? "bg-red-50/5 border-red-200 text-red-700"
+              : "bg-amber-50/60 border-amber-200 text-amber-800"
           }`}>
             <div className="flex items-center gap-4">
-              <div className={`h-12 w-12 shrink-0 rounded-xl flex items-center justify-center border ${
+              <div className={`h-11 w-11 shrink-0 rounded-xl flex items-center justify-center border ${
                 profile.approvalStatus === "REJECTED"
-                  ? "bg-red-500/20 border-red-500/20"
-                  : "bg-amber-500/20 border-amber-500/20"
+                  ? "bg-red-100 border-red-200 text-red-600"
+                  : "bg-amber-100 border-amber-200 text-amber-600"
               }`}>
-                <svg className={`h-6 w-6 animate-pulse ${
-                  profile.approvalStatus === "REJECTED" ? "text-red-500" : "text-amber-500"
-                }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+                <Zap className="h-5 w-5 animate-pulse" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-white tracking-tight">
-                  {profile.approvalStatus === "REJECTED" ? "Profile Rejected by Admin" : "Admin Approval Pending"}
+                <h3 className="text-sm font-bold tracking-tight uppercase">
+                  {profile.approvalStatus === "REJECTED" ? "Profile Rejected by Admin" : "Identity Verification Pending"}
                 </h3>
-                <p className="mt-1 text-xs font-medium text-white/50 italic">
+                <p className="mt-0.5 text-xs font-semibold text-slate-500">
                   {profile.approvalStatus === "REJECTED"
-                    ? `Reason: ${profile.rejectionReason || "No reason provided."}. Please correct the profile details to submit again.`
-                    : "Your profile is pending admin approval. Please ensure all profile fields are completed."}
+                    ? `Reason: ${profile.rejectionReason || "Please review details."}. Re-submit with corrected details.`
+                    : "Your profile is pending administrator approval. Please wait for confirmation."}
                 </p>
               </div>
             </div>
             <Link href="/employer/profile">
-              <Button className={`h-10 px-6 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
+              <Button className={`h-10 px-5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm ${
                 profile.approvalStatus === "REJECTED"
-                  ? "bg-red-600 hover:bg-red-700 text-white shadow-red-500/20"
-                  : "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+                  ? "bg-red-600 hover:bg-red-700 text-white"
+                  : "bg-amber-500 hover:bg-amber-600 text-white"
               }`}>
-                {profile.approvalStatus === "REJECTED" ? "Edit Profile" : "Go to Profile"}
+                <span style={{ color: "white" }}>
+                  {profile.approvalStatus === "REJECTED" ? "Edit Profile" : "Check Profile"}
+                </span>
               </Button>
             </Link>
           </div>
         )}
 
-        {/* Color cards */}
-        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {colorCards.map((card, idx) => {
-            const Icon = card.icon;
-            const accentColors = {
-              blue: "bg-gradient-to-br from-blue-500 to-blue-700 shadow-xl shadow-blue-500/30",
-              violet: "bg-gradient-to-br from-violet-500 to-indigo-700 shadow-xl shadow-violet-500/30",
-              emerald: "bg-gradient-to-br from-emerald-500 to-teal-700 shadow-xl shadow-emerald-500/30",
-            };
-            const colorClass = accentColors[card.accent as keyof typeof accentColors];
-
+        {/* Flat Metrics Grid */}
+        <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {metrics.map((metric, idx) => {
+            const Icon = metric.icon;
             return (
-              <Link key={card.label} href={card.href} className="group outline-none">
-                <div
-                  className={`relative flex flex-col justify-between h-36 rounded-2xl p-5 text-white border-0 transition-all duration-300 hover:scale-[1.03] animate-in zoom-in-95 cursor-pointer ${colorClass}`}
-                  style={{ animationDelay: `${idx * 100}ms` }}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="rounded-2xl bg-white/20 p-2 group-hover:scale-110 transition-transform">
-                      <Icon className="h-5 w-5 text-white" />
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-white/70 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-1">{card.label}</p>
-                    <p className="text-3xl font-black tracking-tighter text-white">{card.value}</p>
-                    <p className="text-[11px] font-bold text-white/60 mt-1">Manage your {card.label.toLowerCase()}</p>
-                  </div>
+              <div
+                key={metric.label}
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{metric.label}</p>
+                  <p className="text-3xl font-bold tracking-tight text-slate-800">{metric.value}</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1">{metric.description}</p>
                 </div>
-              </Link>
+                <div className={`h-12 w-12 rounded-xl border flex items-center justify-center shrink-0 ${metric.color}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+              </div>
             );
           })}
         </div>
 
-        {/* Recent Applications */}
-        <section className="linear-card rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000">
-          <div className="flex flex-col sm:flex-row items-center justify-between border-b border-white/5 p-6 gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <h2 className="text-xl font-black uppercase tracking-tight text-foreground">Recent Applications</h2>
+        {/* 3-Column Structured Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main sections: Left/Middle Columns */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Active Job Postings */}
+            <section className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-100 p-5">
+                <div>
+                  <h2 className="text-base font-bold uppercase tracking-tight text-slate-800">Job Postings</h2>
+                  <p className="text-xs font-medium text-slate-500 mt-0.5">Manage and monitor your active listings</p>
+                </div>
+                <Link href="/employer/jobs" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
+                  View All Jobs
+                  <ChevronRight className="h-4.5 w-4.5" />
+                </Link>
               </div>
-              <p className="mt-1 text-sm font-medium text-muted-foreground italic">Review and manage the latest applications received for your job postings.</p>
-            </div>
-            <Link href="/employer/applications">
-              <Button className="h-9 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white text-[10px] font-black uppercase tracking-widest gap-2 transition-all shadow-lg shadow-blue-500/10">
-                View All Applications
-                <ChevronRight className="h-3 w-3" />
-              </Button>
-            </Link>
-          </div>
-          <div className="divide-y divide-white/5">
-            {recentApplications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-20 text-center">
-                 <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                    <Clock className="h-8 w-8 text-muted-foreground/30" />
-                 </div>
-                 <p className="text-lg font-bold text-muted-foreground italic tracking-tight">No applications received yet.</p>
-              </div>
-            ) : (
-              recentApplications.map((app, idx) => (
-                <div
-                  key={app.id}
-                  className="group flex flex-col md:flex-row items-center justify-between gap-6 p-6 transition-all hover:bg-white/[0.02] animate-in slide-in-from-right-10 duration-500 fill-mode-both"
-                  style={{ animationDelay: `${idx * 50}ms` }}
-                >
-                  <div className="flex flex-col md:flex-row items-center gap-6 min-w-0 flex-1">
-                    <CandidateAvatar
-                      profileImage={app.jobSeeker.profileImage}
-                      firstName={app.jobSeeker.firstName}
-                      lastName={app.jobSeeker.lastName}
-                      size="lg"
-                      className="group-hover:scale-105 transition-transform"
-                    />
-                    <div className="min-w-0 text-center md:text-left">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">Applied For: {app.job.title}</p>
-                      <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-primary transition-colors">
-                        {app.jobSeeker.firstName} {app.jobSeeker.lastName}
-                      </h3>
-                      <div className="mt-3 flex flex-wrap justify-center md:justify-start items-center gap-3">
-                        <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                          {app.job.category}
-                        </span>
-                        {app.jobSeeker.user?.email && (
-                          <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
-                            {app.jobSeeker.user.email}
+              <div className="divide-y divide-slate-100">
+                {recentJobs.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <p className="text-sm font-medium text-slate-400 italic">No job postings created yet.</p>
+                  </div>
+                ) : (
+                  recentJobs.map((job) => (
+                    <div key={job.id} className="p-5 flex items-center justify-between hover:bg-slate-50/50 transition-all gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${
+                            job.status === "ACTIVE"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                              : "bg-slate-100 text-slate-600 border border-slate-200"
+                          }`}>
+                            {job.status}
                           </span>
-                        )}
-                        <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-                          Applied: {new Date(app.appliedAt).toLocaleDateString("en-GB")}
-                        </span>
+                          <span className="text-[10px] font-bold text-slate-400">{job.category}</span>
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-800 hover:text-blue-600 transition-colors truncate">
+                          {job.title}
+                        </h3>
+                        <p className="text-xs text-slate-500 font-semibold mt-1">Posted on {new Date(job.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/employer/jobs/${job.id}`}>
+                          <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-700">
+                            Details
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-center gap-4 shrink-0">
-                    <span
-                      className={`h-10 px-5 rounded-xl border flex items-center justify-center text-[10px] font-black uppercase tracking-widest ${
-                        app.status === "SHORTLISTED"
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                          : app.status === "REJECTED"
-                            ? "bg-red-500/10 border-red-500/20 text-red-400"
-                            : "bg-blue-500/10 border-blue-500/20 text-blue-400"
-                      }`}
-                    >
-                      {app.status}
-                    </span>
-                    <div className="h-10 px-2 rounded-xl bg-white/5 border border-white/10 flex items-center">
-                      <ApplicationActions
-                        applicationId={app.id}
-                        currentStatus={app.status}
-                      />
-                    </div>
-                    {app.jobSeeker.resumeUrl && (
-                      <a
-                        href={app.jobSeeker.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group/btn"
-                      >
-                        <Button className="h-10 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-black uppercase tracking-widest transition-all gap-2 shadow-lg shadow-blue-500/10">
-                          View Resume
-                          <FileText className="h-3.5 w-3.5" />
-                        </Button>
-                      </a>
-                    )}
-                  </div>
+                  ))
+                )}
+              </div>
+            </section>
+
+            {/* Recent Applicants Needs Review */}
+            <section className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-100 p-5">
+                <div>
+                  <h2 className="text-base font-bold uppercase tracking-tight text-slate-800">Recent Candidates</h2>
+                  <p className="text-xs font-medium text-slate-500 mt-0.5">Quickly review new candidate profiles</p>
                 </div>
-              ))
-            )}
+                <Link href="/employer/applications" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
+                  All Applicants
+                  <ChevronRight className="h-4.5 w-4.5" />
+                </Link>
+              </div>
+              <div className="divide-y divide-slate-100">
+                {recentApplications.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <p className="text-sm font-medium text-slate-400 italic">No applications received yet.</p>
+                  </div>
+                ) : (
+                  recentApplications.map((app) => (
+                    <div key={app.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-all">
+                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                        <CandidateAvatar
+                          profileImage={app.jobSeeker.profileImage}
+                          firstName={app.jobSeeker.firstName}
+                          lastName={app.jobSeeker.lastName}
+                          size="md"
+                        />
+                        <div className="min-w-0">
+                          <Link href={`/employer/candidates/${app.jobSeeker.id}`} className="hover:underline">
+                            <h3 className="text-sm font-semibold text-slate-800">
+                              {app.jobSeeker.firstName} {app.jobSeeker.lastName}
+                            </h3>
+                          </Link>
+                          <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+                            Applied for <span className="font-bold text-slate-700">{app.job.title}</span>
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider ${
+                          app.status === "SHORTLISTED"
+                            ? "bg-emerald-50 border border-emerald-100 text-emerald-700"
+                            : app.status === "REJECTED"
+                              ? "bg-red-50 border border-red-100 text-red-700"
+                              : "bg-blue-50 border border-blue-100 text-blue-700"
+                        }`}>
+                          {app.status}
+                        </span>
+                        <div className="h-9 px-1 rounded-xl bg-slate-50 border border-slate-200 flex items-center">
+                          <ApplicationActions applicationId={app.id} currentStatus={app.status} />
+                        </div>
+                        {app.jobSeeker.resumeUrl && (
+                          <a href={app.jobSeeker.resumeUrl} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-700">
+                              Resume
+                            </Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
           </div>
-        </section>
+
+          {/* Right Sidebar Column */}
+          <div className="space-y-6">
+            {/* Subscription Detail Widget */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">Subscription Plan</h3>
+              {profile.approvalStatus === "APPROVED" && (
+                (!profile.subscriptions[0] || new Date(profile.subscriptions[0].endDate) < new Date()) ? (
+                  <div className="space-y-4">
+                    <div className="rounded-xl bg-orange-50 border border-orange-100 p-4">
+                      <p className="text-xs font-bold text-orange-800">No Active Plan Found</p>
+                      <p className="text-[11px] text-orange-600 mt-1">Please subscribe to unlock job posting and candidate resume search features.</p>
+                    </div>
+                    <Link href="/employer/subscription" className="block w-full">
+                      <Button className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs rounded-xl shadow-md shadow-orange-500/10">
+                        <span style={{ color: "white" }}>View Plans & Pricing</span>
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="rounded-xl bg-blue-50/50 border border-blue-100 p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-slate-700 uppercase">{profile.subscriptions[0].plan.name}</span>
+                        <span className="px-2 py-0.5 rounded bg-blue-100 border border-blue-200 text-[9px] font-semibold text-blue-700 uppercase">Active</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-2">
+                        Expires on {new Date(profile.subscriptions[0].endDate).toLocaleDateString(undefined, { dateStyle: "medium" })}
+                      </p>
+                    </div>
+                    <Link href="/employer/subscription" className="block w-full">
+                      <Button variant="outline" className="w-full h-11 border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl">
+                        Manage Plan
+                      </Button>
+                    </Link>
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Quick Tips / Guides Widget */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">Hiring Success Tips</h3>
+              <div className="space-y-4 divide-y divide-slate-100">
+                <div className="pt-0">
+                  <h4 className="text-xs font-bold text-slate-800">Optimize Job Titles</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">Keep titles short and clear. Use standard industry terms instead of internal names to attract more relevant applicants.</p>
+                </div>
+                <div className="pt-4">
+                  <h4 className="text-xs font-bold text-slate-800">Target Specific Skills</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">Specify key skill keywords when listing jobs to help our matching engine sort the best fit candidates higher.</p>
+                </div>
+                <div className="pt-4">
+                  <h4 className="text-xs font-bold text-slate-800">Prompt Feedback</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">Shortlist or reject candidates within 48 hours. Quick responses enhance your employer brand value.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

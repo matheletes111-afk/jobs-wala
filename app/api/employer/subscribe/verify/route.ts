@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { verifyRazorpaySubscription, cancelRazorpaySubscription, getRazorpaySubscription } from "@/lib/razorpay";
+import { verifyRazorpaySubscription, cancelRazorpaySubscription, getRazorpaySubscription, refundRazorpayPayment } from "@/lib/razorpay";
 import { addDays } from "date-fns";
 
 export async function POST(req: Request) {
@@ -34,63 +34,74 @@ export async function POST(req: Request) {
     console.log("Verify Debug - Razorpay Sub Status:", razorpaySub.status);
     console.log("Verify Debug - Razorpay Sub StartAt (Unix):", razorpaySub.start_at);
 
-    // Check if the subscription is scheduled for the future
     const startAt = razorpaySub.start_at ? new Date(razorpaySub.start_at * 1000) : new Date();
     const now = new Date();
-    
-    // It's future dated if start_at is more than 60 seconds from now OR if status is not 'active'
-    const isFutureDated = (startAt.getTime() > (now.getTime() + 60000)) || 
-                         (razorpaySub.status === "authenticated") || 
-                         (razorpaySub.status === "created");
 
-    console.log("Verify Debug - Is Future Dated:", isFutureDated);
+    // Check if the user has an existing active subscription
+    const existingSub = await prisma.subscription.findFirst({
+      where: {
+        employerId: userId,
+        status: "ACTIVE",
+      },
+      include: { plan: true },
+      orderBy: { createdAt: "desc" },
+    });
 
-    if (isFutureDated) {
-      // Find the existing active subscription to attach the scheduled plan
-      const existingSub = await prisma.subscription.findFirst({
-        where: { employerId: userId, status: "ACTIVE" },
-        orderBy: { createdAt: "desc" }
-      });
+    let refundAmount = null;
+    let refundStatus = null;
+    let refundId = null;
+    let refundError = null;
 
-      console.log("Verify Debug - Existing Active Sub Found:", !!existingSub);
+    if (existingSub) {
+      const totalDurationMs = new Date(existingSub.endDate).getTime() - new Date(existingSub.startDate).getTime();
+      const remainingMs = new Date(existingSub.endDate).getTime() - now.getTime();
+      const proratedAmount = totalDurationMs > 0 ? (remainingMs / totalDurationMs) * existingSub.plan.amount : 0;
 
-      if (existingSub) {
-        // Create a record for the future subscription so the webhook can find it later
-        await prisma.subscription.create({
-          data: {
-            employerId: userId,
-            planId: planId,
-            status: "SCHEDULED",
-            startDate: startAt,
-            endDate: addDays(startAt, plan.durationDays),
-            razorpaySubscriptionId: razorpay_subscription_id,
-            razorpayPaymentId: razorpay_payment_id,
+      if (proratedAmount > 0 && existingSub.razorpayPaymentId) {
+        try {
+          // Cancel old subscription first immediately (not cycle end)
+          if (existingSub.razorpaySubscriptionId) {
+            await cancelRazorpaySubscription(existingSub.razorpaySubscriptionId, false);
           }
-        });
-
-        const updatedSub = await prisma.subscription.update({
-          where: { id: existingSub.id },
-          data: { scheduledPlanId: planId },
-        });
-
-        // CRITICAL RACE CONDITION FIX:
-        // Tell Razorpay to cancel the OLD subscription exactly at the end of its current billing cycle.
-        // This ensures Razorpay will NOT try to charge the old plan on the exact same day the new plan starts.
+          
+          // Issue refund
+          const refund = await refundRazorpayPayment(existingSub.razorpayPaymentId, Math.round(proratedAmount * 100), {
+            reason: "Prorated refund for plan switch"
+          });
+          refundId = refund.id;
+          refundStatus = "SUCCESS";
+        } catch (err: any) {
+          console.error("Razorpay refund failed:", err);
+          refundStatus = "FAILED";
+          refundError = err?.message || "Unknown Razorpay error";
+        }
+      } else {
+        // If amount is 0 or no payment id exists, we still cancel the old subscription
         if (existingSub.razorpaySubscriptionId) {
           try {
-            await cancelRazorpaySubscription(existingSub.razorpaySubscriptionId, true);
-            console.log(`Verify Debug - Set old Razorpay sub ${existingSub.razorpaySubscriptionId} to cancel at cycle end`);
+            await cancelRazorpaySubscription(existingSub.razorpaySubscriptionId, false);
           } catch (e) {
-            console.error(`Verify Debug - Failed to set cycle-end cancellation for old sub`, e);
+            console.error("Failed to cancel old subscription during switch:", e);
           }
         }
-
-        console.log("Verify Debug - Updated Existing Sub scheduledPlanId:", updatedSub.scheduledPlanId);
-        
-        return NextResponse.json({ success: true, isUpgradeScheduled: true });
+        refundStatus = "SUCCESS";
       }
+
+      // Cancel old subscription in database and save refund details
+      await prisma.subscription.update({
+        where: { id: existingSub.id },
+        data: {
+          status: "CANCELLED",
+          refundAmount: proratedAmount > 0 ? proratedAmount : null,
+          refundedAt: proratedAmount > 0 ? new Date() : null,
+          refundId,
+          refundStatus,
+          refundError
+        }
+      });
     }
 
+    // Create the new subscription immediately
     const subscription = await prisma.subscription.create({
       data: {
         employerId: userId,
@@ -115,8 +126,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Cleanup: If the user had previous ACTIVE subscriptions (e.g. from a UPI fallback where upgrade wasn't possible)
-    // we MUST cancel them now so they don't get double billed!
+    // Cleanup: double-billing safeguard loop
     const oldSubscriptions = await prisma.subscription.findMany({
       where: {
         employerId: userId,
@@ -128,9 +138,9 @@ export async function POST(req: Request) {
     for (const oldSub of oldSubscriptions) {
       if (oldSub.razorpaySubscriptionId) {
         try {
-          await cancelRazorpaySubscription(oldSub.razorpaySubscriptionId);
+          await cancelRazorpaySubscription(oldSub.razorpaySubscriptionId, false);
         } catch (e) {
-          console.error("Failed to cancel old Razorpay subscription during fallback cleanup:", e);
+          console.error("Failed to cancel old Razorpay subscription during cleanup:", e);
         }
       }
       await prisma.subscription.update({

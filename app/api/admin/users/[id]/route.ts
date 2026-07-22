@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-import { requireAdmin } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-utils";
+import { sendEmployerApprovalStatusEmail } from "@/lib/email";
 
 /**
  * GET /api/admin/users/[id]
@@ -58,7 +59,17 @@ export async function PATCH(
 
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { role: true, employerProfile: { select: { id: true, approvalStatus: true } } },
+      select: { 
+        email: true,
+        role: true, 
+        employerProfile: { 
+          select: { 
+            id: true, 
+            approvalStatus: true,
+            companyName: true,
+          } 
+        } 
+      },
     });
 
     if (!user) {
@@ -148,6 +159,21 @@ export async function PATCH(
             xraySearchEnabled: freePlan.xraySearchEnabled,
           },
         });
+      }
+    }
+
+    // Trigger status notification email if status changed
+    if (body.approvalStatus && body.approvalStatus !== user.employerProfile.approvalStatus && body.approvalStatus !== "PENDING") {
+      try {
+        console.log(`[PATCH USER STATUS DEBUG] Triggering email for ${user.email} (Status: ${body.approvalStatus})`);
+        await sendEmployerApprovalStatusEmail({
+          to: user.email,
+          companyName: user.employerProfile.companyName || "Employer",
+          status: body.approvalStatus,
+          rejectionReason: body.approvalStatus === "REJECTED" ? body.rejectionReason : null,
+        });
+      } catch (emailError) {
+        console.error("[PATCH USER STATUS DEBUG] ❌ Failed to send status notification email:", emailError);
       }
     }
 

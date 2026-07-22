@@ -21,19 +21,19 @@ export default async function EmployerProfilePage({
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-12 sm:px-6 md:px-8 lg:px-10 lg:py-20">
-        <div className="linear-card rounded-[2.5rem] p-10 sm:p-12 mb-12 shadow-md animate-in slide-in-from-top-10 duration-1000">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-8 border-b border-slate-200/60 pb-6 animate-in fade-in duration-700">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">
             Company Settings
           </p>
-          <h1 className="mb-2 text-3xl font-black text-foreground lg:text-5xl tracking-tighter">
-            Company <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Profile</span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Company Profile
           </h1>
-          <p className="text-muted-foreground font-medium italic">
+          <p className="mt-1 text-sm font-medium text-slate-500">
             Manage your organizational details and contact information.
           </p>
         </div>
-        <div className="linear-card rounded-[3rem] p-1 shadow-md overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
           <EmployerProfileForm
             profile={profile}
             userEmail={user.email ?? undefined}

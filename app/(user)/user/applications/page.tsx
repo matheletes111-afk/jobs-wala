@@ -5,16 +5,16 @@ export default async function ApplicationsPage() {
   await requireJobSeeker();
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
-        <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-          <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-primary">
+    <div className="w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-8 border-b border-slate-200/60 pb-6 animate-in fade-in duration-700">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">
             Track Applications
           </p>
-          <h1 className="mb-4 text-3xl font-black tracking-tight text-foreground md:text-4xl lg:text-5xl">
-            My <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Applications</span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            My Applications
           </h1>
-          <p className="text-lg text-muted-foreground font-medium max-w-2xl">
+          <p className="mt-1.5 text-sm font-medium text-slate-500 max-w-2xl">
             Real-time tracking of your professional outreach and application status.
           </p>
         </div>

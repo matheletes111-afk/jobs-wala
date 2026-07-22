@@ -10,7 +10,7 @@ const PASSWORD_RESET_LINK_EXPIRY_HOURS = 1;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 
     if (!email) {
       return NextResponse.json(

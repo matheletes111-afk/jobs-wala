@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
     const location = (searchParams.get("location") || "").trim();
     const parseStatus = (searchParams.get("parseStatus") || "all").trim();
     const minExperience = Number(searchParams.get("minExperience") || "0");
+    const maxExperience = searchParams.get("maxExperience") ? Number(searchParams.get("maxExperience")) : null;
 
     const whereAnd: Prisma.ResumeDocumentWhereInput[] = [];
 
@@ -112,6 +113,12 @@ export async function GET(req: NextRequest) {
     if (Number.isFinite(minExperience) && minExperience > 0) {
       whereAnd.push({
         experienceYears: { gte: Math.floor(minExperience) },
+      });
+    }
+
+    if (maxExperience !== null && Number.isFinite(maxExperience)) {
+      whereAnd.push({
+        experienceYears: { lte: Math.floor(maxExperience) },
       });
     }
 

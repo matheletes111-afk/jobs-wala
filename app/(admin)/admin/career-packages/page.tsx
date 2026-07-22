@@ -176,40 +176,41 @@ export default function AdminCareerPackagesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 antialiased font-sans py-10 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
         
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              Career Services Administration
-            </h1>
-            <p className="text-slate-500 text-sm mt-1">
-              Manage plans, prices, and monitor payments dashboard.
-            </p>
+        <div className="mb-8 border-b border-slate-200/60 pb-6">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">Career Services</span>
           </div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Career Services <span className="text-blue-600">Administration</span>
+          </h1>
+          <p className="mt-1.5 text-sm font-medium text-slate-500">
+            Manage plans, prices, and monitor payments dashboard.
+          </p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 mb-8 bg-white p-1.5 rounded-xl shadow-sm max-w-md">
+        <div className="mb-8 flex w-fit items-center rounded-xl bg-slate-100 p-1 border border-slate-200 shadow-sm">
           <button
             onClick={() => setActiveTab("crud")}
-            className={`flex-1 py-2 px-4 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`px-6 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
               activeTab === "crud"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-white text-slate-800 shadow-sm border border-slate-200"
+                : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <Settings className="h-4 w-4" />
-            Manage Plans (CRUD)
+            Manage Plans
           </button>
           <button
             onClick={() => setActiveTab("leads")}
-            className={`flex-1 py-2 px-4 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${
+            className={`px-6 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
               activeTab === "leads"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-white text-slate-800 shadow-sm border border-slate-200"
+                : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <Users className="h-4 w-4" />
@@ -222,11 +223,11 @@ export default function AdminCareerPackagesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {/* Form Editor / Price Editor */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
               {editingId === null ? (
-                <div className="flex flex-col items-center justify-center text-center py-16 px-4 h-full">
-                  <div className="bg-blue-50 p-4 rounded-full text-blue-600 mb-4">
-                    <Settings className="h-8 w-8 animate-spin" style={{ animationDuration: "3s" }} />
+                <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+                  <div className="bg-blue-50 p-4 rounded-xl text-blue-600 mb-4 border border-blue-100">
+                    <Settings className="h-8 w-8 text-blue-600" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-900 mb-1">
                     Select a Package to Edit Price
@@ -237,14 +238,14 @@ export default function AdminCareerPackagesPage() {
                 </div>
               ) : (
                 <>
-                  <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
+                  <h2 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-blue-500" />
                     Edit Package Pricing
                   </h2>
 
                   <form onSubmit={handleSubmitPackage} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Package Name</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Package Name</label>
                       <input
                         type="text"
                         required
@@ -252,17 +253,17 @@ export default function AdminCareerPackagesPage() {
                         placeholder="e.g. Executive Premium Rewrite"
                         value={pkgName}
                         onChange={(e) => setPkgName(e.target.value)}
-                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Tier / Classification</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Tier / Classification</label>
                       <select
                         disabled
                         value={pkgTier}
                         onChange={(e) => setPkgTier(e.target.value)}
-                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
                       >
                         <option value="fresher">Fresher Plan</option>
                         <option value="mid_level">Mid-Level Plan</option>
@@ -271,8 +272,8 @@ export default function AdminCareerPackagesPage() {
                       </select>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Price (₹ INR)</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Price (₹ INR)</label>
                       <input
                         type="number"
                         required
@@ -281,24 +282,24 @@ export default function AdminCareerPackagesPage() {
                         placeholder="1499"
                         value={pkgPrice}
                         onChange={(e) => setPkgPrice(e.target.value)}
-                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 font-bold"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-bold text-slate-700"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">Brief Description</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Brief Description</label>
                       <textarea
                         disabled
                         rows={2}
                         placeholder="Describe target user demographics and features"
                         value={pkgDescription}
                         onChange={(e) => setPkgDescription(e.target.value)}
-                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 resize-none"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 resize-none"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                         Bullet Features (One per line)
                       </label>
                       <textarea
@@ -307,29 +308,28 @@ export default function AdminCareerPackagesPage() {
                         placeholder={"ATS compliant design\nFull LinkedIn rebuild\n24hr Delivery"}
                         value={pkgFeaturesText}
                         onChange={(e) => setPkgFeaturesText(e.target.value)}
-                        className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
                       />
                     </div>
 
-                    <div className="flex gap-2.5 pt-2">
+                    <div className="flex gap-2 pt-2 border-t border-slate-100">
                       <button
                         type="submit"
                         disabled={savingPackage}
                         className="flex-1 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                       >
-                        {savingPackage ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4" />
-                            Update Price
-                          </>
-                        )}
+                        <span style={{ color: "white" }}>
+                          {savingPackage ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-white" />
+                          ) : (
+                            "Update Price"
+                          )}
+                        </span>
                       </button>
                       <button
                         type="button"
                         onClick={handleClearForm}
-                        className="py-2 px-3 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold text-xs transition-colors"
+                        className="py-2 px-3 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors bg-white"
                       >
                         Cancel
                       </button>
@@ -340,45 +340,45 @@ export default function AdminCareerPackagesPage() {
             </div>
 
             {/* Packages List */}
-            <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Published Career Packages</h2>
+            <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Published Career Packages</h2>
 
               {loadingPackages ? (
                 <div className="flex justify-center py-20">
                   <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
                 </div>
               ) : packages.length === 0 ? (
-                <p className="text-slate-400 text-sm py-10 text-center">No packages configured yet.</p>
+                <p className="text-slate-400 text-xs py-10 text-center font-medium">No packages configured yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-100 text-[10px] uppercase font-bold text-slate-400">
-                        <th className="pb-3 pr-2">Plan Details</th>
-                        <th className="pb-3 px-2">Tier</th>
-                        <th className="pb-3 px-2">Price</th>
-                        <th className="pb-3 pl-2 text-right">Actions</th>
+                      <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase font-bold text-slate-400">
+                        <th className="py-3 px-4">Plan Details</th>
+                        <th className="py-3 px-4">Tier</th>
+                        <th className="py-3 px-4">Price</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 text-xs">
+                    <tbody className="divide-y divide-slate-100 text-xs">
                       {packages.map((pkg) => (
-                        <tr key={pkg.id} className="hover:bg-slate-50/50">
-                          <td className="py-4 pr-2 max-w-xs">
-                            <p className="font-bold text-slate-900">{pkg.name}</p>
+                        <tr key={pkg.id} className="hover:bg-slate-50/30">
+                          <td className="py-4 px-4 max-w-xs">
+                            <p className="font-bold text-slate-800">{pkg.name}</p>
                             <p className="text-slate-400 text-[11px] truncate">{pkg.description || "No description"}</p>
                           </td>
-                          <td className="py-4 px-2">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 capitalize">
+                          <td className="py-4 px-4">
+                            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 capitalize">
                               {pkg.tier.replace("_", " ")}
                             </span>
                           </td>
-                          <td className="py-4 px-2 font-extrabold text-slate-900">
+                          <td className="py-4 px-4 font-extrabold text-slate-800">
                             ₹{pkg.price}
                           </td>
-                          <td className="py-4 pl-2 text-right">
+                          <td className="py-4 px-4 text-right">
                             <button
                               onClick={() => handleEdit(pkg)}
-                              className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-50 text-blue-600 font-bold text-[11px] border border-slate-200 hover:border-blue-200 transition-colors inline-flex items-center gap-1"
+                              className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-55 text-blue-600 font-bold text-[11px] border border-slate-200 hover:border-blue-300 transition-colors inline-flex items-center gap-1 shadow-sm"
                             >
                               <Edit2 className="h-3 w-3" /> Edit Price
                             </button>
@@ -395,14 +395,14 @@ export default function AdminCareerPackagesPage() {
 
         {/* LEADS TAB CONTENT */}
         {activeTab === "leads" && (
-          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-bold text-slate-900">Customer Leads & Direct Purchases</h2>
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-4 mb-6 pb-2 border-b border-slate-100">
+              <h2 className="text-sm font-bold text-slate-800">Customer Leads & Direct Purchases</h2>
               <button
                 onClick={fetchLeads}
-                className="py-1.5 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-600 flex items-center gap-1.5 transition-colors"
+                className="py-1.5 px-3 rounded-lg border border-slate-200 hover:bg-slate-100 bg-white text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors shadow-sm"
               >
-                <RefreshCw className="h-3.5 w-3.5" /> Refresh List
+                <RefreshCw className="h-3.5 w-3.5 text-slate-500" /> Refresh List
               </button>
             </div>
 
@@ -411,25 +411,25 @@ export default function AdminCareerPackagesPage() {
                 <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
               </div>
             ) : leads.length === 0 ? (
-              <p className="text-slate-400 text-sm py-10 text-center">No career package purchases recorded yet.</p>
+              <p className="text-slate-400 text-xs py-10 text-center font-medium">No career package purchases recorded yet.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100 text-[10px] uppercase font-bold text-slate-400">
-                      <th className="pb-3 pr-2">Date</th>
-                      <th className="pb-3 px-2">Customer Details</th>
-                      <th className="pb-3 px-2">Chosen Package</th>
-                      <th className="pb-3 px-2">Amount</th>
-                      <th className="pb-3 px-2">Status</th>
-                      <th className="pb-3 pl-2">Razorpay Ref</th>
+                    <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase font-bold text-slate-400">
+                      <th className="py-3 px-4">Date</th>
+                      <th className="py-3 px-4">Customer Details</th>
+                      <th className="py-3 px-4">Chosen Package</th>
+                      <th className="py-3 px-4">Amount</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Razorpay Ref</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50 text-xs">
+                  <tbody className="divide-y divide-slate-100 text-xs">
                     {leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-slate-50/50">
-                        <td className="py-4 pr-2 whitespace-nowrap text-slate-500 text-[11px]">
-                          <div className="flex items-center gap-1.5">
+                      <tr key={lead.id} className="hover:bg-slate-50/30">
+                        <td className="py-4 px-4 whitespace-nowrap text-slate-500 text-[11px]">
+                          <div className="flex items-center gap-1.5 font-medium">
                             <Calendar className="h-3.5 w-3.5 text-slate-400" />
                             {new Date(lead.createdAt).toLocaleDateString("en-IN", {
                               day: "numeric",
@@ -438,36 +438,36 @@ export default function AdminCareerPackagesPage() {
                             })}
                           </div>
                         </td>
-                        <td className="py-4 px-2">
-                          <p className="font-bold text-slate-900">{lead.name}</p>
+                        <td className="py-4 px-4">
+                          <p className="font-bold text-slate-800">{lead.name}</p>
                           <p className="text-slate-500 text-[11px]">{lead.email}</p>
                           <p className="text-slate-500 text-[11px]">{lead.mobile}</p>
                         </td>
-                        <td className="py-4 px-2">
-                          <p className="font-semibold text-slate-800">{lead.package?.name || "Deleted Package"}</p>
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-100 text-slate-600 capitalize">
+                        <td className="py-4 px-4">
+                          <p className="font-bold text-slate-700">{lead.package?.name || "Deleted Package"}</p>
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500 capitalize">
                             {lead.package?.tier?.replace("_", " ")}
                           </span>
                         </td>
-                        <td className="py-4 px-2 font-extrabold text-slate-900">
+                        <td className="py-4 px-4 font-extrabold text-slate-800">
                           ₹{lead.amount}
                         </td>
-                        <td className="py-4 px-2">
+                        <td className="py-4 px-4">
                           {lead.status === "PAID" ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                              <CheckCircle className="h-3 w-3" /> Paid
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                              Paid
                             </span>
                           ) : lead.status === "FAILED" ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-100">
-                              <XCircle className="h-3 w-3" /> Failed
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-600 border border-rose-100">
+                              Failed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                              <AlertCircle className="h-3 w-3" /> Pending
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100">
+                              Pending
                             </span>
                           )}
                         </td>
-                        <td className="py-4 pl-2 font-mono text-[10px] text-slate-500 max-w-[120px] truncate">
+                        <td className="py-4 px-4 font-mono text-[10px] text-slate-400 text-right max-w-[120px] truncate">
                           {lead.razorpayPaymentId || lead.razorpayOrderId || "N/A"}
                         </td>
                       </tr>

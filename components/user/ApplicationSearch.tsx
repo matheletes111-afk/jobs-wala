@@ -107,6 +107,55 @@ export default function ApplicationSearch() {
       .catch(() => setCategories([]));
   }, []);
 
+  const [isRestored, setIsRestored] = useState(false);
+
+  // Load saved filters on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("user_applications_filters");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setSearch(parsed.search || "");
+          setCategory(parsed.category || "all");
+          setLocation(parsed.location || "");
+          setStatus(parsed.status || "all");
+
+          setAppliedSearch(parsed.appliedSearch || "");
+          setAppliedCategory(parsed.appliedCategory || "all");
+          setAppliedLocation(parsed.appliedLocation || "");
+          setAppliedStatus(parsed.appliedStatus || "all");
+
+          setPage(parsed.page || 1);
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    setIsRestored(true);
+  }, []);
+
+  // Save filters to sessionStorage when they change
+  useEffect(() => {
+    if (!isRestored) return;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "user_applications_filters",
+        JSON.stringify({
+          search,
+          category,
+          location,
+          status,
+          appliedSearch,
+          appliedCategory,
+          appliedLocation,
+          appliedStatus,
+          page,
+        })
+      );
+    }
+  }, [search, category, location, status, appliedSearch, appliedCategory, appliedLocation, appliedStatus, page, isRestored]);
+
   useEffect(() => {
     fetchApplications(
       page,
@@ -148,181 +197,180 @@ export default function ApplicationSearch() {
   const end = Math.min(page * 10, total);
 
   return (
-    <div className="flex flex-col gap-10 lg:flex-row">
-      <aside className="w-full shrink-0 lg:w-80">
-        <div className="linear-card sticky top-28 rounded-[2rem] p-8 space-y-8 animate-in slide-in-from-left-4 duration-700">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground mb-6">Filter Applications</h2>
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-xs font-semibold text-muted-foreground">Keywords</label>
-                <Input
-                  placeholder="Job title or keywords..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
-                  className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-xs font-semibold text-muted-foreground">Category</label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="h-12 rounded-xl bg-white/5 border-white/10">
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-white/10">
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-3">
-                <label className="text-xs font-semibold text-muted-foreground">Location</label>
-                <div className="relative">
-                  <LocationDropdown value={location} onChange={setLocation} />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <label className="text-xs font-semibold text-muted-foreground">Pipeline Status</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(["all", "PENDING", "REVIEWED", "SHORTLISTED", "REJECTED"] as const).map((s) => (
-                    <Button
-                      key={s}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setStatus(s);
-                        setAppliedStatus(s);
-                        setPage(1);
-                      }}
-                      disabled={loading}
-                      className={`h-10 text-xs font-semibold rounded-lg border border-white/5 transition-all ${
-                        appliedStatus === s
-                          ? "bg-white/10 text-foreground border-white/20 shadow-lg"
-                          : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                      }`}
-                    >
-                      {s === "all" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
+    <div className="flex flex-col gap-6">
+      {/* Top clean filters block */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-4 animate-in fade-in duration-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Keywords</label>
+            <Input
+              placeholder="Job title or keywords..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
+              className="h-10 rounded-xl bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-blue-500/20 focus:border-blue-500 text-xs font-semibold"
+            />
           </div>
-          <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
-            <Button onClick={handleSearch} disabled={loading} style={{ color: "white" }} className="h-12 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
-              <span style={{ color: "white" }}>Search Applications</span>
-            </Button>
-            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-12 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 font-bold">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="h-10 rounded-xl bg-slate-50 border-slate-200 text-slate-800 focus:bg-white text-xs font-semibold">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border-slate-200 text-slate-800 shadow-lg">
+                <SelectItem value="all" className="text-xs font-semibold">All Categories</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.name} className="text-xs font-semibold">
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Location filters row */}
+        <div className="pt-2 border-t border-slate-100">
+          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Location</label>
+          <LocationDropdown value={location} onChange={setLocation} />
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+          {/* Status filters row */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(["all", "PENDING", "REVIEWED", "SHORTLISTED", "REJECTED"] as const).map((s) => (
+              <Button
+                key={s}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStatus(s);
+                  setAppliedStatus(s);
+                  setPage(1);
+                }}
+                disabled={loading}
+                className={`h-8 px-3.5 text-xs font-semibold rounded-lg border transition-all ${
+                  appliedStatus === s
+                    ? "bg-blue-50 text-blue-600 border-blue-200 shadow-sm"
+                    : "text-slate-650 border-slate-100 hover:bg-slate-50 hover:text-slate-800"
+                }`}
+              >
+                {s === "all" ? "All Statuses" : s.charAt(0) + s.slice(1).toLowerCase()}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
+            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-10 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto shadow-sm">
               Reset
+            </Button>
+            <Button onClick={handleSearch} disabled={loading} className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto">
+              <span style={{ color: "white" }}>Search</span>
             </Button>
           </div>
         </div>
-      </aside>
+      </div>
 
-      <div className="flex-1">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-sm font-semibold text-muted-foreground">
-            <span className="font-bold text-foreground">{total}</span> Pipeline Items
-            <span className="mx-4 text-white/10">/</span>
+      <div>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-xs font-semibold text-slate-500">
+            <span className="font-bold text-slate-800">{total}</span> Pipeline Items
+            <span className="mx-3 text-slate-200">/</span>
             Result set {start} - {end}
           </p>
         </div>
         
         {loading ? (
-          <div className="linear-card rounded-[2.5rem] p-24 text-center">
-            <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mb-6" />
-            <p className="text-sm font-semibold text-muted-foreground">Synchronizing Applications...</p>
+          <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center shadow-sm">
+            <div className="mx-auto h-9 w-9 animate-spin rounded-full border-3 border-blue-600 border-t-transparent mb-4" />
+            <p className="text-xs font-semibold text-slate-500">Synchronizing Applications...</p>
           </div>
         ) : applications.length === 0 ? (
-          <div className="linear-card rounded-[2.5rem] p-24 text-center">
+          <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center shadow-sm">
               {total === 0 && !appliedSearch && !appliedCategory && !appliedLocation && appliedStatus === "all" ? (
                 <>
-                  <p className="text-xl font-bold text-foreground mb-4">
+                  <p className="text-lg font-bold text-slate-800 mb-2.5">
                     Your pipeline is empty
                   </p>
-                  <p className="text-muted-foreground max-w-sm mx-auto mb-8">
+                  <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
                     Discover opportunities matched to your profile and start your next career move.
                   </p>
-                  <Link href="/user/jobs">
-                    <Button style={{ color: "white" }} className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+                  <Link href="/jobs/browse">
+                    <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm transition-all">
                       <span style={{ color: "white" }}>Explore Jobs Feed</span>
                     </Button>
                   </Link>
                 </>
               ) : (
                 <div className="max-w-sm mx-auto">
-                  <p className="text-xl font-bold text-foreground mb-4">No matches found</p>
-                  <p className="text-muted-foreground mb-8">Try adjusting your filters or clearing them to see all applications.</p>
-                  <Button variant="outline" onClick={handleClear} className="h-12 px-8 rounded-xl border-white/10 hover:bg-white/5 font-bold transition-all">
+                  <p className="text-lg font-bold text-slate-800 mb-2.5">No matches found</p>
+                  <p className="text-sm text-slate-500 mb-6">Try adjusting your filters or clearing them to see all applications.</p>
+                  <Button variant="outline" onClick={handleClear} className="h-11 px-6 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition-all">
                     Reset Selection
                   </Button>
                 </div>
               )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {applications.map((application, idx) => (
               <div
                 key={application.id}
-                className="linear-card group rounded-[2rem] p-8 animate-in slide-in-from-right-10 duration-700 hover:border-primary/20 transition-all shadow-lg hover:shadow-primary/5"
-                style={{ animationDelay: `${idx * 100}ms` }}
+                className="bg-white border border-slate-200 shadow-sm group rounded-2xl p-6 transition-all hover:border-blue-500/30 hover:shadow-md"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
-                  <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                     <CompanyLogo
                       companyLogo={application.job.employer.companyLogo}
                       companyName={application.job.companyName || application.job.employer.companyName}
-                      size="lg"
-                      className="shrink-0 rounded-[1.25rem] border border-white/10 bg-white/5 group-hover:border-white/20 scale-110 md:scale-100"
+                      size="md"
+                      className="shrink-0 rounded-xl border border-slate-200 bg-white"
                     />
                     <div className="min-w-0 flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <Link href={`/jobs/${application.job.id}`}>
-                          <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors hover:underline decoration-primary/30 underline-offset-8">
+                          <h3 className="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                             {application.job.title}
                           </h3>
                         </Link>
                         <span
-                          className={`rounded-full px-5 py-2 text-xs font-semibold shadow-xl transition-all w-fit mx-auto md:mx-0 ${
+                          className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition-all w-fit mx-auto md:mx-0 ${
                             application.status === "SHORTLISTED"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-250"
                               : application.status === "REJECTED"
-                                ? "bg-red-500/10 text-red-400 border-red-500/20"
-                                : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                ? "bg-red-50 text-red-650 border-red-250"
+                                : "bg-blue-50 text-blue-600 border-blue-250"
                           }`}
                         >
                           {application.status}
                         </span>
                       </div>
-                      <p className="mt-2 text-lg font-bold text-foreground opacity-80">
+                      <p className="mt-1 text-sm font-semibold text-slate-500">
                         {application.job.companyName || application.job.employer.companyName}
                       </p>
-                      <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                      <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
+                        <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-500 whitespace-nowrap">
                           {formatLocation(application.job.location, true)}
                         </span>
-                        <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-muted-foreground whitespace-nowrap">
+                        <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-xs font-semibold text-slate-500 whitespace-nowrap">
                           {application.job.category}
                         </span>
                         {(application.job.status === "PAUSED" ||
                           application.job.status === "CLOSED" ||
                           application.job.status === "INACTIVE") && (
-                          <span className="px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs font-semibold text-red-400 whitespace-nowrap">
+                          <span className="px-3 py-1 rounded-full bg-red-50 border border-red-150 text-xs font-semibold text-red-600 whitespace-nowrap">
                             {application.job.status.toLowerCase()}
                           </span>
                         )}
                       </div>
-                      <div className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <p className="text-xs font-semibold text-muted-foreground/40">
-                          Transmission Date <span className="text-muted-foreground/60 ml-2">{new Date(application.appliedAt).toLocaleDateString()}</span>
+                      <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p className="text-xs font-semibold text-slate-405">
+                          Transmission Date <span className="text-slate-600 ml-1.5">{new Date(application.appliedAt).toLocaleDateString()}</span>
                         </p>
                         {application.coverLetter && (
                           <div className="group/note relative">
-                            <p className="line-clamp-1 text-xs font-medium text-muted-foreground/60 italic max-w-md">
+                            <p className="line-clamp-1 text-xs font-medium text-slate-500 italic max-w-md">
                               &quot;{application.coverLetter}&quot;
                             </p>
                           </div>
@@ -335,17 +383,17 @@ export default function ApplicationSearch() {
           </div>
         )}
         {!loading && totalPages > 1 && (
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+            className="text-xs font-semibold text-slate-500 hover:text-slate-700"
           >
             Previous
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {(() => {
               const pages: (number | "ellipsis")[] = [];
               const show = 2;
@@ -371,7 +419,7 @@ export default function ApplicationSearch() {
               }
               return pages.map((p, i) =>
                 p === "ellipsis" ? (
-                  <span key={`e-${i}`} className="px-2 text-white/20">
+                  <span key={`e-${i}`} className="px-2 text-slate-300">
                     …
                   </span>
                 ) : (
@@ -379,10 +427,10 @@ export default function ApplicationSearch() {
                     key={p}
                     variant="ghost"
                     size="sm"
-                    className={`h-10 w-10 p-0 rounded-xl text-xs font-semibold transition-all ${
+                    className={`h-9 w-9 p-0 rounded-lg text-xs font-semibold transition-all border ${
                       page === p 
-                        ? "bg-white/10 text-white border border-white/20 shadow-lg shadow-white/5" 
-                        : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        ? "bg-blue-600 text-white border-blue-500 shadow-sm" 
+                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-100"
                     }`}
                     onClick={() => setPage(p)}
                   >
@@ -397,7 +445,7 @@ export default function ApplicationSearch() {
             size="sm"
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+            className="text-xs font-semibold text-slate-500 hover:text-slate-700"
           >
             Next
           </Button>

@@ -54,7 +54,7 @@ async function sendEmailWithResend({
   const fromAddress =
     from ||
     process.env.RESEND_FROM_EMAIL ||
-    `${process.env.MAIL_FROM_NAME || "KORA"} <${process.env.RESEND_FROM_ADDRESS || "onboarding@resend.dev"}>`;
+    `${process.env.MAIL_FROM_NAME || "JobDaddy"} <${process.env.RESEND_FROM_ADDRESS || "onboarding@resend.dev"}>`;
 
   const emailOptions: {
     from: string;
@@ -128,7 +128,7 @@ async function sendEmailWithSendGrid({
     );
   }
 
-  const fromName = process.env.MAIL_FROM_NAME || "KORA";
+  const fromName = process.env.MAIL_FROM_NAME || "JobDaddy";
 
   console.log("[EMAIL DEBUG] SendGrid from address:", fromAddress);
   console.log("[EMAIL DEBUG] SendGrid from name:", fromName);
@@ -301,7 +301,7 @@ export async function sendApplicationNotificationEmail({
                 </p>
                 <p style="color: #666; line-height: 1.6; margin-top: 30px;">
                   Best regards,<br>
-                  <strong>The KORA Team</strong>
+                  <strong>The JobDaddy Team</strong>
                 </p>
               </div>
             </div>
@@ -335,7 +335,7 @@ export async function sendApplicationNotificationEmail({
                 </p>
                 <p style="color: #666; line-height: 1.6; margin-top: 30px;">
                   Best regards,<br>
-                  <strong>The KORA Team</strong>
+                  <strong>The JobDaddy Team</strong>
                 </p>
               </div>
             </div>
@@ -365,11 +365,11 @@ export async function sendApplicationNotificationEmail({
                   </p>
                 </div>
                 <p style="color: #666; line-height: 1.6;">
-                  We encourage you to continue exploring other opportunities on KORA. We wish you the best in your job search.
+                  We encourage you to continue exploring other opportunities on JobDaddy. We wish you the best in your job search.
                 </p>
                 <p style="color: #666; line-height: 1.6; margin-top: 30px;">
                   Best regards,<br>
-                  <strong>The KORA Team</strong>
+                  <strong>The JobDaddy Team</strong>
                 </p>
               </div>
             </div>
@@ -404,7 +404,7 @@ export async function sendApplicationNotificationEmail({
                 </p>
                 <p style="color: #666; line-height: 1.6; margin-top: 30px;">
                   Best regards,<br>
-                  <strong>The KORA Team</strong>
+                  <strong>The JobDaddy Team</strong>
                 </p>
               </div>
     </div>
@@ -500,7 +500,7 @@ export async function sendVerificationEmail({
   verificationLink: string;
   name?: string;
 }) {
-  const subject = "Verify Your Email Address - KORA";
+  const subject = "Verify Your Email Address - JobDaddy";
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
@@ -509,7 +509,7 @@ export async function sendVerificationEmail({
           ${name ? `Hi ${name},` : "Hi there,"}
         </p>
         <p style="color: #666; line-height: 1.6;">
-          Thank you for registering with KORA! Please verify your email address by clicking the button below:
+          Thank you for registering with JobDaddy! Please verify your email address by clicking the button below:
         </p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${verificationLink}" 
@@ -545,7 +545,7 @@ export async function sendEmailChangeVerificationEmail({
   verifyLink: string;
   currentEmail?: string;
 }) {
-  const subject = "Confirm your new email address - KORA";
+  const subject = "Confirm your new email address - JobDaddy";
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
@@ -590,7 +590,7 @@ export async function sendPasswordResetEmail({
   resetLink: string;
   name?: string;
 }) {
-  const subject = "Reset Your Password - KORA";
+  const subject = "Reset Your Password - JobDaddy";
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
@@ -622,3 +622,120 @@ export async function sendPasswordResetEmail({
 
   return sendEmail({ to, subject, html });
 }
+
+/**
+ * Send employer status update (approval or rejection) notification email
+ */
+export async function sendEmployerApprovalStatusEmail({
+  to,
+  companyName,
+  status,
+  rejectionReason,
+}: {
+  to: string;
+  companyName: string;
+  status: "APPROVED" | "REJECTED";
+  rejectionReason?: string | null;
+}) {
+  const isApproved = status === "APPROVED";
+  const subject = isApproved 
+    ? `🎉 Account Approved - Welcome to JobDaddy!` 
+    : `Update on your JobDaddy Employer Account`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">
+          ${isApproved ? "🎉 Account Approved!" : "Account Registration Status Update"}
+        </h2>
+        <p style="color: #666; line-height: 1.6;">
+          Hi there,
+        </p>
+        <p style="color: #666; line-height: 1.6;">
+          We have reviewed your registration details for <strong>${companyName}</strong>.
+        </p>
+        
+        ${isApproved ? `
+          <div style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #1976D2; font-weight: bold;">Status: Approved</p>
+            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+              Your employer profile has been approved! You can now log in, post jobs, and search candidate resumes.
+            </p>
+          </div>
+          <p style="color: #666; line-height: 1.6;">
+            We also activated a 30-day Free Trial for your account to get you started!
+          </p>
+        ` : `
+          <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #721c24; font-weight: bold;">Status: Rejected</p>
+            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+              Unfortunately, your registration details could not be verified at this time.
+            </p>
+          </div>
+          ${rejectionReason ? `
+            <p style="color: #666; line-height: 1.6;">
+              <strong>Reason for rejection:</strong><br>
+              <span style="color: #dc3545; font-style: italic;">"${rejectionReason}"</span>
+            </p>
+          ` : ""}
+          <p style="color: #666; line-height: 1.6;">
+            If you believe this was an error, please update your company profile or contact support.
+          </p>
+        `}
+        
+        <p style="color: #666; line-height: 1.6; margin-top: 30px;">
+          Best regards,<br>
+          <strong>The JobDaddy Team</strong>
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+
+/**
+ * Send notification to admin(s) when a new employer registers
+ */
+export async function sendNewEmployerRegisteredAdminEmail({
+  to,
+  companyName,
+  employerEmail,
+  reviewUrl,
+}: {
+  to: string;
+  companyName: string;
+  employerEmail: string;
+  reviewUrl: string;
+}) {
+  const subject = `📢 New Employer Registered: ${companyName}`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #333; margin-bottom: 20px;">New Employer Registration</h2>
+        <p style="color: #666; line-height: 1.6;">
+          A new employer has registered on JobDaddy and requires profile review.
+        </p>
+        <div style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; color: #1976D2; font-weight: bold;">Company Name</p>
+          <p style="margin: 2px 0 10px 0; color: #333; font-size: 16px;">${companyName}</p>
+          
+          <p style="margin: 0; color: #1976D2; font-weight: bold;">Contact Email</p>
+          <p style="margin: 2px 0 0 0; color: #333; font-size: 16px;">${employerEmail}</p>
+        </div>
+        <p style="color: #666; line-height: 1.6;">
+          Please review their profile and approve or reject their access from the admin console.
+        </p>
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${reviewUrl}"
+             style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Go to Admin Review
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({ to, subject, html });
+}
+

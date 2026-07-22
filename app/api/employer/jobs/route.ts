@@ -76,13 +76,13 @@ export async function GET(req: NextRequest) {
       ...(andParts.length > 0 ? { AND: andParts } : {}),
     };
 
+    const isExport = searchParams.get("export") === "true";
     const [total, jobs] = await Promise.all([
       prisma.job.count({ where }),
       prisma.job.findMany({
         where,
         orderBy: { createdAt: sort === "asc" ? "asc" as const : "desc" as const },
-        skip: (page - 1) * limit,
-        take: limit,
+        ...(isExport ? {} : { skip: (page - 1) * limit, take: limit }),
         include: {
           employer: { select: { companyName: true, companyLogo: true } },
           _count: { select: { applications: true } },

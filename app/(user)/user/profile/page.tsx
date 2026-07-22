@@ -20,16 +20,16 @@ export default async function ProfilePage({
   }
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-16">
-        <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-          <p className="mb-2 text-sm font-semibold text-primary">
+    <div className="w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-8 border-b border-slate-200/60 pb-6 animate-in fade-in duration-700">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">
             Settings & Identity
           </p>
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
-            Professional <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">Profile</span>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Professional Profile
           </h1>
-          <p className="text-lg text-muted-foreground font-medium max-w-2xl">
+          <p className="mt-1.5 text-sm font-medium text-slate-500 max-w-2xl">
             Maintain your professional identity and account credentials.
           </p>
         </div>

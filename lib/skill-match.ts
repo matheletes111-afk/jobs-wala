@@ -82,11 +82,38 @@ export type SkillMatchResult = {
 };
 
 /**
+ * Check if the required skill is mentioned/matched in the candidate's bio.
+ */
+export function skillBioMatch(required: string, bio: string): boolean {
+  const reqNorm = required.toLowerCase().trim();
+  const bioNorm = bio.toLowerCase();
+
+  if (bioNorm.includes(reqNorm)) return true;
+
+  const reqClean = compactAlphanumeric(required);
+  if (!reqClean) return false;
+
+  const bioWords = bioNorm.split(/[^a-z0-9]+/);
+  if (bioWords.includes(reqClean)) return true;
+
+  const reqRuns = alphanumericRuns(required).filter((w) => w.length >= MIN_KEYWORD_LEN);
+  if (reqRuns.length > 0) {
+    const bioSet = new Set(bioWords);
+    if (reqRuns.every(run => bioSet.has(run))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Share of required skills matched against candidate profile using keyword matching.
  */
 export function computeSkillMatch(
   requiredSkills: string[],
-  candidateSkills: string[]
+  candidateSkills: string[],
+  candidateBio?: string | null
 ): SkillMatchResult {
   const requiredRaw = expandSkillTokens(requiredSkills.map((s) => String(s)));
   const candidates = expandSkillTokens(candidateSkills.map((s) => String(s)));
@@ -106,7 +133,10 @@ export function computeSkillMatch(
 
   const matchedLabels: string[] = [];
   for (const req of uniqueRequired) {
-    const hit = candidates.some((cand) => skillKeywordMatch(req, cand));
+    let hit = candidates.some((cand) => skillKeywordMatch(req, cand));
+    if (!hit && candidateBio) {
+      hit = skillBioMatch(req, candidateBio);
+    }
     if (hit) matchedLabels.push(req);
   }
 

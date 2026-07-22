@@ -107,6 +107,13 @@ export async function cancelRazorpaySubscription(subscriptionId: string, cancelA
   return await getRazorpayInstance().subscriptions.cancel(subscriptionId, cancelAtCycleEnd);
 }
 
+export async function refundRazorpayPayment(paymentId: string, amount: number, notes?: Record<string, string>) {
+  return await getRazorpayInstance().payments.refund(paymentId, {
+    amount,
+    notes: notes || {},
+  });
+}
+
 export function verifyRazorpayPayment(
   orderId: string,
   paymentId: string,

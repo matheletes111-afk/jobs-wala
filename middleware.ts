@@ -5,10 +5,37 @@ export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const isApiRoute = path.startsWith("/api");
 
+  // Create request headers to pass pathname
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", path);
+
+  const next = () => NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    }
+  });
+
   // Public routes
-  const publicRoutes = ["/", "/login", "/register", "/api/auth"];
-  if (publicRoutes.some((route) => path.startsWith(route))) {
-    return NextResponse.next();
+  const publicRoutes = [
+    "/", 
+    "/login", 
+    "/register", 
+    "/api/auth", 
+    "/jobs", 
+    "/about-us", 
+    "/contact", 
+    "/career-services", 
+    "/faq", 
+    "/jobs/browse", 
+    "/api/user/jobs", 
+    "/api/categories", 
+    "/api/jobs",
+    "/ats",
+    "/executive-search",
+    "/api/career/packages"
+  ];
+  if (publicRoutes.some((route) => path === route || path.startsWith(route + "/") || path.startsWith("/jobs/"))) {
+    return next();
   }
 
   // Get session token
@@ -57,16 +84,12 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return next();
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/employer/:path*",
-    "/user/:path*",
-    "/dashboard/:path*",
-    "/api/:path*((?!auth).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|images).*)",
   ],
 };
 

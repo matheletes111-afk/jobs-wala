@@ -10,6 +10,7 @@ import {
   BarChart3,
   FileText,
   GraduationCap,
+  CreditCard,
 } from "lucide-react";
 
 export const adminNavLinks = [
@@ -19,6 +20,7 @@ export const adminNavLinks = [
   { href: "/admin/resume-database", label: "Resume DB", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/plans", label: "Plans", icon: BarChart3 },
+  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
   { href: "/admin/career-packages", label: "Career Svcs", icon: GraduationCap },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
 ];
@@ -36,13 +38,13 @@ export default function AdminNavLinks({ vertical, onLinkClick }: AdminNavLinksPr
   const linkClass = vertical
     ? (isActive: boolean) =>
       `flex w-full items-center gap-4 rounded-xl px-4 py-4 text-sm font-semibold transition-all duration-300 ${isActive
-        ? "bg-gradient-to-r from-blue-600 to-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
-        : "text-slate-800 hover:bg-slate-100"
+        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/10 font-bold"
+        : "text-slate-700 hover:bg-slate-100 font-semibold"
       }`
     : (isActive: boolean) =>
       `flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${isActive
-        ? "bg-gradient-to-r from-blue-600 to-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.05]"
-        : "text-slate-800 hover:bg-slate-100"
+        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/10 font-bold"
+        : "text-slate-700 hover:bg-slate-100 font-semibold"
       }`;
 
   const wrapperClass = vertical
@@ -62,8 +64,13 @@ export default function AdminNavLinks({ vertical, onLinkClick }: AdminNavLinksPr
             onClick={onLinkClick}
             className={linkClass(isActive)}
           >
-            <Icon className={`h-4 w-4 shrink-0 transition-transform ${isActive ? "scale-110" : "opacity-60"}`} />
-            <span>{label}</span>
+            <Icon
+              className={`h-4 w-4 shrink-0 transition-transform ${isActive ? "scale-110" : "opacity-60"}`}
+              style={isActive ? { color: "white" } : {}}
+            />
+            <span>
+              {isActive ? <span style={{ color: "white" }}>{label}</span> : label}
+            </span>
           </Link>
         );
       })}

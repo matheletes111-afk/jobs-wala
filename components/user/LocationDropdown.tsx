@@ -374,21 +374,21 @@ export default function LocationDropdown({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="country">Country</Label>
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="country" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Country</Label>
           <Select
             value={selectedCountry}
             onValueChange={handleCountryChange}
             disabled={loading}
           >
-            <SelectTrigger id="country" className="w-full">
+            <SelectTrigger id="country" className="w-full h-10 rounded-xl bg-slate-50 border-slate-200 text-xs font-semibold text-slate-700 focus:ring-blue-500/20 shadow-sm">
               <SelectValue placeholder="Select Country" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white border-slate-200 shadow-lg">
               {countries.map((country) => (
-                <SelectItem key={country.isoCode} value={country.isoCode}>
+                <SelectItem key={country.isoCode} value={country.isoCode} className="text-xs font-semibold">
                   {country.name}
                 </SelectItem>
               ))}
@@ -396,90 +396,98 @@ export default function LocationDropdown({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="state">State (Multiple)</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="state" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">State (Multiple)</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
-                className="w-full justify-between font-normal bg-background/50"
+                className="h-10 w-full justify-between rounded-xl border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 shadow-sm"
                 disabled={!selectedCountry || loading || states.length === 0}
               >
-                Select States
-                <ChevronDown className="h-4 w-4 opacity-50" />
+                <span className="truncate">
+                  {selectedStates.length > 0 
+                    ? `${selectedStates.length} Selected`
+                    : "Select States"}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
+            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto bg-white border-slate-200 shadow-lg">
               {states.map((state) => (
                 <DropdownMenuCheckboxItem
                   key={state.isoCode}
                   checked={selectedStates.includes(state.isoCode)}
                   onCheckedChange={() => handleStateToggle(state.isoCode)}
                   onSelect={(e) => e.preventDefault()}
+                  className="text-xs font-semibold"
                 >
                   {state.name}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {selectedStates.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {selectedStates.map((iso) => {
-                const state = states.find((s) => s.isoCode === iso);
-                return state ? (
-                  <span key={iso} className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm">
-                    {state.name}
-                    <button type="button" onClick={(e) => { e.preventDefault(); handleStateToggle(iso); }} className="hover:text-red-400 transition-colors bg-white/10 rounded-full p-0.5">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ) : null;
-              })}
-            </div>
-          )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="city">City (Multiple)</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="city" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">City (Multiple)</Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
-                className="w-full justify-between font-normal bg-background/50"
+                className="h-10 w-full justify-between rounded-xl border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 shadow-sm"
                 disabled={selectedStates.length === 0 || loading || cities.length === 0}
               >
-                Select Cities
-                <ChevronDown className="h-4 w-4 opacity-50" />
+                <span className="truncate">
+                  {selectedCities.length > 0 
+                    ? `${selectedCities.length} Selected`
+                    : "Select Cities"}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
+            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto bg-white border-slate-200 shadow-lg">
               {cities.map((city, index) => (
                 <DropdownMenuCheckboxItem
                   key={`${city.name}-${index}`}
                   checked={selectedCities.includes(city.name)}
                   onCheckedChange={() => handleCityToggle(city.name)}
                   onSelect={(e) => e.preventDefault()}
+                  className="text-xs font-semibold"
                 >
                   {city.name}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {selectedCities.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {selectedCities.map((cityName) => (
-                <span key={cityName} className="flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm">
-                  {cityName}
-                  <button type="button" onClick={(e) => { e.preventDefault(); handleCityToggle(cityName); }} className="hover:text-red-400 transition-colors bg-white/10 rounded-full p-0.5">
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      
+      {/* Selected location tags/pills */}
+      {(selectedStates.length > 0 || selectedCities.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 pt-3">
+          {selectedStates.map((iso) => {
+            const state = states.find((s) => s.isoCode === iso);
+            return state ? (
+              <span key={iso} className="flex items-center gap-1 bg-blue-50 text-blue-600 border border-blue-150 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
+                {state.name}
+                <button type="button" onClick={(e) => { e.preventDefault(); handleStateToggle(iso); }} className="hover:text-red-500 transition-colors">
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ) : null;
+          })}
+          {selectedCities.map((cityName) => (
+            <span key={cityName} className="flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-150 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
+              {cityName}
+              <button type="button" onClick={(e) => { e.preventDefault(); handleCityToggle(cityName); }} className="hover:text-red-500 transition-colors">
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
     </div>
   );
 }

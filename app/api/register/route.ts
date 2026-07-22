@@ -5,11 +5,11 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { UserRole } from "@prisma/client";
 import crypto from "crypto";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendVerificationEmail, sendNewEmployerRegisteredAdminEmail } from "@/lib/email";
 
 const registerSchema = z
   .object({
-    email: z.string().email("Invalid email address"),
+    email: z.string().email("Invalid email address").transform((val) => val.toLowerCase().trim()),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = registerSchema.parse(body);
 
-    // Check if user already exists
+    // Normalize email to lowercase — prevents duplicate accounts via case differences
+    validatedData.email = validatedData.email.toLowerCase().trim();
+
+    // Check if user already exists (case-insensitive via normalized lowercase)
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
@@ -193,6 +196,27 @@ export async function POST(req: NextRequest) {
       console.error("[REGISTER DEBUG] Error details:", emailError instanceof Error ? emailError.message : String(emailError));
       emailResult = { success: false, error: emailError };
       // Don't fail registration if email fails, but log it
+    }
+
+    // Send admin notification if the newly registered user is an employer
+    if (validatedData.role === UserRole.EMPLOYER) {
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail) {
+        try {
+          const reviewUrl = `${baseUrl}/admin/users`; // Admin console path to review users
+          console.log(`[REGISTER DEBUG] Sending admin registration alert for ${validatedData.companyName} to ${adminEmail}`);
+          await sendNewEmployerRegisteredAdminEmail({
+            to: adminEmail,
+            companyName: validatedData.companyName || "Unknown Employer",
+            employerEmail: validatedData.email,
+            reviewUrl,
+          });
+        } catch (adminEmailError) {
+          console.error("[REGISTER DEBUG] ❌ Failed to send registration alert to admin:", adminEmailError);
+        }
+      } else {
+        console.warn("[REGISTER DEBUG] ⚠️ ADMIN_EMAIL environment variable is not defined; skipping admin alert.");
+      }
     }
 
     // Serialize error for JSON response

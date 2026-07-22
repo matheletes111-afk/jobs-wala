@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
     let country = "";
     let state: string[] = [];
     let city: string[] = [];
+    let locationRawSearch = "";
     const locationParam = searchParams.get("location") || "";
     if (locationParam) {
       try {
@@ -37,7 +38,8 @@ export async function GET(req: NextRequest) {
         if (loc.state) state = Array.isArray(loc.state) ? loc.state : [loc.state.trim()];
         if (loc.city) city = Array.isArray(loc.city) ? loc.city : [loc.city.trim()];
       } catch {
-        // ignore invalid JSON
+        // Fallback: If it is not a valid JSON string (e.g. from homepage banner), treat it as raw text search query
+        locationRawSearch = decodeURIComponent(locationParam).trim();
       }
     }
 
@@ -89,8 +91,27 @@ export async function GET(req: NextRequest) {
       }));
       if (cityOrs.length > 0) andParts.push({ OR: cityOrs });
     }
+    if (locationRawSearch) {
+      andParts.push({
+        location: {
+          contains: locationRawSearch,
+          mode: "insensitive" as const,
+        },
+      });
+    }
 
     const where = { AND: andParts };
+
+    let candidateSkills: string[] = [];
+    if (isJobSeeker && user) {
+      const profile = await prisma.jobSeekerProfile.findUnique({
+        where: { userId: user.id },
+        select: { skills: true },
+      });
+      if (profile?.skills) {
+        candidateSkills = profile.skills;
+      }
+    }
 
     const [total, jobs, applications] = await Promise.all([
       prisma.job.count({ where }),
@@ -115,28 +136,51 @@ export async function GET(req: NextRequest) {
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
-      jobs: jobs.map((j) => ({
-        id: j.id,
-        title: j.title,
-        description: j.description,
-        location: j.location,
-        category: j.category,
-        salaryRange: j.salaryRange,
-        salaryMin: j.salaryMin,
-        salaryMax: j.salaryMax,
-        currency: j.currency,
-        payType: j.payType,
-        employmentType: j.employmentType,
-        experienceRequired: j.experienceRequired,
-        companyName: j.companyName ? j.companyName : j.employer.companyName,
-        employer: j.employer,
-        createdAt: j.createdAt,
-      })),
+      jobs: jobs.map((j) => {
+        let matchScore: number | null = null;
+        if (isJobSeeker && candidateSkills.length > 0) {
+          const reqSkills = j.requiredSkills ?? [];
+          if (reqSkills.length === 0) {
+            matchScore = 100;
+          } else {
+            const matchedCount = reqSkills.filter((reqSkill) =>
+              candidateSkills.some(
+                (candSkill) =>
+                  candSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
+                  reqSkill.toLowerCase().includes(candSkill.toLowerCase())
+              )
+            ).length;
+            matchScore = Math.round((matchedCount / reqSkills.length) * 100);
+          }
+        }
+
+        return {
+          id: j.id,
+          title: j.title,
+          description: j.description,
+          location: j.location,
+          category: j.category,
+          salaryRange: j.salaryRange,
+          salaryMin: j.salaryMin,
+          salaryMax: j.salaryMax,
+          currency: j.currency,
+          payType: j.payType,
+          employmentType: j.employmentType,
+          experienceRequired: j.experienceRequired,
+          companyName: j.companyName ? j.companyName : j.employer.companyName,
+          employer: j.employer,
+          createdAt: j.createdAt,
+          matchScore,
+          requiredSkills: j.requiredSkills ?? [],
+          secondarySkills: j.secondarySkills ?? [],
+        };
+      }),
       total,
       totalPages,
       page,
       limit,
       appliedJobIds,
+      candidateSkills: isJobSeeker ? candidateSkills : [],
     });
   } catch (e: any) {
     if (e?.digest?.startsWith("NEXT_REDIRECT") || e?.message === "NEXT_REDIRECT") {

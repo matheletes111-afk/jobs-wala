@@ -73,7 +73,7 @@ export default async function PublicJobPage({
   if (locationVal) backParams.set("location", locationVal);
   if (typeof sParams.sort === "string" && sParams.sort !== "desc") backParams.set("sort", sParams.sort);
   const backQuery = backParams.toString();
-  const backUrl = `/user/jobs${backQuery ? `?${backQuery}` : ""}`;
+  const backUrl = `/jobs/browse${backQuery ? `?${backQuery}` : ""}`;
 
   // Logged-in job seeker: show apply section
   if (user?.role === UserRole.JOB_SEEKER) {
@@ -86,11 +86,26 @@ export default async function PublicJobPage({
       }),
     ]);
     const hasApplied = applications.length > 0;
-
+    let matchScore: number | null = null;
+    if (profile && profile.skills && profile.skills.length > 0) {
+      const reqSkills = job.requiredSkills ?? [];
+      if (reqSkills.length === 0) {
+        matchScore = 100;
+      } else {
+        const matchedCount = reqSkills.filter((reqSkill) =>
+          profile.skills.some(
+            (candSkill) =>
+              candSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
+              reqSkill.toLowerCase().includes(candSkill.toLowerCase())
+          )
+        ).length;
+        matchScore = Math.round((matchedCount / reqSkills.length) * 100);
+      }
+    }
 
     return (
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link href={backUrl} className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-all hover:text-foreground hover:-translate-x-1">
+      <div className="mx-auto max-w-7xl px-2 py-8 sm:px-4 text-slate-800">
+        <Link href={backUrl} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-550 transition-all hover:text-slate-900 hover:-translate-x-1">
           <span className="text-lg">←</span> Back to jobs
         </Link>
         <JobDetails
@@ -99,28 +114,30 @@ export default async function PublicJobPage({
           title={titleVal}
           category={categoryVal}
           location={locationVal}
+          matchScore={matchScore}
+          candidateSkills={profile?.skills ?? []}
         />
         {!hasApplied && profile && (
-          <div className="mt-8">
+          <div className="mt-6">
             <ApplicationForm jobId={job.id} currentResumeUrl={profile.resumeUrl} currentResumeUpdatedAt={profile.resumeUpdatedAt} />
           </div>
         )}
         {hasApplied && (
-          <div className="mt-8 rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6 animate-in fade-in slide-in-from-top-2 duration-500">
-            <p className="text-blue-400 font-semibold flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-blue-400" />
+          <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 animate-in fade-in slide-in-from-top-2 duration-500">
+            <p className="text-blue-700 font-semibold flex items-center gap-2 text-sm">
+              <span className="flex h-2 w-2 rounded-full bg-blue-500" />
               You have already applied for this job. Status:{" "}
-              <span className="uppercase tracking-widest">{applications[0].status}</span>
+              <span className="uppercase tracking-wider font-bold">{applications[0].status}</span>
             </p>
           </div>
         )}
         {!profile && (
-          <div className="mt-8 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 animate-in fade-in slide-in-from-top-2 duration-500">
-            <p className="text-amber-400 font-semibold mb-4">
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 animate-in fade-in slide-in-from-top-2 duration-500">
+            <p className="text-amber-700 font-semibold mb-3 text-sm">
               Please complete your profile before applying to jobs.
             </p>
             <Link href="/user/profile/create">
-              <Button variant="outline" className="border-amber-500/20 text-amber-500 hover:bg-amber-500/10">
+              <Button variant="outline" className="border-amber-200 text-amber-750 bg-white hover:bg-amber-100/50">
                 Complete profile
               </Button>
             </Link>
@@ -132,8 +149,8 @@ export default async function PublicJobPage({
 
   // Not logged in or not a job seeker: show details + CTA to login/register to apply
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <Link href={backUrl} className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-all hover:text-foreground hover:-translate-x-1">
+    <div className="mx-auto max-w-7xl px-2 py-8 sm:px-4 text-slate-800">
+      <Link href={backUrl} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-550 transition-all hover:text-slate-900 hover:-translate-x-1">
         <span className="text-lg">←</span> Back to jobs
       </Link>
       <JobDetails
@@ -143,19 +160,19 @@ export default async function PublicJobPage({
         category={categoryVal}
         location={locationVal}
       />
-      <div className="mt-12 linear-card rounded-[2rem] p-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <h3 className="text-2xl font-bold text-foreground mb-3">Join the community</h3>
-        <p className="text-muted-foreground mb-8">
+      <div className="mt-8 bg-white border border-slate-200 shadow-sm rounded-2xl p-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <h3 className="text-xl font-bold text-slate-850 mb-2">Join the community</h3>
+        <p className="text-slate-500 text-sm mb-6">
           Login or register as a job seeker to apply for this job and track your applications.
         </p>
-        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <Link href={`/login?callbackUrl=${encodeURIComponent(`/jobs/${id}`)}`}>
-            <Button className="w-full sm:w-32 btn-gradient h-12 rounded-xl text-[10px] font-black uppercase tracking-widest">
+            <Button className="w-full sm:w-32 bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 rounded-xl">
               Login
             </Button>
           </Link>
           <Link href="/register">
-            <Button variant="outline" className="w-full sm:w-32 h-12 rounded-xl border-white/10 hover:bg-white/5 transition-all hover:scale-105 active:scale-95">
+            <Button variant="outline" className="w-full sm:w-32 h-11 rounded-xl border-slate-200 hover:bg-slate-50 transition-all font-semibold">
               Register
             </Button>
           </Link>

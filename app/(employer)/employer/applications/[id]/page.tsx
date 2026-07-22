@@ -24,10 +24,10 @@ export default async function ApplicationDetailsPage({
   if (!profile) {
     return (
       <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center">
-        <div className="linear-card rounded-[2.5rem] p-12 text-center max-w-md mx-auto shadow-xl">
-          <p className="text-xl font-bold text-muted-foreground italic mb-6">Identity Verification Required</p>
+        <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center max-w-md mx-auto shadow-sm">
+          <p className="text-lg font-semibold text-slate-600 mb-6">Identity Verification Required</p>
           <Link href="/employer/profile">
-            <button className="h-12 px-8 rounded-xl bg-primary text-white font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
+            <button className="h-11 px-7 rounded-xl bg-primary text-white font-semibold text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
               Complete Corporate Profile
             </button>
           </Link>
@@ -54,7 +54,8 @@ export default async function ApplicationDetailsPage({
 
   const skillMatch = computeSkillMatch(
     [...(application.job.requiredSkills ?? []), ...(application.job.secondarySkills ?? [])],
-    application.jobSeeker.skills ?? []
+    application.jobSeeker.skills ?? [],
+    application.jobSeeker.bio
   );
 
   const formatEmploymentType = (type: string) => {
@@ -102,7 +103,7 @@ export default async function ApplicationDetailsPage({
           <div className="lg:col-span-2 space-y-8">
             
             {/* Candidate Header Card */}
-            <div className="linear-card rounded-[2.5rem] p-8 sm:p-10 shadow-md flex flex-col sm:flex-row gap-8 items-start sm:items-center">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               <CandidateAvatar
                 profileImage={application.jobSeeker.profileImage}
                 firstName={application.jobSeeker.firstName}
@@ -143,7 +144,7 @@ export default async function ApplicationDetailsPage({
             </div>
 
             {/* Candidate Contact & Biography */}
-            <div className="linear-card rounded-[2.5rem] p-8 sm:p-10 shadow-md space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
               <h2 className="text-lg font-black uppercase tracking-widest text-foreground pb-4 border-b border-slate-200">Contact Information</h2>
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="flex items-center gap-3">
@@ -238,7 +239,7 @@ export default async function ApplicationDetailsPage({
 
             {/* Cover Letter details */}
             {application.coverLetter && (
-              <div className="linear-card rounded-[2.5rem] p-8 sm:p-10 shadow-md space-y-4 bg-blue-50 border-l-4 border-primary">
+              <div className="bg-blue-50 border border-blue-200 border-l-4 border-l-primary rounded-2xl p-6 sm:p-8 shadow-sm space-y-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">Cover Letter Submitted</p>
                 <div className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap italic">
                   &quot;{application.coverLetter}&quot;
@@ -248,7 +249,7 @@ export default async function ApplicationDetailsPage({
 
             {/* Candidate Resume Section */}
             {application.jobSeeker.resumeUrl && (
-              <div className="linear-card rounded-[2.5rem] p-8 sm:p-10 shadow-md flex items-center justify-between">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
                     <FileText className="h-6 w-6" />
@@ -274,7 +275,7 @@ export default async function ApplicationDetailsPage({
           <div className="space-y-8">
             
             {/* Status Actions Widget */}
-            <div className="linear-card rounded-[2.5rem] p-8 shadow-md space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Application Pipeline</h3>
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -302,7 +303,7 @@ export default async function ApplicationDetailsPage({
             </div>
 
             {/* Skill Match Analytics Card */}
-            <div className="linear-card rounded-[2.5rem] p-8 shadow-md space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Match Insights</h3>
               <SkillMatchBar
                 percent={skillMatch.percent}
@@ -359,7 +360,7 @@ export default async function ApplicationDetailsPage({
             </div>
 
             {/* Applied Job Details Card */}
-            <div className="linear-card rounded-[2.5rem] p-8 shadow-md space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
               <div className="border-b border-slate-200 pb-4">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Position Applied For</p>
                 <h3 className="text-xl font-black text-foreground tracking-tight mt-1">{application.job.title}</h3>

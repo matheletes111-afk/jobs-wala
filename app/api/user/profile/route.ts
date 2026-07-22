@@ -146,6 +146,17 @@ export async function PUT(req: NextRequest) {
 
 const patchResumeSchema = z.object({
   resumeUrl: z.string().url().nullable(),
+  skills: z.array(z.string()).optional(),
+  experience: z.number().min(0).optional(),
+  education: z.string().optional(),
+  jobTitle: z.string().optional(),
+  bio: z.string().optional(),
+  phone: z.string().optional(),
+  location: z.string().optional(),
+  linkedinUrl: z.string().optional(),
+  highestEducation: z.string().optional(),
+  noticePeriod: z.string().optional(),
+  dateOfBirth: z.string().optional(),
 });
 
 export async function PATCH(req: NextRequest) {
@@ -154,12 +165,41 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const data = patchResumeSchema.parse(body);
 
+    const existing = await prisma.jobSeekerProfile.findUnique({
+      where: { userId: user.id },
+    });
+
+    const updateData: any = {
+      resumeUrl: data.resumeUrl,
+      resumeUpdatedAt: data.resumeUrl ? new Date() : null,
+    };
+
+    if (existing) {
+      if (data.skills && data.skills.length > 0) {
+        const mergedSkills = Array.from(new Set([...(existing.skills || []), ...data.skills]));
+        updateData.skills = mergedSkills;
+      }
+      if (data.phone && !existing.phone) updateData.phone = data.phone;
+      if (data.location && !existing.location) updateData.location = data.location;
+      if (data.jobTitle && !existing.jobTitle) updateData.jobTitle = data.jobTitle;
+      if (data.experience !== undefined && (existing.experience === null || existing.experience === 0)) {
+        updateData.experience = data.experience;
+      }
+      if (data.education && !existing.education) updateData.education = data.education;
+      if (data.bio && !existing.bio) updateData.bio = data.bio;
+      if (data.linkedinUrl && !existing.linkedinUrl) updateData.linkedinUrl = data.linkedinUrl;
+      if (data.highestEducation && !existing.highestEducation) updateData.highestEducation = data.highestEducation;
+      if (data.noticePeriod && !existing.noticePeriod) updateData.noticePeriod = data.noticePeriod;
+      if (data.dateOfBirth && !existing.dateOfBirth) {
+        try {
+          updateData.dateOfBirth = new Date(data.dateOfBirth);
+        } catch (_) {}
+      }
+    }
+
     const profile = await prisma.jobSeekerProfile.update({
       where: { userId: user.id },
-      data: {
-        resumeUrl: data.resumeUrl,
-        resumeUpdatedAt: data.resumeUrl ? new Date() : null,
-      },
+      data: updateData,
     });
 
     return NextResponse.json(profile);

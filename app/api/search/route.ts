@@ -17,21 +17,16 @@ export async function GET(req: NextRequest) {
     const where: Prisma.JobSeekerProfileWhereInput = {};
     const hasKeyword = keyword.trim().length > 0;
 
-    // When keyword is used we filter in memory so one search matches name, skill, location, jobTitle, bio, education
-    if (!hasKeyword) {
-      // No keyword: only apply location filter in Prisma if plain text
-      const isLocationJson = location.trim().startsWith("{");
-      if (location && !isLocationJson) {
-        where.location = { contains: location, mode: "insensitive" };
-      }
+    // Apply plain-text location filter in Prisma where if not JSON
+    const isLocationJson = location.trim().startsWith("{");
+    if (location && !isLocationJson) {
+      where.location = { contains: location, mode: "insensitive" };
     }
 
     const skillsArray = skillsParam
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-
-    const isLocationJson = location.trim().startsWith("{");
 
     let candidates = await prisma.jobSeekerProfile.findMany({
       where,
@@ -42,13 +37,15 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      take: hasKeyword ? 400 : 200,
+      take: 1000,
     });
 
     // Keyword: match name, jobTitle, bio, education, any skill, or location (all-in-one search)
     if (hasKeyword) {
       const kw = keyword.trim().toLowerCase();
       candidates = candidates.filter((c) => {
+        const fullName = `${c.firstName || ""} ${c.lastName || ""}`.trim().toLowerCase();
+        if (fullName.includes(kw)) return true;
         if (c.firstName?.toLowerCase().includes(kw)) return true;
         if (c.lastName?.toLowerCase().includes(kw)) return true;
         if (c.jobTitle?.toLowerCase().includes(kw)) return true;
@@ -145,11 +142,12 @@ export async function GET(req: NextRequest) {
     }
 
     // Backend pagination
+    const isExport = searchParams.get("export") === "true";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "10", 10)));
     const total = candidates.length;
     const totalPages = Math.ceil(total / limit);
-    const paginated = candidates.slice((page - 1) * limit, page * limit);
+    const paginated = isExport ? candidates : candidates.slice((page - 1) * limit, page * limit);
 
     return NextResponse.json({
       candidates: paginated,

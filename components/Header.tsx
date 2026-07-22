@@ -8,13 +8,13 @@ export default async function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md w-full">
-      <div className="mx-auto flex h-16 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
         <Link href="/" className="flex shrink-0 items-center">
-          <div className="flex items-center justify-center shrink-0 h-10 md:h-12 overflow-hidden">
+          <div className="flex items-center justify-center shrink-0 h-14 md:h-16 overflow-hidden">
             <img
               src="/images/logo.png"
               alt="Jobs Portal"
-              className="h-[140%] w-auto max-w-none object-contain"
+              className="h-[200%] w-auto max-w-none object-contain"
             />
           </div>
         </Link>
@@ -47,7 +47,7 @@ export default async function Header() {
                       <Link href="/employer/jobs/new" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
                         Post a Job
                       </Link>
-                      <Link href="/user/jobs" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                      <Link href="/jobs/browse" className="block text-[14px] font-medium text-slate-700 hover:text-primary p-1.5 rounded-lg hover:bg-slate-50 transition-colors">
                         Job Portal
                       </Link>
                     </div>

@@ -37,40 +37,11 @@ export async function POST(req: Request) {
       orderBy: { createdAt: "desc" },
     });
 
-    if (existingSubscription?.scheduledPlanId) {
+    if (existingSubscription && existingSubscription.planId === planId) {
       return NextResponse.json(
-        { error: "You already have a pending upgrade scheduled. Please wait for it to activate before switching plans again." },
+        { error: "You are already subscribed to this plan." },
         { status: 400 }
       );
-    }
-
-    // Handle seamless upgrades if there is an active paid Razorpay subscription
-    if (
-      existingSubscription &&
-      existingSubscription.razorpaySubscriptionId &&
-      plan.amount > 0 &&
-      plan.razorpayPlanId
-    ) {
-      try {
-        // It's an upgrade!
-        await updateRazorpaySubscription(
-          existingSubscription.razorpaySubscriptionId,
-          plan.razorpayPlanId
-        );
-
-        // Store the pending upgrade in DB
-        await prisma.subscription.update({
-          where: { id: existingSubscription.id },
-          data: { scheduledPlanId: plan.id },
-        });
-
-        return NextResponse.json({ success: true, isUpgradeScheduled: true });
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        console.warn("Seamless update rejected by Razorpay (likely UPI mode). Falling back to new subscription creation.", errorMessage);
-        // Do nothing here: let the code fall through to create a NEW Razorpay subscription below.
-        // The old subscription will be automatically cancelled in the /verify route once the new one is paid.
-      }
     }
 
     // Handle Free Plan (0 Amount)
@@ -143,21 +114,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Plan not synced with payment gateway" }, { status: 500 });
     }
 
-    const startAt = existingSubscription 
-      ? Math.max(Math.floor(new Date(existingSubscription.endDate).getTime() / 1000) + 60, Math.floor(Date.now() / 1000) + 60)
-      : undefined;
-
     console.log("Initiating Razorpay Subscription:", {
       userId,
       planId: plan.id,
       razorpayPlanId: plan.razorpayPlanId,
-      startAt
     });
 
     const razorpaySubscription = await createRazorpaySubscription({
       planId: plan.razorpayPlanId,
       totalCount: 12, // Recurring for 12 cycles
-      startAt: startAt,
       notes: {
         employerId: userId,
         planId: plan.id,

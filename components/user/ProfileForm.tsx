@@ -454,20 +454,20 @@ export default function ProfileForm({
   };
 
   return (
-    <div className="linear-card w-full overflow-hidden rounded-[2.5rem] p-10 sm:p-12 animate-in fade-in slide-in-from-bottom-5 duration-700">
-      <div className="mb-12 flex flex-col sm:flex-row items-center gap-10">
+    <div className="bg-white border border-slate-200 shadow-sm w-full overflow-hidden rounded-2xl p-8 sm:p-10 animate-in fade-in duration-700">
+      <div className="mb-10 flex flex-col sm:flex-row items-center gap-8 border-b border-slate-100 pb-8">
           <div
-            className="group relative flex h-28 w-28 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[1.5rem] border-2 border-white/10 bg-white/5 transition-all hover:border-primary/50"
+            className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-slate-250 bg-slate-50 shadow-sm"
             onClick={triggerPhotoUpload}
           >
             {photoPreview ? (
-              <img src={photoPreview} alt="Profile" className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+              <img src={photoPreview} alt="Profile" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
             ) : (
-              <span className="text-3xl font-black text-white/20">
+              <span className="text-2xl font-bold text-slate-400">
                 {profile?.firstName?.[0] ?? "?"}{profile?.lastName?.[0] ?? ""}
               </span>
             )}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Camera className="h-6 w-6 text-white" />
             </div>
             <input
@@ -485,8 +485,8 @@ export default function ProfileForm({
             />
           </div>
           <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-bold text-foreground">{profile ? "My Profile" : "Create Profile"}</h2>
-            <p className="text-sm font-medium text-muted-foreground mt-1">
+            <h2 className="text-xl font-bold text-slate-800">{profile ? "My Profile" : "Create Profile"}</h2>
+            <p className="text-xs font-semibold text-slate-400 mt-1">
               Manage your personal and professional information
             </p>
           </div>
@@ -501,32 +501,32 @@ export default function ProfileForm({
 
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-violet-400" />
-              <h3 className="text-sm font-semibold text-foreground">Resume / CV</h3>
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Resume / CV</h3>
             </div>
-            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4">
               <Input
                 id="resume"
                 type="file"
                 accept=".pdf"
                 onChange={handleResumeChange}
                 disabled={parsingResume}
-                className="h-14 rounded-xl bg-white/5 border-white/10 file:bg-white/10 file:border-0 file:text-xs file:font-semibold file:text-foreground file:px-6 file:h-10 file:rounded-lg file:mr-6 cursor-pointer"
+                className="h-12 rounded-xl bg-white border-slate-200 file:bg-slate-100 file:border-0 file:text-xs file:font-semibold file:text-slate-700 file:px-4 file:h-8 file:rounded-lg file:mr-4 cursor-pointer shadow-sm text-slate-800 text-xs"
               />
               {parsingResume && (
-                <div className="flex items-center gap-2 text-xs font-semibold text-blue-500 animate-pulse bg-blue-500/5 p-4 rounded-xl border border-blue-500/10">
-                  <div className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center gap-2 text-xs font-semibold text-blue-650 animate-pulse bg-blue-50 p-4 rounded-xl border border-blue-200">
+                  <div className="h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                   Uploading and extracting profile details... Please wait.
                 </div>
               )}
               {resumeUrlState && (
-                <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10">
-                  <div className="flex items-center gap-4">
-                    <FileText className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50 border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-blue-650 shrink-0" />
                     <div>
-                      <p className="text-sm font-bold text-foreground">Current Resume</p>
+                      <p className="text-xs font-bold text-slate-800">Current Resume</p>
                       {resumeUpdatedAtState && (
-                        <p className="text-xs font-semibold text-muted-foreground">Synced: {formatResumeUpdatedAt(resumeUpdatedAtState)}</p>
+                        <p className="text-[10px] font-semibold text-slate-400">Synced: {formatResumeUpdatedAt(resumeUpdatedAtState)}</p>
                       )}
                     </div>
                   </div>
@@ -534,7 +534,7 @@ export default function ProfileForm({
                     href={resumeUrlState}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="h-10 px-6 rounded-lg bg-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all flex items-center"
+                    className="h-9 px-4 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all flex items-center shadow-sm"
                   >
                     View File
                   </a>
@@ -545,35 +545,35 @@ export default function ProfileForm({
 
           {userEmail !== undefined && (
             <div className="space-y-6">
-              <div className="space-y-3">
-                <Label className="text-xs font-semibold text-muted-foreground">Email Address</Label>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-slate-500">Email Address</Label>
                 <Input
                   id="currentEmail"
                   type="email"
                   value={userEmail}
                   disabled
-                  className="h-14 rounded-xl bg-white/5 border-white/10 text-muted-foreground font-bold cursor-not-allowed"
+                  className="h-12 rounded-xl bg-slate-100 border-slate-200 text-slate-400 font-semibold opacity-60 shadow-none cursor-not-allowed"
                 />
               </div>
-              <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">Change Email</h3>
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Change Email</h3>
                 </div>
                 {emailChangeMessage && (
                   <div
                     className={`rounded-xl p-4 text-sm font-semibold border ${
                       emailChangeMessage.type === "success"
-                         ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        : "bg-red-500/10 text-red-400 border-red-500/20"
+                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                        : "bg-red-50 text-red-600 border-red-100"
                     }`}
                   >
                     {emailChangeMessage.text}
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="flex-1 w-full space-y-3">
-                    <Label htmlFor="newEmail" className="text-xs font-semibold text-muted-foreground">New Email</Label>
+                  <div className="flex-1 w-full space-y-2">
+                    <Label htmlFor="newEmail" className="text-xs font-semibold text-slate-500">New Email</Label>
                     <Input
                       id="newEmail"
                       type="email"
@@ -582,7 +582,7 @@ export default function ProfileForm({
                       onChange={(e) => setNewEmail(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleRequestEmailChange())}
                       disabled={emailChangeLoading}
-                      className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground"
+                      className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700"
                     />
                   </div>
                   <Button
@@ -590,7 +590,7 @@ export default function ProfileForm({
                     variant="ghost"
                     onClick={() => handleRequestEmailChange()}
                     disabled={emailChangeLoading || !newEmail.trim()}
-                    className="h-12 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 whitespace-nowrap px-6 transition-all"
+                    className="h-12 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap px-6 transition-all shadow-sm"
                   >
                     {emailChangeLoading ? "Sending..." : "Send Verification"}
                   </Button>
@@ -600,160 +600,164 @@ export default function ProfileForm({
           )}
 
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-3">
-              <Label htmlFor="firstName" className="text-xs font-semibold text-muted-foreground">First Name</Label>
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-xs font-semibold text-slate-500">First Name</Label>
               <Input
                 id="firstName"
                 {...register("firstName")}
                 placeholder="John"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
               {errors.firstName && (
-                <p className="text-xs font-bold text-red-400">{errors.firstName.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1">{errors.firstName.message}</p>
               )}
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="lastName" className="text-xs font-semibold text-muted-foreground">Last Name</Label>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-xs font-semibold text-slate-500">Last Name</Label>
               <Input
                 id="lastName"
                 {...register("lastName")}
                 placeholder="Doe"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
               {errors.lastName && (
-                <p className="text-xs font-bold text-red-400">{errors.lastName.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1">{errors.lastName.message}</p>
               )}
             </div>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-3">
-              <Label htmlFor="dateOfBirth" className="text-xs font-semibold text-muted-foreground">Date of Birth</Label>
+            <div className="space-y-2">
+              <Label htmlFor="dateOfBirth" className="text-xs font-semibold text-slate-500">Date of Birth</Label>
               <Input
                 id="dateOfBirth"
                 type="date"
                 {...register("dateOfBirth")}
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground scheme-dark"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="linkedinUrl" className="text-xs font-semibold text-muted-foreground">LinkedIn URL</Label>
+            <div className="space-y-2">
+              <Label htmlFor="linkedinUrl" className="text-xs font-semibold text-slate-500">LinkedIn URL</Label>
               <Input
                 id="linkedinUrl"
                 {...register("linkedinUrl")}
                 placeholder="https://linkedin.com/in/username"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-3">
-              <Label htmlFor="phone" className="text-xs font-semibold text-muted-foreground">Phone Number</Label>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-xs font-semibold text-slate-500">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
                 {...register("phone")}
                 placeholder="+1234567890"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
               {errors.phone && (
-                <p className="text-xs font-bold text-red-400">{errors.phone.message}</p>
+                <p className="text-xs font-bold text-red-500 mt-1">{errors.phone.message}</p>
               )}
             </div>
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground">Location (Current)</Label>
-              <LocationDropdown
-                value={locationValue}
-                onChange={(value) => setValue("location", value)}
-                error={errors.location?.message}
-              />
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-500">Location (Current)</Label>
+              <div className="p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+                <LocationDropdown
+                  value={locationValue}
+                  onChange={(value) => setValue("location", value)}
+                  error={errors.location?.message}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-xs font-semibold text-muted-foreground">Desired Location (Multiple)</Label>
-            <LocationDropdown
-              value={desiredLocationValue}
-              onChange={(value) => setValue("desiredLocation", value)}
-              error={errors.desiredLocation?.message}
-            />
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-slate-500">Desired Location (Multiple)</Label>
+            <div className="p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+              <LocationDropdown
+                value={desiredLocationValue}
+                onChange={(value) => setValue("desiredLocation", value)}
+                error={errors.desiredLocation?.message}
+              />
+            </div>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="space-y-3">
-              <Label htmlFor="jobTitle" className="text-xs font-semibold text-muted-foreground">Job Title</Label>
+            <div className="space-y-2">
+              <Label htmlFor="jobTitle" className="text-xs font-semibold text-slate-500">Job Title</Label>
               <Input
                 id="jobTitle"
                 {...register("jobTitle")}
                 placeholder="Software Engineer"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="experience" className="text-xs font-semibold text-muted-foreground">Years of Experience</Label>
+            <div className="space-y-2">
+              <Label htmlFor="experience" className="text-xs font-semibold text-slate-500">Years of Experience</Label>
               <Input
                 id="experience"
                 type="number"
                 {...register("experience", { valueAsNumber: true })}
                 placeholder="5"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="noticePeriod" className="text-xs font-semibold text-muted-foreground">Notice Period / LWD</Label>
+            <div className="space-y-2">
+              <Label htmlFor="noticePeriod" className="text-xs font-semibold text-slate-500">Notice Period / LWD</Label>
               <Input
                 id="noticePeriod"
                 {...register("noticePeriod")}
                 placeholder="e.g. Immediate, 30 days, LWD: 15 June"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="space-y-3">
-              <Label htmlFor="highestEducation" className="text-xs font-semibold text-muted-foreground">Highest Education</Label>
+            <div className="space-y-2">
+              <Label htmlFor="highestEducation" className="text-xs font-semibold text-slate-500">Highest Education</Label>
               <Input
                 id="highestEducation"
                 {...register("highestEducation")}
                 placeholder="e.g. M.Tech, MBA, PhD"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="education" className="text-xs font-semibold text-muted-foreground">Education (Details)</Label>
+            <div className="space-y-2">
+              <Label htmlFor="education" className="text-xs font-semibold text-slate-500">Education (Details)</Label>
               <Input
                 id="education"
                 {...register("education")}
                 placeholder="Bachelor's in CS"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="skills" className="text-xs font-semibold text-muted-foreground">Skills</Label>
+            <div className="space-y-2">
+              <Label htmlFor="skills" className="text-xs font-semibold text-slate-500">Skills</Label>
               <Input
                 id="skills"
                 {...register("skills")}
                 placeholder="React, Node.js, TypeScript"
-                className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                className="h-12 rounded-xl bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
               />
             </div>
           </div>
 
           {categories.length > 0 && (
             <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                <h3 className="text-sm font-semibold text-foreground">Preferred Job Categories</h3>
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Preferred Job Categories</h3>
               </div>
-              <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8">
-                <p className="text-xs text-muted-foreground mb-4">Select the job categories you are interested in. We will recommend jobs based on these preferences.</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                <p className="text-xs text-slate-450 mb-4">Select the job categories you are interested in. We will recommend jobs based on these preferences.</p>
                 <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                   {categories.map((cat) => {
                     const isChecked = selectedCategories.includes(cat.name);
                     return (
-                      <label key={cat.id} className="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 cursor-pointer transition-all">
+                      <label key={cat.id} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-all shadow-sm">
                         <input
                           type="checkbox"
                           checked={isChecked}
@@ -764,9 +768,9 @@ export default function ProfileForm({
                               setSelectedCategories([...selectedCategories, cat.name]);
                             }
                           }}
-                          className="rounded border-white/20 text-primary focus:ring-primary/20 bg-transparent size-4"
+                          className="rounded border-slate-350 text-blue-600 focus:ring-blue-600/20 bg-transparent size-4"
                         />
-                        <span className="text-xs font-semibold text-foreground">{cat.name}</span>
+                        <span className="text-xs font-semibold text-slate-700">{cat.name}</span>
                       </label>
                     );
                   })}
@@ -776,18 +780,18 @@ export default function ProfileForm({
           )}
 
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground">Current Salary</Label>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-500">Current Salary</Label>
               <div className="flex gap-3">
                 <div className="w-[110px] shrink-0">
                   <Select
                     value={watch("currentSalaryCurrency") || "INR"}
                     onValueChange={(val) => setValue("currentSalaryCurrency", val)}
                   >
-                    <SelectTrigger className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/20">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-slate-700 focus:ring-blue-650/20">
                       <SelectValue placeholder="INR" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                    <SelectContent className="bg-white border-slate-200">
                       <SelectItem value="INR">INR (₹)</SelectItem>
                       <SelectItem value="USD">USD ($)</SelectItem>
                       <SelectItem value="GBP">GBP (£)</SelectItem>
@@ -801,22 +805,22 @@ export default function ProfileForm({
                   type="number"
                   {...register("currentSalary")}
                   placeholder="e.g. 1200000"
-                  className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 flex-1"
+                  className="h-12 rounded-xl bg-white border-slate-200 focus-visible:ring-blue-600/20 text-xs font-semibold text-slate-700 flex-1"
                 />
               </div>
             </div>
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold text-muted-foreground">Expected Salary</Label>
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-slate-500">Expected Salary</Label>
               <div className="flex gap-3">
                 <div className="w-[110px] shrink-0">
                   <Select
                     value={watch("expectedSalaryCurrency") || "INR"}
                     onValueChange={(val) => setValue("expectedSalaryCurrency", val)}
                   >
-                    <SelectTrigger className="h-14 rounded-xl bg-white/5 border-white/10 text-foreground focus:ring-primary/20">
+                    <SelectTrigger className="h-12 rounded-xl bg-white border-slate-200 text-slate-700 focus:ring-blue-650/20">
                       <SelectValue placeholder="INR" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background/95 backdrop-blur-xl border-slate-200">
+                    <SelectContent className="bg-white border-slate-200">
                       <SelectItem value="INR">INR (₹)</SelectItem>
                       <SelectItem value="USD">USD ($)</SelectItem>
                       <SelectItem value="GBP">GBP (£)</SelectItem>
@@ -830,58 +834,58 @@ export default function ProfileForm({
                   type="number"
                   {...register("expectedSalary")}
                   placeholder="e.g. 1500000"
-                  className="h-14 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 flex-1"
+                  className="h-12 rounded-xl bg-white border-slate-200 focus-visible:ring-blue-600/20 text-xs font-semibold text-slate-700 flex-1"
                 />
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="bio" className="text-xs font-semibold text-muted-foreground">Bio / Summary</Label>
+          <div className="space-y-2">
+            <Label htmlFor="bio" className="text-xs font-semibold text-slate-500">Bio / Summary</Label>
             <Textarea
               id="bio"
               {...register("bio")}
               placeholder="Write a professional summary..."
               rows={5}
-              className="rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50 text-foreground resize-none p-6"
+              className="rounded-xl bg-white border-slate-200 focus-visible:ring-blue-600/20 text-slate-700 text-xs font-semibold leading-relaxed resize-none p-4 shadow-sm"
             />
           </div>
 
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-2 rounded-full bg-emerald-400" />
-                <h3 className="text-sm font-semibold text-foreground">Certifications</h3>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Certifications</h3>
               </div>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={addCertificate}
-                className="h-10 px-4 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition-all"
+                className="h-9 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:text-white transition-all flex items-center shadow-sm"
               >
-                <Plus className="h-3 w-3 mr-2" />
-                Add Certificate
+                <Plus className="h-3.5 w-3.5 mr-1.5" style={{ color: "white" }} />
+                <span style={{ color: "white" }}>Add Certificate</span>
               </Button>
             </div>
             
-            <div className="rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-8 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 space-y-4">
               {certificateEntries.length === 0 ? (
-                <p className="text-center py-4 text-xs font-medium text-muted-foreground italic">No certifications indexed.</p>
+                <p className="text-center py-4 text-xs font-medium text-slate-450 italic">No certifications indexed.</p>
               ) : (
                 <ul className="space-y-4">
                   {certificateEntries.map((entry) => (
                     <li
                       key={entry.id}
-                      className="flex flex-col sm:flex-row items-center gap-4 rounded-2xl border border-white/5 bg-white/5 p-6 animate-in slide-in-from-right-4"
+                      className="flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 animate-in slide-in-from-right-4"
                     >
-                      <div className="flex-1 w-full space-y-3">
-                        <Label className="text-xs font-semibold text-muted-foreground/50">Certificate File</Label>
+                      <div className="flex-1 w-full space-y-2">
+                        <Label className="text-xs font-semibold text-slate-450">Certificate File</Label>
                         {entry.url ? (
-                          <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-white/5 border border-white/10">
-                            {entry.type === "image" ? <ImageIcon className="h-4 w-4 text-primary" /> : <FileText className="h-4 w-4 text-primary" />}
-                            <a href={entry.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-foreground hover:text-primary transition-colors underline decoration-primary/30">
+                          <div className="flex items-center gap-3 h-10 px-3 rounded-lg bg-slate-50 border border-slate-200">
+                            {entry.type === "image" ? <ImageIcon className="h-4 w-4 text-blue-600 shrink-0" /> : <FileText className="h-4 w-4 text-blue-600 shrink-0" />}
+                            <a href={entry.url} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-slate-800 hover:text-blue-650 transition-colors underline">
                               View Certificate
                             </a>
                           </div>
@@ -889,25 +893,25 @@ export default function ProfileForm({
                           <Input
                             type="file"
                             accept="image/*,.pdf,application/pdf"
-                            className="h-12 rounded-xl bg-white/5 border-white/10"
+                            className="h-10 rounded-lg bg-white border-slate-200 text-xs"
                             onChange={(e) => setCertificateFile(entry.id, e.target.files?.[0])}
                           />
                         )}
                       </div>
-                      <div className="flex-[2] w-full space-y-3">
-                        <Label className="text-xs font-semibold text-muted-foreground/50">Description</Label>
+                      <div className="flex-[2] w-full space-y-2">
+                        <Label className="text-xs font-semibold text-slate-450">Description</Label>
                         <Input
                           placeholder="e.g. AWS Certified Solutions Architect"
                           value={entry.description}
                           onChange={(e) => setCertificateDescription(entry.id, e.target.value)}
-                          className="h-12 rounded-xl bg-white/5 border-white/10 focus:ring-primary/20 focus:border-primary/50"
+                          className="h-10 rounded-lg bg-white border-slate-200 text-xs font-semibold text-slate-700 focus-visible:ring-blue-600/20"
                         />
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="shrink-0 h-10 w-10 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl"
+                        className="shrink-0 h-9 w-9 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg border border-slate-200"
                         onClick={() => removeCertificate(entry.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -919,12 +923,12 @@ export default function ProfileForm({
             </div>
           </div>
 
-          <div className="pt-10 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <p className="text-xs font-semibold text-muted-foreground/50">Save Profile Information</p>
+          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs font-semibold text-slate-400">Save Profile Information</p>
             <Button 
               type="submit" 
               disabled={loading}
-              className="w-full sm:w-64 h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 border-0 text-white font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-primary/20"
+              className="w-full sm:w-64 h-12 rounded-xl bg-blue-600 hover:bg-blue-750 border-0 text-white font-semibold transition-all hover:scale-105 active:scale-95 shadow-md shadow-blue-500/20"
             >
               {loading ? "Saving..." : profile ? "Update Profile" : "Create Profile"}
             </Button>

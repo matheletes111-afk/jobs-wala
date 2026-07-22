@@ -50,13 +50,13 @@ export async function GET(req: NextRequest) {
 
     const where = { AND: andParts };
 
+    const isExport = searchParams.get("export") === "true";
     const [total, applications] = await Promise.all([
       prisma.application.count({ where }),
       prisma.application.findMany({
         where,
         orderBy: { appliedAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
+        ...(isExport ? {} : { skip: (page - 1) * limit, take: limit }),
         include: {
           job: {
             select: {
@@ -87,6 +87,7 @@ export async function GET(req: NextRequest) {
               experience: true,
               education: true,
               jobTitle: true,
+              bio: true,
               user: { select: { email: true } }
             },
           },
@@ -101,7 +102,8 @@ export async function GET(req: NextRequest) {
         const combinedSkills = [...(a.job.requiredSkills ?? []), ...(a.job.secondarySkills ?? [])];
         const match = computeSkillMatch(
           combinedSkills,
-          a.jobSeeker.skills ?? []
+          a.jobSeeker.skills ?? [],
+          a.jobSeeker.bio
         );
         return {
           id: a.id,

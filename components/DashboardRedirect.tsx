@@ -33,7 +33,7 @@ export default function DashboardRedirect() {
   }, [session, status, router]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 linear-card px-4 relative">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 px-4 relative">
       <div className="relative">
         <div className="absolute inset-0 animate-ping rounded-full bg-blue-600/20" />
         <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white border border-blue-100 shadow-2xl">

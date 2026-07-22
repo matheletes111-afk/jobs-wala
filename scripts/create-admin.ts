@@ -1,10 +1,11 @@
 import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import process from "process";
 
 const prisma = new PrismaClient();
 
 async function createAdmin() {
-  const email = process.env.ADMIN_EMAIL || "admin@jobportal.com";
+  const email = (process.env.ADMIN_EMAIL || "admin@jobportal.com").toLowerCase().trim();
   const password = process.env.ADMIN_PASSWORD || "admin123";
 
   try {

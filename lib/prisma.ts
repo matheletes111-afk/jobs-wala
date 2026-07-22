@@ -1,8 +1,16 @@
 import { PrismaClient } from "@prisma/client";
-import dns from "dns";
 
 // Prevent connection issues with IPv6 routing on Neon databases
-dns.setDefaultResultOrder("ipv4first");
+if (typeof window === "undefined") {
+  try {
+    const dns = require("dns");
+    if (dns && typeof dns.setDefaultResultOrder === "function") {
+      dns.setDefaultResultOrder("ipv4first");
+    }
+  } catch (e) {
+    console.warn("Failed to set DNS result order:", e);
+  }
+}
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

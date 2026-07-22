@@ -82,6 +82,7 @@ export default function AdminUsersClient() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [sort, setSort] = useState("recent");
   const [updatingAccessFor, setUpdatingAccessFor] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const limit = 12;
 
@@ -112,6 +113,47 @@ export default function AdminUsersClient() {
     []
   );
 
+  const [isRestored, setIsRestored] = useState(false);
+
+  // Load saved filters on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("admin_users_filters");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setSearch(parsed.search || "");
+          setRole(parsed.role || "all");
+          setAppliedSearch(parsed.appliedSearch || "");
+          setAppliedRole(parsed.appliedRole || "all");
+          setPage(parsed.page || 1);
+          if (parsed.viewMode) setViewMode(parsed.viewMode);
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    setIsRestored(true);
+  }, []);
+
+  // Save filters to sessionStorage when they change
+  useEffect(() => {
+    if (!isRestored) return;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "admin_users_filters",
+        JSON.stringify({
+          search,
+          role,
+          appliedSearch,
+          appliedRole,
+          page,
+          viewMode,
+        })
+      );
+    }
+  }, [search, role, appliedSearch, appliedRole, page, viewMode, isRestored]);
+
   useEffect(() => {
     fetchUsers(page, appliedSearch, appliedRole);
   }, [page, appliedSearch, appliedRole, fetchUsers]);
@@ -130,72 +172,97 @@ export default function AdminUsersClient() {
     setPage(1);
   };
 
-  const handleExportCSV = () => {
-    if (users.length === 0) return;
-    const headers = [
-      "ID", "Email", "Role", "Created At",
-      "Name / Company Name", "Location", "Skills / Industry",
-      "Experience / Company Size", "Job Title", "Availability", "Resume DB Access",
-      "Phone", "Education", "Bio / Description", "Website", "Resume URL",
-      "Resume Updated At", "Certificates", "Profile Created", "Profile Updated"
-    ];
-
-    const rows = users.map(user => {
-      const isJS = user.role === "JOB_SEEKER";
-      const isEmp = user.role === "EMPLOYER";
-
-      const name = isJS && user.jobSeekerProfile ? `${user.jobSeekerProfile.firstName} ${user.jobSeekerProfile.lastName}` : isEmp && user.employerProfile ? user.employerProfile.companyName : "";
-      const location = isJS && user.jobSeekerProfile?.location ? displayLocation(user.jobSeekerProfile.location) : "";
-      const skillsIndustry = isJS && user.jobSeekerProfile ? (user.jobSeekerProfile.skills || []).join(", ") : isEmp && user.employerProfile ? user.employerProfile.industry || "" : "";
-      const expSize = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.experience ?? "" : isEmp && user.employerProfile ? user.employerProfile.companySize || "" : "";
-      const jobTitle = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.jobTitle || "" : "";
-      const availability = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.availabilityStatus || "" : "";
-      const resumeAccess = isEmp && user.employerProfile ? (user.employerProfile.resumeSearchEnabled ? "Yes" : "No") : "";
-      const phone = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.phone || "" : "";
-      const education = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.education || "" : "";
-      const bioDesc = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.bio || "" : isEmp && user.employerProfile ? user.employerProfile.description || "" : "";
-      const website = isEmp && user.employerProfile ? user.employerProfile.website || "" : "";
-      const resumeUrl = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.resumeUrl || "" : "";
-      const resumeUpdated = isJS && user.jobSeekerProfile?.resumeUpdatedAt ? new Date(user.jobSeekerProfile.resumeUpdatedAt).toISOString().split('T')[0] : "";
-      const certs = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.certificates || "" : "";
+  const handleExportCSV = async (applyFilters: boolean) => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("export", "true");
+      if (applyFilters) {
+        if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+        if (appliedRole && appliedRole !== "all") params.set("role", appliedRole);
+      }
       
-      const pCreated = isJS && user.jobSeekerProfile?.createdAt ? new Date(user.jobSeekerProfile.createdAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.createdAt ? new Date(user.employerProfile.createdAt).toISOString().split('T')[0] : "";
-      const pUpdated = isJS && user.jobSeekerProfile?.updatedAt ? new Date(user.jobSeekerProfile.updatedAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.updatedAt ? new Date(user.employerProfile.updatedAt).toISOString().split('T')[0] : "";
-
-      return [
-        user.id,
-        `"${user.email.replace(/"/g, '""')}"`,
-        user.role,
-        user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : "",
-        `"${name.replace(/"/g, '""')}"`,
-        `"${location.replace(/"/g, '""')}"`,
-        `"${skillsIndustry.replace(/"/g, '""')}"`,
-        `"${String(expSize).replace(/"/g, '""')}"`,
-        `"${jobTitle.replace(/"/g, '""')}"`,
-        `"${availability.replace(/"/g, '""')}"`,
-        resumeAccess,
-        `"${phone.replace(/"/g, '""')}"`,
-        `"${education.replace(/"/g, '""')}"`,
-        `"${bioDesc.replace(/"/g, '""')}"`,
-        `"${website.replace(/"/g, '""')}"`,
-        `"${resumeUrl.replace(/"/g, '""')}"`,
-        resumeUpdated,
-        `"${certs.replace(/"/g, '""')}"`,
-        pCreated,
-        pUpdated
+      const res = await fetch(`/api/admin/users?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to export");
+      const data = await res.json();
+      const exportUsers: UserItem[] = data.users ?? [];
+      
+      if (exportUsers.length === 0) {
+        alert("No users found to export.");
+        return;
+      }
+      
+      const headers = [
+        "ID", "Email", "Role", "Created At",
+        "Name / Company Name", "Location", "Skills / Industry",
+        "Experience / Company Size", "Job Title", "Availability", "Resume DB Access",
+        "Phone", "Education", "Bio / Description", "Website", "Resume URL",
+        "Resume Updated At", "Certificates", "Profile Created", "Profile Updated"
       ];
-    });
 
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
-      + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const rows = exportUsers.map(user => {
+        const isJS = user.role === "JOB_SEEKER";
+        const isEmp = user.role === "EMPLOYER";
+
+        const name = isJS && user.jobSeekerProfile ? `${user.jobSeekerProfile.firstName} ${user.jobSeekerProfile.lastName}` : isEmp && user.employerProfile ? user.employerProfile.companyName : "";
+        const location = isJS && user.jobSeekerProfile?.location ? displayLocation(user.jobSeekerProfile.location) : "";
+        const skillsIndustry = isJS && user.jobSeekerProfile ? (user.jobSeekerProfile.skills || []).join(", ") : isEmp && user.employerProfile ? user.employerProfile.industry || "" : "";
+        const expSize = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.experience ?? "" : isEmp && user.employerProfile ? user.employerProfile.companySize || "" : "";
+        const jobTitle = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.jobTitle || "" : "";
+        const availability = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.availabilityStatus || "" : "";
+        const resumeAccess = isEmp && user.employerProfile ? (user.employerProfile.resumeSearchEnabled ? "Yes" : "No") : "";
+        const phone = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.phone || "" : "";
+        const education = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.education || "" : "";
+        const bioDesc = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.bio || "" : isEmp && user.employerProfile ? user.employerProfile.description || "" : "";
+        const website = isEmp && user.employerProfile ? user.employerProfile.website || "" : "";
+        const resumeUrl = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.resumeUrl || "" : "";
+        const resumeUpdated = isJS && user.jobSeekerProfile?.resumeUpdatedAt ? new Date(user.jobSeekerProfile.resumeUpdatedAt).toISOString().split('T')[0] : "";
+        const certs = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.certificates || "" : "";
+        
+        const pCreated = isJS && user.jobSeekerProfile?.createdAt ? new Date(user.jobSeekerProfile.createdAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.createdAt ? new Date(user.employerProfile.createdAt).toISOString().split('T')[0] : "";
+        const pUpdated = isJS && user.jobSeekerProfile?.updatedAt ? new Date(user.jobSeekerProfile.updatedAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.updatedAt ? new Date(user.employerProfile.updatedAt).toISOString().split('T')[0] : "";
+
+        return [
+          user.id,
+          `"${user.email.replace(/"/g, '""')}"`,
+          user.role,
+          user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : "",
+          `"${name.replace(/"/g, '""')}"`,
+          `"${location.replace(/"/g, '""')}"`,
+          `"${skillsIndustry.replace(/"/g, '""')}"`,
+          `"${String(expSize).replace(/"/g, '""')}"`,
+          `"${jobTitle.replace(/"/g, '""')}"`,
+          `"${availability.replace(/"/g, '""')}"`,
+          resumeAccess,
+          `"${phone.replace(/"/g, '""')}"`,
+          `"${education.replace(/"/g, '""')}"`,
+          `"${bioDesc.replace(/"/g, '""')}"`,
+          `"${website.replace(/"/g, '""')}"`,
+          `"${resumeUrl.replace(/"/g, '""')}"`,
+          resumeUpdated,
+          `"${certs.replace(/"/g, '""')}"`,
+          pCreated,
+          pUpdated
+        ];
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
+        + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      const filename = applyFilters ? `users_filtered_${new Date().toISOString().split('T')[0]}.csv` : `users_all_${new Date().toISOString().split('T')[0]}.csv`;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      alert("Failed to export users.");
+      console.error(err);
+    } finally {
+      setExporting(false);
+    }
   };
 
   const sortedUsers =
@@ -210,7 +277,7 @@ export default function AdminUsersClient() {
   const end = Math.min(page * limit, total);
 
   const containerClass =
-    "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10 lg:py-10";
+    "mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10";
 
   const toggleEmployerResumeAccess = async (userId: string, enabled: boolean) => {
     if (updatingAccessFor) return;
@@ -274,7 +341,7 @@ export default function AdminUsersClient() {
     let reason: string | null = null;
     if (status === "REJECTED") {
       reason = prompt("Please enter the reason for rejecting this employer profile:");
-      if (reason === null) return; // Cancelled
+      if (reason === null) return;
       if (!reason.trim()) {
         alert("A rejection reason is required.");
         return;
@@ -310,40 +377,36 @@ export default function AdminUsersClient() {
     }
   };
 
-
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-foreground animate-in fade-in duration-1000">
       <div className={containerClass}>
         {/* Registry Access Header */}
-        <div className="mb-16 border-b border-white/5 pb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-            <p className="text-xs font-semibold text-blue-500">User Management</p>
-          </div>
-          <h1 className="text-4xl font-bold md:text-6xl tracking-tighter text-white">
-            User <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">Management</span>
+        <div className="mb-8 border-b border-slate-200/60 pb-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">User Management</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            User <span className="text-blue-600">Registry</span>
           </h1>
-          <p className="mt-4 text-lg font-medium text-muted-foreground/60 italic">
+          <p className="mt-1.5 text-sm font-medium text-slate-500">
             Manage system users, view profiles, and update access permissions.
           </p>
 
-          <div className="mt-12 flex flex-wrap items-center gap-4 p-4 rounded-3xl bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm backdrop-blur-3xl">
+          <div className="mt-6 flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-white border border-slate-200 shadow-sm">
             <div className="relative flex-1 min-w-[280px]">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-blue-500 opacity-50" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 placeholder="Search name, email or ID..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="h-12 pl-12 bg-transparent border-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground/30 font-semibold text-xs"
+                className="h-11 pl-11 bg-transparent border-transparent focus-visible:ring-0 text-slate-700 placeholder:text-slate-400 font-semibold text-xs"
               />
             </div>
             <div className="w-[180px]">
               <Select value={role} onValueChange={setRole}>
-                <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
+                <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-xl text-xs font-semibold text-slate-700">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
-                <SelectContent className="bg-background border-white/10">
+                <SelectContent className="bg-white border border-slate-200">
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="JOB_SEEKER">Job Seeker</SelectItem>
                   <SelectItem value="EMPLOYER">Employer</SelectItem>
@@ -354,191 +417,141 @@ export default function AdminUsersClient() {
             <Button
               onClick={handleSearch}
               disabled={loading}
-              className="h-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all"
+              className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/10"
             >
-              Search Users
+              <span style={{ color: "white" }}>Search Users</span>
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleClear}
+              disabled={loading}
+              className="h-11 px-4 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+            >
+              Reset
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-10 lg:flex-row">
-          {/* Tactical Filters Sidebar */}
-          <aside className="w-full shrink-0 lg:w-80">
-            <div className="linear-card sticky top-32 rounded-[2.5rem] p-8 bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />
-                <h2 className="text-sm font-semibold text-foreground">Filters</h2>
-              </div>
-
-              <div className="space-y-10">
-                <div className="space-y-4">
-                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
-                    <User className="h-3 w-3" />
-                    Search Name
-                  </label>
-                  <Input
-                    placeholder="Keywords..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground placeholder:text-muted-foreground/20"
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-xs font-semibold text-muted-foreground/40 italic flex items-center gap-2">
-                    <Briefcase className="h-3 w-3" />
-                    User Role
-                  </label>
-                  <Select value={role} onValueChange={setRole}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/5 rounded-2xl text-xs font-semibold text-foreground">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-white/10">
-                      <SelectItem value="all">All Roles</SelectItem>
-                      <SelectItem value="JOB_SEEKER">Job Seeker</SelectItem>
-                      <SelectItem value="EMPLOYER">Employer</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="pt-6 flex flex-col gap-3">
-                  <Button
-                    onClick={handleSearch}
-                    className="h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-orange-500/20 transition-all active:scale-95"
-                  >
-                    Apply Filters
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={handleClear}
-                    className="h-12 w-full rounded-2xl text-xs font-semibold text-muted-foreground hover:bg-white/5 transition-all"
-                  >
-                    Reset Filters
-                  </Button>
-                </div>
-              </div>
-
-              <div className="mt-12 p-6 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10">
-                <p className="text-[9px] leading-relaxed text-muted-foreground/60 font-medium italic">
-                  Use filters to easily find specific users in the platform.
-                </p>
-              </div>
-            </div>
-          </aside>
-
-          {/* Result Grid */}
-          <div className="flex-1 space-y-8">
-            <div className="flex flex-wrap items-center justify-between gap-6 border-b border-white/5 pb-8">
-              <div className="flex flex-col gap-1">
-                <p className="text-3xl font-bold text-foreground tracking-tighter tabular-nums">
-                  {total} <span className="text-sm font-semibold text-blue-500 opacity-60 ml-2">Found</span>
-                </p>
-                <p className="text-xs font-semibold text-muted-foreground/40 italic">
-                  Showing {start} - {end} users
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportCSV}
-                  className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-foreground"
-                >
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </Button>
-                <div className="flex p-1 rounded-xl bg-white/5 border border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("grid")}
-                    className={`rounded-lg p-2.5 transition-all ${viewMode === "grid" ? "toggle-active" : "text-muted-foreground hover:bg-white/5"}`}
-                    aria-label="Grid Scan"
-                  >
-                    <LayoutGrid className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode("list")}
-                    className={`rounded-lg p-2.5 transition-all ${viewMode === "list" ? "toggle-active" : "text-muted-foreground hover:bg-white/5"}`}
-                    aria-label="List View"
-                  >
-                    <List className="h-5 w-5" />
-                  </button>
-                </div>
-
-                <div className="relative group">
-                  <div className="flex items-center gap-3 h-12 px-5 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold text-foreground hover:bg-white/10 transition-all cursor-pointer">
-                    <span className="opacity-40">SORT:</span> {sort === "recent" ? "LATEST" : "OLDEST"}
-                    <ChevronDown className="h-4 w-4 opacity-40 ml-1" />
-                  </div>
-                  <select
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  >
-                    <option value="recent">LATEST</option>
-                    <option value="oldest">OLDEST</option>
-                  </select>
-                </div>
-              </div>
+        {/* Result Section */}
+        <div className="space-y-8 mt-8">
+          <div className="flex flex-wrap items-center justify-between gap-6 border-b border-slate-200/60 pb-6">
+            <div className="flex flex-col gap-1">
+              <p className="text-2xl font-bold text-slate-800 tracking-tight tabular-nums">
+                {total} <span className="text-xs font-semibold text-blue-600 ml-2">Found</span>
+              </p>
+              <p className="text-xs font-semibold text-slate-400">
+                Showing {start} - {end} users
+              </p>
             </div>
 
-            {loading ? (
-              <div className="linear-card rounded-[3rem] p-32 text-center animate-pulse">
-                <p className="text-sm font-semibold text-blue-500">Loading...</p>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="linear-card rounded-[3rem] p-32 text-center border-dashed border-white/10">
-                <p className="text-xl font-bold text-muted-foreground/40 italic leading-relaxed">
-                  No matches found.
-                </p>
-              </div>
-            ) : (
-              <div
-                className={`grid gap-6 ${viewMode === "list" ? "grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-2"}`}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={exporting}
+                onClick={() => handleExportCSV(true)}
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
               >
-                {sortedUsers.map((user, idx) => (
-                  <UserCard
-                    key={user.id}
-                    user={user}
-                    onToggleResumeAccess={toggleEmployerResumeAccess}
-                    onToggleResumeUpload={toggleEmployerResumeUpload}
-                    onUpdateApproval={updateEmployerApproval}
-                    isUpdating={updatingAccessFor === user.id}
-                    index={idx}
-                  />
-                ))}
+                <Download className="h-4 w-4" />
+                {exporting ? "Exporting..." : "Export Filtered"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={exporting}
+                onClick={() => handleExportCSV(false)}
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
+              >
+                <Download className="h-4 w-4" />
+                {exporting ? "Exporting..." : "Export All"}
+              </Button>
+              <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-250/60">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`rounded-lg p-2 transition-all ${viewMode === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:bg-slate-55"}`}
+                  aria-label="Grid Scan"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`rounded-lg p-2 transition-all ${viewMode === "list" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:bg-slate-55"}`}
+                  aria-label="List View"
+                >
+                  <List className="h-4 w-4" />
+                </button>
               </div>
-            )}
 
-            {!loading && totalPages > 1 && (
-              <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-                <Button
-                  variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                  Previous Page
-                </Button>
-                <div className="px-8 flex flex-col items-center">
-                  <p className="text-xs font-semibold text-blue-500">Page</p>
-                  <p className="text-xl font-black mt-1 tabular-nums">{page} <span className="opacity-20">/</span> {totalPages}</p>
+              <div className="relative group">
+                <div className="flex items-center gap-3 h-10 px-4 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all cursor-pointer shadow-sm">
+                  <span className="text-slate-400">SORT:</span> {sort === "recent" ? "LATEST" : "OLDEST"}
+                  <ChevronDown className="h-4 w-4 text-slate-400 ml-1" />
                 </div>
-                <Button
-                  variant="ghost"
-                  className="h-12 px-8 rounded-2xl bg-white/5 border border-white/5 text-xs font-semibold hover:bg-white/10 disabled:opacity-20 transition-all"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
                 >
-                  Next Page
-                </Button>
+                  <option value="recent">LATEST</option>
+                  <option value="oldest">OLDEST</option>
+                </select>
               </div>
-            )}
+            </div>
           </div>
+
+          {loading ? (
+            <div className="bg-white border border-slate-200 rounded-2xl p-24 text-center animate-pulse shadow-sm">
+              <p className="text-xs font-semibold text-blue-500">Loading registry...</p>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="bg-white border border-slate-200 rounded-2xl p-24 text-center">
+              <p className="text-xs font-semibold text-slate-400 italic">
+                No matches found.
+              </p>
+            </div>
+          ) : (
+            <div
+              className={`grid gap-6 ${viewMode === "list" ? "grid-cols-1" : "sm:grid-cols-2 xl:grid-cols-2"}`}
+            >
+              {sortedUsers.map((user, idx) => (
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  onToggleResumeAccess={toggleEmployerResumeAccess}
+                  onToggleResumeUpload={toggleEmployerResumeUpload}
+                  onUpdateApproval={updateEmployerApproval}
+                  isUpdating={updatingAccessFor === user.id}
+                  index={idx}
+                />
+              ))}
+            </div>
+          )}
+
+          {!loading && totalPages > 1 && (
+            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
+              <Button
+                variant="ghost"
+                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous Page
+              </Button>
+              <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="ghost"
+                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next Page
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -592,68 +605,68 @@ function UserCard({
 
   return (
     <div
-      className="linear-card group flex flex-col rounded-[2.5rem] bg-gradient-to-br from-blue-50 to-orange-50 border border-blue-200 p-10 transition-all hover:shadow-md hover:border-blue-300 animate-in fade-in slide-in-from-bottom-5 duration-700"
+      className="group bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between h-full shadow-sm hover:shadow-md transition-all duration-300"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      <div className="flex items-start justify-between gap-4 mb-10">
-        <div className="flex items-center gap-6">
-          <Avatar className="h-16 w-16 shrink-0 rounded-2xl border-2 border-white/10 shadow-2xl transition-transform group-hover:scale-110">
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-14 w-14 shrink-0 rounded-xl border border-slate-200 shadow-sm transition-transform group-hover:scale-105">
             {logoUrl ? (
               <AvatarImage src={logoUrl} alt={displayName} className="object-cover" />
             ) : null}
-            <AvatarFallback className="bg-blue-500/10 text-blue-500 text-xl font-bold">
+            <AvatarFallback className="bg-blue-50 text-blue-600 text-lg font-bold">
               {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-1.5 mb-1">
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-blue-500" : isEmployer ? "bg-indigo-500" : "bg-blue-500"}`} />
-              <p className="text-xs font-semibold text-blue-500">{user.role.replace("_", " ")}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.role.replace("_", " ")}</p>
             </div>
-            <h3 className="text-xl font-bold text-foreground tracking-tight line-clamp-1 group-hover:text-blue-500 transition-colors">{displayName}</h3>
-            <p className="text-xs font-semibold text-muted-foreground/40 mt-1 italic">{subtitle}</p>
+            <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{displayName}</h3>
+            <p className="text-xs font-semibold text-slate-400 mt-0.5 truncate">{subtitle}</p>
           </div>
         </div>
 
         {isJobSeeker && user.jobSeekerProfile?.availabilityStatus && (
-          <span className="rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-xs font-semibold text-blue-600">
+          <span className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-650">
             {user.jobSeekerProfile.availabilityStatus}
           </span>
         )}
 
         {isEmployer && user.employerProfile?.approvalStatus && (
-          <span className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-wider ${
+          <span className={`rounded-lg border px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
             user.employerProfile.approvalStatus === "APPROVED"
-              ? "bg-green-50 border-green-200 text-green-600"
+              ? "bg-emerald-50 border-emerald-100 text-emerald-755"
               : user.employerProfile.approvalStatus === "REJECTED"
-              ? "bg-red-50 border-red-200 text-red-600"
-              : "bg-amber-50 border-amber-200 text-amber-600"
+              ? "bg-red-50 border-red-100 text-red-655"
+              : "bg-amber-50 border-amber-100 text-amber-755"
           }`}>
             {user.employerProfile.approvalStatus}
           </span>
         )}
       </div>
 
-      <div className="flex-1 space-y-8">
-        <div className="p-6 rounded-[1.5rem] bg-white/5 border border-white/5">
-          <p className="text-sm leading-relaxed text-muted-foreground font-medium italic line-clamp-2">
+      <div className="flex-1 space-y-6">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+          <p className="text-xs leading-relaxed text-slate-500 font-medium italic line-clamp-2">
             {isJobSeeker && user.jobSeekerProfile?.bio
-              ? `&quot;${user.jobSeekerProfile.bio}&quot;`
+              ? `"${user.jobSeekerProfile.bio}"`
               : isEmployer && user.employerProfile?.description
-                ? `&quot;${user.employerProfile.description}&quot;`
-                : "Transmission historical data pending verification..."}
+                ? `"${user.employerProfile.description}"`
+                : "No bio description uploaded yet."}
           </p>
         </div>
 
         {isJobSeeker && user.jobSeekerProfile?.skills && user.jobSeekerProfile.skills.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {user.jobSeekerProfile.skills.slice(0, 4).map((s) => (
-              <span key={s} className="px-4 py-1.5 rounded-xl bg-blue-500/5 border border-blue-500/10 text-xs font-semibold text-blue-500/80">
+              <span key={s} className="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-100 text-[10px] font-semibold text-blue-600">
                 {s}
               </span>
             ))}
             {user.jobSeekerProfile.skills.length > 4 && (
-              <span className="px-4 py-1.5 rounded-xl bg-white/5 text-xs font-semibold text-muted-foreground/40">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[10px] font-semibold text-slate-450">
                 +{user.jobSeekerProfile.skills.length - 4} MORE
               </span>
             )}
@@ -661,36 +674,36 @@ function UserCard({
         )}
       </div>
 
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-6 border-t border-white/5 pt-10">
-        <p className="text-xs font-semibold text-muted-foreground/30 italic">LOGGED: {new Date(user.createdAt).toLocaleDateString("en-GB")}</p>
-        <div className="flex items-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-150/60 pt-5">
+        <p className="text-[10px] font-semibold text-slate-400">Created {new Date(user.createdAt).toLocaleDateString("en-GB")}</p>
+        <div className="flex flex-wrap items-center gap-2">
           {isEmployer && user.employerProfile ? (
             <>
               {user.employerProfile.approvalStatus !== "APPROVED" && (
                 <Button
                   type="button"
-                  className="h-10 px-5 rounded-2xl text-xs font-semibold bg-green-600 text-white hover:bg-green-700 shadow-md shadow-green-500/20 transition-all"
+                  className="h-9 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
                   disabled={isUpdating}
                   onClick={() => onUpdateApproval(user.id, "APPROVED")}
                 >
-                  Approve
+                  <span style={{ color: "white" }}>Approve</span>
                 </Button>
               )}
               {user.employerProfile.approvalStatus !== "REJECTED" && (
                 <Button
                   type="button"
-                  className="h-10 px-5 rounded-2xl text-xs font-semibold bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-500/20 transition-all"
+                  className="h-9 px-4 rounded-xl text-xs font-semibold bg-red-650 hover:bg-red-700 text-white transition-colors"
                   disabled={isUpdating}
                   onClick={() => onUpdateApproval(user.id, "REJECTED")}
                 >
-                  Reject
+                  <span style={{ color: "white" }}>Reject</span>
                 </Button>
               )}
               <Button
                 type="button"
-                className={`h-10 px-5 rounded-2xl text-xs font-semibold transition-all ${user.employerProfile.resumeSearchEnabled
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                    : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                className={`h-9 px-4 rounded-xl text-xs font-semibold transition-all ${user.employerProfile.resumeSearchEnabled
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/10"
+                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 disabled={isUpdating || user.employerProfile.approvalStatus !== "APPROVED"}
                 onClick={() =>
@@ -700,17 +713,19 @@ function UserCard({
                   )
                 }
               >
-                {isUpdating
-                  ? "SYNCING..."
-                  : user.employerProfile.resumeSearchEnabled
-                    ? "DB ACCESS: ON"
-                    : "DB ACCESS: OFF"}
+                {isUpdating ? (
+                  "SYNCING..."
+                ) : user.employerProfile.resumeSearchEnabled ? (
+                  <span style={{ color: "white" }}>DB ACCESS: ON</span>
+                ) : (
+                  "DB ACCESS: OFF"
+                )}
               </Button>
               <Button
                 type="button"
-                className={`h-10 px-5 rounded-2xl text-xs font-semibold transition-all ${user.employerProfile.resumeUploadEnabled
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                    : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50"
+                className={`h-9 px-4 rounded-xl text-xs font-semibold transition-all ${user.employerProfile.resumeUploadEnabled
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/10"
+                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 disabled={isUpdating || user.employerProfile.approvalStatus !== "APPROVED"}
                 onClick={() =>
@@ -720,18 +735,20 @@ function UserCard({
                   )
                 }
               >
-                {isUpdating
-                  ? "SYNCING..."
-                  : user.employerProfile.resumeUploadEnabled
-                    ? "RESUME UPLOAD: ON"
-                    : "RESUME UPLOAD: OFF"}
+                {isUpdating ? (
+                  "SYNCING..."
+                ) : user.employerProfile.resumeUploadEnabled ? (
+                  <span style={{ color: "white" }}>RESUME UPLOAD: ON</span>
+                ) : (
+                  "RESUME UPLOAD: OFF"
+                )}
               </Button>
             </>
           ) : null}
           <Link href={`/admin/users/${user.id}`}>
-            <Button variant="ghost" className="h-10 px-6 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold text-foreground hover:bg-white/10 transition-all active:scale-95 group">
+            <Button variant="ghost" className="h-9 px-4 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-all active:scale-95 group">
               View Profile
-              <ChevronRight className="ml-2 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              <ChevronRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </Link>
         </div>

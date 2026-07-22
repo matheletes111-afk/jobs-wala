@@ -35,11 +35,11 @@ export default async function Footer() {
           {/* Logo & Description Column */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center shrink-0 h-10 md:h-12 overflow-hidden">
+              <div className="flex items-center justify-center shrink-0 h-16 md:h-20 overflow-hidden">
                 <img
                   src="/images/logo.png"
                   alt="Jobdaddy"
-                  className="h-[140%] w-auto max-w-none object-contain"
+                  className="h-[200%] w-auto max-w-none object-contain"
                 />
               </div>
             </div>
@@ -63,7 +63,7 @@ export default async function Footer() {
               ) : (
                 ["Human Resources", "Artificial Intelligence", "Engineering", "Manufacturing", "Defence", "Healthcare"].map((mockCat) => (
                   <li key={mockCat}>
-                    <Link href="/user/jobs" className="hover:text-blue-600 transition-colors block">
+                    <Link href="/jobs/browse" className="hover:text-blue-600 transition-colors block">
                       {mockCat}
                     </Link>
                   </li>

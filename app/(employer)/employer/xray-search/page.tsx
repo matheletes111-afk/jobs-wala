@@ -22,9 +22,9 @@ export default async function XRaySearchPage() {
     <div className="min-h-screen w-full bg-transparent text-foreground">
       <div className="mx-auto w-full max-w-7xl px-4 py-8">
         {isRestricted && (
-          <div className="mb-12 linear-card rounded-[2rem] border-blue-500/20 bg-blue-500/5 p-8 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
-            <AlertCircle className="h-6 w-6 text-blue-400 shrink-0" />
-            <p className="text-sm text-blue-400 font-bold uppercase tracking-widest">
+          <div className="mb-8 rounded-2xl border border-blue-250 bg-blue-50 p-6 flex items-center gap-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+            <AlertCircle className="h-6 w-6 text-blue-600 shrink-0" />
+            <p className="text-sm text-blue-700 font-bold uppercase tracking-wider">
               X-Ray search is not included in your current plan. Please upgrade to access this feature.
             </p>
           </div>
@@ -33,8 +33,8 @@ export default async function XRaySearchPage() {
         {!isRestricted ? (
           <XRaySearch />
         ) : (
-          <div className="linear-card rounded-[3rem] p-24 text-center border-dashed border-white/10 bg-white/[0.01] opacity-50">
-            <p className="text-xl font-black text-muted-foreground/40 uppercase tracking-widest italic leading-relaxed">
+          <div className="rounded-2xl p-24 text-center border border-slate-200 bg-white shadow-sm opacity-60">
+            <p className="text-lg font-bold text-slate-400 uppercase tracking-wider italic leading-relaxed">
               X-Ray Search Locked
             </p>
           </div>

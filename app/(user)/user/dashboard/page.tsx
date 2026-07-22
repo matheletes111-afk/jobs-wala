@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
 import CompanyLogo from "@/components/CompanyLogo";
 import { Briefcase, FileText, User, ChevronRight, Plus, Sparkles } from "lucide-react";
+import { computeSkillMatch } from "@/lib/skill-match";
 
 export default async function UserDashboardPage({
   searchParams,
@@ -65,19 +66,13 @@ export default async function UserDashboardPage({
   const candidateSkills = profile.skills || [];
   const matchedJobs = allActiveJobs
     .map((job) => {
-      const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
-      if (jobSkills.length === 0) {
-        return { ...job, matchPercentage: 0, matchedSkills: [] };
-      }
-      const matched = jobSkills.filter((js) =>
-        candidateSkills.some(
-          (cs) =>
-            cs.toLowerCase().includes(js.toLowerCase()) ||
-            js.toLowerCase().includes(cs.toLowerCase())
-        )
+      const match = computeSkillMatch(
+        [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
+        candidateSkills,
+        profile.bio
       );
-      const matchPercentage = Math.round((matched.length / jobSkills.length) * 100);
-      return { ...job, matchPercentage, matchedSkills: matched };
+      const matchPercentage = match.percent || 0;
+      return { ...job, matchPercentage, matchedSkills: match.matchedLabels };
     })
     .filter((job) => job.matchPercentage > 0)
     .sort((a, b) => b.matchPercentage - a.matchPercentage);
@@ -90,21 +85,13 @@ export default async function UserDashboardPage({
       )
     )
     .map((job) => {
-      const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
-      let matchPercentage = 0;
-      let matchedSkills: string[] = [];
-      if (jobSkills.length > 0) {
-        const matched = jobSkills.filter((js) =>
-          candidateSkills.some(
-            (cs) =>
-              cs.toLowerCase().includes(js.toLowerCase()) ||
-              js.toLowerCase().includes(cs.toLowerCase())
-          )
-        );
-        matchPercentage = Math.round((matched.length / jobSkills.length) * 100);
-        matchedSkills = matched;
-      }
-      return { ...job, matchPercentage, matchedSkills };
+      const match = computeSkillMatch(
+        [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
+        candidateSkills,
+        profile.bio
+      );
+      const matchPercentage = match.percent || 0;
+      return { ...job, matchPercentage, matchedSkills: match.matchedLabels };
     })
     .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
@@ -118,26 +105,27 @@ export default async function UserDashboardPage({
   const paginatedPrefJobs = preferredJobs.slice((currentPrefPage - 1) * limit, currentPrefPage * limit);
 
   return (
-    <div className="min-h-screen w-full min-w-0 bg-transparent">
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10 lg:py-10">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-in fade-in slide-in-from-top-4 duration-700">
+    <div className="w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
+        <div className="mb-8 border-b border-slate-200/60 pb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between animate-in fade-in duration-700">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1.5">Overview</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               User Dashboard
             </h1>
-            <p className="mt-2 text-muted-foreground font-medium">
+            <p className="mt-1.5 text-sm font-medium text-slate-500">
               Manage your job search, track applications, and update your profile.
             </p>
           </div>
           <Link href="/user/jobs">
-            <Button style={{ color: "white" }} className="h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20">
-              <Plus className="h-5 w-5 mr-2" style={{ color: "white" }} />
+            <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm">
+              <Plus className="h-4 w-4 text-white" />
               <span style={{ color: "white" }}>Browse Jobs</span>
             </Button>
           </Link>
         </div>
 
-        <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
               label: "Profile Status",
@@ -166,32 +154,35 @@ export default async function UserDashboardPage({
           ].map((card, idx) => {
             const Icon = card.icon;
             const colors: Record<string, string> = {
-              emerald:
-                "bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 hover:scale-105 shadow-xl shadow-emerald-500/20",
-              amber:
-                "bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 hover:scale-105 shadow-xl shadow-amber-500/20",
-              blue: "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-0 hover:scale-105 shadow-xl shadow-blue-500/20",
-              violet:
-                "bg-gradient-to-br from-violet-600 to-purple-600 text-white border-0 hover:scale-105 shadow-xl shadow-violet-500/20",
+              emerald: "bg-emerald-50 border-emerald-100 text-emerald-600 hover:border-emerald-350",
+              amber: "bg-amber-50 border-amber-100 text-amber-600 hover:border-amber-350",
+              blue: "bg-blue-50 border-blue-100 text-blue-600 hover:border-blue-350",
+              violet: "bg-violet-50 border-violet-100 text-violet-600 hover:border-violet-350",
+            };
+            const iconBgColors: Record<string, string> = {
+              emerald: "bg-emerald-100 text-emerald-600",
+              amber: "bg-amber-100 text-amber-650",
+              blue: "bg-blue-100 text-blue-600",
+              violet: "bg-violet-100 text-violet-600",
             };
             return (
               <Link key={card.label} href={card.href} className="group outline-none">
                 <div
-                  className={`relative overflow-hidden flex flex-col justify-between h-36 rounded-2xl p-5 border transition-all duration-500 animate-in zoom-in-95 ${colors[card.color]}`}
-                  style={{ animationDelay: `${idx * 100}ms` }}
+                  className={`relative overflow-hidden flex flex-col justify-between h-36 rounded-2xl p-5 border bg-white shadow-sm transition-all duration-300 hover:shadow-md ${colors[card.color]}`}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className="flex items-start justify-between text-white">
-                    <div className="rounded-2xl bg-white/20 p-3 group-hover:scale-110 transition-transform">
-                      <Icon className="h-6 w-6 text-white" />
+                  <div className="flex items-start justify-between">
+                    <div className={`rounded-xl p-2.5 transition-transform group-hover:scale-105 ${iconBgColors[card.color]}`}>
+                      <Icon className="h-5 w-5" />
                     </div>
-                    <ChevronRight className="h-5 w-5 text-white/70 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
                   </div>
-                  <div className="text-white">
-                    <p className="text-xs font-semibold text-white/70 mb-1">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
                       {card.label}
                     </p>
-                    <p className="text-3xl font-bold text-white">{card.value}</p>
-                    <p className="text-xs font-bold text-white/70 mt-1">{card.subValue}</p>
+                    <p className="text-2xl font-bold text-slate-800">{card.value}</p>
+                    <p className="text-xs font-medium text-slate-500 mt-0.5">{card.subValue}</p>
                   </div>
                 </div>
               </Link>
@@ -201,21 +192,21 @@ export default async function UserDashboardPage({
 
         {/* Recommended Jobs Based on Skills */}
         {profile.skills && profile.skills.length > 0 && (
-          <section className="linear-card rounded-2xl overflow-hidden mb-10 animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+          <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-8 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-amber-400" />
+                <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Sparkles className="h-4.5 w-4.5 text-amber-500" />
                   Recommended Jobs for You
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-slate-500 mt-0.5">
                   Top opportunities matched based on your profile skills
                 </p>
               </div>
             </div>
-            <div className="divide-y divide-white/5 overflow-x-auto">
+            <div className="divide-y divide-slate-100 overflow-x-auto">
               {paginatedSkillsJobs.length === 0 ? (
-                <div className="px-8 py-20 text-center text-muted-foreground font-medium italic">
+                <div className="px-6 py-12 text-center text-slate-400 text-xs font-medium italic">
                   No recommended jobs found. Update your profile skills to match with open positions!
                 </div>
               ) : (
@@ -224,70 +215,67 @@ export default async function UserDashboardPage({
                   return (
                     <div
                       key={job.id}
-                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
-                      style={{ animationDelay: `${idx * 50}ms` }}
+                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-slate-50/30 group"
                     >
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
                         companyName={job.companyName || job.employer.companyName}
                         size="md"
-                        className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
+                        className="shrink-0 rounded-xl border border-slate-200 bg-white"
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Link href={`/jobs/${job.id}`}>
-                            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                            <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                               {job.title}
                             </h3>
                           </Link>
-                          <span className="text-xs font-semibold bg-white/5 px-3 py-1 rounded-full text-foreground/45 leading-none">
+                          <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase">
                             {job.category}
                           </span>
                         </div>
-                        <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                        <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-400">
                           <span>{job.companyName || job.employer.companyName}</span>
-                          <span className="text-white/10">|</span>
+                          <span className="text-slate-200">|</span>
                           <span>{formatLocation(job.location)}</span>
                         </div>
 
                         {/* Skills Match Section */}
-                        <div className="mt-4 max-w-md">
-                          <div className="flex items-center justify-between text-xs mb-1.5">
-                            <span className="font-bold text-muted-foreground flex items-center gap-1">
+                        <div className="mt-3 max-w-md">
+                          <div className="flex items-center justify-between text-[11px] mb-1">
+                            <span className="font-semibold text-slate-400">
                               Skills Match
                             </span>
-                            <span className="text-sm font-black text-orange-500">
+                            <span className="text-xs font-bold text-orange-500">
                               {job.matchPercentage}% Match
                             </span>
                           </div>
                           {/* Progress Bar */}
-                          <div className="h-2 w-full bg-black/10 rounded-full overflow-hidden border border-black/5">
+                          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
                             <div
                               className={`h-full rounded-full transition-all duration-1000 ${
                                 job.matchPercentage >= 75
-                                  ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                                  ? "bg-emerald-500"
                                   : job.matchPercentage >= 40
-                                  ? "bg-gradient-to-r from-amber-500 to-yellow-400"
-                                  : "bg-gradient-to-r from-blue-500 to-indigo-400"
+                                  ? "bg-amber-500"
+                                  : "bg-blue-500"
                               }`}
                               style={{ width: `${job.matchPercentage}%` }}
                             />
                           </div>
                           {/* Matched Skills Preview */}
-                          <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          <div className="mt-2 flex flex-wrap gap-1">
                             {jobSkills.map((skill) => {
-                              const isMatched = candidateSkills.some(
-                                (cs) =>
-                                  cs.toLowerCase().includes(skill.toLowerCase()) ||
-                                  skill.toLowerCase().includes(cs.toLowerCase())
+                              const isMatched = job.matchedSkills.some(
+                                (ms) => ms.toLowerCase() === skill.toLowerCase()
                               );
                               return (
                                 <span
                                   key={skill}
-                                  className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider border ${
+                                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all ${
                                     isMatched
-                                      ? "bg-emerald-500/15 text-emerald-700 border-emerald-400"
-                                      : "bg-transparent text-muted-foreground/60 border-muted-foreground/20"
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-250"
+                                      : "bg-slate-50 text-slate-400 border-slate-200"
                                   }`}
                                 >
                                   {skill}
@@ -299,7 +287,7 @@ export default async function UserDashboardPage({
                       </div>
                       <div className="flex items-center shrink-0">
                         <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
-                          <Button style={{ color: "white" }} className="w-full lg:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
+                          <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
                             <span style={{ color: "white" }}>Apply Now</span>
                           </Button>
                         </Link>
@@ -311,38 +299,38 @@ export default async function UserDashboardPage({
             </div>
 
             {/* Pagination Controls */}
-            {totalSkillsPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-8 pb-8 border-t border-white/5 pt-8">
+            {totalMatchedJobs > limit && totalSkillsPages > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-4 border-t border-slate-100">
                 <Link
                   href={currentSkillsPage > 1 ? `/user/dashboard?skillsPage=${currentSkillsPage - 1}&prefPage=${currentPrefPage}` : "#"}
-                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentSkillsPage <= 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  className={`h-9 px-4 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center transition-all ${
+                    currentSkillsPage <= 1 ? "opacity-30 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >
-                  ← Previous Page
+                  Previous Page
                 </Link>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {Array.from({ length: totalSkillsPages }, (_, i) => i + 1).map((p) => (
                     <Link
                       key={p}
                       href={`/user/dashboard?skillsPage=${p}&prefPage=${currentPrefPage}`}
-                      className={`h-10 w-10 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
+                      className={`h-9 w-9 flex items-center justify-center rounded-lg text-xs font-semibold transition-all border ${
                         currentSkillsPage === p
-                          ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40"
-                          : "text-muted-foreground/45 hover:bg-white/5 hover:text-foreground"
+                          ? "bg-blue-600 border-blue-500 text-white shadow-sm"
+                          : "bg-white border-slate-200 text-slate-505 hover:bg-slate-100"
                       }`}
                     >
-                      {p.toString().padStart(2, "0")}
+                      {p}
                     </Link>
                   ))}
                 </div>
                 <Link
                   href={currentSkillsPage < totalSkillsPages ? `/user/dashboard?skillsPage=${currentSkillsPage + 1}&prefPage=${currentPrefPage}` : "#"}
-                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentSkillsPage >= totalSkillsPages ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  className={`h-9 px-4 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center transition-all ${
+                    currentSkillsPage >= totalSkillsPages ? "opacity-30 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >
-                  Next Page →
+                  Next Page
                 </Link>
               </div>
             )}
@@ -351,72 +339,66 @@ export default async function UserDashboardPage({
 
         {/* Jobs in Your Preferred Categories */}
         {profile.preferredCategories && profile.preferredCategories.length > 0 && (
-          <section className="linear-card rounded-2xl overflow-hidden mb-10 animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+          <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-8 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <Briefcase className="h-5 w-5 text-blue-500" />
+                <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <Briefcase className="h-4.5 w-4.5 text-blue-500" />
                   Jobs in Your Preferred Categories
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground mt-1">
+                <p className="text-xs font-medium text-slate-500 mt-0.5">
                   Active job listings under your selected categories
                 </p>
               </div>
             </div>
-            <div className="divide-y divide-white/5 overflow-x-auto">
+            <div className="divide-y divide-slate-100 overflow-x-auto">
               {paginatedPrefJobs.length === 0 ? (
-                <div className="px-8 py-20 text-center text-muted-foreground font-medium italic">
+                <div className="px-6 py-12 text-center text-slate-400 text-xs font-medium italic">
                   No jobs found in your preferred categories. Update your preferences to see listings!
                 </div>
               ) : (
                 paginatedPrefJobs.map((job, idx) => {
-                  const jobSkills = Array.from(new Set([...job.requiredSkills, ...job.secondarySkills]));
                   return (
                     <div
                       key={job.id}
-                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
-                      style={{ animationDelay: `${idx * 50}ms` }}
+                      className="flex flex-col lg:flex-row lg:items-center gap-4 px-6 py-5 transition-all hover:bg-slate-50/30 group"
                     >
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
                         companyName={job.companyName || job.employer.companyName}
                         size="md"
-                        className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
+                        className="shrink-0 rounded-xl border border-slate-200 bg-white"
                       />
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Link href={`/jobs/${job.id}`}>
-                            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                            <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                               {job.title}
                             </h3>
                           </Link>
-                          <span className="text-xs font-semibold bg-white/5 px-3 py-1 rounded-full text-foreground/45 leading-none">
+                          <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase">
                             {job.category}
                           </span>
                         </div>
-                        <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                        <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-400">
                           <span>{job.companyName || job.employer.companyName}</span>
-                          <span className="text-white/10">|</span>
+                          <span className="text-slate-200">|</span>
                           <span>{formatLocation(job.location)}</span>
                         </div>
 
                         {job.matchPercentage > 0 && (
-                          <div className="mt-4 max-w-md">
-                            <div className="flex items-center justify-between text-xs mb-1.5">
-                              <span className="font-bold text-muted-foreground flex items-center gap-1">
+                          <div className="mt-3 max-w-sm">
+                            <div className="flex items-center justify-between text-[11px] mb-1">
+                              <span className="font-semibold text-slate-400">
                                 Skills Match
                               </span>
-                              <span className="text-sm font-black text-orange-500">
+                              <span className="text-xs font-bold text-orange-500">
                                 {job.matchPercentage}% Match
                               </span>
                             </div>
-                            <div className="h-2 w-full bg-black/10 rounded-full overflow-hidden border border-black/5">
+                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
                               <div
-                                className={`h-full rounded-full transition-all duration-1000 ${
-                                  job.matchPercentage >= 75
-                                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-                                    : "bg-gradient-to-r from-blue-500 to-indigo-400"
-                                }`}
+                                className="h-full rounded-full bg-blue-500 transition-all duration-1000"
                                 style={{ width: `${job.matchPercentage}%` }}
                               />
                             </div>
@@ -425,7 +407,7 @@ export default async function UserDashboardPage({
                       </div>
                       <div className="flex items-center shrink-0">
                         <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
-                          <Button style={{ color: "white" }} className="w-full lg:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all hover:scale-[1.02] active:scale-95 shadow-md shadow-blue-500/10">
+                          <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
                             <span style={{ color: "white" }}>Apply Now</span>
                           </Button>
                         </Link>
@@ -437,62 +419,63 @@ export default async function UserDashboardPage({
             </div>
 
             {/* Pagination Controls */}
-            {totalPrefPages > 1 && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3 px-6 pb-6 border-t border-white/5 pt-6">
+            {totalPreferredJobs > limit && totalPrefPages > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-3 px-6 py-4 border-t border-slate-100">
                 <Link
                   href={currentPrefPage > 1 ? `/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${currentPrefPage - 1}` : "#"}
-                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentPrefPage <= 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  className={`h-9 px-4 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center transition-all ${
+                    currentPrefPage <= 1 ? "opacity-30 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >
-                  ← Previous Page
+                  Previous Page
                 </Link>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {Array.from({ length: totalPrefPages }, (_, i) => i + 1).map((p) => (
                     <Link
                       key={p}
                       href={`/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${p}`}
-                      className={`h-10 w-10 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
+                      className={`h-9 w-9 flex items-center justify-center rounded-lg text-xs font-semibold transition-all border ${
                         currentPrefPage === p
-                          ? "bg-primary text-white shadow-xl shadow-primary/20 border border-primary/40"
-                          : "text-muted-foreground/45 hover:bg-white/5 hover:text-foreground"
+                          ? "bg-blue-600 border-blue-500 text-white shadow-sm"
+                          : "bg-white border-slate-200 text-slate-505 hover:bg-slate-100"
                       }`}
                     >
-                      {p.toString().padStart(2, "0")}
+                      {p}
                     </Link>
                   ))}
                 </div>
                 <Link
                   href={currentPrefPage < totalPrefPages ? `/user/dashboard?skillsPage=${currentSkillsPage}&prefPage=${currentPrefPage + 1}` : "#"}
-                  className={`h-10 px-6 rounded-xl text-xs font-semibold flex items-center hover:bg-white/5 transition-all ${
-                    currentPrefPage >= totalPrefPages ? "opacity-40 cursor-not-allowed pointer-events-none" : "text-muted-foreground/80 hover:text-foreground"
+                  className={`h-9 px-4 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center transition-all ${
+                    currentPrefPage >= totalPrefPages ? "opacity-30 cursor-not-allowed pointer-events-none" : ""
                   }`}
                 >
-                  Next Page →
+                  Next Page
                 </Link>
               </div>
             )}
           </section>
         )}
 
-        <section className="linear-card rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-1000">
-          <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+        {/* Recent Applications */}
+        <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
             <div>
-              <h2 className="text-xl font-bold text-foreground">Recent Applications</h2>
-              <p className="text-sm font-medium text-muted-foreground mt-1">
+              <h2 className="text-sm font-bold text-slate-800">Recent Applications</h2>
+              <p className="text-xs font-medium text-slate-500 mt-0.5">
                 Status and tracking for your latest submissions
               </p>
             </div>
             <Link href="/user/applications">
-              <Button className="text-xs font-semibold text-blue-500 hover:bg-blue-500/5 px-4 h-10 rounded-xl transition-all">
-                View All Applications
-                <ChevronRight className="h-4 w-4 ml-2" />
+              <Button variant="ghost" className="text-xs font-semibold text-blue-600 hover:bg-blue-50 px-4 h-9 rounded-lg border border-slate-200 transition-all shadow-sm">
+                View All
+                <ChevronRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </Link>
           </div>
-          <div className="divide-y divide-white/5 overflow-x-auto">
+          <div className="divide-y divide-slate-100 overflow-x-auto">
             {recentApplications.length === 0 ? (
-              <div className="px-8 py-20 text-center text-muted-foreground font-medium">
+              <div className="px-6 py-12 text-center text-slate-400 text-xs font-medium">
                 No active applications. Your future starts with the next submission!
               </div>
             ) : (
@@ -500,46 +483,45 @@ export default async function UserDashboardPage({
                 <Link
                   key={application.id}
                   href="/user/applications"
-                  className="flex items-center gap-4 px-6 py-5 transition-all hover:bg-white/[0.02] group animate-in slide-in-from-right-4 duration-500"
-                  style={{ animationDelay: `${idx * 50}ms` }}
+                  className="flex items-center gap-4 px-6 py-5 transition-all hover:bg-slate-50/30 group"
                 >
                   <CompanyLogo
                     companyLogo={application.job.employer.companyLogo}
                     companyName={application.job.companyName || application.job.employer.companyName}
                     size="md"
-                    className="shrink-0 rounded-xl border border-white/10 bg-white/5 group-hover:border-white/20"
+                    className="shrink-0 rounded-xl border border-slate-200 bg-white"
                   />
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                       {application.job.title}
                     </h3>
-                    <div className="mt-1 flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                    <div className="mt-1 flex items-center gap-2 text-xs font-medium text-slate-400">
                       <span>{application.job.companyName || application.job.employer.companyName}</span>
-                      <span className="text-white/10">|</span>
+                      <span className="text-slate-200">|</span>
                       <span>{formatLocation(application.job.location)}</span>
                     </div>
-                    <div className="mt-3 flex items-center gap-4">
-                      <span className="text-xs font-semibold bg-white/5 px-3 py-1 rounded-full text-foreground/40 leading-none">
+                    <div className="mt-2.5 flex items-center gap-3">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-500 uppercase">
                         {application.job.category}
                       </span>
-                      <span className="text-xs font-semibold text-foreground/30 leading-none">
+                      <span className="text-[11px] font-medium text-slate-400">
                         Applied {new Date(application.appliedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-1.5">
                     <span
-                      className={`rounded-full px-5 py-2 text-xs font-semibold shadow-xl transition-all ${
+                      className={`rounded-full px-3 py-1 text-xs font-semibold border transition-all ${
                         application.status === "SHORTLISTED"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-250"
                           : application.status === "REJECTED"
-                            ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                            ? "bg-red-50 text-red-600 border-red-250"
+                            : "bg-blue-50 text-blue-600 border-blue-250"
                       }`}
                     >
                       {application.status}
                     </span>
-                    <span className="text-[10px] font-bold text-muted-foreground/40 group-hover:text-foreground transition-colors mr-2">
+                    <span className="text-[10px] font-bold text-slate-400">
                       Review Pending
                     </span>
                   </div>

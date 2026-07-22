@@ -92,6 +92,7 @@ export async function GET(req: NextRequest) {
     const isBooleanSearch = searchParams.get("isBooleanSearch") === "true";
     const location = (searchParams.get("location") || "").trim().toLowerCase();
     const minExperience = Number(searchParams.get("minExperience") || "0");
+    const maxExperience = searchParams.get("maxExperience") ? Number(searchParams.get("maxExperience")) : null;
 
     const resumes = await prisma.resumeDocument.findMany({
       where: { parseStatus: "PARSED" },
@@ -149,6 +150,10 @@ export async function GET(req: NextRequest) {
 
       if (Number.isFinite(minExperience) && minExperience > 0) {
         if ((resume.experienceYears ?? 0) < Math.floor(minExperience)) return false;
+      }
+
+      if (maxExperience !== null && Number.isFinite(maxExperience)) {
+        if ((resume.experienceYears ?? 0) > Math.floor(maxExperience)) return false;
       }
 
       return true;
