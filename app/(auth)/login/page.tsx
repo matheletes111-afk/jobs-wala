@@ -116,12 +116,7 @@ function LoginForm() {
       }
 
       const callbackUrl = searchParams.get("callbackUrl");
-      if (callbackUrl) {
-        router.push(callbackUrl);
-      } else {
-        router.push("/dashboard");
-      }
-      router.refresh();
+      window.location.href = callbackUrl || "/dashboard";
     } catch {
       setError("An error occurred. Please try again.");
       setLoading(false);

@@ -38,11 +38,22 @@ export async function middleware(req: NextRequest) {
     return next();
   }
 
-  // Get session token
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-  });
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  const isSecure = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https" || process.env.NODE_ENV === "production";
+
+  // Get session token with secureCookie detection and fallbacks for NextAuth v5 / v4 cookie names & proxy environments
+  let token = await getToken({ req, secret, secureCookie: isSecure });
+  if (!token) {
+    token = await getToken({ req, secret, secureCookie: !isSecure });
+  }
+  if (!token) {
+    const cookieName = isSecure ? "__Secure-authjs.session-token" : "authjs.session-token";
+    token = await getToken({ req, secret, cookieName, secureCookie: isSecure });
+  }
+  if (!token) {
+    const cookieName = isSecure ? "__Secure-next-auth.session-token" : "next-auth.session-token";
+    token = await getToken({ req, secret, cookieName, secureCookie: isSecure });
+  }
 
   // Protected routes require authentication
   if (!token) {
