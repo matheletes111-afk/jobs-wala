@@ -360,7 +360,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <Editor
-                      apiKey="no-api-key"
+                      tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
                       value={value || ""}
                       onEditorChange={onChange}
                       init={{
@@ -375,7 +375,9 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
                           'bold italic forecolor | alignleft aligncenter ' +
                           'alignright alignjustify | bullist numlist outdent indent | ' +
                           'removeformat | help',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                        promotion: false,
+                        branding: false
                       }}
                     />
                   )}
