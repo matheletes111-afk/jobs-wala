@@ -101,35 +101,90 @@ export default async function AboutUsPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 relative bg-transparent overflow-x-hidden">
-        {/* Decorative background blobs */}
-        <div className="absolute right-[5%] top-[12%] w-[550px] h-[550px] bg-blue-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
-        <div className="absolute left-[-10%] top-[40%] w-[400px] h-[400px] bg-orange-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
+        {/* HERO SECTION (Dark Navy with Image Banner matching ATS Page UI) */}
+        <section
+          style={{ backgroundColor: '#090d16', color: '#ffffff' }}
+          className="relative min-h-[85vh] flex items-center border-b border-slate-800 overflow-hidden"
+        >
 
+          {/* Full-width Banner Image Background */}
+          <div
+            className="absolute inset-0 bg-cover bg-left opacity-90 pointer-events-none"
+            style={{ backgroundImage: `url('/images/about_hero.png')`, backgroundPosition: 'left center' }}
+          />
 
+          {/* Light Left Gradient for Text Contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#090d16]/95 via-[#090d16]/70 to-transparent pointer-events-none" />
 
-        {/* Hero Section */}
-        <section className="relative max-w-4xl mx-auto px-4 pt-16 pb-12 text-center sm:px-6 md:px-8 lg:px-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-6 border border-blue-200">
-            <Sparkles className="size-3.5" />
-            Next-Gen Recruitment Platform
-          </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-tight mb-6">
-            Wolf of the <span className="text-blue-600">Job Street.</span>
-          </h1>
-          <p className="text-base sm:text-lg text-slate-650 leading-relaxed font-semibold max-w-2xl mx-auto mb-8">
-            JobDaddy combines advanced AI-powered applicant matching with deep recruitment expertise to bridge the gap between ambitious professionals and high-growth enterprises. Reach the top 1% of talent globally in record time.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/jobs/browse">
-              <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all rounded-xl h-12 px-6 font-bold text-xs uppercase tracking-wider">
-                Explore Jobs <ArrowRight className="size-4 ml-1" />
-              </Button>
-            </Link>
-            <Link href="/contact-us">
-              <Button variant="outline" className="border-slate-350 hover:bg-slate-50 hover:scale-105 active:scale-95 transition-all rounded-xl h-12 px-6 font-bold text-xs uppercase tracking-wider text-slate-700 bg-white">
-                Contact Us
-              </Button>
-            </Link>
+          {/* Right Background Typography overlay - Scaled to fit 100% inside viewport without clipping */}
+          <div 
+            style={{ color: 'rgba(255, 255, 255, 0.35)' }}
+            className="absolute right-6 lg:right-16 top-1/2 -translate-y-1/2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider uppercase select-none hidden md:block pointer-events-none leading-none max-w-xs sm:max-w-sm md:max-w-md text-right z-0"
+          >
+            ABOUT US <br />
+            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.22em', color: 'rgba(255, 255, 255, 0.55)', display: 'block', marginTop: '8px' }}>
+              GLOBAL TALENT ECOSYSTEM
+            </span>
+          </div>
+
+          <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 md:px-8 lg:px-10 z-10 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              {/* Left Column Content */}
+              <div className="lg:col-span-7 space-y-6 max-w-xl">
+                
+                {/* Tagline Badge */}
+                <div 
+                  style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(51, 65, 85, 0.8)' }}
+                  className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-full border backdrop-blur-md"
+                >
+                  <span style={{ backgroundColor: '#ff5722' }} className="w-2.5 h-2.5 rounded-full animate-pulse" />
+                  <span style={{ color: '#ff5722', fontWeight: 800, letterSpacing: '0.22em', fontSize: '10px', textTransform: 'uppercase' }}>
+                    NEXT-GEN RECRUITMENT PLATFORM
+                  </span>
+                </div>
+
+                {/* Main Hero Header */}
+                <h1 className="text-4xl sm:text-5xl lg:text-[60px] font-extrabold tracking-tight leading-[1.06]">
+                  <span style={{ color: '#ffffff' }}>Wolf of the</span> <br />
+                  <span style={{ color: '#ff5722', textShadow: '0 2px 8px rgba(255,87,34,0.3)' }}>
+                    Job Street.
+                  </span>
+                </h1>
+
+                {/* Paragraph Content inside floating dark container matching exact ATS card */}
+                <div 
+                  style={{ backgroundColor: 'rgba(20, 30, 48, 0.95)', borderColor: 'rgba(51, 65, 85, 0.7)', borderRadius: '16px', padding: '20px 24px' }}
+                  className="border shadow-2xl max-w-xl backdrop-blur-md"
+                >
+                  <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                    JobDaddy combines advanced AI-powered applicant matching with deep recruitment expertise to bridge the gap between ambitious professionals and high-growth enterprises. Reach the top 1% of talent globally in record time.
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <Link href="/jobs/browse">
+                    <Button 
+                      style={{ backgroundColor: '#ff5722', color: '#ffffff', border: 'none', borderRadius: '12px', padding: '0 32px', height: '48px', fontWeight: 800, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase' }}
+                      className="shadow-xl shadow-orange-500/30 transition-transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                    >
+                      EXPLORE JOBS <ArrowRight className="size-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/contact-us">
+                    <Button 
+                      style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', color: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '12px', padding: '0 26px', height: '48px', fontWeight: 800, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase' }}
+                      className="transition-transform hover:scale-105 active:scale-95"
+                    >
+                      CONTACT US
+                    </Button>
+                  </Link>
+                </div>
+
+              </div>
+
+            </div>
           </div>
         </section>
 

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import FaqAccordion from "@/components/user/FaqAccordion";
-import Footer from "@/components/Footer";
 import {
   ChevronDown,
   Sparkles,
@@ -423,7 +422,6 @@ export default function ExecutiveSearchPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }
