@@ -242,10 +242,10 @@ export default function HomePageClient({
 
   const scrollClientsManual = (dir: "left" | "right") => {
     if (!clientScrollRef.current) return;
-    
+
     // Pause auto-scroll to let smooth scroll work without conflict
     setClientsHovered(true);
-    
+
     const step = 294; // card width + gap (270 + 24)
     clientScrollRef.current.scrollBy({
       left: dir === "left" ? -step : step,
@@ -264,7 +264,7 @@ export default function HomePageClient({
   };
 
   return (
-    <div className="space-y-12 bg-transparent pb-24 text-slate-900">
+    <div className="space-y-12 bg-transparent pb-0 text-slate-900">
 
       {/* 1. Latest Jobs (Dynamic) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
@@ -624,7 +624,7 @@ export default function HomePageClient({
           {/* Decorative light gradient glows */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl -translate-y-12 translate-x-12" />
           <div className="absolute bottom-0 left-0 w-60 h-60 bg-indigo-300/10 rounded-full blur-2xl translate-y-12 -translate-x-12" />
-          
+
           <div className="relative z-10 max-w-2xl text-center md:text-left">
             <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-600 text-white px-3.5 py-1.5 rounded-full shadow-sm">
               Limited Time Free Offer
@@ -636,16 +636,26 @@ export default function HomePageClient({
               Submit your resume for a professional evaluation. Discover formatting flaws, impact metrics gaps, and receive an AI match optimization score in 2 hours.
             </p>
           </div>
-          
-          <div className="relative z-10 shrink-0 w-full md:w-auto text-center">
+
+          <div className="relative z-10 shrink-0 w-full md:w-auto text-center flex flex-wrap items-center justify-center gap-3">
             <a
               href="https://forms.gle/N3RjJVVzBC5xQ6eY9"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block w-full sm:w-auto text-center"
             >
-              <Button className="w-full sm:w-auto h-12 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/10">
+              <Button className="w-full sm:w-auto h-12 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/10">
                 <span style={{ color: "white" }}>Get Free Assessment</span>
+              </Button>
+            </a>
+            <a
+              href="https://calendly.com/jobdaddy-info/jobdaddy-candidate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full sm:w-auto text-center"
+            >
+              <Button variant="outline" className="w-full sm:w-auto h-12 px-6 rounded-xl border-blue-400 text-blue-700 bg-white hover:bg-blue-50 font-extrabold text-sm transition-all hover:scale-105 active:scale-95 shadow-md">
+                <span>Book 1-on-1 Call</span>
               </Button>
             </a>
           </div>
@@ -688,7 +698,7 @@ export default function HomePageClient({
                 <ChevronRight className="h-5 w-5 text-slate-600" />
               </button>
 
-              <div 
+              <div
                 className="relative w-full overflow-hidden rounded-[32px] bg-slate-100/50 border border-slate-200/50 p-6"
                 onMouseEnter={() => setClientsHovered(true)}
                 onMouseLeave={() => setClientsHovered(false)}
@@ -697,7 +707,7 @@ export default function HomePageClient({
                 <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-slate-100/80 to-transparent z-10 pointer-events-none" />
                 <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-slate-100/80 to-transparent z-10 pointer-events-none" />
 
-                <div 
+                <div
                   ref={clientScrollRef}
                   className="flex gap-6 overflow-x-auto pb-4 scrollbar-none"
                 >
@@ -705,7 +715,7 @@ export default function HomePageClient({
                     // Symmetrical fallbacks for empty data fields
                     const cleanName = client.companyName.replace(/[^a-zA-Z0-9\s]/g, "").trim();
                     const cleanSlug = cleanName.toLowerCase().replace(/\s+/g, "");
-                    
+
                     const fallbackIndustry = client.industry || (cleanName.length % 2 === 0 ? "Technology" : "Services");
                     const fallbackSize = client.companySize || (cleanName.length % 2 === 0 ? "50-250 Employees" : "10-50 Employees");
                     const fallbackWebsite = client.website || `www.${cleanSlug || "company"}.com`;
@@ -1045,71 +1055,75 @@ export default function HomePageClient({
 
       {/* 6. Ready to take the next step CTA (Static) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="bg-white border border-slate-100 shadow-[0_15px_50px_rgba(15,23,42,0.03)] rounded-[32px] p-6">
-          <div className="premium-child-card rounded-[24px] p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-2">
-                Ready to take the next step?
-              </h2>
-              <p className="text-sm text-slate-600 font-bold leading-relaxed max-w-md">
-                Create your profile and let AI find the perfect job for you.
-              </p>
-            </div>
+        <div className="premium-child-card rounded-[24px] p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl mb-2">
+              Ready to take the next step?
+            </h2>
+            <p className="text-sm text-slate-600 font-bold leading-relaxed max-w-md">
+              Create your profile and let AI find the perfect job for you.
+            </p>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-4 w-full md:w-auto shrink-0 justify-center">
-              <Link href="/register" className="w-full sm:w-auto text-center">
-                <Button className="w-full sm:w-auto h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
-                  Create Profile
-                </Button>
-              </Link>
-              <a
-                href="https://forms.gle/N3RjJVVzBC5xQ6eY9"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto text-center"
-              >
-                <Button variant="outline" className="w-full sm:w-auto h-11 px-6 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
-                  Get Free Assessment
-                </Button>
-              </a>
-            </div>
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto shrink-0 justify-center">
+            <Link href="/register" className="w-full sm:w-auto text-center">
+              <Button className="w-full sm:w-auto h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
+                <span style={{ color: "white" }}>Create Profile</span>
+              </Button>
+            </Link>
+            <a
+              href="https://forms.gle/N3RjJVVzBC5xQ6eY9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto text-center"
+            >
+              <Button variant="outline" className="w-full sm:w-auto h-11 px-5 rounded-xl border-blue-200 text-blue-600 bg-white hover:bg-blue-50 font-bold text-xs" style={{ border: "1px solid #bfdbfe" }}>
+                Get Free Assessment
+              </Button>
+            </a>
+            <a
+              href="https://calendly.com/jobdaddy-info/jobdaddy-candidate"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto text-center"
+            >
+              <Button className="w-full sm:w-auto h-11 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md">
+                <span style={{ color: "white" }}>Book 1-on-1 Call</span>
+              </Button>
+            </a>
           </div>
         </div>
       </section>
 
       {/* 7. Client Logos Auto-movement Slider */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10 mt-12 mb-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10 mt-8 mb-2">
         <div className="text-center mb-6">
           <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
             Trusted by Industry Leaders & Fast-Growing Companies
           </p>
         </div>
-        <div className="relative w-full overflow-hidden bg-white/40 backdrop-blur-sm border border-slate-200/50 rounded-[24px] py-8 shadow-sm">
-          {/* Gradient overlays for smooth fading edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none" />
-          
-          <div className="flex overflow-hidden">
-            <div className="animate-marquee flex gap-16 items-center">
+        <div className="relative w-full overflow-hidden py-4">
+          <div className="flex overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+            <div className="animate-marquee flex gap-12 items-center">
               {/* First loop */}
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((num) => (
-                <div key={`logo-1-${num}`} className="flex items-center justify-center shrink-0 w-60 h-28 bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
+                <div key={`logo-1-${num}`} className="flex items-center justify-center shrink-0 w-56 h-24 p-1 transition-all duration-300 hover:scale-105">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/images/client/c${num}.jpeg`}
                     alt={`Client Logo ${num}`}
-                    className="max-w-full max-h-full object-contain rounded-lg"
+                    className="max-w-full max-h-full object-contain rounded-md mix-blend-multiply"
                   />
                 </div>
               ))}
               {/* Second loop (for seamless scrolling) */}
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((num) => (
-                <div key={`logo-2-${num}`} className="flex items-center justify-center shrink-0 w-60 h-28 bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm transition-all duration-300 hover:scale-105 hover:shadow-md">
+                <div key={`logo-2-${num}`} className="flex items-center justify-center shrink-0 w-56 h-24 p-1 transition-all duration-300 hover:scale-105">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/images/client/c${num}.jpeg`}
                     alt={`Client Logo ${num}`}
-                    className="max-w-full max-h-full object-contain rounded-lg"
+                    className="max-w-full max-h-full object-contain rounded-md mix-blend-multiply"
                   />
                 </div>
               ))}

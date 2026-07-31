@@ -9,7 +9,9 @@ import {
   Send, 
   CheckCircle2, 
   Sparkles,
-  Globe
+  Globe,
+  Calendar,
+  ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -221,6 +223,33 @@ export default function ContactUsClient() {
                       Monday - Saturday <br />09:00 AM - 06:00 PM IST
                     </p>
                   </div>
+                </div>
+
+                {/* Item: Schedule Meeting via Calendly */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-200/80 shadow-sm flex flex-col gap-3 mt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="size-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0">
+                      <Calendar className="size-4.5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Fast Track Meeting</p>
+                      <h4 className="text-xs font-extrabold text-slate-900">Schedule 1-on-1 Candidate Call</h4>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-semibold leading-relaxed">
+                    Book an instant meeting directly with our team on Calendly.
+                  </p>
+                  <a
+                    href="https://calendly.com/jobdaddy-info/jobdaddy-candidate"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full"
+                  >
+                    <Button className="w-full h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md shadow-blue-500/10 flex items-center justify-center gap-1.5" style={{ background: "#2563eb", color: "white" }}>
+                      <span style={{ color: "white" }}>Book Slot on Calendly</span>
+                      <ArrowRight className="size-3.5" style={{ stroke: "white" }} />
+                    </Button>
+                  </a>
                 </div>
               </div>
 
