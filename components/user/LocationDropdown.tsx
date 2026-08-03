@@ -313,12 +313,30 @@ export default function LocationDropdown({
     }
   };
 
-  const handleStateToggle = (stateIsoCode: string) => {
-    let newSelectedStates = [...selectedStates];
-    if (newSelectedStates.includes(stateIsoCode)) {
-      newSelectedStates = newSelectedStates.filter(code => code !== stateIsoCode);
+  const handleStateToggle = (stateIsoOrName: string) => {
+    const stateObj = states.find(
+      (s) =>
+        s.isoCode === stateIsoOrName ||
+        s.name.toLowerCase() === stateIsoOrName.toLowerCase()
+    );
+    const targetIso = stateObj ? stateObj.isoCode : stateIsoOrName;
+    const targetName = stateObj ? stateObj.name : stateIsoOrName;
+
+    const isCurrentlySelected = selectedStates.some(
+      (code) =>
+        code === targetIso ||
+        code.toLowerCase() === targetName.toLowerCase()
+    );
+
+    let newSelectedStates: string[];
+    if (isCurrentlySelected) {
+      newSelectedStates = selectedStates.filter(
+        (code) =>
+          code !== targetIso &&
+          code.toLowerCase() !== targetName.toLowerCase()
+      );
     } else {
-      newSelectedStates.push(stateIsoCode);
+      newSelectedStates = [...selectedStates, targetIso];
     }
     
     setSelectedStates(newSelectedStates);
@@ -329,35 +347,55 @@ export default function LocationDropdown({
       loadCitiesForStates(selectedCountry, newSelectedStates);
     }
     
-    const countryObj = countries.find((c) => c.isoCode === selectedCountry);
+    const countryObj = countries.find(
+      (c) => c.isoCode === selectedCountry || c.name.toLowerCase() === selectedCountry.toLowerCase()
+    );
     const selectedStateNames = newSelectedStates
-      .map(iso => states.find(s => s.isoCode === iso)?.name)
+      .map((iso) => {
+        const s = states.find(
+          (st) => st.isoCode === iso || st.name.toLowerCase() === iso.toLowerCase()
+        );
+        return s ? s.name : iso;
+      })
       .filter(Boolean) as string[];
       
     updateLocation(
-      countryObj ? countryObj.name : "",
+      countryObj ? countryObj.name : selectedCountry || "",
       selectedStateNames,
       []
     );
   };
 
   const handleCityToggle = (cityName: string) => {
-    let newSelectedCities = [...selectedCities];
-    if (newSelectedCities.includes(cityName)) {
-      newSelectedCities = newSelectedCities.filter(name => name !== cityName);
+    const isCurrentlySelected = selectedCities.some(
+      (c) => c.toLowerCase() === cityName.toLowerCase()
+    );
+
+    let newSelectedCities: string[];
+    if (isCurrentlySelected) {
+      newSelectedCities = selectedCities.filter(
+        (c) => c.toLowerCase() !== cityName.toLowerCase()
+      );
     } else {
-      newSelectedCities.push(cityName);
+      newSelectedCities = [...selectedCities, cityName];
     }
     
     setSelectedCities(newSelectedCities);
     
-    const countryObj = countries.find((c) => c.isoCode === selectedCountry);
+    const countryObj = countries.find(
+      (c) => c.isoCode === selectedCountry || c.name.toLowerCase() === selectedCountry.toLowerCase()
+    );
     const selectedStateNames = selectedStates
-      .map(iso => states.find(s => s.isoCode === iso)?.name)
+      .map((iso) => {
+        const s = states.find(
+          (st) => st.isoCode === iso || st.name.toLowerCase() === iso.toLowerCase()
+        );
+        return s ? s.name : iso;
+      })
       .filter(Boolean) as string[];
       
     updateLocation(
-      countryObj ? countryObj.name : "",
+      countryObj ? countryObj.name : selectedCountry || "",
       selectedStateNames,
       newSelectedCities
     );
@@ -467,21 +505,48 @@ export default function LocationDropdown({
       {(selectedStates.length > 0 || selectedCities.length > 0) && (
         <div className="flex flex-wrap gap-1.5 pt-3">
           {selectedStates.map((iso) => {
-            const state = states.find((s) => s.isoCode === iso);
-            return state ? (
-              <span key={iso} className="flex items-center gap-1 bg-blue-50 text-blue-600 border border-blue-150 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
-                {state.name}
-                <button type="button" onClick={(e) => { e.preventDefault(); handleStateToggle(iso); }} className="hover:text-red-500 transition-colors">
-                  <X className="h-3 w-3" />
+            const state = states.find(
+              (s) => s.isoCode === iso || s.name.toLowerCase() === iso.toLowerCase()
+            );
+            const displayName = state ? state.name : iso;
+            return (
+              <span
+                key={iso}
+                className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm"
+              >
+                <span>{displayName}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleStateToggle(iso);
+                  }}
+                  className="hover:text-red-600 transition-colors p-0.5 rounded hover:bg-blue-100/50 cursor-pointer"
+                  aria-label={`Remove ${displayName}`}
+                >
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </span>
-            ) : null;
+            );
           })}
           {selectedCities.map((cityName) => (
-            <span key={cityName} className="flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-150 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm">
-              {cityName}
-              <button type="button" onClick={(e) => { e.preventDefault(); handleCityToggle(cityName); }} className="hover:text-red-500 transition-colors">
-                <X className="h-3 w-3" />
+            <span
+              key={cityName}
+              className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm"
+            >
+              <span>{cityName}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCityToggle(cityName);
+                }}
+                className="hover:text-red-600 transition-colors p-0.5 rounded hover:bg-emerald-100/50 cursor-pointer"
+                aria-label={`Remove ${cityName}`}
+              >
+                <X className="h-3.5 w-3.5" />
               </button>
             </span>
           ))}

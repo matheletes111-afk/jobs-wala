@@ -22,11 +22,13 @@ import {
   Download,
   ChevronDown,
 } from "lucide-react";
-import { formatLocation } from "@/lib/utils";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { formatLocation, stripHtml } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobApprovalActions from "@/components/admin/JobApprovalActions";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
+import Pagination from "@/components/common/Pagination";
 
 interface Category {
   id: string;
@@ -65,6 +67,10 @@ interface AdminJobsClientProps {
 }
 
 export default function AdminJobsClient({ initialCategories }: AdminJobsClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -90,6 +96,40 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
 
   const categories = initialCategories ?? [];
   const limit = 12;
+
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      searchVal: string,
+      locationVal: string,
+      categoryVal: string,
+      statusVal: string,
+      sortVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (searchVal.trim()) params.set("search", searchVal.trim());
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+      if (statusVal && statusVal !== "all") params.set("status", statusVal);
+      if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const getJobDetailUrl = (jobId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
+    if (appliedStatus && appliedStatus !== "all") params.set("status", appliedStatus);
+    if (appliedSort && appliedSort !== "desc") params.set("sort", appliedSort);
+    const query = params.toString();
+    return `/admin/jobs/${jobId}${query ? `?${query}` : ""}`;
+  };
 
   const fetchJobs = useCallback(
     async (
@@ -117,7 +157,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
         setJobs(data.jobs ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
       } catch (error) {
         setJobs([]);
         setTotal(0);
@@ -126,78 +166,137 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
 
-  const [isRestored, setIsRestored] = useState(false);
-
-  // Load saved filters on mount
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let searchVal = searchParams.get("search");
+    let locationVal = searchParams.get("location");
+    let categoryVal = searchParams.get("category");
+    let statusVal = searchParams.get("status");
+    let sortVal = searchParams.get("sort");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams =
+      searchVal !== null ||
+      locationVal !== null ||
+      categoryVal !== null ||
+      statusVal !== null ||
+      sortVal !== null ||
+      pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem("admin_jobs_filters");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setSearch(parsed.search || "");
-          setLocation(parsed.location || "");
-          setCategory(parsed.category || "all");
-          setStatus(parsed.status || "all");
-          setSort(parsed.sort || "desc");
-          
-          setAppliedSearch(parsed.appliedSearch || "");
-          setAppliedLocation(parsed.appliedLocation || "");
-          setAppliedCategory(parsed.appliedCategory || "all");
-          setAppliedStatus(parsed.appliedStatus || "all");
-          setAppliedSort(parsed.appliedSort || "desc");
-          
-          setPage(parsed.page || 1);
-          if (parsed.viewMode) setViewMode(parsed.viewMode);
-        } catch (e) {
-          // ignore
-        }
+          searchVal = parsed.search || "";
+          locationVal = parsed.location || "";
+          categoryVal = parsed.category || "all";
+          statusVal = parsed.status || "all";
+          sortVal = parsed.sort || "desc";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
+
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (searchVal?.trim()) params.set("search", searchVal.trim());
+          if (locationVal?.trim()) params.set("location", locationVal.trim());
+          if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+          if (statusVal && statusVal !== "all") params.set("status", statusVal);
+          if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
       }
     }
-    setIsRestored(true);
-  }, []);
 
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
+    const finalSearch = searchVal || "";
+    const finalLocation = locationVal || "";
+    const finalCategory = categoryVal || "all";
+    const finalStatus = statusVal || "all";
+    const finalSort = sortVal || "desc";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setSearch(finalSearch);
+    setLocation(finalLocation);
+    setCategory(finalCategory);
+    setStatus(finalStatus);
+    setSort(finalSort);
+    setPage(finalPage);
+
+    setAppliedSearch(finalSearch);
+    setAppliedLocation(finalLocation);
+    setAppliedCategory(finalCategory);
+    setAppliedStatus(finalStatus);
+    setAppliedSort(finalSort);
+
+    const isClean =
+      !finalSearch &&
+      !finalLocation &&
+      finalCategory === "all" &&
+      finalStatus === "all" &&
+      finalSort === "desc" &&
+      finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "admin_jobs_filters",
-        JSON.stringify({
-          search,
-          location,
-          category,
-          status,
-          sort,
-          appliedSearch,
-          appliedLocation,
-          appliedCategory,
-          appliedStatus,
-          appliedSort,
-          page,
-          viewMode,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("admin_jobs_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "admin_jobs_filters",
+            JSON.stringify({
+              search: finalSearch,
+              location: finalLocation,
+              category: finalCategory,
+              status: finalStatus,
+              sort: finalSort,
+              appliedSearch: finalSearch,
+              appliedLocation: finalLocation,
+              appliedCategory: finalCategory,
+              appliedStatus: finalStatus,
+              appliedSort: finalSort,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
-  }, [search, location, category, status, sort, appliedSearch, appliedLocation, appliedCategory, appliedStatus, appliedSort, page, viewMode, isRestored]);
+  }, [searchParams, pathname, router]);
 
   useEffect(() => {
-    fetchJobs(page, appliedSearch, appliedLocation, appliedCategory, appliedStatus, appliedSort);
-  }, [page, appliedSearch, appliedLocation, appliedCategory, appliedStatus, appliedSort, fetchJobs]);
+    fetchJobs(
+      page,
+      appliedSearch,
+      appliedLocation,
+      appliedCategory,
+      appliedStatus,
+      appliedSort
+    );
+  }, [
+    page,
+    appliedSearch,
+    appliedLocation,
+    appliedCategory,
+    appliedStatus,
+    appliedSort,
+    fetchJobs,
+  ]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedLocation(location);
-    setAppliedCategory(category);
-    setAppliedStatus(status);
-    setAppliedSort(sort);
-    setPage(1);
+    updateUrl(1, search, location, category, status, sort);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("admin_jobs_filters");
+      } catch (_e) {}
+    }
+
     setSearch("");
     setLocation("");
     setCategory("all");
@@ -210,6 +309,9 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
     setAppliedStatus("all");
     setAppliedSort("desc");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchJobs(1, "", "", "all", "all", "desc");
   };
 
   const handleJobUpdated = () => {
@@ -352,7 +454,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
           <div className="flex flex-col md:flex-row items-center justify-end gap-2 pt-4 border-t border-slate-100">
             <Button
               onClick={handleSearch}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto"
             >
               <span style={{ color: "white" }}>Search Jobs</span>
@@ -360,7 +462,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
             <Button
               variant="ghost"
               onClick={handleClear}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto"
             >
               Reset Filters
@@ -427,7 +529,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
                 </div>
                 <select
                   value={sort}
-                  onChange={(e) => { setSort(e.target.value); setAppliedSort(e.target.value); setPage(1); }}
+                  onChange={(e) => updateUrl(1, appliedSearch, appliedLocation, appliedCategory, appliedStatus, e.target.value)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 >
                   <option value="desc">LATEST</option>
@@ -457,34 +559,18 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
                   job={job}
                   onUpdated={handleJobUpdated}
                   index={idx}
+                  getJobDetailUrl={getJobDetailUrl}
                 />
               ))}
             </div>
           )}
 
-          {!loading && totalPages > 1 && (
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous Page
-              </Button>
-              <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next Page
-              </Button>
-            </div>
-          )}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => updateUrl(p, appliedSearch, appliedLocation, appliedCategory, appliedStatus, appliedSort)}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
@@ -495,10 +581,12 @@ function JobCard({
   job,
   onUpdated,
   index,
+  getJobDetailUrl,
 }: {
   job: JobItem;
   onUpdated: () => void;
   index: number;
+  getJobDetailUrl: (jobId: string) => string;
 }) {
   const statusLabel =
     job.status === "PAUSED"
@@ -525,7 +613,7 @@ function JobCard({
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-blue-500" : job.status === "PENDING" ? "bg-orange-500" : "bg-red-500"}`} />
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
             </div>
-            <Link href={`/admin/jobs/${job.id}`}>
+            <Link href={getJobDetailUrl(job.id)}>
               <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{job.title}</h3>
             </Link>
             <p className="text-xs font-semibold text-slate-400 mt-0.5 truncate">
@@ -537,8 +625,8 @@ function JobCard({
 
       <div className="flex-1 space-y-6">
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs leading-relaxed text-slate-500 font-medium italic line-clamp-2">
-            {job.employer.description ? `"${job.employer.description}"` : "No description uploaded yet."}
+          <p className="text-xs leading-relaxed text-slate-500 font-medium line-clamp-2">
+            {job.employer.description ? stripHtml(job.employer.description) : "No description uploaded yet."}
           </p>
         </div>
 
@@ -593,7 +681,7 @@ function JobCard({
               onSuccess={onUpdated}
             />
           </div>
-          <Link href={`/admin/jobs/${job.id}`}>
+          <Link href={getJobDetailUrl(job.id)}>
             <Button variant="ghost" className="h-9 px-4 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-all active:scale-95 group">
               View Job
               <ChevronRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays, Upload, HelpCircle } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import SkillTagInput from "@/components/common/SkillTagInput";
+import Pagination from "@/components/common/Pagination";
 
 interface ResumeRecord {
   id: string;
@@ -34,6 +36,10 @@ export default function EmployerResumeDatabaseSearch({
   searchParams: { [key: string]: string | string[] | undefined };
   resumeUploadEnabled: boolean;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
   const [skills, setSkills] = useState<string[]>(
     (initialParams.skills as string)?.split(",").filter(Boolean) || []
@@ -63,6 +69,28 @@ export default function EmployerResumeDatabaseSearch({
   const [error, setError] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
   const limit = 12;
+
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      keywordVal: string,
+      skillsVal: string,
+      locationVal: string,
+      minExpVal: string,
+      maxExpVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
+      if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
+      if (maxExpVal.trim()) params.set("maxExperience", maxExpVal.trim());
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
 
   // Upload States
   const [files, setFiles] = useState<File[]>([]);
@@ -162,7 +190,7 @@ export default function EmployerResumeDatabaseSearch({
         setResumes(data.resumes ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 1);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
       } catch (err: any) {
         setError(err.message || "Failed to load database search results");
         setResumes([]);
@@ -172,15 +200,44 @@ export default function EmployerResumeDatabaseSearch({
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
 
+  // Sync with URL searchParams
   useEffect(() => {
-    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
+    let kw = searchParams.get("keyword");
+    let sk = searchParams.get("skills");
+    let loc = searchParams.get("location");
+    let minExp = searchParams.get("minExperience");
+    let maxExp = searchParams.get("maxExperience");
+    let pageValStr = searchParams.get("page");
+
+    const finalKw = kw || "";
+    const finalSk = sk || "";
+    const finalLoc = loc || "";
+    const finalMinExp = minExp || "";
+    const finalMaxExp = maxExp || "";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setKeyword(finalKw);
+    setSkills(finalSk ? finalSk.split(",").filter(Boolean) : []);
+    setLocation(finalLoc);
+    setMinExperience(finalMinExp);
+    setMaxExperience(finalMaxExp);
+    setPage(finalPage);
+
+    setAppliedKeyword(finalKw);
+    setAppliedSkills(finalSk);
+    setAppliedLocation(finalLoc);
+    setAppliedMinExperience(finalMinExp);
+    setAppliedMaxExperience(finalMaxExp);
+  }, [searchParams]);
+
+  useEffect(() => {
     fetchResumes(
       page,
       appliedKeyword,
-      formattedSkills,
+      appliedSkills,
       appliedIsBooleanSearch,
       appliedLocation,
       appliedMinExperience,
@@ -198,22 +255,15 @@ export default function EmployerResumeDatabaseSearch({
     fetchResumes,
   ]);
 
+  const [resetting, setResetting] = useState(false);
+
   const apply = () => {
-    setAppliedKeyword(keyword);
-    setAppliedLocation(location);
-    setAppliedMinExperience(minExperience);
-    setAppliedMaxExperience(maxExperience);
-    setAppliedIsBooleanSearch(isBooleanSearch);
-    if (isBooleanSearch) {
-      setAppliedSkills(booleanSkillsExpr);
-    } else {
-      setAppliedSkills(skills.join(","));
-    }
-    setPage(1);
-    setRefreshCount((prev) => prev + 1);
+    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
+    updateUrl(1, keyword, formattedSkills, location, minExperience, maxExperience);
   };
 
-  const clear = () => {
+  const clear = async () => {
+    setResetting(true);
     setKeyword("");
     setSkills([]);
     setIsBooleanSearch(false);
@@ -228,6 +278,10 @@ export default function EmployerResumeDatabaseSearch({
     setAppliedMinExperience("");
     setAppliedMaxExperience("");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    await fetchResumes(1, "", "", false, "", "", "");
+    setResetting(false);
   };
 
   const rangeText = useMemo(() => {
@@ -291,86 +345,94 @@ export default function EmployerResumeDatabaseSearch({
         </div>
       )}
 
-      {/* Indeed-Style Combined Search Box */}
-      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm mb-8 overflow-hidden transition-all hover:shadow-md">
-        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 items-stretch">
-          {/* Keywords / Role Search */}
-          <div className="flex-1 p-5 flex items-center gap-3">
-            <Search className="h-5 w-5 text-slate-400 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">What</label>
+      {/* Redesigned Search Card */}
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-7 shadow-sm mb-8 flex flex-col gap-6 transition-all duration-300 hover:shadow-md hover:border-slate-300">
+        {/* Top 3 Search Fields Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* What Search */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Search className="h-3.5 w-3.5 text-slate-400" />
+              What
+            </label>
+            <div className="relative">
               <input
                 type="text"
                 placeholder="Job title, keywords, name or email..."
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                className="h-11 w-full rounded-xl bg-slate-50/80 border border-slate-200 px-3.5 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none"
               />
             </div>
           </div>
 
-          {/* Location Search */}
-          <div className="flex-1 p-5 flex items-center gap-3">
-            <MapPin className="h-5 w-5 text-slate-400 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Where</label>
+          {/* Where Search */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-slate-400" />
+              Where
+            </label>
+            <div className="relative">
               <input
                 type="text"
                 placeholder="City, state, or country..."
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                className="h-11 w-full rounded-xl bg-slate-50/80 border border-slate-200 px-3.5 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none"
               />
             </div>
           </div>
 
           {/* Skills Search */}
-          <div className="flex-1 p-5 flex items-center gap-3">
-            <Briefcase className="h-5 w-5 text-slate-400 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-0.5">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Skills</label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
-                    id="employer-boolean-search-toggle"
-                    checked={isBooleanSearch}
-                    onChange={(e) => setIsBooleanSearch(e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <label htmlFor="employer-boolean-search-toggle" className="text-[9px] font-bold uppercase tracking-wider text-slate-500 cursor-pointer select-none">
-                    Boolean
-                  </label>
-                </div>
-              </div>
-              {isBooleanSearch ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                Skills
+              </label>
+              <div className="flex items-center gap-1.5 bg-slate-100/80 px-2 py-0.5 rounded-lg border border-slate-200/60">
                 <input
-                  type="text"
-                  placeholder="e.g. java AND (react OR angular)"
-                  value={booleanSkillsExpr}
-                  onChange={(e) => setBooleanSkillsExpr(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && apply()}
-                  className="w-full bg-transparent border-0 p-0 text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:ring-0 focus:outline-none"
+                  type="checkbox"
+                  id="employer-boolean-search-toggle"
+                  checked={isBooleanSearch}
+                  onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                  className="h-3 w-3 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
-              ) : (
-                <SkillTagInput
-                  value={skills}
-                  onChange={setSkills}
-                  placeholder="React, Node.js..."
-                  className="w-full border-0 p-0 shadow-none bg-transparent hover:bg-transparent focus:bg-transparent"
-                />
-              )}
+                <label htmlFor="employer-boolean-search-toggle" className="text-[10px] font-bold uppercase tracking-wider text-slate-600 cursor-pointer select-none">
+                  Boolean
+                </label>
+              </div>
             </div>
+            {isBooleanSearch ? (
+              <input
+                type="text"
+                placeholder="e.g. java AND (react OR angular)"
+                value={booleanSkillsExpr}
+                onChange={(e) => setBooleanSkillsExpr(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && apply()}
+                className="h-11 w-full rounded-xl bg-slate-50/80 border border-slate-200 px-3.5 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none"
+              />
+            ) : (
+              <SkillTagInput
+                value={skills}
+                onChange={setSkills}
+                placeholder="React, Node.js..."
+                className="w-full"
+              />
+            )}
           </div>
         </div>
 
         {/* Bottom Actions Bar */}
-        <div className="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200">
-          <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+        <div className="border-t border-slate-100 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+              <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
+              Experience (Years)
+            </span>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Min Experience</span>
               <input
                 type="number"
                 min={0}
@@ -378,11 +440,9 @@ export default function EmployerResumeDatabaseSearch({
                 value={minExperience}
                 onChange={(e) => setMinExperience(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="h-9 w-20 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                className="h-10 w-24 rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none"
               />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Max Experience</span>
+              <span className="text-slate-300 font-bold text-xs">-</span>
               <input
                 type="number"
                 min={0}
@@ -390,7 +450,7 @@ export default function EmployerResumeDatabaseSearch({
                 value={maxExperience}
                 onChange={(e) => setMaxExperience(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && apply()}
-                className="h-9 w-20 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                className="h-10 w-24 rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all outline-none"
               />
             </div>
           </div>
@@ -399,14 +459,17 @@ export default function EmployerResumeDatabaseSearch({
             <Button
               variant="ghost"
               onClick={clear}
-              className="h-11 px-6 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-650 hover:bg-slate-100 transition-all active:scale-95"
+              loading={resetting}
+              className="h-11 px-5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-650 hover:bg-slate-100 hover:text-slate-900 transition-all active:scale-95"
             >
               Reset Filters
             </Button>
             <Button
               onClick={apply}
-              className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-500/10 transition-all hover:scale-105 active:scale-95"
+              loading={loading && !resetting}
+              className="h-11 px-7 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-emerald-500/15 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
             >
+              {!loading && <Search className="h-4 w-4 text-white" />}
               <span style={{ color: "white" }}>Find Resumes</span>
             </Button>
           </div>
@@ -528,30 +591,12 @@ export default function EmployerResumeDatabaseSearch({
         )}
       </div>
 
-      {/* Pagination */}
-      {!loading && totalPages > 1 && (
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-          <Button
-            variant="ghost"
-            className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-          >
-            Previous Page
-          </Button>
-          <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-            Page {page} of {totalPages}
-          </span>
-          <Button
-            variant="ghost"
-            className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-          >
-            Next Page
-          </Button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(p) => updateUrl(p, appliedKeyword, appliedSkills, appliedLocation, appliedMinExperience, appliedMaxExperience)}
+        loading={loading}
+      />
     </div>
   );
 }

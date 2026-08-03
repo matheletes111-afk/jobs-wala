@@ -83,18 +83,18 @@ export default function SkillTagInput({
 
   return (
     <div ref={containerRef} className={`relative flex flex-col gap-2 ${className}`}>
-      <div className="flex flex-wrap gap-2 min-h-[3rem] p-2 rounded-2xl bg-white/5 border border-white/5 focus-within:border-emerald-500/50 transition-all duration-300">
+      <div className="flex flex-wrap items-center gap-1.5 min-h-[2.75rem] h-11 px-3 py-1 rounded-xl bg-slate-50/80 border border-slate-200 focus-within:bg-white focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all duration-300 overflow-hidden">
         {value.map((skill) => (
           <Badge
             key={skill}
             variant="secondary"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400 group hover:bg-emerald-500/20 transition-all"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200/80 text-xs font-bold text-emerald-700 group hover:bg-emerald-100 transition-all shrink-0"
           >
             {skill}
             <button
               type="button"
               onClick={() => removeSkill(skill)}
-              className="hover:text-white transition-colors"
+              className="hover:text-emerald-900 text-emerald-600 transition-colors"
             >
               <X className="h-3 w-3" />
             </button>
@@ -110,7 +110,7 @@ export default function SkillTagInput({
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
           placeholder={value.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-sm font-medium text-foreground placeholder:text-muted-foreground/40 p-2"
+          className="no-border-input flex-1 min-w-[120px] bg-transparent border-0 border-none outline-none focus:outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none shadow-none text-xs font-semibold text-slate-800 placeholder:text-slate-400 p-0 m-0"
         />
       </div>
 

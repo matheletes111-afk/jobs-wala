@@ -627,7 +627,7 @@ export default function JobForm({ jobId, initialData }: JobFormProps) {
             ) : (
               <Button
                 type="submit"
-                disabled={loading}
+                loading={loading}
                 className="h-14 px-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95"
               >
                 {loading ? "Saving..." : jobId ? "Update Job" : "Post Job"}

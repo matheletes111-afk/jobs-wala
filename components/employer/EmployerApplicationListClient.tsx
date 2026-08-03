@@ -17,6 +17,8 @@ import { skillKeywordMatch } from "@/lib/skill-match";
 import CandidateAvatar from "@/components/CandidateAvatar";
 import { Search, FileText, MapPin, User, LayoutGrid, List, Download } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
 
 interface JobOption {
   id: string;
@@ -101,6 +103,10 @@ export default function EmployerApplicationListClient({
   initialJobId,
   initialStatus,
 }: EmployerApplicationListClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -114,6 +120,34 @@ export default function EmployerApplicationListClient({
   const [appliedStatus, setAppliedStatus] = useState(initialStatus ?? "all");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const limit = 12;
+
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      searchVal: string,
+      jobIdVal: string,
+      statusVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (searchVal.trim()) params.set("search", searchVal.trim());
+      if (jobIdVal && jobIdVal !== "all") params.set("jobId", jobIdVal);
+      if (statusVal && statusVal !== "all") params.set("status", statusVal);
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const getCandidateDetailUrl = (candidateId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedJobId && appliedJobId !== "all") params.set("jobId", appliedJobId);
+    if (appliedStatus && appliedStatus !== "all") params.set("status", appliedStatus);
+    const query = params.toString();
+    return `/employer/candidates/${candidateId}${query ? `?${query}` : ""}`;
+  };
 
   const fetchApplications = useCallback(
     async (
@@ -133,10 +167,10 @@ export default function EmployerApplicationListClient({
         const res = await fetch(`/api/employer/applications?${params.toString()}`);
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
-        setApplications(data.applications);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
-        setPage(data.page);
+        setApplications(data.applications ?? []);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setPage(data.page ?? pageNum);
       } catch {
         setApplications([]);
         setTotal(0);
@@ -145,68 +179,102 @@ export default function EmployerApplicationListClient({
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
 
-  const [isRestored, setIsRestored] = useState(false);
-
-  // Load saved filters on mount
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let searchVal = searchParams.get("search");
+    let jobIdVal = searchParams.get("jobId");
+    let statusVal = searchParams.get("status");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams =
+      searchVal !== null ||
+      jobIdVal !== null ||
+      statusVal !== null ||
+      pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem("employer_applications_filters");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setSearch(parsed.search || "");
-          setJobId(parsed.jobId || "all");
-          setStatus(parsed.status || "all");
+          searchVal = parsed.search || "";
+          jobIdVal = parsed.jobId || initialJobId || "all";
+          statusVal = parsed.status || initialStatus || "all";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
 
-          setAppliedSearch(parsed.appliedSearch || "");
-          setAppliedJobId(parsed.appliedJobId || "all");
-          setAppliedStatus(parsed.appliedStatus || "all");
-
-          setPage(parsed.page || 1);
-          if (parsed.viewMode) setViewMode(parsed.viewMode);
-        } catch (e) {
-          // ignore
-        }
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (searchVal?.trim()) params.set("search", searchVal.trim());
+          if (jobIdVal && jobIdVal !== "all") params.set("jobId", jobIdVal);
+          if (statusVal && statusVal !== "all") params.set("status", statusVal);
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
       }
     }
-    setIsRestored(true);
-  }, []);
 
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
+    const finalSearch = searchVal || "";
+    const finalJobId = jobIdVal || initialJobId || "all";
+    const finalStatus = statusVal || initialStatus || "all";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setSearch(finalSearch);
+    setJobId(finalJobId);
+    setStatus(finalStatus);
+    setPage(finalPage);
+
+    setAppliedSearch(finalSearch);
+    setAppliedJobId(finalJobId);
+    setAppliedStatus(finalStatus);
+
+    const isClean =
+      !finalSearch &&
+      finalJobId === "all" &&
+      finalStatus === "all" &&
+      finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "employer_applications_filters",
-        JSON.stringify({
-          search,
-          jobId,
-          status,
-          appliedSearch,
-          appliedJobId,
-          appliedStatus,
-          page,
-          viewMode,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("employer_applications_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "employer_applications_filters",
+            JSON.stringify({
+              search: finalSearch,
+              jobId: finalJobId,
+              status: finalStatus,
+              appliedSearch: finalSearch,
+              appliedJobId: finalJobId,
+              appliedStatus: finalStatus,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
-  }, [search, jobId, status, appliedSearch, appliedJobId, appliedStatus, page, viewMode, isRestored]);
+  }, [searchParams, pathname, router, initialJobId, initialStatus]);
 
   useEffect(() => {
     fetchApplications(page, appliedSearch, appliedJobId, appliedStatus);
   }, [page, appliedSearch, appliedJobId, appliedStatus, fetchApplications]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedJobId(jobId);
-    setAppliedStatus(status);
-    setPage(1);
+    updateUrl(1, search, jobId, status);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("employer_applications_filters");
+      } catch (_e) {}
+    }
+
     setSearch("");
     setJobId("all");
     setStatus("all");
@@ -214,6 +282,9 @@ export default function EmployerApplicationListClient({
     setAppliedJobId("all");
     setAppliedStatus("all");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchApplications(1, "", "all", "all");
   };
 
   const handleApplicationUpdated = useCallback(() => {
@@ -310,20 +381,20 @@ export default function EmployerApplicationListClient({
                 variant="outline"
                 size="sm"
                 onClick={() => handleExportCSV(true)}
-                disabled={exporting}
+                loading={exporting}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
+                {!exporting && <Download className="h-4 w-4" />}
                 {exporting ? "Exporting..." : "Export Filtered"}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleExportCSV(false)}
-                disabled={exporting}
+                loading={exporting}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
+                {!exporting && <Download className="h-4 w-4" />}
                 {exporting ? "Exporting..." : "Export All"}
               </Button>
             </div>
@@ -373,7 +444,7 @@ export default function EmployerApplicationListClient({
           <div className="flex flex-col md:flex-row items-center justify-end gap-2 pt-4 border-t border-slate-100">
             <Button
               onClick={handleSearch}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto"
             >
               <span style={{ color: "white" }}>Search</span>
@@ -381,7 +452,7 @@ export default function EmployerApplicationListClient({
             <Button
               variant="ghost"
               onClick={handleClear}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto"
             >
               Clear
@@ -446,7 +517,7 @@ export default function EmployerApplicationListClient({
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-blue-600 mb-1">Applicant ID: {app.jobSeeker.id.slice(0, 8)}</p>
                         <h3 className="text-lg font-bold text-slate-800 tracking-tight hover:underline">
-                          <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                          <Link href={getCandidateDetailUrl(app.jobSeeker.id)}>
                             {app.jobSeeker.firstName} {app.jobSeeker.lastName}
                           </Link>
                         </h3>
@@ -574,7 +645,7 @@ export default function EmployerApplicationListClient({
                           onSuccess={handleApplicationUpdated}
                         />
                       </div>
-                      <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                      <Link href={getCandidateDetailUrl(app.jobSeeker.id)}>
                         <Button variant="ghost" className="w-full h-9 px-5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 gap-2 transition-all">
                           <User className="h-3.5 w-3.5 text-slate-500" />
                           View Profile
@@ -611,7 +682,7 @@ export default function EmployerApplicationListClient({
                               className="h-10 w-10"
                             />
                             <div className="min-w-0">
-                              <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                              <Link href={getCandidateDetailUrl(app.jobSeeker.id)}>
                                 <p className="font-bold text-slate-800 hover:text-blue-600 transition-colors line-clamp-1">{app.jobSeeker.firstName} {app.jobSeeker.lastName}</p>
                               </Link>
                               <p className="text-[11px] font-semibold text-slate-400 mt-0.5">ID: {app.jobSeeker.id.slice(0, 8)}</p>
@@ -657,7 +728,7 @@ export default function EmployerApplicationListClient({
                                 onSuccess={handleApplicationUpdated}
                               />
                             </div>
-                            <Link href={`/employer/candidates/${app.jobSeeker.id}`}>
+                            <Link href={getCandidateDetailUrl(app.jobSeeker.id)}>
                               <Button variant="outline" size="sm" className="h-9 rounded-lg text-xs font-semibold border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all">
                                 Details
                               </Button>
@@ -672,31 +743,12 @@ export default function EmployerApplicationListClient({
             </div>
           )}
 
-          {!loading && totalPages > 1 && (
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-              >
-                Previous Page
-              </Button>
-              <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-              >
-                Next Page
-              </Button>
-            </div>
-          )}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => updateUrl(p, appliedSearch, appliedJobId, appliedStatus)}
+            loading={loading}
+          />
         </div>
       </div>
     </div>

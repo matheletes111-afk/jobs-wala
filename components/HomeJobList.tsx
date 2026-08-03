@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, stripHtml } from "@/lib/utils";
 import CompanyLogo from "@/components/CompanyLogo";
 
 interface Job {
@@ -60,7 +60,7 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                   )}
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                  {job.description}
+                  {stripHtml(job.description)}
                 </p>
               </div>
               <div className="ml-auto flex shrink-0 gap-2">

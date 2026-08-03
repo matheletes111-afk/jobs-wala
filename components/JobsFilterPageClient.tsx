@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
 import { UserRole } from "@/types";
 import { MapPin, LayoutGrid, List, ChevronDown } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import CompanyLogo from "@/components/CompanyLogo";
 import ShareJobButton from "@/components/ShareJobButton";
+import Pagination from "@/components/common/Pagination";
 
 type JobItem = {
   id: string;
@@ -49,6 +51,10 @@ export default function JobsFilterPageClient({
   employerId,
 }: JobsFilterPageClientProps) {
   const { data: session } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -56,6 +62,21 @@ export default function JobsFilterPageClient({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sort, setSort] = useState<"recent" | "oldest">("recent");
   const limit = 50;
+
+  const updateUrl = useCallback(
+    (pageNum: number) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  useEffect(() => {
+    const pageValStr = searchParams.get("page");
+    setPage(parseInt(pageValStr || "1", 10));
+  }, [searchParams]);
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -77,7 +98,7 @@ export default function JobsFilterPageClient({
     } finally {
       setLoading(false);
     }
-  }, [page, category, employerId]);
+  }, [page, category, employerId, limit]);
 
   const sortedJobs = sort === "oldest" ? [...jobs].reverse() : jobs;
 
@@ -164,34 +185,18 @@ export default function JobsFilterPageClient({
                   isEmployer={isEmployer}
                   isJobSeeker={isJobSeeker}
                   session={session}
+                  page={page}
                 />
               ))}
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous
-              </Button>
-              <span className="text-sm text-gray-600">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Next
-              </Button>
-            </div>
-          )}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => updateUrl(p)}
+            loading={loading}
+          />
         </>
       )}
     </div>
@@ -202,11 +207,13 @@ function JobCard({
   job,
   isEmployer,
   session,
+  page = 1,
 }: {
   job: JobItem;
   isEmployer: boolean;
   isJobSeeker: boolean;
   session: Session | null;
+  page?: number;
 }) {
   const formatDate = (dateStr: string) => {
     try {
@@ -219,6 +226,8 @@ function JobCard({
       return dateStr;
     }
   };
+
+  const detailUrl = `/jobs/${job.id}${page > 1 ? `?page=${page}` : ""}`;
 
   return (
     <div className="bg-white border border-slate-200 hover:shadow-md hover:border-slate-300 group flex flex-col p-6 rounded-2xl transition-all shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -241,7 +250,7 @@ function JobCard({
         </div>
       </div>
       <Link
-        href={`/jobs/${job.id}`}
+        href={detailUrl}
         className="mt-6 block text-xl font-bold text-foreground decoration-primary/30 decoration-2 underline-offset-4 transition-all hover:text-primary hover:underline"
       >
         {job.title}
@@ -261,7 +270,7 @@ function JobCard({
         </p>
         <div className="w-1/2">
           {isEmployer ? (
-            <Link href={`/jobs/${job.id}`} className="w-full">
+            <Link href={detailUrl} className="w-full">
               <Button
                 variant="ghost"
                 size="sm"
@@ -274,8 +283,8 @@ function JobCard({
             <Link
               href={
                 session
-                  ? `/jobs/${job.id}`
-                  : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
+                  ? detailUrl
+                  : `/login?callbackUrl=${encodeURIComponent(detailUrl)}`
               }
               className="w-full"
             >

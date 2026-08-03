@@ -53,7 +53,7 @@ export default function JobApprovalActions({
             onClick={() =>
               handleStatusChange("ACTIVE", "Are you sure you want to approve this job? It will be visible to job seekers.")
             }
-            disabled={loading}
+            loading={loading}
           >
             Approve
           </Button>
@@ -63,7 +63,7 @@ export default function JobApprovalActions({
             onClick={() =>
               handleStatusChange("INACTIVE", "Are you sure you want to reject this job? It will not be visible to job seekers.")
             }
-            disabled={loading}
+            loading={loading}
           >
             Reject
           </Button>
@@ -76,10 +76,10 @@ export default function JobApprovalActions({
           onClick={() =>
             handleStatusChange("INACTIVE", "Are you sure you want to deactivate this job? It will no longer be visible in the jobs list for users.")
           }
-          disabled={loading}
+          loading={loading}
           className="rounded-lg border-amber-200 bg-amber-50/80 text-amber-700 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300"
         >
-          <PowerOff className="h-3.5 w-3.5" />
+          {!loading && <PowerOff className="h-3.5 w-3.5" />}
           Deactivate
         </Button>
       )}
@@ -89,10 +89,10 @@ export default function JobApprovalActions({
           onClick={() =>
             handleStatusChange("ACTIVE", "Are you sure you want to activate this job? It will be visible to job seekers again.")
           }
-          disabled={loading}
+          loading={loading}
           className="rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
         >
-          <Power className="h-3.5 w-3.5" />
+          {!loading && <Power className="h-3.5 w-3.5" />}
           Activate
         </Button>
       )}

@@ -15,6 +15,8 @@ import {
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import CompanyLogo from "@/components/CompanyLogo";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
 
 interface ApplicationItem {
   id: string;
@@ -48,6 +50,10 @@ interface FetchResult {
 }
 
 export default function ApplicationSearch() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -62,6 +68,37 @@ export default function ApplicationSearch() {
   const [appliedLocation, setAppliedLocation] = useState("");
   const [appliedStatus, setAppliedStatus] = useState("all");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      searchVal: string,
+      categoryVal: string,
+      locationVal: string,
+      statusVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (searchVal.trim()) params.set("search", searchVal.trim());
+      if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      if (statusVal && statusVal !== "all") params.set("status", statusVal);
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const getJobDetailUrl = (jobId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    if (appliedStatus && appliedStatus !== "all") params.set("status", appliedStatus);
+    const query = params.toString();
+    return `/jobs/${jobId}${query ? `?${query}` : ""}`;
+  };
 
   const fetchApplications = useCallback(
     async (
@@ -88,7 +125,7 @@ export default function ApplicationSearch() {
         setApplications(data.applications ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
       } catch {
         setApplications([]);
         setTotal(0);
@@ -107,54 +144,93 @@ export default function ApplicationSearch() {
       .catch(() => setCategories([]));
   }, []);
 
-  const [isRestored, setIsRestored] = useState(false);
-
-  // Load saved filters on mount
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let searchVal = searchParams.get("search");
+    let categoryVal = searchParams.get("category");
+    let locationVal = searchParams.get("location");
+    let statusVal = searchParams.get("status");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams =
+      searchVal !== null ||
+      categoryVal !== null ||
+      locationVal !== null ||
+      statusVal !== null ||
+      pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem("user_applications_filters");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setSearch(parsed.search || "");
-          setCategory(parsed.category || "all");
-          setLocation(parsed.location || "");
-          setStatus(parsed.status || "all");
+          searchVal = parsed.search || "";
+          categoryVal = parsed.category || "all";
+          locationVal = parsed.location || "";
+          statusVal = parsed.status || "all";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
 
-          setAppliedSearch(parsed.appliedSearch || "");
-          setAppliedCategory(parsed.appliedCategory || "all");
-          setAppliedLocation(parsed.appliedLocation || "");
-          setAppliedStatus(parsed.appliedStatus || "all");
-
-          setPage(parsed.page || 1);
-        } catch (e) {
-          // ignore
-        }
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (searchVal?.trim()) params.set("search", searchVal.trim());
+          if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+          if (locationVal?.trim()) params.set("location", locationVal.trim());
+          if (statusVal && statusVal !== "all") params.set("status", statusVal);
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
       }
     }
-    setIsRestored(true);
-  }, []);
 
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
+    const finalSearch = searchVal || "";
+    const finalCategory = categoryVal || "all";
+    const finalLocation = locationVal || "";
+    const finalStatus = statusVal || "all";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setSearch(finalSearch);
+    setCategory(finalCategory);
+    setLocation(finalLocation);
+    setStatus(finalStatus);
+    setPage(finalPage);
+
+    setAppliedSearch(finalSearch);
+    setAppliedCategory(finalCategory);
+    setAppliedLocation(finalLocation);
+    setAppliedStatus(finalStatus);
+
+    const isClean =
+      !finalSearch &&
+      finalCategory === "all" &&
+      !finalLocation &&
+      finalStatus === "all" &&
+      finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "user_applications_filters",
-        JSON.stringify({
-          search,
-          category,
-          location,
-          status,
-          appliedSearch,
-          appliedCategory,
-          appliedLocation,
-          appliedStatus,
-          page,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("user_applications_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "user_applications_filters",
+            JSON.stringify({
+              search: finalSearch,
+              category: finalCategory,
+              location: finalLocation,
+              status: finalStatus,
+              appliedSearch: finalSearch,
+              appliedCategory: finalCategory,
+              appliedLocation: finalLocation,
+              appliedStatus: finalStatus,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
-  }, [search, category, location, status, appliedSearch, appliedCategory, appliedLocation, appliedStatus, page, isRestored]);
+  }, [searchParams, pathname, router]);
 
   useEffect(() => {
     fetchApplications(
@@ -174,14 +250,16 @@ export default function ApplicationSearch() {
   ]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedCategory(category);
-    setAppliedLocation(location);
-    setAppliedStatus(status);
-    setPage(1);
+    updateUrl(1, search, category, location, status);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("user_applications_filters");
+      } catch (_e) {}
+    }
+
     setSearch("");
     setCategory("all");
     setLocation("");
@@ -191,6 +269,9 @@ export default function ApplicationSearch() {
     setAppliedLocation("");
     setAppliedStatus("all");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchApplications(1, "", "all", "", "all");
   };
 
   const start = total === 0 ? 0 : (page - 1) * 10 + 1;
@@ -262,10 +343,10 @@ export default function ApplicationSearch() {
           </div>
 
           <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
-            <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-10 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto shadow-sm">
+            <Button variant="ghost" onClick={handleClear} loading={loading} className="h-10 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto shadow-sm">
               Reset
             </Button>
-            <Button onClick={handleSearch} disabled={loading} className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto">
+            <Button onClick={handleSearch} loading={loading} className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto">
               <span style={{ color: "white" }}>Search</span>
             </Button>
           </div>
@@ -306,7 +387,7 @@ export default function ApplicationSearch() {
                 <div className="max-w-sm mx-auto">
                   <p className="text-lg font-bold text-slate-800 mb-2.5">No matches found</p>
                   <p className="text-sm text-slate-500 mb-6">Try adjusting your filters or clearing them to see all applications.</p>
-                  <Button variant="outline" onClick={handleClear} className="h-11 px-6 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition-all">
+                  <Button variant="outline" onClick={handleClear} loading={loading} className="h-11 px-6 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition-all">
                     Reset Selection
                   </Button>
                 </div>
@@ -329,7 +410,7 @@ export default function ApplicationSearch() {
                     />
                     <div className="min-w-0 flex-1 text-center md:text-left">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <Link href={`/jobs/${application.job.id}`}>
+                        <Link href={getJobDetailUrl(application.job.id)}>
                           <h3 className="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                             {application.job.title}
                           </h3>
@@ -382,75 +463,12 @@ export default function ApplicationSearch() {
             ))}
           </div>
         )}
-        {!loading && totalPages > 1 && (
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="text-xs font-semibold text-slate-500 hover:text-slate-700"
-          >
-            Previous
-          </Button>
-          <div className="flex items-center gap-1.5">
-            {(() => {
-              const pages: (number | "ellipsis")[] = [];
-              const show = 2;
-              if (totalPages <= 5) {
-                for (let i = 1; i <= totalPages; i++) pages.push(i);
-              } else {
-                if (page <= show) {
-                  for (let i = 1; i <= show + 1; i++) pages.push(i);
-                  pages.push("ellipsis");
-                  pages.push(totalPages);
-                } else if (page >= totalPages - show + 1) {
-                  pages.push(1);
-                  pages.push("ellipsis");
-                  for (let i = totalPages - show; i <= totalPages; i++)
-                    pages.push(i);
-                } else {
-                  pages.push(1);
-                  pages.push("ellipsis");
-                  for (let i = page - 1; i <= page + 1; i++) pages.push(i);
-                  pages.push("ellipsis");
-                  pages.push(totalPages);
-                }
-              }
-              return pages.map((p, i) =>
-                p === "ellipsis" ? (
-                  <span key={`e-${i}`} className="px-2 text-slate-300">
-                    …
-                  </span>
-                ) : (
-                  <Button
-                    key={p}
-                    variant="ghost"
-                    size="sm"
-                    className={`h-9 w-9 p-0 rounded-lg text-xs font-semibold transition-all border ${
-                      page === p 
-                        ? "bg-blue-600 text-white border-blue-500 shadow-sm" 
-                        : "bg-white border-slate-200 text-slate-500 hover:bg-slate-100"
-                    }`}
-                    onClick={() => setPage(p)}
-                  >
-                    {p}
-                  </Button>
-                )
-              );
-            })()}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="text-xs font-semibold text-slate-500 hover:text-slate-700"
-          >
-            Next
-          </Button>
-        </div>
-        )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={(p) => updateUrl(p, appliedSearch, appliedCategory, appliedLocation, appliedStatus)}
+          loading={loading}
+        />
       </div>
     </div>
   );

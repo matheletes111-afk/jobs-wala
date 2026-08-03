@@ -33,6 +33,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { stripHtml } from "@/lib/utils";
 
 interface GoogleSearchResult {
   title: string;
@@ -83,8 +84,18 @@ export default function XRaySearch() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setDbResults(data.results || []);
-      setDbCriteria(data.criteria || null);
+      const resList = data.results || [];
+      const resCrit = data.criteria || null;
+      setDbResults(resList);
+      setDbCriteria(resCrit);
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem(
+            "xray_db_search_state",
+            JSON.stringify({ dbPrompt, dbResults: resList, dbCriteria: resCrit })
+          );
+        } catch (_e) {}
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch candidates from database";
       setDbError(errorMessage);
@@ -92,6 +103,20 @@ export default function XRaySearch() {
       setDbLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("xray_db_search_state");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.dbPrompt) setDbPrompt(parsed.dbPrompt);
+          if (parsed.dbResults) setDbResults(parsed.dbResults);
+          if (parsed.dbCriteria) setDbCriteria(parsed.dbCriteria);
+        } catch (_e) {}
+      }
+    }
+  }, []);
 
   const [prompt, setPrompt] = useState("");
   const [xrayQuery, setXrayQuery] = useState("");
@@ -213,7 +238,7 @@ export default function XRaySearch() {
     setSelectedJobId(jobId);
     const location = typeof job.location === 'string' ? job.location : "";
     const skills = job.requiredSkills?.join(", ") || "";
-    const jobPrompt = `Find candidates for ${job.title} role ${location ? `in ${location}` : ""} with expertise in ${skills || job.description.substring(0, 100)}`;
+    const jobPrompt = `Find candidates for ${job.title} role ${location ? `in ${location}` : ""} with expertise in ${skills || stripHtml(job.description).substring(0, 100)}`;
     setPrompt(jobPrompt);
   };
 
@@ -667,6 +692,12 @@ export default function XRaySearch() {
     setSummaries({});
     setDrafts({});
     setNotes({});
+    setDbPrompt("");
+    setDbResults([]);
+    setDbCriteria(null);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("xray_db_search_state");
+    }
     localStorage.removeItem("xray_summaries");
     localStorage.removeItem("xray_drafts");
     localStorage.removeItem("xray_notes");
@@ -1062,7 +1093,7 @@ export default function XRaySearch() {
                           <div className="mt-3 p-4 rounded-xl bg-slate-50 border border-slate-200 animate-in fade-in slide-in-from-top-2">
                             <p className="text-xs font-semibold text-slate-500 mb-2">Active Requirements</p>
                             <p className="text-xs leading-relaxed text-slate-500 line-clamp-4">
-                              {activeJobs.find(j => j.id === selectedJobId)?.description}
+                              {stripHtml(activeJobs.find(j => j.id === selectedJobId)?.description)}
                             </p>
                           </div>
                         )}
@@ -1282,10 +1313,10 @@ export default function XRaySearch() {
                     <div className="flex gap-3">
                       <Button
                         onClick={() => handleSearch(false)}
-                        disabled={loading || !xrayQuery}
+                        loading={loading}
                         className="flex-1 h-14 rounded-2xl bg-primary text-white text-xs font-semibold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                       >
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" style={{ color: "white" }} /> : <Search className="mr-2 h-4 w-4" style={{ color: "white" }} />}
+                        {!loading && <Search className="mr-2 h-4 w-4" style={{ color: "white" }} />}
                         <span style={{ color: "white" }}>Execute Global Search</span>
                       </Button>
                       <a

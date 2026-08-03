@@ -169,10 +169,10 @@ export default async function HomePage() {
 
       <main className="flex-1 relative bg-transparent">
         {/* Hero / Banner with Background Slider */}
-        <section className="relative w-full mx-auto max-w-[1440px] px-2 sm:px-4 md:px-6 pt-0 mb-12 sm:mb-16 bg-transparent">
+        <section className="relative w-full mx-auto max-w-[98%] xl:max-w-[1760px] px-1 sm:px-2 md:px-3 pt-0 mb-12 sm:mb-16 bg-transparent">
           <div className="rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/50">
             <HomeSlider>
-              <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 lg:flex-row lg:justify-between lg:items-center px-4 py-12 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+              <div className="mx-auto flex w-full max-w-[1600px] flex-col items-center gap-6 lg:flex-row lg:justify-between lg:items-center px-4 py-12 sm:px-6 md:px-8 lg:px-10 xl:px-12">
 
                 {/* Left Column: Title, Description, and Search */}
                 <div className="min-w-0 max-w-2xl flex-1 text-center lg:text-left relative z-20">

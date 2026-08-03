@@ -209,11 +209,11 @@ export default function CategoryManager({
             <div className="pt-2 flex flex-col gap-2">
               <Button
                 type="submit"
-                disabled={loading}
+                loading={loading}
                 className="h-11 w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors"
               >
                 <span style={{ color: "white" }}>
-                  {loading ? "Processing..." : editingId ? "Update Category" : "Add Category"}
+                  {editingId ? "Update Category" : "Add Category"}
                 </span>
               </Button>
               {editingId && (

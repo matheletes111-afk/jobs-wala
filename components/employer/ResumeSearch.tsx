@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { formatLocation } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { Search, User, MapPin, Briefcase, GraduationCap, FileText, ChevronRight, LayoutGrid, List, Download } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
+import Pagination from "@/components/common/Pagination";
 
 interface Candidate {
   id: string;
@@ -47,6 +48,8 @@ export default function ResumeSearch({
   const router = useRouter();
   const pathname = usePathname();
 
+  const searchParams = useSearchParams();
+
   const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
   const [skills, setSkills] = useState((initialParams.skills as string) || "");
   const [location, setLocation] = useState((initialParams.location as string) || "");
@@ -67,79 +70,33 @@ export default function ResumeSearch({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const limit = 12;
 
-  const [isRestored, setIsRestored] = useState(false);
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      keywordVal: string,
+      skillsVal: string,
+      locationVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
+      if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
 
-  // Load saved filters on mount
-  useEffect(() => {
-    const hasParams = initialParams.keyword || initialParams.skills || initialParams.location;
-    if (!hasParams && typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("resume_search_filters");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          const kw = parsed.keyword || "";
-          const sk = parsed.skills || "";
-          const loc = parsed.location || "";
-          
-          setKeyword(kw);
-          setSkills(sk);
-          setLocation(loc);
-          setAppliedKeyword(kw);
-          setAppliedSkills(sk);
-          setAppliedLocation(loc);
-          setPage(parsed.page || 1);
-          if (parsed.viewMode) setViewMode(parsed.viewMode);
-          
-          // Update URL to match saved filters
-          const params = new URLSearchParams();
-          if (parsed.page && parsed.page > 1) params.set("page", String(parsed.page));
-          if (kw.trim()) params.set("keyword", kw.trim());
-          if (sk.trim()) params.set("skills", sk.trim());
-          if (loc.trim()) params.set("location", loc.trim());
-          const query = params.toString();
-          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
-        } catch (e) {
-          // ignore
-        }
-      }
-    }
-    setIsRestored(true);
-  }, [initialParams, pathname, router]);
-
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "resume_search_filters",
-        JSON.stringify({
-          keyword,
-          skills,
-          location,
-          appliedKeyword,
-          appliedSkills,
-          appliedLocation,
-          page,
-          viewMode,
-        })
-      );
-    }
-  }, [keyword, skills, location, appliedKeyword, appliedSkills, appliedLocation, page, viewMode, isRestored]);
-
-  // Sync state when URL params change (e.g. forward/back buttons)
-  useEffect(() => {
-    const kw = (initialParams.keyword as string) || "";
-    const sk = (initialParams.skills as string) || "";
-    const loc = (initialParams.location as string) || "";
-    
-    setKeyword(kw);
-    setSkills(sk);
-    setLocation(loc);
-    setAppliedKeyword(kw);
-    setAppliedSkills(sk);
-    setAppliedLocation(loc);
-    setPage(1);
-  }, [initialParams.keyword, initialParams.skills, initialParams.location]);
+  const getCandidateDetailUrl = (candidateId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedKeyword.trim()) params.set("keyword", appliedKeyword.trim());
+    if (appliedSkills.trim()) params.set("skills", appliedSkills.trim());
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    const query = params.toString();
+    return `/employer/candidates/${candidateId}${query ? `?${query}` : ""}`;
+  };
 
   const fetchCandidates = useCallback(
     async (
@@ -162,7 +119,7 @@ export default function ResumeSearch({
         setCandidates(data.candidates ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
       } catch {
         setCandidates([]);
         setTotal(0);
@@ -171,27 +128,94 @@ export default function ResumeSearch({
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
+
+  // Sync state with searchParams (URL) and sessionStorage
+  useEffect(() => {
+    let kw = searchParams.get("keyword");
+    let sk = searchParams.get("skills");
+    let loc = searchParams.get("location");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams = kw !== null || sk !== null || loc !== null || pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("resume_search_filters");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          kw = parsed.keyword || "";
+          sk = parsed.skills || "";
+          loc = parsed.location || "";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
+
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (kw?.trim()) params.set("keyword", kw.trim());
+          if (sk?.trim()) params.set("skills", sk.trim());
+          if (loc?.trim()) params.set("location", loc.trim());
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
+      }
+    }
+
+    const finalKw = kw || "";
+    const finalSk = sk || "";
+    const finalLoc = loc || "";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setKeyword(finalKw);
+    setSkills(finalSk);
+    setLocation(finalLoc);
+    setPage(finalPage);
+
+    setAppliedKeyword(finalKw);
+    setAppliedSkills(finalSk);
+    setAppliedLocation(finalLoc);
+
+    const isClean = !finalKw && !finalSk && !finalLoc && finalPage === 1;
+
+    if (typeof window !== "undefined") {
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("resume_search_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "resume_search_filters",
+            JSON.stringify({
+              keyword: finalKw,
+              skills: finalSk,
+              location: finalLoc,
+              appliedKeyword: finalKw,
+              appliedSkills: finalSk,
+              appliedLocation: finalLoc,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
+    }
+  }, [searchParams, pathname, router]);
 
   useEffect(() => {
     fetchCandidates(page, appliedKeyword, appliedSkills, appliedLocation);
   }, [page, appliedKeyword, appliedSkills, appliedLocation, fetchCandidates]);
 
   const handleSearch = () => {
-    setAppliedKeyword(keyword);
-    setAppliedSkills(skills);
-    setAppliedLocation(location);
-    setPage(1);
-
-    const params = new URLSearchParams();
-    if (keyword.trim()) params.set("keyword", keyword.trim());
-    if (skills.trim()) params.set("skills", skills.trim());
-    if (location.trim()) params.set("location", location.trim());
-    router.push(`${pathname}?${params.toString()}`);
+    updateUrl(1, keyword, skills, location);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("resume_search_filters");
+      } catch (_e) {}
+    }
+
     setKeyword("");
     setSkills("");
     setLocation("");
@@ -199,7 +223,9 @@ export default function ResumeSearch({
     setAppliedSkills("");
     setAppliedLocation("");
     setPage(1);
-    router.push(pathname);
+
+    router.replace(pathname, { scroll: false });
+    fetchCandidates(1, "", "", "");
   };
 
   const [exporting, setExporting] = useState(false);
@@ -341,7 +367,7 @@ export default function ResumeSearch({
           <div className="flex flex-col md:flex-row items-center justify-end gap-2 pt-4 border-t border-slate-100">
             <Button
               onClick={handleSearch}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto"
             >
               <span style={{ color: "white" }}>Search</span>
@@ -349,7 +375,7 @@ export default function ResumeSearch({
             <Button
               variant="ghost"
               onClick={handleClear}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto"
             >
               Clear
@@ -416,7 +442,7 @@ export default function ResumeSearch({
                     />
                     <div className="min-w-0 flex-1">
                       <h3 className="text-base font-bold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors line-clamp-1">
-                        <Link href={`/employer/candidates/${candidate.id}`}>
+                        <Link href={getCandidateDetailUrl(candidate.id)}>
                           {candidate.firstName} {candidate.lastName}
                         </Link>
                       </h3>
@@ -496,7 +522,7 @@ export default function ResumeSearch({
                           </p>
                        </div>
                     )}
-                    <Link href={`/employer/candidates/${candidate.id}`}>
+                    <Link href={getCandidateDetailUrl(candidate.id)}>
                       <Button
                         variant="ghost"
                         className="h-9 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-all group"
@@ -511,29 +537,12 @@ export default function ResumeSearch({
             </div>
           )}
 
-          {!loading && totalPages > 1 && (
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous Page
-              </Button>
-              <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next Page
-              </Button>
-            </div>
-          )}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => updateUrl(p, appliedKeyword, appliedSkills, appliedLocation)}
+            loading={loading}
+          />
         </div>
       </div>
     </div>

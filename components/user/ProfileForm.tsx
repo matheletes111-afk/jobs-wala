@@ -927,7 +927,7 @@ export default function ProfileForm({
             <p className="text-xs font-semibold text-slate-400">Save Profile Information</p>
             <Button 
               type="submit" 
-              disabled={loading}
+              loading={loading}
               className="w-full sm:w-64 h-12 rounded-xl bg-blue-600 hover:bg-blue-750 border-0 text-white font-semibold transition-all hover:scale-105 active:scale-95 shadow-md shadow-blue-500/20"
             >
               {loading ? "Saving..." : profile ? "Update Profile" : "Create Profile"}

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatLocation, formatSalary, PAY_TYPE_LABELS } from "@/lib/utils";
+import { formatLocation, formatSalary, PAY_TYPE_LABELS, stripHtml } from "@/lib/utils";
 import CompanyLogo from "@/components/CompanyLogo";
 
 interface Job {
@@ -125,26 +125,24 @@ export default function JobDetails({
             <span className="font-bold text-slate-550 uppercase tracking-wider">
               Profile Match Score
             </span>
-            <span className={`text-sm font-extrabold ${
-              matchScore >= 75
+            <span className={`text-sm font-extrabold ${matchScore >= 75
                 ? "text-emerald-600"
                 : matchScore >= 40
-                ? "text-amber-600"
-                : "text-blue-600"
-            }`}>
+                  ? "text-amber-600"
+                  : "text-blue-600"
+              }`}>
               {matchScore}% Match
             </span>
           </div>
           {/* Progress Bar */}
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
             <div
-              className={`h-full rounded-full transition-all duration-1000 ${
-                matchScore >= 75
+              className={`h-full rounded-full transition-all duration-1000 ${matchScore >= 75
                   ? "bg-emerald-500"
                   : matchScore >= 40
-                  ? "bg-amber-500"
-                  : "bg-blue-500"
-              }`}
+                    ? "bg-amber-500"
+                    : "bg-blue-500"
+                }`}
               style={{ width: `${matchScore}%` }}
             />
           </div>
@@ -166,11 +164,10 @@ export default function JobDetails({
                   return (
                     <span
                       key={skill}
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all ${
-                        isMatched
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all ${isMatched
                           ? "bg-emerald-50 text-emerald-600 border-emerald-250"
                           : "bg-slate-50 text-slate-400 border-slate-200"
-                      }`}
+                        }`}
                     >
                       {skill}
                     </span>
@@ -292,8 +289,8 @@ export default function JobDetails({
               </div>
               <div>
                 <p className="text-xs font-semibold text-slate-400 mb-1">Overview</p>
-                <p className="text-xs leading-relaxed text-slate-500 font-medium italic">
-                  &quot;{job.employer.description || "Analytical data pending."}&quot;
+                <p className="text-xs leading-relaxed text-slate-500 font-medium">
+                  {stripHtml(job.employer.description) || "Analytical data pending."}
                 </p>
               </div>
               {job.employer.website && (

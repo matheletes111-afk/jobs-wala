@@ -502,6 +502,7 @@ export default function AdminResumeDatabaseClient() {
           <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-3">
             <Button
               onClick={onApplyFilters}
+              loading={loading}
               className="h-9 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all active:scale-95"
             >
               <span className="text-white">Apply Filters</span>
@@ -509,9 +510,10 @@ export default function AdminResumeDatabaseClient() {
             <Button
               variant="ghost"
               onClick={onClearFilters}
+              loading={loading}
               className="h-9 px-5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-all"
             >
-              <span className="text-white">Reset</span>
+              <span>Reset</span>
             </Button>
           </div>
         </div>

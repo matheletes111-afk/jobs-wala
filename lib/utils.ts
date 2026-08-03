@@ -119,3 +119,31 @@ export function formatSalary(job: SalaryInfo): string | null {
   }
   return null;
 }
+
+/**
+ * Strips HTML tags and decodes common HTML entities.
+ * Use this ONLY for list/card snippet previews — NOT on detail pages which use dangerouslySetInnerHTML.
+ */
+export function stripHtml(html: string | null | undefined): string {
+  if (!html) return "";
+  return html
+    // Remove <style> and <script> blocks entirely
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    // Remove all remaining HTML tags
+    .replace(/<[^>]+>/g, " ")
+    // Decode common HTML entities
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&bull;/gi, "•")
+    .replace(/&copy;/gi, "©")
+    .replace(/&reg;/gi, "®")
+    // Collapse multiple spaces/newlines into one
+    .replace(/\s+/g, " ")
+    .trim();
+}
+

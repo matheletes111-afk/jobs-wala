@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -36,27 +37,91 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }) {
-  const Comp = asChild ? Slot : "button"
-
-  return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  )
+export interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick">,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  loading?: boolean
+  isLoading?: boolean
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<unknown> | unknown
 }
 
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      variant = "default",
+      size = "default",
+      asChild = false,
+      loading = false,
+      isLoading = false,
+      disabled,
+      children,
+      onClick,
+      ...props
+    },
+    ref
+  ) => {
+    const [internalLoading, setInternalLoading] = React.useState(false)
+    const isSpinning = Boolean(loading || isLoading || internalLoading)
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (disabled || isSpinning) {
+        e.preventDefault()
+        return
+      }
+      if (onClick) {
+        const result = onClick(e) as unknown
+        if (
+          result &&
+          typeof result === "object" &&
+          "then" in result &&
+          typeof (result as Promise<unknown>).then === "function"
+        ) {
+          setInternalLoading(true)
+          Promise.resolve(result)
+            .catch(() => {})
+            .finally(() => {
+              setInternalLoading(false)
+            })
+        }
+      }
+    }
+
+    if (asChild) {
+      return (
+        <Slot
+          ref={ref}
+          data-slot="button"
+          data-variant={variant}
+          data-size={size}
+          className={cn(buttonVariants({ variant, size, className }))}
+          {...props}
+        >
+          {children}
+        </Slot>
+      )
+    }
+
+    return (
+      <button
+        ref={ref}
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        disabled={disabled || isSpinning}
+        onClick={handleClick}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {isSpinning && <Loader2 className="h-4 w-4 animate-spin shrink-0" />}
+        {children}
+      </button>
+    )
+  }
+)
+Button.displayName = "Button"
+
 export { Button, buttonVariants }
+
+

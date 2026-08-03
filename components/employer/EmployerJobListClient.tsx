@@ -17,6 +17,8 @@ import JobStatusActions from "@/components/employer/JobStatusActions";
 import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText, Pencil, Download } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
 
 interface EmployerJob {
   id: string;
@@ -56,6 +58,10 @@ interface FetchResult {
 }
 
 export default function EmployerJobListClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [jobs, setJobs] = useState<EmployerJob[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -72,6 +78,48 @@ export default function EmployerJobListClient() {
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const limit = 12;
+
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      searchVal: string,
+      categoryVal: string,
+      locationVal: string,
+      sortVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (searchVal.trim()) params.set("search", searchVal.trim());
+      if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const getJobDetailUrl = (jobId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    if (appliedSort && appliedSort !== "desc") params.set("sort", appliedSort);
+    const query = params.toString();
+    return `/employer/jobs/${jobId}${query ? `?${query}` : ""}`;
+  };
+
+  const getJobEditUrl = (jobId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
+    if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
+    if (appliedSort && appliedSort !== "desc") params.set("sort", appliedSort);
+    const query = params.toString();
+    return `/employer/jobs/${jobId}/edit${query ? `?${query}` : ""}`;
+  };
 
   const fetchJobs = useCallback(
     async (
@@ -95,10 +143,10 @@ export default function EmployerJobListClient() {
         const res = await fetch(`/api/employer/jobs?${params.toString()}`);
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
-        setJobs(data.jobs);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
-        setPage(data.page);
+        setJobs(data.jobs ?? []);
+        setTotal(data.total ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+        setPage(data.page ?? pageNum);
       } catch {
         setJobs([]);
         setTotal(0);
@@ -107,7 +155,7 @@ export default function EmployerJobListClient() {
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
 
   useEffect(() => {
@@ -117,70 +165,109 @@ export default function EmployerJobListClient() {
       .catch(() => setCategories([]));
   }, []);
 
-  const [isRestored, setIsRestored] = useState(false);
-
-  // Load saved filters on mount
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let searchVal = searchParams.get("search");
+    let categoryVal = searchParams.get("category");
+    let locationVal = searchParams.get("location");
+    let sortVal = searchParams.get("sort");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams =
+      searchVal !== null ||
+      categoryVal !== null ||
+      locationVal !== null ||
+      sortVal !== null ||
+      pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem("employer_jobs_filters");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setSearch(parsed.search || "");
-          setCategory(parsed.category || "all");
-          setLocation(parsed.location || "");
-          setSort(parsed.sort || "desc");
+          searchVal = parsed.search || "";
+          categoryVal = parsed.category || "all";
+          locationVal = parsed.location || "";
+          sortVal = parsed.sort || "desc";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
 
-          setAppliedSearch(parsed.appliedSearch || "");
-          setAppliedCategory(parsed.appliedCategory || "all");
-          setAppliedLocation(parsed.appliedLocation || "");
-          setAppliedSort(parsed.appliedSort || "desc");
-
-          setPage(parsed.page || 1);
-          if (parsed.viewMode) setViewMode(parsed.viewMode);
-        } catch (e) {
-          // ignore
-        }
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (searchVal?.trim()) params.set("search", searchVal.trim());
+          if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
+          if (locationVal?.trim()) params.set("location", locationVal.trim());
+          if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
       }
     }
-    setIsRestored(true);
-  }, []);
 
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
+    const finalSearch = searchVal || "";
+    const finalCategory = categoryVal || "all";
+    const finalLocation = locationVal || "";
+    const finalSort = sortVal || "desc";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setSearch(finalSearch);
+    setCategory(finalCategory);
+    setLocation(finalLocation);
+    setSort(finalSort);
+    setPage(finalPage);
+
+    setAppliedSearch(finalSearch);
+    setAppliedCategory(finalCategory);
+    setAppliedLocation(finalLocation);
+    setAppliedSort(finalSort);
+
+    const isClean =
+      !finalSearch &&
+      finalCategory === "all" &&
+      !finalLocation &&
+      finalSort === "desc" &&
+      finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "employer_jobs_filters",
-        JSON.stringify({
-          search,
-          category,
-          location,
-          sort,
-          appliedSearch,
-          appliedCategory,
-          appliedLocation,
-          appliedSort,
-          page,
-          viewMode,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("employer_jobs_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "employer_jobs_filters",
+            JSON.stringify({
+              search: finalSearch,
+              category: finalCategory,
+              location: finalLocation,
+              sort: finalSort,
+              appliedSearch: finalSearch,
+              appliedCategory: finalCategory,
+              appliedLocation: finalLocation,
+              appliedSort: finalSort,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
-  }, [search, category, location, sort, appliedSearch, appliedCategory, appliedLocation, appliedSort, page, viewMode, isRestored]);
+  }, [searchParams, pathname, router]);
 
   useEffect(() => {
     fetchJobs(page, appliedSearch, appliedCategory, appliedLocation, appliedSort);
   }, [page, appliedSearch, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedCategory(category);
-    setAppliedLocation(location);
-    setAppliedSort(sort);
-    setPage(1);
+    updateUrl(1, search, category, location, sort);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("employer_jobs_filters");
+      } catch (_e) {}
+    }
+
     setSearch("");
     setCategory("all");
     setLocation("");
@@ -190,6 +277,9 @@ export default function EmployerJobListClient() {
     setAppliedLocation("");
     setAppliedSort("desc");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchJobs(1, "", "all", "", "desc");
   };
 
   const [exporting, setExporting] = useState(false);
@@ -326,7 +416,7 @@ export default function EmployerJobListClient() {
             <div className="flex items-center justify-end gap-2 w-full pt-4 border-t border-slate-100">
               <Button
                 onClick={handleSearch}
-                disabled={loading}
+                loading={loading}
                 className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto"
               >
                 <span style={{ color: "white" }}>Search</span>
@@ -334,7 +424,7 @@ export default function EmployerJobListClient() {
               <Button
                 variant="ghost"
                 onClick={handleClear}
-                disabled={loading}
+                loading={loading}
                 className="h-11 px-5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto"
               >
                 Clear
@@ -425,7 +515,7 @@ export default function EmployerJobListClient() {
                               {job.status}
                             </span>
                           </div>
-                          <Link href={`/employer/jobs/${job.id}`}>
+                          <Link href={getJobDetailUrl(job.id)}>
                             <h3 className="text-base font-bold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors line-clamp-1">
                               {job.title}
                             </h3>
@@ -439,7 +529,7 @@ export default function EmployerJobListClient() {
                           </p>
                         </div>
                       </div>
-                      <Link href={`/employer/jobs/${job.id}/edit`} className="shrink-0">
+                      <Link href={getJobEditUrl(job.id)} className="shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -490,7 +580,7 @@ export default function EmployerJobListClient() {
                     </div>
 
                     <div className="mt-3">
-                      <Link href={`/employer/jobs/${job.id}`} className="w-full">
+                      <Link href={getJobDetailUrl(job.id)} className="w-full">
                         <Button
                           variant="default"
                           className="w-full h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md shadow-blue-500/10"
@@ -561,7 +651,7 @@ export default function EmployerJobListClient() {
                                 <div className="grid grid-cols-9 w-full items-center py-5 px-6 text-left bg-white">
                                   <div className="font-bold text-xs text-blue-600">{jobCode}</div>
                                   <div className="col-span-1 pr-4">
-                                    <Link href={`/employer/jobs/${job.id}`}>
+                                    <Link href={getJobDetailUrl(job.id)}>
                                       <p className="font-bold text-sm text-slate-800 hover:text-blue-600 transition-colors line-clamp-1">{job.title}</p>
                                     </Link>
                                   </div>
@@ -595,7 +685,7 @@ export default function EmployerJobListClient() {
                                         currentStatus={job.status}
                                       />
                                     </div>
-                                    <Link href={`/employer/jobs/${job.id}/edit`}>
+                                    <Link href={getJobEditUrl(job.id)}>
                                       <Button
                                         variant="outline"
                                         size="sm"
@@ -605,7 +695,7 @@ export default function EmployerJobListClient() {
                                         Edit
                                       </Button>
                                     </Link>
-                                    <Link href={`/employer/jobs/${job.id}`}>
+                                    <Link href={getJobDetailUrl(job.id)}>
                                       <Button variant="default" size="sm" className="h-9 px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-md shadow-blue-500/10">
                                         <span style={{ color: "white" }}>Manage Details</span>
                                       </Button>
@@ -623,31 +713,12 @@ export default function EmployerJobListClient() {
               </div>
             )}
 
-            {!loading && totalPages > 1 && (
-              <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-                >
-                  Previous Page
-                </Button>
-                <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-                  Page {page} of {totalPages}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-30 transition-all shadow-sm"
-                >
-                  Next Page
-                </Button>
-              </div>
-            )}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={(p) => updateUrl(p, appliedSearch, appliedCategory, appliedLocation, appliedSort)}
+              loading={loading}
+            />
           </div>
         </div>
         </div>

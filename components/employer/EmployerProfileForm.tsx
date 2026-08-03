@@ -527,7 +527,7 @@ export default function EmployerProfileForm({
             </Button>
             <Button
               type="submit"
-              disabled={loading}
+              loading={loading}
               className="h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors"
             >
               <span style={{ color: "white" }}>

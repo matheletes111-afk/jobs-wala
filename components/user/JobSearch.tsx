@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation, formatSalary } from "@/lib/utils";
+import { formatLocation, formatSalary, stripHtml } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -203,7 +203,7 @@ export default function JobSearch() {
         setJobs(data.jobs ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
         setAppliedJobIds(data.appliedJobIds ?? []);
         setCandSkills(data.candidateSkills ?? []);
       } catch {
@@ -236,7 +236,7 @@ export default function JobSearch() {
 
     // If there are no searchParams in URL, check sessionStorage
     const hasParams = searchVal !== null || titleVal !== null || categoryVal !== null || locationVal !== null || sortVal !== null || pageValStr !== null;
-    
+
     if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem(`jobs_browse_filters_${pathname}`);
       if (saved) {
@@ -248,7 +248,7 @@ export default function JobSearch() {
           locationVal = parsed.location || "";
           sortVal = parsed.sort || "desc";
           pageValStr = parsed.page ? String(parsed.page) : "1";
-          
+
           // Update URL to match saved filters
           const params = new URLSearchParams();
           if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
@@ -285,19 +285,29 @@ export default function JobSearch() {
     setAppliedLocation(finalLocation);
     setAppliedSort(finalSort);
 
-    // Save to sessionStorage for future restoration
+    // Save to sessionStorage for future restoration if filters are active, or remove if clean
+    const isClean = !finalSearch && !finalTitle && finalCategory === "all" && !finalLocation && finalSort === "desc" && finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        `jobs_browse_filters_${pathname}`,
-        JSON.stringify({
-          search: finalSearch,
-          title: finalTitle,
-          category: finalCategory,
-          location: finalLocation,
-          sort: finalSort,
-          page: finalPage,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem(`jobs_browse_filters_${pathname}`);
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            `jobs_browse_filters_${pathname}`,
+            JSON.stringify({
+              search: finalSearch,
+              title: finalTitle,
+              category: finalCategory,
+              location: finalLocation,
+              sort: finalSort,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
   }, [searchParams, pathname, router]);
 
@@ -313,7 +323,27 @@ export default function JobSearch() {
   };
 
   const handleClear = () => {
-    updateUrl(1, "", "", "all", "", "desc");
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem(`jobs_browse_filters_${pathname}`);
+      } catch (_e) {}
+    }
+
+    setSearch("");
+    setTitle("");
+    setCategory("all");
+    setLocation("");
+    setSort("desc");
+    setPage(1);
+
+    setAppliedSearch("");
+    setAppliedTitle("");
+    setAppliedCategory("all");
+    setAppliedLocation("");
+    setAppliedSort("desc");
+
+    router.replace(pathname, { scroll: false });
+    fetchJobs(1, "", "", "all", "", "desc");
   };
 
   const start = total === 0 ? 0 : (page - 1) * 10 + 1;
@@ -380,10 +410,10 @@ export default function JobSearch() {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-end gap-2 pt-4 border-t border-slate-100">
-          <Button variant="ghost" onClick={handleClear} disabled={loading} className="h-10 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto shadow-sm">
+          <Button variant="ghost" onClick={handleClear} loading={loading} className="h-10 px-5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 w-full md:w-auto shadow-sm">
             Reset
           </Button>
-          <Button onClick={handleSearch} disabled={loading} className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto">
+          <Button onClick={handleSearch} loading={loading} className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/10 w-full md:w-auto">
             <span style={{ color: "white" }}>Search Jobs</span>
           </Button>
         </div>
@@ -397,7 +427,7 @@ export default function JobSearch() {
             Showing {start} - {end}
           </p>
         </div>
-        
+
         {loading ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-20 text-center shadow-sm">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600 mb-4" />
@@ -406,18 +436,18 @@ export default function JobSearch() {
         ) : jobs.length === 0 ? (
           <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-20 text-center shadow-sm">
             <div className="mx-auto h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mb-6 border border-slate-200">
-               <Search className="size-6 text-slate-300" />
+              <Search className="size-6 text-slate-300" />
             </div>
             <p className="text-xl font-bold text-slate-800 tracking-tight mb-2 italic">No Jobs Found</p>
             <p className="text-slate-400 text-xs font-medium italic mb-6 max-w-sm mx-auto">No jobs matched your search. Try adjusting your filters.</p>
-            <Button variant="outline" onClick={handleClear} className="h-11 px-8 rounded-xl border-slate-200 hover:bg-slate-50 text-xs font-semibold transition-all">
+            <Button variant="outline" onClick={handleClear} loading={loading} className="h-11 px-8 rounded-xl border-slate-200 hover:bg-slate-50 text-xs font-semibold transition-all">
               Reset Filters
             </Button>
           </div>
         ) : (
           <div className="space-y-6">
             {jobs.map((job, idx) => (
-              <div key={job.id} 
+              <div key={job.id}
                 className="bg-white border border-slate-200 hover:border-slate-350 hover:shadow-md transition-all shadow-sm rounded-2xl p-6 sm:p-8 animate-in slide-in-from-right-10 duration-700 relative overflow-hidden"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
@@ -429,262 +459,258 @@ export default function JobSearch() {
                     className="shrink-0 rounded-xl border border-slate-250 bg-white group-hover:scale-105 transition-transform"
                   />
                   <div className="min-w-0 flex-1 text-center md:text-left">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <Link href={getJobDetailUrl(job.id)}>
-                          <h3 className="text-xl font-bold text-slate-800 hover:text-blue-600 transition-colors tracking-tight">
-                            {highlightText(job.title, activeQueries)}
-                          </h3>
-                        </Link>
-                        {appliedSet.has(job.id) && (
-                          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-semibold text-emerald-600 flex items-center gap-1.5 mx-auto md:mx-0 shadow-sm">
-                            <CheckCircle2 className="size-3.5" />
-                            Applied
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-1 text-xs font-semibold text-slate-400">{job.companyName || job.employer.companyName}</p>
-                      
-                      {/* Job Metadata Row */}
-                      <div className="mt-3 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-xs font-semibold text-slate-450">
-                        <span className="text-blue-600 font-bold">{`#JOB-${job.id.substring(0, 6).toUpperCase()}`}</span>
-                        <span className="text-slate-300">|</span>
-                        <span>Client: {job.companyName || job.employer.companyName}</span>
-                        <span className="text-slate-300">|</span>
-                        <span>Status: <span className="text-emerald-600 font-bold">Active</span></span>
-                        <span className="text-slate-300">|</span>
-                        <span>Recruiter: Tarun Upadhyay</span>
-                      </div>
-                      
-                      {/* Parse location JSON */}
-                      {(() => {
-                        let locationCity = "N/A";
-                        let locationState = "N/A";
-                        try {
-                          const parsed = JSON.parse(job.location);
-                          if (parsed.city && Array.isArray(parsed.city) && parsed.city.length > 0) {
-                            locationCity = parsed.city[0];
-                          } else if (parsed.city && typeof parsed.city === "string") {
-                            locationCity = parsed.city;
-                          } else if (parsed.country) {
-                            locationCity = parsed.country;
-                          }
-                          
-                          if (parsed.state && Array.isArray(parsed.state) && parsed.state.length > 0) {
-                            locationState = parsed.state[0];
-                          } else if (parsed.state && typeof parsed.state === "string") {
-                            locationState = parsed.state;
-                          } else {
-                            locationState = parsed.country || "India";
-                          }
-                        } catch {
-                          const locParts = job.location.split(",");
-                          locationCity = locParts[0]?.trim() || job.location;
-                          locationState = locParts[1]?.trim() || "India";
-                        }
-                        return (
-                          <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-2.5">
-                            <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
-                              City: {highlightText(locationCity, activeQueries)}
-                            </span>
-                            <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
-                              State: {highlightText(locationState, activeQueries)}
-                            </span>
-                            <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
-                              {highlightText(job.category, activeQueries)}
-                            </span>
-                            <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
-                              {job.employmentType.replace("_", " ")}
-                            </span>
-                            {formatSalary(job) && (
-                              <span className="px-3.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700 whitespace-nowrap">
-                                {formatSalary(job)}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })()}
-                      <p className="mt-4 line-clamp-2 text-sm font-medium text-slate-500 italic leading-relaxed">
-                        &quot;{highlightText(job.description, activeQueries)}&quot;
-                      </p>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <Link href={getJobDetailUrl(job.id)}>
+                        <h3 className="text-xl font-bold text-slate-800 hover:text-blue-600 transition-colors tracking-tight">
+                          {highlightText(job.title, activeQueries)}
+                        </h3>
+                      </Link>
+                      {appliedSet.has(job.id) && (
+                        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-semibold text-emerald-600 flex items-center gap-1.5 mx-auto md:mx-0 shadow-sm">
+                          <CheckCircle2 className="size-3.5" />
+                          Applied
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs font-semibold text-slate-400">{job.companyName || job.employer.companyName}</p>
 
-                      {/* Match Score Bar */}
-                      {job.matchScore !== undefined && job.matchScore !== null && (
-                        <div className="mt-5 max-w-md p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                          <div className="flex items-center justify-between text-[11px] mb-1">
-                            <span className="font-semibold text-slate-550 uppercase tracking-wider">
-                              Profile Match
+                    {/* Job Metadata Row */}
+                    <div className="mt-3 flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-xs font-semibold text-slate-450">
+                      <span className="text-blue-600 font-bold">{`#JOB-${job.id.substring(0, 6).toUpperCase()}`}</span>
+                      <span className="text-slate-300">|</span>
+                      <span>Client: {job.companyName || job.employer.companyName}</span>
+                      <span className="text-slate-300">|</span>
+                      <span>Status: <span className="text-emerald-600 font-bold">Active</span></span>
+                      <span className="text-slate-300">|</span>
+                      <span>Recruiter: Tarun Upadhyay</span>
+                    </div>
+
+                    {/* Parse location JSON */}
+                    {(() => {
+                      let locationCity = "N/A";
+                      let locationState = "N/A";
+                      try {
+                        const parsed = JSON.parse(job.location);
+                        if (parsed.city && Array.isArray(parsed.city) && parsed.city.length > 0) {
+                          locationCity = parsed.city[0];
+                        } else if (parsed.city && typeof parsed.city === "string") {
+                          locationCity = parsed.city;
+                        } else if (parsed.country) {
+                          locationCity = parsed.country;
+                        }
+
+                        if (parsed.state && Array.isArray(parsed.state) && parsed.state.length > 0) {
+                          locationState = parsed.state[0];
+                        } else if (parsed.state && typeof parsed.state === "string") {
+                          locationState = parsed.state;
+                        } else {
+                          locationState = parsed.country || "India";
+                        }
+                      } catch {
+                        const locParts = job.location.split(",");
+                        locationCity = locParts[0]?.trim() || job.location;
+                        locationState = locParts[1]?.trim() || "India";
+                      }
+                      return (
+                        <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-2.5">
+                          <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
+                            City: {highlightText(locationCity, activeQueries)}
+                          </span>
+                          <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
+                            State: {highlightText(locationState, activeQueries)}
+                          </span>
+                          <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
+                            {highlightText(job.category, activeQueries)}
+                          </span>
+                          <span className="px-3.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-650 whitespace-nowrap">
+                            {job.employmentType.replace("_", " ")}
+                          </span>
+                          {formatSalary(job) && (
+                            <span className="px-3.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700 whitespace-nowrap">
+                              {formatSalary(job)}
                             </span>
-                            <span className={`text-xs font-bold ${
-                              job.matchScore >= 75
-                                ? "text-emerald-600"
-                                : job.matchScore >= 40
+                          )}
+                        </div>
+                      );
+                    })()}
+                    <p className="mt-4 line-clamp-2 text-sm font-medium text-slate-500 leading-relaxed">
+                      {highlightText(stripHtml(job.description), activeQueries)}
+                    </p>
+
+                    {/* Match Score Bar */}
+                    {job.matchScore !== undefined && job.matchScore !== null && (
+                      <div className="mt-5 max-w-md p-4 rounded-xl border border-slate-200 bg-slate-50/50">
+                        <div className="flex items-center justify-between text-[11px] mb-1">
+                          <span className="font-semibold text-slate-550 uppercase tracking-wider">
+                            Profile Match
+                          </span>
+                          <span className={`text-xs font-bold ${job.matchScore >= 75
+                              ? "text-emerald-600"
+                              : job.matchScore >= 40
                                 ? "text-amber-600"
                                 : "text-blue-600"
                             }`}>
-                              {job.matchScore}% Match
-                            </span>
-                          </div>
-                          {/* Progress Bar */}
-                          <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
-                            <div
-                              className={`h-full rounded-full transition-all duration-1000 ${
-                                job.matchScore >= 75
-                                  ? "bg-emerald-500"
-                                  : job.matchScore >= 40
+                            {job.matchScore}% Match
+                          </span>
+                        </div>
+                        {/* Progress Bar */}
+                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+                          <div
+                            className={`h-full rounded-full transition-all duration-1000 ${job.matchScore >= 75
+                                ? "bg-emerald-500"
+                                : job.matchScore >= 40
                                   ? "bg-amber-500"
                                   : "bg-blue-500"
                               }`}
-                              style={{ width: `${job.matchScore}%` }}
-                            />
-                          </div>
-                          {/* Matched Skills Preview */}
-                          {(() => {
-                            const jobSkills = Array.from(new Set([
-                              ...(job.requiredSkills ?? []),
-                              ...(job.secondarySkills ?? [])
-                            ]));
-                            if (jobSkills.length === 0) return null;
-                            return (
-                              <div className="mt-2 flex flex-wrap gap-1">
-                                {jobSkills.map((skill) => {
-                                  const isMatched = candSkills.some(
-                                    (cs) =>
-                                      cs.toLowerCase().includes(skill.toLowerCase()) ||
-                                      skill.toLowerCase().includes(cs.toLowerCase())
-                                  );
-                                  return (
-                                    <span
-                                      key={skill}
-                                      className={`px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all ${
-                                        isMatched
-                                          ? "bg-emerald-50 text-emerald-600 border-emerald-250"
-                                          : "bg-slate-50 text-slate-400 border-slate-200"
+                            style={{ width: `${job.matchScore}%` }}
+                          />
+                        </div>
+                        {/* Matched Skills Preview */}
+                        {(() => {
+                          const jobSkills = Array.from(new Set([
+                            ...(job.requiredSkills ?? []),
+                            ...(job.secondarySkills ?? [])
+                          ]));
+                          if (jobSkills.length === 0) return null;
+                          return (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {jobSkills.map((skill) => {
+                                const isMatched = candSkills.some(
+                                  (cs) =>
+                                    cs.toLowerCase().includes(skill.toLowerCase()) ||
+                                    skill.toLowerCase().includes(cs.toLowerCase())
+                                );
+                                return (
+                                  <span
+                                    key={skill}
+                                    className={`px-2 py-0.5 rounded-full text-[9px] font-bold border transition-all ${isMatched
+                                        ? "bg-emerald-50 text-emerald-600 border-emerald-250"
+                                        : "bg-slate-50 text-slate-400 border-slate-200"
                                       }`}
-                                    >
-                                      {skill}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      )}
-                      
-                      <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 text-slate-500 transition-all flex items-center justify-center shadow-sm" />
-                           <div className="hidden sm:block border border-slate-200 bg-slate-50 px-3.5 py-1.5 rounded-xl">
-                             <p className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Posted On</p>
-                             <p className="text-xs font-bold text-slate-650 mt-0.5">
-                               {new Date(job.createdAt).toLocaleDateString()} at {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                             </p>
-                           </div>
-                        </div>
-                        {/* Apply / Login / Details button */}
-                        {appliedSet.has(job.id) ? (
-                          /* Already applied: show green chip */
-                          <span className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
-                            <CheckCircle2 className="size-4" />
-                            Already Applied
-                          </span>
-                        ) : session?.user?.role === "JOB_SEEKER" ? (
-                          /* Logged-in candidate: go to job detail with apply form */
-                          <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/10">
-                              <span style={{ color: "white" }}>Apply Now</span>
-                            </Button>
-                          </Link>
-                        ) : !session ? (
-                          /* Guest: prompt login with callbackUrl so they land on apply page after auth */
-                          <Link href={`/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`} className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/10">
-                              <span style={{ color: "white" }}>Login to Apply</span>
-                            </Button>
-                          </Link>
-                        ) : (
-                          /* Employer / Admin / other roles: view details only */
-                          <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
-                            <Button variant="ghost" className="w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-semibold hover:bg-slate-50 border border-slate-200 text-slate-600 transition-all shadow-sm">
-                              Details
-                            </Button>
-                          </Link>
-                        )}
+                                  >
+                                    {skill}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
+                    )}
+
+                    <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <ShareJobButton jobId={job.id} jobTitle={job.title} className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 text-slate-500 transition-all flex items-center justify-center shadow-sm" />
+                        <div className="hidden sm:block border border-slate-200 bg-slate-50 px-3.5 py-1.5 rounded-xl">
+                          <p className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Posted On</p>
+                          <p className="text-xs font-bold text-slate-650 mt-0.5">
+                            {new Date(job.createdAt).toLocaleDateString()} at {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                      {/* Apply / Login / Details button */}
+                      {appliedSet.has(job.id) ? (
+                        /* Already applied: show green chip */
+                        <span className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
+                          <CheckCircle2 className="size-4" />
+                          Already Applied
+                        </span>
+                      ) : session?.user?.role === "JOB_SEEKER" ? (
+                        /* Logged-in candidate: go to job detail with apply form */
+                        <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
+                          <Button className="w-full sm:w-auto h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/10">
+                            <span style={{ color: "white" }}>Apply Now</span>
+                          </Button>
+                        </Link>
+                      ) : !session ? (
+                        /* Guest: prompt login with callbackUrl so they land on apply page after auth */
+                        <Link href={`/login?callbackUrl=${encodeURIComponent(getJobDetailUrl(job.id))}`} className="w-full sm:w-auto">
+                          <Button className="w-full sm:w-auto h-11 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/10">
+                            <span style={{ color: "white" }}>Login to Apply</span>
+                          </Button>
+                        </Link>
+                      ) : (
+                        /* Employer / Admin / other roles: view details only */
+                        <Link href={getJobDetailUrl(job.id)} className="w-full sm:w-auto">
+                          <Button variant="ghost" className="w-full sm:w-auto h-11 px-8 rounded-xl text-xs font-semibold hover:bg-slate-50 border border-slate-200 text-slate-600 transition-all shadow-sm">
+                            Details
+                          </Button>
+                        </Link>
+                      )}
                     </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
         {!loading && totalPages > 1 && (
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => updateUrl(Math.max(1, page - 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
-            className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-450 hover:text-slate-700 hover:bg-slate-50 transition-all border border-slate-200 shadow-sm"
-          >
-            ← Previous
-          </Button>
-          <div className="flex items-center gap-1.5">
-            {(() => {
-              const pages: (number | "ellipsis")[] = [];
-              const show = 2;
-              if (totalPages <= 5) {
-                for (let i = 1; i <= totalPages; i++) pages.push(i);
-              } else {
-                if (page <= show) {
-                  for (let i = 1; i <= show + 1; i++) pages.push(i);
-                  pages.push("ellipsis");
-                  pages.push(totalPages);
-                } else if (page >= totalPages - show + 1) {
-                  pages.push(1);
-                  pages.push("ellipsis");
-                  for (let i = totalPages - show; i <= totalPages; i++)
-                    pages.push(i);
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => updateUrl(Math.max(1, page - 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
+              className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-450 hover:text-slate-700 hover:bg-slate-50 transition-all border border-slate-200 shadow-sm"
+            >
+              ← Previous
+            </Button>
+            <div className="flex items-center gap-1.5">
+              {(() => {
+                const pages: (number | "ellipsis")[] = [];
+                const show = 2;
+                if (totalPages <= 5) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
                 } else {
-                  pages.push(1);
-                  pages.push("ellipsis");
-                  for (let i = page - 1; i <= page + 1; i++) pages.push(i);
-                  pages.push("ellipsis");
-                  pages.push(totalPages);
+                  if (page <= show) {
+                    for (let i = 1; i <= show + 1; i++) pages.push(i);
+                    pages.push("ellipsis");
+                    pages.push(totalPages);
+                  } else if (page >= totalPages - show + 1) {
+                    pages.push(1);
+                    pages.push("ellipsis");
+                    for (let i = totalPages - show; i <= totalPages; i++)
+                      pages.push(i);
+                  } else {
+                    pages.push(1);
+                    pages.push("ellipsis");
+                    for (let i = page - 1; i <= page + 1; i++) pages.push(i);
+                    pages.push("ellipsis");
+                    pages.push(totalPages);
+                  }
                 }
-              }
-              return pages.map((p, i) =>
-                p === "ellipsis" ? (
-                  <span key={`e-${i}`} className="px-2 text-slate-400">
-                    …
-                  </span>
-                ) : (
-                  <Button
-                    key={p}
-                    variant="ghost"
-                    size="sm"
-                    className={`h-9 w-9 p-0 rounded-xl text-xs font-semibold transition-all ${
-                      page === p 
-                        ? "bg-blue-600 text-white shadow-sm border border-blue-650" 
-                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border border-slate-200"
-                    }`}
-                    onClick={() => updateUrl(p, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
-                  >
-                    {p}
-                  </Button>
-                )
-              );
-            })()}
+                return pages.map((p, i) =>
+                  p === "ellipsis" ? (
+                    <span key={`e-${i}`} className="px-2 text-slate-400">
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={p}
+                      variant="ghost"
+                      size="sm"
+                      className={`h-9 w-9 p-0 rounded-xl text-xs font-semibold transition-all ${page === p
+                          ? "bg-blue-600 text-white shadow-sm border border-blue-650"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-800 border border-slate-200"
+                        }`}
+                      onClick={() => updateUrl(p, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
+                    >
+                      {p}
+                    </Button>
+                  )
+                );
+              })()}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => updateUrl(Math.min(totalPages, page + 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
+              className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-450 hover:text-slate-700 hover:bg-slate-50 transition-all border border-slate-200 shadow-sm"
+            >
+              Next →
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={page >= totalPages}
-            onClick={() => updateUrl(Math.min(totalPages, page + 1), appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort)}
-            className="h-9 px-4 rounded-xl text-xs font-semibold text-slate-450 hover:text-slate-700 hover:bg-slate-50 transition-all border border-slate-200 shadow-sm"
-          >
-            Next →
-          </Button>
-        </div>
         )}
       </div>
     </div>

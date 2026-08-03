@@ -113,10 +113,10 @@ export default function EmployerApprovalActions({
               "Are you sure you want to APPROVE this employer? They will gain full login rights and their default free plan will be activated."
             )
           }
-          disabled={loading}
+          loading={loading}
           className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center gap-2"
         >
-          <Check className="h-4 w-4" />
+          {!loading && <Check className="h-4 w-4" />}
           Approve Employer
         </Button>
       )}
@@ -130,10 +130,10 @@ export default function EmployerApprovalActions({
               "Are you sure you want to REJECT this employer? They will be unable to access their account."
             )
           }
-          disabled={loading}
+          loading={loading}
           className="h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/20 active:scale-95 transition-all flex items-center gap-2"
         >
-          <X className="h-4 w-4" />
+          {!loading && <X className="h-4 w-4" />}
           Reject Employer
         </Button>
       )}
@@ -143,28 +143,28 @@ export default function EmployerApprovalActions({
           <Button
             type="button"
             onClick={toggleResumeAccess}
-            disabled={loading}
+            loading={loading}
             className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
               resumeSearchEnabled
                 ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
                 : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10"
             }`}
           >
-            <Sparkles className="h-4 w-4" />
+            {!loading && <Sparkles className="h-4 w-4" />}
             Resume DB: {resumeSearchEnabled ? "ENABLED" : "DISABLED"}
           </Button>
 
           <Button
             type="button"
             onClick={toggleUploadAccess}
-            disabled={loading}
+            loading={loading}
             className={`h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 ${
               resumeUploadEnabled
                 ? "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20"
                 : "bg-white/5 border border-white/10 text-foreground hover:bg-white/10"
             }`}
           >
-            <Upload className="h-4 w-4" />
+            {!loading && <Upload className="h-4 w-4" />}
             Resume Upload: {resumeUploadEnabled ? "ENABLED" : "DISABLED"}
           </Button>
         </>

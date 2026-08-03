@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, LayoutGrid, List, ChevronDown, ChevronRight, Briefcase, User, Download } from "lucide-react";
-import { formatLocation } from "@/lib/utils";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { formatLocation, stripHtml } from "@/lib/utils";
+import Pagination from "@/components/common/Pagination";
 
 interface UserItem {
   id: string;
@@ -70,6 +72,10 @@ function displayLocation(loc: string | null | undefined): string {
 }
 
 export default function AdminUsersClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [users, setUsers] = useState<UserItem[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -86,6 +92,27 @@ export default function AdminUsersClient() {
 
   const limit = 12;
 
+  const updateUrl = useCallback(
+    (pageNum: number, searchVal: string, roleVal: string) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (searchVal.trim()) params.set("search", searchVal.trim());
+      if (roleVal && roleVal !== "all") params.set("role", roleVal);
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
+  const getUserDetailUrl = (userId: string) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
+    if (appliedRole && appliedRole !== "all") params.set("role", appliedRole);
+    const query = params.toString();
+    return `/admin/users/${userId}${query ? `?${query}` : ""}`;
+  };
+
   const fetchUsers = useCallback(
     async (pageNum: number, searchVal: string, roleVal: string) => {
       setLoading(true);
@@ -101,7 +128,7 @@ export default function AdminUsersClient() {
         setUsers(data.users ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
-        setPage(data.page ?? 1);
+        setPage(data.page ?? pageNum);
       } catch {
         setUsers([]);
         setTotal(0);
@@ -110,66 +137,100 @@ export default function AdminUsersClient() {
         setLoading(false);
       }
     },
-    []
+    [limit]
   );
 
-  const [isRestored, setIsRestored] = useState(false);
-
-  // Load saved filters on mount
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let searchVal = searchParams.get("search");
+    let roleVal = searchParams.get("role");
+    let pageValStr = searchParams.get("page");
+
+    const hasParams =
+      searchVal !== null ||
+      roleVal !== null ||
+      pageValStr !== null;
+
+    if (!hasParams && typeof window !== "undefined") {
       const saved = sessionStorage.getItem("admin_users_filters");
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          setSearch(parsed.search || "");
-          setRole(parsed.role || "all");
-          setAppliedSearch(parsed.appliedSearch || "");
-          setAppliedRole(parsed.appliedRole || "all");
-          setPage(parsed.page || 1);
-          if (parsed.viewMode) setViewMode(parsed.viewMode);
-        } catch (e) {
-          // ignore
-        }
+          searchVal = parsed.search || "";
+          roleVal = parsed.role || "all";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
+
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (searchVal?.trim()) params.set("search", searchVal.trim());
+          if (roleVal && roleVal !== "all") params.set("role", roleVal);
+          const query = params.toString();
+          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+        } catch (_e) {}
       }
     }
-    setIsRestored(true);
-  }, []);
 
-  // Save filters to sessionStorage when they change
-  useEffect(() => {
-    if (!isRestored) return;
+    const finalSearch = searchVal || "";
+    const finalRole = roleVal || "all";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setSearch(finalSearch);
+    setRole(finalRole);
+    setPage(finalPage);
+
+    setAppliedSearch(finalSearch);
+    setAppliedRole(finalRole);
+
+    const isClean =
+      !finalSearch &&
+      finalRole === "all" &&
+      finalPage === 1;
+
     if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        "admin_users_filters",
-        JSON.stringify({
-          search,
-          role,
-          appliedSearch,
-          appliedRole,
-          page,
-          viewMode,
-        })
-      );
+      if (isClean) {
+        try {
+          sessionStorage.removeItem("admin_users_filters");
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            "admin_users_filters",
+            JSON.stringify({
+              search: finalSearch,
+              role: finalRole,
+              appliedSearch: finalSearch,
+              appliedRole: finalRole,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
     }
-  }, [search, role, appliedSearch, appliedRole, page, viewMode, isRestored]);
+  }, [searchParams, pathname, router]);
 
   useEffect(() => {
     fetchUsers(page, appliedSearch, appliedRole);
   }, [page, appliedSearch, appliedRole, fetchUsers]);
 
   const handleSearch = () => {
-    setAppliedSearch(search);
-    setAppliedRole(role);
-    setPage(1);
+    updateUrl(1, search, role);
   };
 
   const handleClear = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem("admin_users_filters");
+      } catch (_e) {}
+    }
+
     setSearch("");
     setRole("all");
     setAppliedSearch("");
     setAppliedRole("all");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchUsers(1, "", "all");
   };
 
   const handleExportCSV = async (applyFilters: boolean) => {
@@ -416,7 +477,7 @@ export default function AdminUsersClient() {
             </div>
             <Button
               onClick={handleSearch}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/10"
             >
               <span style={{ color: "white" }}>Search Users</span>
@@ -424,7 +485,7 @@ export default function AdminUsersClient() {
             <Button
               variant="ghost"
               onClick={handleClear}
-              disabled={loading}
+              loading={loading}
               className="h-11 px-4 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200"
             >
               Reset
@@ -524,34 +585,18 @@ export default function AdminUsersClient() {
                   onUpdateApproval={updateEmployerApproval}
                   isUpdating={updatingAccessFor === user.id}
                   index={idx}
+                  getUserDetailUrl={getUserDetailUrl}
                 />
               ))}
             </div>
           )}
 
-          {!loading && totalPages > 1 && (
-            <div className="mt-16 flex flex-wrap items-center justify-center gap-4">
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous Page
-              </Button>
-              <span className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-500 shadow-sm">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="ghost"
-                className="h-10 px-6 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-55 disabled:opacity-30 transition-all shadow-sm"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next Page
-              </Button>
-            </div>
-          )}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => updateUrl(p, appliedSearch, appliedRole)}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
@@ -565,6 +610,7 @@ function UserCard({
   onUpdateApproval,
   isUpdating,
   index,
+  getUserDetailUrl,
 }: {
   user: UserItem;
   onToggleResumeAccess: (userId: string, enabled: boolean) => Promise<void>;
@@ -572,6 +618,7 @@ function UserCard({
   onUpdateApproval: (userId: string, status: "APPROVED" | "REJECTED") => Promise<void>;
   isUpdating: boolean;
   index: number;
+  getUserDetailUrl: (userId: string) => string;
 }) {
   const isEmployer = user.role === "EMPLOYER";
   const isJobSeeker = user.role === "JOB_SEEKER";
@@ -623,7 +670,9 @@ function UserCard({
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-blue-500" : isEmployer ? "bg-indigo-500" : "bg-blue-500"}`} />
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.role.replace("_", " ")}</p>
             </div>
-            <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{displayName}</h3>
+            <Link href={getUserDetailUrl(user.id)}>
+              <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{displayName}</h3>
+            </Link>
             <p className="text-xs font-semibold text-slate-400 mt-0.5 truncate">{subtitle}</p>
           </div>
         </div>
@@ -649,11 +698,11 @@ function UserCard({
 
       <div className="flex-1 space-y-6">
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-          <p className="text-xs leading-relaxed text-slate-500 font-medium italic line-clamp-2">
+          <p className="text-xs leading-relaxed text-slate-500 font-medium line-clamp-2">
             {isJobSeeker && user.jobSeekerProfile?.bio
-              ? `"${user.jobSeekerProfile.bio}"`
+              ? user.jobSeekerProfile.bio
               : isEmployer && user.employerProfile?.description
-                ? `"${user.employerProfile.description}"`
+                ? stripHtml(user.employerProfile.description)
                 : "No bio description uploaded yet."}
           </p>
         </div>
@@ -745,7 +794,7 @@ function UserCard({
               </Button>
             </>
           ) : null}
-          <Link href={`/admin/users/${user.id}`}>
+          <Link href={getUserDetailUrl(user.id)}>
             <Button variant="ghost" className="h-9 px-4 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-all active:scale-95 group">
               View Profile
               <ChevronRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />

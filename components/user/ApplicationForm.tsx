@@ -253,7 +253,7 @@ export default function ApplicationForm({ jobId, currentResumeUrl, currentResume
           </p>
           <Button
             type="submit"
-            disabled={loading}
+            loading={loading}
             className="w-full sm:w-60 h-12 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 text-white font-semibold transition-all hover:scale-105 active:scale-95 shadow-md shadow-blue-500/20"
           >
             {loading ? "Submitting..." : "Submit Application"}
