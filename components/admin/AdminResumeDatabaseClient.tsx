@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -94,7 +95,16 @@ function formatBytes(bytes: number): string {
   return `${value.toFixed(value >= 10 || idx === 0 ? 0 : 1)} ${units[idx]}`;
 }
 
-export default function AdminResumeDatabaseClient() {
+export default function AdminResumeDatabaseClient({
+  searchParams: initialParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+} = {}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const activeRequestRef = useRef<AbortController | null>(null);
+
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -125,6 +135,30 @@ export default function AdminResumeDatabaseClient() {
 
   const limit = 10;
 
+  const updateUrl = useCallback(
+    (
+      pageNum: number,
+      keywordVal: string,
+      skillsVal: string,
+      locationVal: string,
+      parseStatusVal: ParseStatus,
+      minExpVal: string,
+      maxExpVal: string
+    ) => {
+      const params = new URLSearchParams();
+      if (pageNum > 1) params.set("page", String(pageNum));
+      if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
+      if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+      if (locationVal.trim()) params.set("location", locationVal.trim());
+      if (parseStatusVal && parseStatusVal !== "all") params.set("parseStatus", parseStatusVal);
+      if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
+      if (maxExpVal.trim()) params.set("maxExperience", maxExpVal.trim());
+      const query = params.toString();
+      router.push(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    },
+    [pathname, router]
+  );
+
   const fetchResumes = useCallback(
     async (
       pageNum: number,
@@ -136,6 +170,12 @@ export default function AdminResumeDatabaseClient() {
       minExperienceVal: string,
       maxExperienceVal: string
     ) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -153,61 +193,183 @@ export default function AdminResumeDatabaseClient() {
           params.set("maxExperience", maxExperienceVal.trim());
         }
 
-        const res = await fetch(`/api/admin/resume-database?${params.toString()}`);
+        const res = await fetch(`/api/admin/resume-database?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error(await readApiError(res));
         const data: ResumeFetchResult = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setResumes(data.resumes ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 1);
         setPage(data.page ?? 1);
-      } catch {
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setResumes([]);
         setTotal(0);
         setTotalPages(1);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
-    []
+    [limit]
   );
 
+  const getParam = useCallback(
+    (key: string): string | null => {
+      const fromHook = searchParams.get(key);
+      if (fromHook !== null) return fromHook;
+      if (initialParams && typeof initialParams[key] === "string") {
+        return initialParams[key] as string;
+      }
+      return null;
+    },
+    [searchParams, initialParams]
+  );
+
+  // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
+    let kw = getParam("keyword");
+    let sk = getParam("skills");
+    let loc = getParam("location");
+    let pStatus = getParam("parseStatus") as ParseStatus | null;
+    let minExp = getParam("minExperience");
+    let maxExp = getParam("maxExperience");
+    let pageValStr = getParam("page");
+
+    const hasParams =
+      kw !== null ||
+      sk !== null ||
+      loc !== null ||
+      pStatus !== null ||
+      minExp !== null ||
+      maxExp !== null ||
+      pageValStr !== null;
+
+    const storageKey = `admin_resume_db_filters_${pathname}`;
+
+    if (!hasParams && typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          kw = parsed.keyword || "";
+          sk = parsed.skills || "";
+          loc = parsed.location || "";
+          pStatus = parsed.parseStatus || "all";
+          minExp = parsed.minExperience || "";
+          maxExp = parsed.maxExperience || "";
+          pageValStr = parsed.page ? String(parsed.page) : "1";
+
+          const params = new URLSearchParams();
+          if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
+          if (kw?.trim()) params.set("keyword", kw.trim());
+          if (sk?.trim()) params.set("skills", sk.trim());
+          if (loc?.trim()) params.set("location", loc.trim());
+          if (pStatus && pStatus !== "all") params.set("parseStatus", pStatus);
+          if (minExp?.trim()) params.set("minExperience", minExp.trim());
+          if (maxExp?.trim()) params.set("maxExperience", maxExp.trim());
+          const query = params.toString();
+          if (query) {
+            router.replace(`${pathname}?${query}`, { scroll: false });
+          }
+        } catch (_e) {}
+      }
+    }
+
+    const finalKw = kw || "";
+    const finalSk = sk || "";
+    const finalLoc = loc || "";
+    const finalPStatus: ParseStatus = pStatus || "all";
+    const finalMinExp = minExp || "";
+    const finalMaxExp = maxExp || "";
+    const finalPage = parseInt(pageValStr || "1", 10);
+
+    setKeyword(finalKw);
+    setSkills(finalSk ? finalSk.split(",").filter(Boolean) : []);
+    setLocation(finalLoc);
+    setParseStatus(finalPStatus);
+    setMinExperience(finalMinExp);
+    setMaxExperience(finalMaxExp);
+    setPage(finalPage);
+
+    setAppliedKeyword(finalKw);
+    setAppliedSkills(finalSk);
+    setAppliedLocation(finalLoc);
+    setAppliedParseStatus(finalPStatus);
+    setAppliedMinExperience(finalMinExp);
+    setAppliedMaxExperience(finalMaxExp);
+
+    const isClean =
+      !finalKw &&
+      !finalSk &&
+      !finalLoc &&
+      finalPStatus === "all" &&
+      !finalMinExp &&
+      !finalMaxExp &&
+      finalPage === 1;
+
+    if (typeof window !== "undefined") {
+      if (isClean) {
+        try {
+          sessionStorage.removeItem(storageKey);
+        } catch (_e) {}
+      } else {
+        try {
+          sessionStorage.setItem(
+            storageKey,
+            JSON.stringify({
+              keyword: finalKw,
+              skills: finalSk,
+              location: finalLoc,
+              parseStatus: finalPStatus,
+              minExperience: finalMinExp,
+              maxExperience: finalMaxExp,
+              page: finalPage,
+            })
+          );
+        } catch (_e) {}
+      }
+    }
+
     fetchResumes(
-      page,
-      appliedKeyword,
-      appliedSkills,
+      finalPage,
+      finalKw,
+      finalSk,
       appliedIsBooleanSearch,
-      appliedLocation,
-      appliedParseStatus,
-      appliedMinExperience,
-      appliedMaxExperience
+      finalLoc,
+      finalPStatus,
+      finalMinExp,
+      finalMaxExp
     );
-  }, [
-    page,
-    appliedKeyword,
-    appliedSkills,
-    appliedIsBooleanSearch,
-    appliedLocation,
-    appliedParseStatus,
-    appliedMinExperience,
-    appliedMaxExperience,
-    fetchResumes,
-    refreshCount,
-  ]);
+  }, [searchParams, pathname, router, refreshCount, appliedIsBooleanSearch, fetchResumes, getParam]);
 
   const onApplyFilters = () => {
-    setAppliedKeyword(keyword);
-    setAppliedSkills(isBooleanSearch ? booleanSkillsExpr : skills.join(","));
-    setAppliedIsBooleanSearch(isBooleanSearch);
-    setAppliedLocation(location);
-    setAppliedParseStatus(parseStatus);
-    setAppliedMinExperience(minExperience);
-    setAppliedMaxExperience(maxExperience);
-    setPage(1);
-    setRefreshCount((prev) => prev + 1);
+    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
+    updateUrl(
+      1,
+      keyword,
+      formattedSkills,
+      location,
+      parseStatus,
+      minExperience,
+      maxExperience
+    );
   };
 
   const onClearFilters = () => {
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem(`admin_resume_db_filters_${pathname}`);
+      } catch (_e) {}
+    }
+
     setKeyword("");
     setSkills([]);
     setIsBooleanSearch(false);
@@ -224,6 +386,9 @@ export default function AdminResumeDatabaseClient() {
     setAppliedMinExperience("");
     setAppliedMaxExperience("");
     setPage(1);
+
+    router.replace(pathname, { scroll: false });
+    fetchResumes(1, "", "", false, "", "all", "", "");
   };
 
   const onUpload = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -49,6 +49,7 @@ export default function ResumeSearch({
   const pathname = usePathname();
 
   const searchParams = useSearchParams();
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
   const [skills, setSkills] = useState((initialParams.skills as string) || "");
@@ -105,6 +106,12 @@ export default function ResumeSearch({
       skillsVal: string,
       locationVal: string
     ) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -113,35 +120,58 @@ export default function ResumeSearch({
         if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
         if (skillsVal.trim()) params.set("skills", skillsVal.trim());
         if (locationVal.trim()) params.set("location", locationVal.trim());
-        const res = await fetch(`/api/search?${params.toString()}`);
+        const res = await fetch(`/api/search?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setCandidates(data.candidates ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setPage(data.page ?? pageNum);
-      } catch {
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setCandidates([]);
         setTotal(0);
         setTotalPages(0);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     [limit]
   );
 
+  const getParam = useCallback(
+    (key: string): string | null => {
+      const fromHook = searchParams.get(key);
+      if (fromHook !== null) return fromHook;
+      if (initialParams && typeof initialParams[key] === "string") {
+        return initialParams[key] as string;
+      }
+      return null;
+    },
+    [searchParams, initialParams]
+  );
+
   // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    let kw = searchParams.get("keyword");
-    let sk = searchParams.get("skills");
-    let loc = searchParams.get("location");
-    let pageValStr = searchParams.get("page");
+    let kw = getParam("keyword");
+    let sk = getParam("skills");
+    let loc = getParam("location");
+    let pageValStr = getParam("page");
 
     const hasParams = kw !== null || sk !== null || loc !== null || pageValStr !== null;
+    const storageKey = `employer_candidate_search_filters_${pathname}`;
 
     if (!hasParams && typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("resume_search_filters");
+      const saved = sessionStorage.getItem(storageKey);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -156,7 +186,9 @@ export default function ResumeSearch({
           if (sk?.trim()) params.set("skills", sk.trim());
           if (loc?.trim()) params.set("location", loc.trim());
           const query = params.toString();
-          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+          if (query) {
+            router.replace(`${pathname}?${query}`, { scroll: false });
+          }
         } catch (_e) {}
       }
     }
@@ -180,12 +212,12 @@ export default function ResumeSearch({
     if (typeof window !== "undefined") {
       if (isClean) {
         try {
-          sessionStorage.removeItem("resume_search_filters");
+          sessionStorage.removeItem(storageKey);
         } catch (_e) {}
       } else {
         try {
           sessionStorage.setItem(
-            "resume_search_filters",
+            storageKey,
             JSON.stringify({
               keyword: finalKw,
               skills: finalSk,
@@ -199,11 +231,9 @@ export default function ResumeSearch({
         } catch (_e) {}
       }
     }
-  }, [searchParams, pathname, router]);
 
-  useEffect(() => {
-    fetchCandidates(page, appliedKeyword, appliedSkills, appliedLocation);
-  }, [page, appliedKeyword, appliedSkills, appliedLocation, fetchCandidates]);
+    fetchCandidates(finalPage, finalKw, finalSk, finalLoc);
+  }, [searchParams, pathname, router, fetchCandidates, getParam]);
 
   const handleSearch = () => {
     updateUrl(1, keyword, skills, location);
@@ -212,7 +242,7 @@ export default function ResumeSearch({
   const handleClear = () => {
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.removeItem("resume_search_filters");
+        sessionStorage.removeItem(`employer_candidate_search_filters_${pathname}`);
       } catch (_e) {}
     }
 

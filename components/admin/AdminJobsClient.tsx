@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -63,13 +63,18 @@ interface FetchResult {
 }
 
 interface AdminJobsClientProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
   initialCategories?: Category[];
 }
 
-export default function AdminJobsClient({ initialCategories }: AdminJobsClientProps) {
+export default function AdminJobsClient({
+  searchParams: initialParams,
+  initialCategories,
+}: AdminJobsClientProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -121,6 +126,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
 
   const getJobDetailUrl = (jobId: string) => {
     const params = new URLSearchParams();
+    params.set("from", pathname);
     if (page > 1) params.set("page", String(page));
     if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
     if (appliedLocation.trim()) params.set("location", appliedLocation.trim());
@@ -140,6 +146,12 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
       statusVal: string,
       sortVal: string
     ) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -151,32 +163,54 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
         if (categoryVal && categoryVal !== "all") params.set("category", categoryVal);
         if (statusVal && statusVal !== "all") params.set("status", statusVal);
 
-        const res = await fetch(`/api/admin/jobs?${params.toString()}`);
+        const res = await fetch(`/api/admin/jobs?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch jobs");
         const data: FetchResult = await res.json();
+        
+        if (controller.signal.aborted) return;
+        
         setJobs(data.jobs ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setPage(data.page ?? pageNum);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setJobs([]);
         setTotal(0);
         setTotalPages(0);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     [limit]
   );
 
+  const getParam = useCallback(
+    (key: string): string | null => {
+      const fromHook = searchParams.get(key);
+      if (fromHook !== null) return fromHook;
+      if (initialParams && typeof initialParams[key] === "string") {
+        return initialParams[key] as string;
+      }
+      return null;
+    },
+    [searchParams, initialParams]
+  );
+
   // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    let searchVal = searchParams.get("search");
-    let locationVal = searchParams.get("location");
-    let categoryVal = searchParams.get("category");
-    let statusVal = searchParams.get("status");
-    let sortVal = searchParams.get("sort");
-    let pageValStr = searchParams.get("page");
+    let searchVal = getParam("search");
+    let locationVal = getParam("location");
+    let categoryVal = getParam("category");
+    let statusVal = getParam("status");
+    let sortVal = getParam("sort");
+    let pageValStr = getParam("page");
 
     const hasParams =
       searchVal !== null ||
@@ -186,8 +220,10 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
       sortVal !== null ||
       pageValStr !== null;
 
+    const storageKey = `admin_jobs_filters_${pathname}`;
+
     if (!hasParams && typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("admin_jobs_filters");
+      const saved = sessionStorage.getItem(storageKey);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -206,7 +242,9 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
           if (statusVal && statusVal !== "all") params.set("status", statusVal);
           if (sortVal && sortVal !== "desc") params.set("sort", sortVal);
           const query = params.toString();
-          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+          if (query) {
+            router.replace(`${pathname}?${query}`, { scroll: false });
+          }
         } catch (_e) {}
       }
     }
@@ -242,49 +280,34 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
     if (typeof window !== "undefined") {
       if (isClean) {
         try {
-          sessionStorage.removeItem("admin_jobs_filters");
+          sessionStorage.removeItem(storageKey);
         } catch (_e) {}
       } else {
         try {
           sessionStorage.setItem(
-            "admin_jobs_filters",
+            storageKey,
             JSON.stringify({
               search: finalSearch,
               location: finalLocation,
               category: finalCategory,
               status: finalStatus,
               sort: finalSort,
-              appliedSearch: finalSearch,
-              appliedLocation: finalLocation,
-              appliedCategory: finalCategory,
-              appliedStatus: finalStatus,
-              appliedSort: finalSort,
               page: finalPage,
             })
           );
         } catch (_e) {}
       }
     }
-  }, [searchParams, pathname, router]);
 
-  useEffect(() => {
     fetchJobs(
-      page,
-      appliedSearch,
-      appliedLocation,
-      appliedCategory,
-      appliedStatus,
-      appliedSort
+      finalPage,
+      finalSearch,
+      finalLocation,
+      finalCategory,
+      finalStatus,
+      finalSort
     );
-  }, [
-    page,
-    appliedSearch,
-    appliedLocation,
-    appliedCategory,
-    appliedStatus,
-    appliedSort,
-    fetchJobs,
-  ]);
+  }, [searchParams, pathname, router, fetchJobs, getParam]);
 
   const handleSearch = () => {
     updateUrl(1, search, location, category, status, sort);
@@ -293,7 +316,7 @@ export default function AdminJobsClient({ initialCategories }: AdminJobsClientPr
   const handleClear = () => {
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.removeItem("admin_jobs_filters");
+        sessionStorage.removeItem(`admin_jobs_filters_${pathname}`);
       } catch (_e) {}
     }
 

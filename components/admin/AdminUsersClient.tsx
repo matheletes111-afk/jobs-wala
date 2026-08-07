@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -71,10 +71,15 @@ function displayLocation(loc: string | null | undefined): string {
   }
 }
 
-export default function AdminUsersClient() {
+export default function AdminUsersClient({
+  searchParams: initialParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+} = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const [users, setUsers] = useState<UserItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -106,6 +111,7 @@ export default function AdminUsersClient() {
 
   const getUserDetailUrl = (userId: string) => {
     const params = new URLSearchParams();
+    params.set("from", pathname);
     if (page > 1) params.set("page", String(page));
     if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
     if (appliedRole && appliedRole !== "all") params.set("role", appliedRole);
@@ -115,6 +121,12 @@ export default function AdminUsersClient() {
 
   const fetchUsers = useCallback(
     async (pageNum: number, searchVal: string, roleVal: string) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -122,37 +134,61 @@ export default function AdminUsersClient() {
         params.set("limit", String(limit));
         if (searchVal.trim()) params.set("search", searchVal.trim());
         if (roleVal && roleVal !== "all") params.set("role", roleVal);
-        const res = await fetch(`/api/admin/users?${params.toString()}`);
+        const res = await fetch(`/api/admin/users?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setUsers(data.users ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setPage(data.page ?? pageNum);
-      } catch {
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setUsers([]);
         setTotal(0);
         setTotalPages(0);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     [limit]
   );
 
+  const getParam = useCallback(
+    (key: string): string | null => {
+      const fromHook = searchParams.get(key);
+      if (fromHook !== null) return fromHook;
+      if (initialParams && typeof initialParams[key] === "string") {
+        return initialParams[key] as string;
+      }
+      return null;
+    },
+    [searchParams, initialParams]
+  );
+
   // Sync state with searchParams (URL) and sessionStorage
   useEffect(() => {
-    let searchVal = searchParams.get("search");
-    let roleVal = searchParams.get("role");
-    let pageValStr = searchParams.get("page");
+    let searchVal = getParam("search");
+    let roleVal = getParam("role");
+    let pageValStr = getParam("page");
 
     const hasParams =
       searchVal !== null ||
       roleVal !== null ||
       pageValStr !== null;
 
+    const storageKey = `admin_users_filters_${pathname}`;
+
     if (!hasParams && typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("admin_users_filters");
+      const saved = sessionStorage.getItem(storageKey);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -165,7 +201,9 @@ export default function AdminUsersClient() {
           if (searchVal?.trim()) params.set("search", searchVal.trim());
           if (roleVal && roleVal !== "all") params.set("role", roleVal);
           const query = params.toString();
-          router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+          if (query) {
+            router.replace(`${pathname}?${query}`, { scroll: false });
+          }
         } catch (_e) {}
       }
     }
@@ -189,12 +227,12 @@ export default function AdminUsersClient() {
     if (typeof window !== "undefined") {
       if (isClean) {
         try {
-          sessionStorage.removeItem("admin_users_filters");
+          sessionStorage.removeItem(storageKey);
         } catch (_e) {}
       } else {
         try {
           sessionStorage.setItem(
-            "admin_users_filters",
+            storageKey,
             JSON.stringify({
               search: finalSearch,
               role: finalRole,
@@ -206,11 +244,9 @@ export default function AdminUsersClient() {
         } catch (_e) {}
       }
     }
-  }, [searchParams, pathname, router]);
 
-  useEffect(() => {
-    fetchUsers(page, appliedSearch, appliedRole);
-  }, [page, appliedSearch, appliedRole, fetchUsers]);
+    fetchUsers(finalPage, finalSearch, finalRole);
+  }, [searchParams, pathname, router, fetchUsers, getParam]);
 
   const handleSearch = () => {
     updateUrl(1, search, role);
@@ -219,7 +255,7 @@ export default function AdminUsersClient() {
   const handleClear = () => {
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.removeItem("admin_users_filters");
+        sessionStorage.removeItem(`admin_users_filters_${pathname}`);
       } catch (_e) {}
     }
 

@@ -50,11 +50,25 @@ function formatSalary(
 
 export default async function AdminJobDetailsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   await requireAdmin();
   const { id } = await params;
+  const sParams = await searchParams;
+
+  const backParams = new URLSearchParams();
+  if (typeof sParams.search === "string" && sParams.search) backParams.set("search", sParams.search);
+  if (typeof sParams.location === "string" && sParams.location) backParams.set("location", sParams.location);
+  if (typeof sParams.category === "string" && sParams.category && sParams.category !== "all") backParams.set("category", sParams.category);
+  if (typeof sParams.status === "string" && sParams.status && sParams.status !== "all") backParams.set("status", sParams.status);
+  if (typeof sParams.sort === "string" && sParams.sort && sParams.sort !== "desc") backParams.set("sort", sParams.sort);
+  if (typeof sParams.page === "string" && sParams.page && sParams.page !== "1") backParams.set("page", sParams.page);
+  const backQuery = backParams.toString();
+  const fromPath = typeof sParams.from === "string" && sParams.from.startsWith("/") ? sParams.from : "/admin/jobs";
+  const backUrl = `${fromPath}${backQuery ? `?${backQuery}` : ""}`;
 
   const job = await prisma.job.findUnique({
     where: { id },
@@ -148,7 +162,7 @@ export default async function AdminJobDetailsPage({
             </div>
             
             <div className="flex shrink-0 flex-col sm:flex-row gap-3">
-              <Link href="/admin/jobs">
+              <Link href={backUrl}>
                 <Button variant="ghost" className="h-10 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-all">
                   ← Back to Jobs
                 </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -53,6 +53,7 @@ export default function ApplicationSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const activeRequestRef = useRef<AbortController | null>(null);
 
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -91,6 +92,7 @@ export default function ApplicationSearch() {
 
   const getJobDetailUrl = (jobId: string) => {
     const params = new URLSearchParams();
+    params.set("from", pathname);
     if (page > 1) params.set("page", String(page));
     if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
     if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
@@ -108,6 +110,12 @@ export default function ApplicationSearch() {
       locationVal: string,
       statusVal: string
     ) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -117,21 +125,31 @@ export default function ApplicationSearch() {
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
         if (locationVal.trim())
-          params.set("location", encodeURIComponent(locationVal.trim()));
+          params.set("location", locationVal.trim());
         if (statusVal && statusVal !== "all") params.set("status", statusVal);
-        const res = await fetch(`/api/user/applications?${params.toString()}`);
+        const res = await fetch(`/api/user/applications?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setApplications(data.applications ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setPage(data.page ?? pageNum);
-      } catch {
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setApplications([]);
         setTotal(0);
         setTotalPages(0);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     []
@@ -230,24 +248,15 @@ export default function ApplicationSearch() {
         } catch (_e) {}
       }
     }
-  }, [searchParams, pathname, router]);
 
-  useEffect(() => {
     fetchApplications(
-      page,
-      appliedSearch,
-      appliedCategory,
-      appliedLocation,
-      appliedStatus
+      finalPage,
+      finalSearch,
+      finalCategory,
+      finalLocation,
+      finalStatus
     );
-  }, [
-    page,
-    appliedSearch,
-    appliedCategory,
-    appliedLocation,
-    appliedStatus,
-    fetchApplications,
-  ]);
+  }, [searchParams, pathname, router, fetchApplications]);
 
   const handleSearch = () => {
     updateUrl(1, search, category, location, status);

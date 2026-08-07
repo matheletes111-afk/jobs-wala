@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -64,6 +64,8 @@ export default function JobSearch() {
   const pathname = usePathname();
 
   const { data: session } = useSession();
+  const activeRequestRef = useRef<AbortController | null>(null);
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -167,6 +169,7 @@ export default function JobSearch() {
 
   const getJobDetailUrl = (jobId: string) => {
     const params = new URLSearchParams();
+    params.set("from", pathname);
     if (appliedSearch.trim()) params.set("search", appliedSearch.trim());
     if (appliedTitle.trim()) params.set("title", appliedTitle.trim());
     if (appliedCategory && appliedCategory !== "all") params.set("category", appliedCategory);
@@ -185,6 +188,12 @@ export default function JobSearch() {
       locationVal: string,
       sortVal: string
     ) => {
+      if (activeRequestRef.current) {
+        activeRequestRef.current.abort();
+      }
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
+
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -196,24 +205,34 @@ export default function JobSearch() {
         if (categoryVal && categoryVal !== "all")
           params.set("category", categoryVal);
         if (locationVal.trim())
-          params.set("location", encodeURIComponent(locationVal.trim()));
-        const res = await fetch(`/api/user/jobs?${params.toString()}`);
+          params.set("location", locationVal.trim());
+        const res = await fetch(`/api/user/jobs?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Failed to fetch");
         const data: FetchResult = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setJobs(data.jobs ?? []);
         setTotal(data.total ?? 0);
         setTotalPages(data.totalPages ?? 0);
         setPage(data.page ?? pageNum);
         setAppliedJobIds(data.appliedJobIds ?? []);
         setCandSkills(data.candidateSkills ?? []);
-      } catch {
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
         setJobs([]);
         setTotal(0);
         setTotalPages(0);
         setAppliedJobIds([]);
         setCandSkills([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     []
@@ -309,14 +328,12 @@ export default function JobSearch() {
         } catch (_e) {}
       }
     }
-  }, [searchParams, pathname, router]);
 
-  useEffect(() => {
-    fetchJobs(page, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort);
+    fetchJobs(finalPage, finalSearch, finalTitle, finalCategory, finalLocation, finalSort);
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [page, appliedSearch, appliedTitle, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
+  }, [searchParams, pathname, router, fetchJobs]);
 
   const handleSearch = () => {
     updateUrl(1, search, title, category, location, sort);

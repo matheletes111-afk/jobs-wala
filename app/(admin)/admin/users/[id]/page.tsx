@@ -22,11 +22,24 @@ import EmployerApprovalActions from "@/components/admin/EmployerApprovalActions"
 
 export default async function AdminUserDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   await requireAdmin();
   const { id } = await params;
+  const sParams = await searchParams;
+  const searchVal = typeof sParams.search === "string" ? sParams.search : "";
+  const roleVal = typeof sParams.role === "string" ? sParams.role : "";
+
+  const backParams = new URLSearchParams();
+  if (searchVal) backParams.set("search", searchVal);
+  if (roleVal && roleVal !== "all") backParams.set("role", roleVal);
+  if (typeof sParams.page === "string" && sParams.page !== "1") backParams.set("page", sParams.page);
+  const backQuery = backParams.toString();
+  const fromPath = typeof sParams.from === "string" && sParams.from.startsWith("/") ? sParams.from : "/admin/users";
+  const backUrl = `${fromPath}${backQuery ? `?${backQuery}` : ""}`;
 
   const user = await prisma.user.findUnique({
     where: { id },
@@ -60,7 +73,7 @@ export default async function AdminUserDetailPage({
 
         {/* Back Navigation */}
         <div className="mb-6">
-          <Link href="/admin/users">
+          <Link href={backUrl}>
             <Button variant="ghost" className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all group gap-2">
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               Back to Users

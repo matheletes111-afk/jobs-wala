@@ -73,7 +73,8 @@ export default async function PublicJobPage({
   if (locationVal) backParams.set("location", locationVal);
   if (typeof sParams.sort === "string" && sParams.sort !== "desc") backParams.set("sort", sParams.sort);
   const backQuery = backParams.toString();
-  const backUrl = `/jobs/browse${backQuery ? `?${backQuery}` : ""}`;
+  const fromPath = typeof sParams.from === "string" && sParams.from.startsWith("/") ? sParams.from : "/jobs/browse";
+  const backUrl = `${fromPath}${backQuery ? `?${backQuery}` : ""}`;
 
   // Logged-in job seeker: show apply section
   if (user?.role === UserRole.JOB_SEEKER) {
