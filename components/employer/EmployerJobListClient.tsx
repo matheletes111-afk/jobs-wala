@@ -19,6 +19,7 @@ import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Pagination from "@/components/common/Pagination";
+import JobQuotaWidget from "@/components/employer/JobQuotaWidget";
 
 interface EmployerJob {
   id: string;
@@ -77,6 +78,25 @@ export default function EmployerJobListClient() {
   const [appliedSort, setAppliedSort] = useState("desc");
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "table">("table");
+  const [activeSub, setActiveSub] = useState<{
+    planName: string;
+    jobLimit: number;
+    usedJobs: number;
+    startDate?: string;
+    endDate?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/employer/status")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.activeSubscription) {
+          setActiveSub(data.activeSubscription);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const limit = 12;
 
   const updateUrl = useCallback(
@@ -371,6 +391,19 @@ export default function EmployerJobListClient() {
             </Button>
           </Link>
         </div>
+
+        {/* Job Posting Quota Graphical Widget */}
+        {activeSub && (
+          <div className="mb-8">
+            <JobQuotaWidget
+              jobLimit={activeSub.jobLimit}
+              usedJobs={activeSub.usedJobs}
+              startDate={activeSub.startDate}
+              endDate={activeSub.endDate}
+              planName={activeSub.planName}
+            />
+          </div>
+        )}
 
         {/* Clean Flat Filters Card */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8 flex flex-col gap-5">

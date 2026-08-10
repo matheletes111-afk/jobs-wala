@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import { Briefcase, Clock, FileText, ChevronRight, Plus, Zap } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
+import JobQuotaWidget from "@/components/employer/JobQuotaWidget";
 
 export default async function EmployerDashboardPage() {
   const user = await requireEmployer();
@@ -90,6 +91,17 @@ export default async function EmployerDashboardPage() {
     },
   ];
 
+  const activeSub = profile.subscriptions[0];
+  let cycleJobCount = 0;
+  if (activeSub) {
+    cycleJobCount = await prisma.job.count({
+      where: {
+        postedBy: profile.userId,
+        createdAt: { gte: activeSub.startDate },
+      },
+    });
+  }
+
   return (
     <div className="min-h-screen w-full min-w-0 bg-slate-50/50 text-foreground animate-in fade-in duration-1000">
       <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:px-6 md:px-8 lg:px-10">
@@ -152,6 +164,19 @@ export default async function EmployerDashboardPage() {
                 </span>
               </Button>
             </Link>
+          </div>
+        )}
+
+        {/* Job Posting Quota Graphical Widget */}
+        {profile.approvalStatus === "APPROVED" && activeSub && (
+          <div className="mb-8">
+            <JobQuotaWidget
+              jobLimit={activeSub.plan.jobLimit}
+              usedJobs={cycleJobCount}
+              startDate={activeSub.startDate}
+              endDate={activeSub.endDate}
+              planName={activeSub.plan.name}
+            />
           </div>
         )}
 

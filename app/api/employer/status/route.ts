@@ -37,6 +37,16 @@ export async function GET(req: NextRequest) {
     const activeSubscription = dbUser.employerProfile?.subscriptions?.[0] || null;
     const isExpired = activeSubscription ? new Date(activeSubscription.endDate) < new Date() : true;
 
+    let usedJobs = 0;
+    if (activeSubscription) {
+      usedJobs = await prisma.job.count({
+        where: {
+          postedBy: dbUser.id,
+          createdAt: { gte: activeSubscription.startDate },
+        },
+      });
+    }
+
     return NextResponse.json({
       authenticated: true,
       role: dbUser.role,
@@ -45,8 +55,10 @@ export async function GET(req: NextRequest) {
       companyName,
       activeSubscription: activeSubscription ? {
         planName: activeSubscription.plan.name,
+        startDate: activeSubscription.startDate,
         endDate: activeSubscription.endDate,
         jobLimit: activeSubscription.plan.jobLimit,
+        usedJobs,
         isExpired,
       } : null,
     });

@@ -177,9 +177,9 @@ export default function AdminPlansPage() {
           </div>
           {activeTab === "plans" && (
             <Link href="/admin/plans/new">
-              <Button className="h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm">
-                <Plus className="h-4 w-4 text-white" />
-                <span style={{ color: "white" }}>Create New Plan</span>
+              <Button className="h-11 px-6 rounded-xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-bold text-xs transition-all flex items-center gap-2 shadow-sm">
+                <Plus className="h-4 w-4 text-blue-600" />
+                <span className="text-slate-900 font-bold">Create New Plan</span>
               </Button>
             </Link>
           )}
