@@ -259,7 +259,19 @@ export default function ApplicationSearch() {
   }, [searchParams, pathname, router, fetchApplications]);
 
   const handleSearch = () => {
-    updateUrl(1, search, category, location, status);
+    const hasSearch = search.trim().length > 0;
+    const hasOtherFilters = (category && category !== "all") || location.trim().length > 0 || (status && status !== "all");
+
+    if (!hasSearch && !hasOtherFilters) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("user_applications_filters");
+        } catch (_e) {}
+      }
+      updateUrl(1, search, category, location, status);
+    }
   };
 
   const handleClear = () => {

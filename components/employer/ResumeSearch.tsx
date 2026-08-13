@@ -236,7 +236,17 @@ export default function ResumeSearch({
   }, [searchParams, pathname, router, fetchCandidates, getParam]);
 
   const handleSearch = () => {
-    updateUrl(1, keyword, skills, location);
+    const hasInputs = keyword.trim().length > 0 || skills.trim().length > 0 || location.trim().length > 0;
+    if (!hasInputs) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`employer_candidate_search_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(1, keyword, skills, location);
+    }
   };
 
   const handleClear = () => {

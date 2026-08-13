@@ -352,15 +352,25 @@ export default function AdminResumeDatabaseClient({
 
   const onApplyFilters = () => {
     const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
-    updateUrl(
-      1,
-      keyword,
-      formattedSkills,
-      location,
-      parseStatus,
-      minExperience,
-      maxExperience
-    );
+    const hasInputs = keyword.trim().length > 0 || formattedSkills.trim().length > 0 || location.trim().length > 0 || (parseStatus && parseStatus !== "all") || minExperience.trim().length > 0 || maxExperience.trim().length > 0;
+    if (!hasInputs) {
+      onClearFilters();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`admin_resume_db_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(
+        1,
+        keyword,
+        formattedSkills,
+        location,
+        parseStatus,
+        minExperience,
+        maxExperience
+      );
+    }
   };
 
   const onClearFilters = () => {

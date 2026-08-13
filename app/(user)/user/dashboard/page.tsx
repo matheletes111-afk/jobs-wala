@@ -225,7 +225,7 @@ export default async function UserDashboardPage({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Link href={`/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job.id}?from=/user/dashboard`}>
                             <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                               {job.title}
                             </h3>
@@ -286,7 +286,7 @@ export default async function UserDashboardPage({
                         </div>
                       </div>
                       <div className="flex items-center shrink-0">
-                        <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
+                        <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
                           <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
                             <span style={{ color: "white" }}>Apply Now</span>
                           </Button>
@@ -371,7 +371,7 @@ export default async function UserDashboardPage({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Link href={`/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job.id}?from=/user/dashboard`}>
                             <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
                               {job.title}
                             </h3>
@@ -406,7 +406,7 @@ export default async function UserDashboardPage({
                         )}
                       </div>
                       <div className="flex items-center shrink-0">
-                        <Link href={`/jobs/${job.id}`} className="w-full lg:w-auto">
+                        <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
                           <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
                             <span style={{ color: "white" }}>Apply Now</span>
                           </Button>

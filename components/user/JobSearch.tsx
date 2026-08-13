@@ -336,7 +336,19 @@ export default function JobSearch() {
   }, [searchParams, pathname, router, fetchJobs]);
 
   const handleSearch = () => {
-    updateUrl(1, search, title, category, location, sort);
+    const hasKeywords = search.trim().length > 0 || title.trim().length > 0;
+    const hasOtherFilters = (category && category !== "all") || location.trim().length > 0;
+
+    if (!hasKeywords && !hasOtherFilters) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`jobs_browse_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(1, search, title, category, location, sort);
+    }
   };
 
   const handleClear = () => {

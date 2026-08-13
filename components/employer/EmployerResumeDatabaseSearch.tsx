@@ -344,7 +344,17 @@ export default function EmployerResumeDatabaseSearch({
 
   const apply = () => {
     const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
-    updateUrl(1, keyword, formattedSkills, location, minExperience, maxExperience);
+    const hasInputs = keyword.trim().length > 0 || formattedSkills.trim().length > 0 || location.trim().length > 0 || minExperience.trim().length > 0 || maxExperience.trim().length > 0;
+    if (!hasInputs) {
+      clear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`employer_resume_db_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(1, keyword, formattedSkills, location, minExperience, maxExperience);
+    }
   };
 
   const clear = async () => {

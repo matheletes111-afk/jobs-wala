@@ -310,7 +310,17 @@ export default function AdminJobsClient({
   }, [searchParams, pathname, router, fetchJobs, getParam]);
 
   const handleSearch = () => {
-    updateUrl(1, search, location, category, status, sort);
+    const hasInputs = search.trim().length > 0 || location.trim().length > 0 || (category && category !== "all") || (status && status !== "all");
+    if (!hasInputs) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`admin_jobs_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(1, search, location, category, status, sort);
+    }
   };
 
   const handleClear = () => {

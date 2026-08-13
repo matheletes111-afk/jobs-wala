@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import JobDetails from "@/components/user/JobDetails";
 import ApplicationForm from "@/components/user/ApplicationForm";
+import { computeSkillMatch } from "@/lib/skill-match";
 
 export default async function PublicJobPage({
   params,
@@ -75,6 +76,11 @@ export default async function PublicJobPage({
   const backQuery = backParams.toString();
   const fromPath = typeof sParams.from === "string" && sParams.from.startsWith("/") ? sParams.from : "/jobs/browse";
   const backUrl = `${fromPath}${backQuery ? `?${backQuery}` : ""}`;
+  const backLabel = fromPath === "/user/dashboard"
+    ? "Back to dashboard"
+    : fromPath === "/"
+    ? "Back to home"
+    : "Back to jobs";
 
   // Logged-in job seeker: show apply section
   if (user?.role === UserRole.JOB_SEEKER) {
@@ -89,25 +95,18 @@ export default async function PublicJobPage({
     const hasApplied = applications.length > 0;
     let matchScore: number | null = null;
     if (profile && profile.skills && profile.skills.length > 0) {
-      const reqSkills = job.requiredSkills ?? [];
-      if (reqSkills.length === 0) {
-        matchScore = 100;
-      } else {
-        const matchedCount = reqSkills.filter((reqSkill) =>
-          profile.skills.some(
-            (candSkill) =>
-              candSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
-              reqSkill.toLowerCase().includes(candSkill.toLowerCase())
-          )
-        ).length;
-        matchScore = Math.round((matchedCount / reqSkills.length) * 100);
-      }
+      const match = computeSkillMatch(
+        [...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])],
+        profile.skills,
+        profile.bio
+      );
+      matchScore = match.percent;
     }
 
     return (
       <div className="mx-auto max-w-7xl px-2 py-8 sm:px-4 text-slate-800">
         <Link href={backUrl} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-550 transition-all hover:text-slate-900 hover:-translate-x-1">
-          <span className="text-lg">←</span> Back to jobs
+          <span className="text-lg">←</span> {backLabel}
         </Link>
         <JobDetails
           job={jobForDetails}
@@ -152,7 +151,7 @@ export default async function PublicJobPage({
   return (
     <div className="mx-auto max-w-7xl px-2 py-8 sm:px-4 text-slate-800">
       <Link href={backUrl} className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-550 transition-all hover:text-slate-900 hover:-translate-x-1">
-        <span className="text-lg">←</span> Back to jobs
+        <span className="text-lg">←</span> {backLabel}
       </Link>
       <JobDetails
         job={jobForDetails}

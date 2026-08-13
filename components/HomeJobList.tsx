@@ -45,7 +45,7 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                 className="shrink-0 rounded-lg"
               />
               <div className="min-w-0 flex-1">
-                <Link href={`/jobs/${job.id}`}>
+                <Link href={`/jobs/${job.id}?from=/`}>
                   <h3 className="text-xl font-semibold hover:text-blue-600">
                     {job.title}
                   </h3>
@@ -64,11 +64,11 @@ export default function HomeJobList({ jobs }: HomeJobListProps) {
                 </p>
               </div>
               <div className="ml-auto flex shrink-0 gap-2">
-                <Link href={`/jobs/${job.id}`}>
+                <Link href={`/jobs/${job.id}?from=/`}>
                   <Button variant="outline">View Details</Button>
                 </Link>
                 {session && (
-                  <Link href={`/jobs/${job.id}`}>
+                  <Link href={`/jobs/${job.id}?from=/`}>
                     <Button>Apply</Button>
                   </Link>
                 )}

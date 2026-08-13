@@ -265,7 +265,17 @@ export default function EmployerApplicationListClient({
   }, [page, appliedSearch, appliedJobId, appliedStatus, fetchApplications]);
 
   const handleSearch = () => {
-    updateUrl(1, search, jobId, status);
+    const hasInputs = search.trim().length > 0 || (jobId && jobId !== "all") || (status && status !== "all");
+    if (!hasInputs) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("employer_applications_filters");
+        } catch (_e) {}
+      }
+      updateUrl(1, search, jobId, status);
+    }
   };
 
   const handleClear = () => {

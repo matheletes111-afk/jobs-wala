@@ -216,11 +216,6 @@ export default function HeaderClient({ user }: HeaderClientProps) {
               </Link>
             ) : (
               <>
-                <Link href="#free-trial" className="hidden lg:inline-block">
-                  <Button className="bg-primary hover:bg-blue-600 text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-4 lg:px-5">
-                    Free trial
-                  </Button>
-                </Link>
                 <Link href="/login">
                   <Button
                     variant="ghost"

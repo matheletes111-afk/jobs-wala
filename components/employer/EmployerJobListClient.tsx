@@ -278,7 +278,17 @@ export default function EmployerJobListClient() {
   }, [page, appliedSearch, appliedCategory, appliedLocation, appliedSort, fetchJobs]);
 
   const handleSearch = () => {
-    updateUrl(1, search, category, location, sort);
+    const hasInputs = search.trim().length > 0 || (category && category !== "all") || location.trim().length > 0;
+    if (!hasInputs) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem("employer_jobs_filters");
+        } catch (_e) {}
+      }
+      updateUrl(1, search, category, location, sort);
+    }
   };
 
   const handleClear = () => {

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { getCurrentUser } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { UserRole } from "@prisma/client";
+import { computeSkillMatch } from "@/lib/skill-match";
 
 /**
  * GET /api/user/jobs
@@ -103,13 +104,15 @@ export async function GET(req: NextRequest) {
     const where = { AND: andParts };
 
     let candidateSkills: string[] = [];
+    let candidateBio: string | null = null;
     if (isJobSeeker && user) {
       const profile = await prisma.jobSeekerProfile.findUnique({
         where: { userId: user.id },
-        select: { skills: true },
+        select: { skills: true, bio: true },
       });
       if (profile?.skills) {
         candidateSkills = profile.skills;
+        candidateBio = profile.bio ?? null;
       }
     }
 
@@ -139,19 +142,12 @@ export async function GET(req: NextRequest) {
       jobs: jobs.map((j) => {
         let matchScore: number | null = null;
         if (isJobSeeker && candidateSkills.length > 0) {
-          const reqSkills = j.requiredSkills ?? [];
-          if (reqSkills.length === 0) {
-            matchScore = 100;
-          } else {
-            const matchedCount = reqSkills.filter((reqSkill) =>
-              candidateSkills.some(
-                (candSkill) =>
-                  candSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
-                  reqSkill.toLowerCase().includes(candSkill.toLowerCase())
-              )
-            ).length;
-            matchScore = Math.round((matchedCount / reqSkills.length) * 100);
-          }
+          const match = computeSkillMatch(
+            [...(j.requiredSkills ?? []), ...(j.secondarySkills ?? [])],
+            candidateSkills,
+            candidateBio
+          );
+          matchScore = match.percent;
         }
 
         return {

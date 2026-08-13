@@ -249,7 +249,17 @@ export default function AdminUsersClient({
   }, [searchParams, pathname, router, fetchUsers, getParam]);
 
   const handleSearch = () => {
-    updateUrl(1, search, role);
+    const hasInputs = search.trim().length > 0 || (role && role !== "all");
+    if (!hasInputs) {
+      handleClear();
+    } else {
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.removeItem(`admin_users_filters_${pathname}`);
+        } catch (_e) {}
+      }
+      updateUrl(1, search, role);
+    }
   };
 
   const handleClear = () => {
