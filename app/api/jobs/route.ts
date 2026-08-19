@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
-import { requireEmployer } from "@/lib/auth-utils";
+import { requireEmployer, getCurrentUser } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { sendNewJobPostedNotificationToAdmin } from "@/lib/email";
 import { z } from "zod";
@@ -172,7 +172,10 @@ export async function GET(req: NextRequest) {
   if (employerId) where.postedBy = employerId;
   if (category) where.category = category;
 
-  const [total, jobs] = await Promise.all([
+  const user = await getCurrentUser();
+  const isJobSeeker = user?.role === UserRole.JOB_SEEKER;
+
+  const [total, jobs, userApplications] = await Promise.all([
     prisma.job.count({ where }),
     prisma.job.findMany({
       where,
@@ -185,7 +188,15 @@ export async function GET(req: NextRequest) {
         },
       },
     }),
+    isJobSeeker && user
+      ? prisma.application.findMany({
+          where: { jobSeekerId: user.id },
+          select: { jobId: true },
+        })
+      : Promise.resolve([]),
   ]);
+
+  const appliedJobIds = userApplications.map((a) => a.jobId);
 
   const resolvedJobs = jobs.map((j) => ({
     ...j,
@@ -203,6 +214,7 @@ export async function GET(req: NextRequest) {
     totalPages,
     page,
     limit,
+    appliedJobIds,
   });
 }
 

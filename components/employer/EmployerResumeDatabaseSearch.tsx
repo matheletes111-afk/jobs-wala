@@ -7,6 +7,7 @@ import { Search, FileText, Mail, MapPin, Briefcase, CalendarDays, Upload, HelpCi
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import SkillTagInput from "@/components/common/SkillTagInput";
 import Pagination from "@/components/common/Pagination";
+import { matchSkill, isBooleanExpression, extractSearchTerms } from "@/lib/skill-match";
 
 interface ResumeRecord {
   id: string;
@@ -40,23 +41,31 @@ export default function EmployerResumeDatabaseSearch({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [keyword, setKeyword] = useState((initialParams.keyword as string) || "");
+  const initialSkillsStr = (initialParams?.skills as string) || "";
+  const initialIsBoolean =
+    initialParams?.isBooleanSearch === "true" || isBooleanExpression(initialSkillsStr);
+
+  const [keyword, setKeyword] = useState((initialParams?.keyword as string) || "");
   const [skills, setSkills] = useState<string[]>(
-    (initialParams.skills as string)?.split(",").filter(Boolean) || []
+    !initialIsBoolean && initialSkillsStr
+      ? initialSkillsStr.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
   );
-  const [isBooleanSearch, setIsBooleanSearch] = useState(false);
-  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState("");
-  const [location, setLocation] = useState((initialParams.location as string) || "");
+  const [isBooleanSearch, setIsBooleanSearch] = useState(initialIsBoolean);
+  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState(
+    initialIsBoolean ? initialSkillsStr : ""
+  );
+  const [location, setLocation] = useState((initialParams?.location as string) || "");
   const [minExperience, setMinExperience] = useState(
-    (initialParams.minExperience as string) || ""
+    (initialParams?.minExperience as string) || ""
   );
   const [maxExperience, setMaxExperience] = useState(
-    (initialParams.maxExperience as string) || ""
+    (initialParams?.maxExperience as string) || ""
   );
 
   const [appliedKeyword, setAppliedKeyword] = useState(keyword);
-  const [appliedSkills, setAppliedSkills] = useState<string>((initialParams.skills as string) || "");
-  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(false);
+  const [appliedSkills, setAppliedSkills] = useState<string>(initialSkillsStr);
+  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(initialIsBoolean);
   const [appliedLocation, setAppliedLocation] = useState(location);
   const [appliedMinExperience, setAppliedMinExperience] = useState(minExperience);
   const [appliedMaxExperience, setAppliedMaxExperience] = useState(maxExperience);
@@ -75,6 +84,7 @@ export default function EmployerResumeDatabaseSearch({
       pageNum: number,
       keywordVal: string,
       skillsVal: string,
+      isBooleanSearchVal: boolean,
       locationVal: string,
       minExpVal: string,
       maxExpVal: string
@@ -83,6 +93,7 @@ export default function EmployerResumeDatabaseSearch({
       if (pageNum > 1) params.set("page", String(pageNum));
       if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
       if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+      if (isBooleanSearchVal) params.set("isBooleanSearch", "true");
       if (locationVal.trim()) params.set("location", locationVal.trim());
       if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
       if (maxExpVal.trim()) params.set("maxExperience", maxExpVal.trim());
@@ -237,6 +248,7 @@ export default function EmployerResumeDatabaseSearch({
   useEffect(() => {
     let kw = getParam("keyword");
     let sk = getParam("skills");
+    let isBoolParam = getParam("isBooleanSearch");
     let loc = getParam("location");
     let minExp = getParam("minExperience");
     let maxExp = getParam("maxExperience");
@@ -245,6 +257,7 @@ export default function EmployerResumeDatabaseSearch({
     const hasParams =
       kw !== null ||
       sk !== null ||
+      isBoolParam !== null ||
       loc !== null ||
       minExp !== null ||
       maxExp !== null ||
@@ -259,6 +272,7 @@ export default function EmployerResumeDatabaseSearch({
           const parsed = JSON.parse(saved);
           kw = parsed.keyword || "";
           sk = parsed.skills || "";
+          isBoolParam = parsed.isBooleanSearch ? "true" : "";
           loc = parsed.location || "";
           minExp = parsed.minExperience || "";
           maxExp = parsed.maxExperience || "";
@@ -268,6 +282,7 @@ export default function EmployerResumeDatabaseSearch({
           if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
           if (kw?.trim()) params.set("keyword", kw.trim());
           if (sk?.trim()) params.set("skills", sk.trim());
+          if (isBoolParam === "true") params.set("isBooleanSearch", "true");
           if (loc?.trim()) params.set("location", loc.trim());
           if (minExp?.trim()) params.set("minExperience", minExp.trim());
           if (maxExp?.trim()) params.set("maxExperience", maxExp.trim());
@@ -281,13 +296,21 @@ export default function EmployerResumeDatabaseSearch({
 
     const finalKw = kw || "";
     const finalSk = sk || "";
+    const finalIsBool = isBoolParam === "true" || isBooleanExpression(finalSk);
     const finalLoc = loc || "";
     const finalMinExp = minExp || "";
     const finalMaxExp = maxExp || "";
     const finalPage = parseInt(pageValStr || "1", 10);
 
     setKeyword(finalKw);
-    setSkills(finalSk ? finalSk.split(",").filter(Boolean) : []);
+    setIsBooleanSearch(finalIsBool);
+    if (finalIsBool) {
+      setBooleanSkillsExpr(finalSk);
+      setSkills([]);
+    } else {
+      setBooleanSkillsExpr("");
+      setSkills(finalSk ? finalSk.split(",").map((s) => s.trim()).filter(Boolean) : []);
+    }
     setLocation(finalLoc);
     setMinExperience(finalMinExp);
     setMaxExperience(finalMaxExp);
@@ -295,6 +318,7 @@ export default function EmployerResumeDatabaseSearch({
 
     setAppliedKeyword(finalKw);
     setAppliedSkills(finalSk);
+    setAppliedIsBooleanSearch(finalIsBool);
     setAppliedLocation(finalLoc);
     setAppliedMinExperience(finalMinExp);
     setAppliedMaxExperience(finalMaxExp);
@@ -302,6 +326,7 @@ export default function EmployerResumeDatabaseSearch({
     const isClean =
       !finalKw &&
       !finalSk &&
+      !finalIsBool &&
       !finalLoc &&
       !finalMinExp &&
       !finalMaxExp &&
@@ -319,6 +344,7 @@ export default function EmployerResumeDatabaseSearch({
             JSON.stringify({
               keyword: finalKw,
               skills: finalSk,
+              isBooleanSearch: finalIsBool,
               location: finalLoc,
               minExperience: finalMinExp,
               maxExperience: finalMaxExp,
@@ -333,18 +359,23 @@ export default function EmployerResumeDatabaseSearch({
       finalPage,
       finalKw,
       finalSk,
-      appliedIsBooleanSearch,
+      finalIsBool,
       finalLoc,
       finalMinExp,
       finalMaxExp
     );
-  }, [searchParams, pathname, router, refreshCount, appliedIsBooleanSearch, fetchResumes, getParam]);
+  }, [searchParams, pathname, router, refreshCount, fetchResumes, getParam]);
 
   const [resetting, setResetting] = useState(false);
 
   const apply = () => {
-    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
-    const hasInputs = keyword.trim().length > 0 || formattedSkills.trim().length > 0 || location.trim().length > 0 || minExperience.trim().length > 0 || maxExperience.trim().length > 0;
+    const formattedSkills = isBooleanSearch ? booleanSkillsExpr.trim() : skills.join(",");
+    const hasInputs =
+      keyword.trim().length > 0 ||
+      formattedSkills.length > 0 ||
+      location.trim().length > 0 ||
+      minExperience.trim().length > 0 ||
+      maxExperience.trim().length > 0;
     if (!hasInputs) {
       clear();
     } else {
@@ -353,7 +384,15 @@ export default function EmployerResumeDatabaseSearch({
           sessionStorage.removeItem(`employer_resume_db_filters_${pathname}`);
         } catch (_e) {}
       }
-      updateUrl(1, keyword, formattedSkills, location, minExperience, maxExperience);
+      updateUrl(
+        1,
+        keyword,
+        formattedSkills,
+        isBooleanSearch,
+        location,
+        minExperience,
+        maxExperience
+      );
     }
   };
 
@@ -498,7 +537,18 @@ export default function EmployerResumeDatabaseSearch({
                   type="checkbox"
                   id="employer-boolean-search-toggle"
                   checked={isBooleanSearch}
-                  onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setIsBooleanSearch(checked);
+                    if (checked && !booleanSkillsExpr && skills.length > 0) {
+                      setBooleanSkillsExpr(skills.map(s => s.includes(" ") ? `"${s}"` : s).join(" AND "));
+                    } else if (!checked && booleanSkillsExpr && skills.length === 0) {
+                      const extracted = extractSearchTerms(booleanSkillsExpr);
+                      if (extracted.length > 0) {
+                        setSkills(extracted);
+                      }
+                    }
+                  }}
                   className="h-3 w-3 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
                 <label htmlFor="employer-boolean-search-toggle" className="text-[10px] font-bold uppercase tracking-wider text-slate-600 cursor-pointer select-none">
@@ -641,25 +691,19 @@ export default function EmployerResumeDatabaseSearch({
                   {resume.skills.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-2">
                       {resume.skills.map((skill) => {
-                        let isMatched = false;
-                        if (isBooleanSearch) {
-                          const terms = (booleanSkillsExpr.match(/AND|OR|NOT|\(|\)|"[^"]+"|[^\s()]+/gi) || [])
-                            .map(t => t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t)
-                            .filter(t => {
-                              const u = t.toUpperCase();
-                              return u !== 'AND' && u !== 'OR' && u !== 'NOT' && t !== '(' && t !== ')';
-                            })
-                            .map(t => t.toLowerCase());
-                          isMatched = terms.some(t => skill.toLowerCase().includes(t) || t.includes(skill.toLowerCase()));
-                        } else {
-                          isMatched = skills.some(s => s.toLowerCase() === skill.toLowerCase() || skill.toLowerCase().includes(s.toLowerCase()));
-                        }
+                        const isMatched = appliedIsBooleanSearch || isBooleanExpression(appliedSkills)
+                          ? extractSearchTerms(appliedSkills || booleanSkillsExpr).some((term) => matchSkill(skill, term))
+                          : (appliedSkills || skills.join(","))
+                              .split(",")
+                              .map((s) => s.trim())
+                              .filter(Boolean)
+                              .some((term) => matchSkill(skill, term));
                         return (
                           <span
                             key={`${resume.id}-${skill}`}
                             className={`px-3 py-1 rounded-lg border text-xs font-semibold transition-all ${
                               isMatched
-                                ? "bg-emerald-600 border-emerald-500 text-white"
+                                ? "bg-emerald-600 border-emerald-500 text-white font-bold"
                                 : "bg-slate-50 border-slate-200 text-slate-650"
                             }`}
                           >
@@ -695,7 +739,7 @@ export default function EmployerResumeDatabaseSearch({
       <Pagination
         page={page}
         totalPages={totalPages}
-        onPageChange={(p) => updateUrl(p, appliedKeyword, appliedSkills, appliedLocation, appliedMinExperience, appliedMaxExperience)}
+        onPageChange={(p) => updateUrl(p, appliedKeyword, appliedSkills, appliedIsBooleanSearch, appliedLocation, appliedMinExperience, appliedMaxExperience)}
         loading={loading}
       />
     </div>

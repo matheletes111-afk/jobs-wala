@@ -4,6 +4,7 @@ import { requireEmployer } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { formatLocation } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
+import { matchSkill } from "@/lib/skill-match";
 
 export async function GET(req: NextRequest) {
   try {
@@ -65,15 +66,11 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // Skills filter: partial match – e.g. "react" matches "react", "react js", "React Native"
+    // Skills filter: accurate match using matchSkill
     if (skillsArray.length > 0) {
       candidates = candidates.filter((c) => {
         return skillsArray.every((term) =>
-          c.skills.some(
-            (skill) =>
-              skill.toLowerCase().includes(term.toLowerCase()) ||
-              term.toLowerCase().includes(skill.toLowerCase())
-          )
+          c.skills.some((skill) => matchSkill(skill, term))
         );
       });
     }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
 import CompanyLogo from "@/components/CompanyLogo";
-import { Briefcase, FileText, User, ChevronRight, Plus, Sparkles } from "lucide-react";
+import { Briefcase, FileText, User, ChevronRight, Plus, Sparkles, CheckCircle2 } from "lucide-react";
 import { computeSkillMatch } from "@/lib/skill-match";
 
 export default async function UserDashboardPage({
@@ -27,9 +27,17 @@ export default async function UserDashboardPage({
   const currentSkillsPage = Math.max(1, parseInt(resolvedSearchParams.skillsPage || resolvedSearchParams.page || "1", 10));
   const currentPrefPage = Math.max(1, parseInt(resolvedSearchParams.prefPage || "1", 10));
 
-  const applicationsCount = await prisma.application.count({
-    where: { jobSeekerId: user.id },
-  });
+  const [applicationsCount, allUserApplications] = await Promise.all([
+    prisma.application.count({
+      where: { jobSeekerId: user.id },
+    }),
+    prisma.application.findMany({
+      where: { jobSeekerId: user.id },
+      select: { jobId: true },
+    }),
+  ]);
+
+  const appliedJobIdsSet = new Set(allUserApplications.map((a) => a.jobId));
 
   const recentApplications = await prisma.application.findMany({
     where: { jobSeekerId: user.id },
@@ -286,11 +294,18 @@ export default async function UserDashboardPage({
                         </div>
                       </div>
                       <div className="flex items-center shrink-0">
-                        <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
-                          <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
-                            <span style={{ color: "white" }}>Apply Now</span>
-                          </Button>
-                        </Link>
+                        {appliedJobIdsSet.has(job.id) ? (
+                          <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            Applied
+                          </span>
+                        ) : (
+                          <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
+                            <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
+                              <span style={{ color: "white" }}>Apply Now</span>
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   );
@@ -406,11 +421,18 @@ export default async function UserDashboardPage({
                         )}
                       </div>
                       <div className="flex items-center shrink-0">
-                        <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
-                          <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
-                            <span style={{ color: "white" }}>Apply Now</span>
-                          </Button>
-                        </Link>
+                        {appliedJobIdsSet.has(job.id) ? (
+                          <span className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                            Applied
+                          </span>
+                        ) : (
+                          <Link href={`/jobs/${job.id}?from=/user/dashboard`} className="w-full lg:w-auto">
+                            <Button className="w-full lg:w-auto h-9 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm">
+                              <span style={{ color: "white" }}>Apply Now</span>
+                            </Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   );

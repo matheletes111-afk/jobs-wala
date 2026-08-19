@@ -28,6 +28,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import SkillTagInput from "@/components/common/SkillTagInput";
+import { matchSkill, isBooleanExpression, extractSearchTerms } from "@/lib/skill-match";
 
 type ParseStatus = "all" | "PENDING" | "PARSED" | "FAILED";
 
@@ -116,22 +117,38 @@ export default function AdminResumeDatabaseClient({
   const [loading, setLoading] = useState(true);
   const [refreshCount, setRefreshCount] = useState(0);
 
-  const [keyword, setKeyword] = useState("");
-  const [skills, setSkills] = useState<string[]>([]);
-  const [isBooleanSearch, setIsBooleanSearch] = useState(false);
-  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState("");
-  const [location, setLocation] = useState("");
-  const [parseStatus, setParseStatus] = useState<ParseStatus>("all");
-  const [minExperience, setMinExperience] = useState("");
-  const [maxExperience, setMaxExperience] = useState("");
+  const initialSkillsStr = (initialParams?.skills as string) || "";
+  const initialIsBoolean =
+    initialParams?.isBooleanSearch === "true" || isBooleanExpression(initialSkillsStr);
 
-  const [appliedKeyword, setAppliedKeyword] = useState("");
-  const [appliedSkills, setAppliedSkills] = useState("");
-  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(false);
-  const [appliedLocation, setAppliedLocation] = useState("");
-  const [appliedParseStatus, setAppliedParseStatus] = useState<ParseStatus>("all");
-  const [appliedMinExperience, setAppliedMinExperience] = useState("");
-  const [appliedMaxExperience, setAppliedMaxExperience] = useState("");
+  const [keyword, setKeyword] = useState((initialParams?.keyword as string) || "");
+  const [skills, setSkills] = useState<string[]>(
+    !initialIsBoolean && initialSkillsStr
+      ? initialSkillsStr.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
+  );
+  const [isBooleanSearch, setIsBooleanSearch] = useState(initialIsBoolean);
+  const [booleanSkillsExpr, setBooleanSkillsExpr] = useState(
+    initialIsBoolean ? initialSkillsStr : ""
+  );
+  const [location, setLocation] = useState((initialParams?.location as string) || "");
+  const [parseStatus, setParseStatus] = useState<ParseStatus>(
+    (initialParams?.parseStatus as ParseStatus) || "all"
+  );
+  const [minExperience, setMinExperience] = useState(
+    (initialParams?.minExperience as string) || ""
+  );
+  const [maxExperience, setMaxExperience] = useState(
+    (initialParams?.maxExperience as string) || ""
+  );
+
+  const [appliedKeyword, setAppliedKeyword] = useState(keyword);
+  const [appliedSkills, setAppliedSkills] = useState(initialSkillsStr);
+  const [appliedIsBooleanSearch, setAppliedIsBooleanSearch] = useState(initialIsBoolean);
+  const [appliedLocation, setAppliedLocation] = useState(location);
+  const [appliedParseStatus, setAppliedParseStatus] = useState<ParseStatus>(parseStatus);
+  const [appliedMinExperience, setAppliedMinExperience] = useState(minExperience);
+  const [appliedMaxExperience, setAppliedMaxExperience] = useState(maxExperience);
 
   const limit = 10;
 
@@ -140,6 +157,7 @@ export default function AdminResumeDatabaseClient({
       pageNum: number,
       keywordVal: string,
       skillsVal: string,
+      isBooleanSearchVal: boolean,
       locationVal: string,
       parseStatusVal: ParseStatus,
       minExpVal: string,
@@ -149,6 +167,7 @@ export default function AdminResumeDatabaseClient({
       if (pageNum > 1) params.set("page", String(pageNum));
       if (keywordVal.trim()) params.set("keyword", keywordVal.trim());
       if (skillsVal.trim()) params.set("skills", skillsVal.trim());
+      if (isBooleanSearchVal) params.set("isBooleanSearch", "true");
       if (locationVal.trim()) params.set("location", locationVal.trim());
       if (parseStatusVal && parseStatusVal !== "all") params.set("parseStatus", parseStatusVal);
       if (minExpVal.trim()) params.set("minExperience", minExpVal.trim());
@@ -237,6 +256,7 @@ export default function AdminResumeDatabaseClient({
   useEffect(() => {
     let kw = getParam("keyword");
     let sk = getParam("skills");
+    let isBoolParam = getParam("isBooleanSearch");
     let loc = getParam("location");
     let pStatus = getParam("parseStatus") as ParseStatus | null;
     let minExp = getParam("minExperience");
@@ -246,6 +266,7 @@ export default function AdminResumeDatabaseClient({
     const hasParams =
       kw !== null ||
       sk !== null ||
+      isBoolParam !== null ||
       loc !== null ||
       pStatus !== null ||
       minExp !== null ||
@@ -261,6 +282,7 @@ export default function AdminResumeDatabaseClient({
           const parsed = JSON.parse(saved);
           kw = parsed.keyword || "";
           sk = parsed.skills || "";
+          isBoolParam = parsed.isBooleanSearch ? "true" : "";
           loc = parsed.location || "";
           pStatus = parsed.parseStatus || "all";
           minExp = parsed.minExperience || "";
@@ -271,6 +293,7 @@ export default function AdminResumeDatabaseClient({
           if (pageValStr && pageValStr !== "1") params.set("page", pageValStr);
           if (kw?.trim()) params.set("keyword", kw.trim());
           if (sk?.trim()) params.set("skills", sk.trim());
+          if (isBoolParam === "true") params.set("isBooleanSearch", "true");
           if (loc?.trim()) params.set("location", loc.trim());
           if (pStatus && pStatus !== "all") params.set("parseStatus", pStatus);
           if (minExp?.trim()) params.set("minExperience", minExp.trim());
@@ -285,6 +308,7 @@ export default function AdminResumeDatabaseClient({
 
     const finalKw = kw || "";
     const finalSk = sk || "";
+    const finalIsBool = isBoolParam === "true" || isBooleanExpression(finalSk);
     const finalLoc = loc || "";
     const finalPStatus: ParseStatus = pStatus || "all";
     const finalMinExp = minExp || "";
@@ -292,7 +316,14 @@ export default function AdminResumeDatabaseClient({
     const finalPage = parseInt(pageValStr || "1", 10);
 
     setKeyword(finalKw);
-    setSkills(finalSk ? finalSk.split(",").filter(Boolean) : []);
+    setIsBooleanSearch(finalIsBool);
+    if (finalIsBool) {
+      setBooleanSkillsExpr(finalSk);
+      setSkills([]);
+    } else {
+      setBooleanSkillsExpr("");
+      setSkills(finalSk ? finalSk.split(",").map((s) => s.trim()).filter(Boolean) : []);
+    }
     setLocation(finalLoc);
     setParseStatus(finalPStatus);
     setMinExperience(finalMinExp);
@@ -301,6 +332,7 @@ export default function AdminResumeDatabaseClient({
 
     setAppliedKeyword(finalKw);
     setAppliedSkills(finalSk);
+    setAppliedIsBooleanSearch(finalIsBool);
     setAppliedLocation(finalLoc);
     setAppliedParseStatus(finalPStatus);
     setAppliedMinExperience(finalMinExp);
@@ -309,6 +341,7 @@ export default function AdminResumeDatabaseClient({
     const isClean =
       !finalKw &&
       !finalSk &&
+      !finalIsBool &&
       !finalLoc &&
       finalPStatus === "all" &&
       !finalMinExp &&
@@ -327,6 +360,7 @@ export default function AdminResumeDatabaseClient({
             JSON.stringify({
               keyword: finalKw,
               skills: finalSk,
+              isBooleanSearch: finalIsBool,
               location: finalLoc,
               parseStatus: finalPStatus,
               minExperience: finalMinExp,
@@ -342,17 +376,23 @@ export default function AdminResumeDatabaseClient({
       finalPage,
       finalKw,
       finalSk,
-      appliedIsBooleanSearch,
+      finalIsBool,
       finalLoc,
       finalPStatus,
       finalMinExp,
       finalMaxExp
     );
-  }, [searchParams, pathname, router, refreshCount, appliedIsBooleanSearch, fetchResumes, getParam]);
+  }, [searchParams, pathname, router, refreshCount, fetchResumes, getParam]);
 
   const onApplyFilters = () => {
-    const formattedSkills = isBooleanSearch ? booleanSkillsExpr : skills.join(",");
-    const hasInputs = keyword.trim().length > 0 || formattedSkills.trim().length > 0 || location.trim().length > 0 || (parseStatus && parseStatus !== "all") || minExperience.trim().length > 0 || maxExperience.trim().length > 0;
+    const formattedSkills = isBooleanSearch ? booleanSkillsExpr.trim() : skills.join(",");
+    const hasInputs =
+      keyword.trim().length > 0 ||
+      formattedSkills.length > 0 ||
+      location.trim().length > 0 ||
+      (parseStatus && parseStatus !== "all") ||
+      minExperience.trim().length > 0 ||
+      maxExperience.trim().length > 0;
     if (!hasInputs) {
       onClearFilters();
     } else {
@@ -365,6 +405,7 @@ export default function AdminResumeDatabaseClient({
         1,
         keyword,
         formattedSkills,
+        isBooleanSearch,
         location,
         parseStatus,
         minExperience,
@@ -588,7 +629,18 @@ export default function AdminResumeDatabaseClient({
                     type="checkbox"
                     id="boolean-search-toggle"
                     checked={isBooleanSearch}
-                    onChange={(e) => setIsBooleanSearch(e.target.checked)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setIsBooleanSearch(checked);
+                      if (checked && !booleanSkillsExpr && skills.length > 0) {
+                        setBooleanSkillsExpr(skills.map(s => s.includes(" ") ? `"${s}"` : s).join(" AND "));
+                      } else if (!checked && booleanSkillsExpr && skills.length === 0) {
+                        const extracted = extractSearchTerms(booleanSkillsExpr);
+                        if (extracted.length > 0) {
+                          setSkills(extracted);
+                        }
+                      }
+                    }}
                     className="h-3 w-3 rounded border-slate-300 text-blue-600 cursor-pointer"
                   />
                   <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Boolean</span>
@@ -760,19 +812,19 @@ export default function AdminResumeDatabaseClient({
                       {resume.skills.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
                           {resume.skills.slice(0, 12).map((skill) => {
-                            const isMatched = isBooleanSearch
-                              ? (booleanSkillsExpr.match(/AND|OR|NOT|\(|\)|"[^"]+"|[^\s()]+/gi) || [])
-                                  .map(t => (t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t))
-                                  .filter(t => { const u = t.toUpperCase(); return u !== 'AND' && u !== 'OR' && u !== 'NOT' && t !== '(' && t !== ')'; })
-                                  .map(t => t.toLowerCase())
-                                  .some(t => skill.toLowerCase().includes(t) || t.includes(skill.toLowerCase()))
-                              : skills.some(s => s.toLowerCase() === skill.toLowerCase() || skill.toLowerCase().includes(s.toLowerCase()));
+                            const isMatched = appliedIsBooleanSearch || isBooleanExpression(appliedSkills)
+                              ? extractSearchTerms(appliedSkills || booleanSkillsExpr).some((term) => matchSkill(skill, term))
+                              : (appliedSkills || skills.join(","))
+                                  .split(",")
+                                  .map((s) => s.trim())
+                                  .filter(Boolean)
+                                  .some((term) => matchSkill(skill, term));
                             return (
                               <span
                                 key={`${resume.id}-${skill}`}
                                 className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition-all ${
                                   isMatched
-                                    ? "bg-blue-600 text-white border-blue-500"
+                                    ? "bg-blue-600 text-white border-blue-500 font-bold"
                                     : "bg-slate-50 border-slate-200 text-slate-600"
                                 }`}
                               >

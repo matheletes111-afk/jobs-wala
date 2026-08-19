@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
 import { UserRole } from "@/types";
-import { MapPin, LayoutGrid, List, ChevronDown } from "lucide-react";
+import { MapPin, LayoutGrid, List, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import CompanyLogo from "@/components/CompanyLogo";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -57,6 +57,7 @@ export default function JobsFilterPageClient({
 
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [total, setTotal] = useState(0);
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -91,10 +92,12 @@ export default function JobsFilterPageClient({
       const data = await res.json();
       setJobs((data.jobs ?? []) as JobItem[]);
       setTotal(data.total ?? 0);
+      setAppliedJobIds((data.appliedJobIds ?? []) as string[]);
     } catch (e) {
       console.error(e);
       setJobs([]);
       setTotal(0);
+      setAppliedJobIds([]);
     } finally {
       setLoading(false);
     }
@@ -184,6 +187,7 @@ export default function JobsFilterPageClient({
                   job={job}
                   isEmployer={isEmployer}
                   isJobSeeker={isJobSeeker}
+                  isApplied={appliedJobIds.includes(job.id)}
                   session={session}
                   page={page}
                 />
@@ -206,12 +210,14 @@ export default function JobsFilterPageClient({
 function JobCard({
   job,
   isEmployer,
+  isApplied,
   session,
   page = 1,
 }: {
   job: JobItem;
   isEmployer: boolean;
   isJobSeeker: boolean;
+  isApplied?: boolean;
   session: Session | null;
   page?: number;
 }) {
@@ -279,6 +285,11 @@ function JobCard({
                 Details
               </Button>
             </Link>
+          ) : isApplied ? (
+            <span className="inline-flex items-center justify-center gap-1.5 w-full h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              Applied
+            </span>
           ) : (
             <Link
               href={

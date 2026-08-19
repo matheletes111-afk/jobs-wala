@@ -18,8 +18,8 @@ import { CheckCircle2, Search } from "lucide-react";
 import ShareJobButton from "@/components/ShareJobButton";
 import CompanyLogo from "@/components/CompanyLogo";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-
 import { useSession } from "next-auth/react";
+import { matchSkill } from "@/lib/skill-match";
 
 interface Job {
   id: string;
@@ -604,11 +604,7 @@ export default function JobSearch() {
                           return (
                             <div className="mt-2 flex flex-wrap gap-1">
                               {jobSkills.map((skill) => {
-                                const isMatched = candSkills.some(
-                                  (cs) =>
-                                    cs.toLowerCase().includes(skill.toLowerCase()) ||
-                                    skill.toLowerCase().includes(cs.toLowerCase())
-                                );
+                                const isMatched = candSkills.some((cs) => matchSkill(cs, skill));
                                 return (
                                   <span
                                     key={skill}
