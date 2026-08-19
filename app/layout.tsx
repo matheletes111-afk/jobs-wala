@@ -28,8 +28,8 @@ export default async function RootLayout({
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") || "";
   const hideFooter = ["/admin", "/employer", "/user", "/dashboard"].some((p) =>
-    pathname.startsWith(p)
-  );
+    pathname === p || pathname.startsWith(p + "/")
+  ) && pathname !== "/employer/jobs/new";
 
   return (
     <html lang="en" className="w-full overflow-x-hidden">
