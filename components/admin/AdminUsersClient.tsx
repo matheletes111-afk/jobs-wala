@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Search, LayoutGrid, List, ChevronDown, ChevronRight, Briefcase, User, Download } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { formatLocation, stripHtml } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv, stripHtml } from "@/lib/utils";
 import Pagination from "@/components/common/Pagination";
 
 interface UserItem {
@@ -318,7 +318,7 @@ export default function AdminUsersClient({
         const jobTitle = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.jobTitle || "" : "";
         const availability = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.availabilityStatus || "" : "";
         const resumeAccess = isEmp && user.employerProfile ? (user.employerProfile.resumeSearchEnabled ? "Yes" : "No") : "";
-        const phone = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.phone || "" : "";
+        const phone = isJS && user.jobSeekerProfile ? formatPhoneForCsv(user.jobSeekerProfile.phone) : isEmp && user.employerProfile ? formatPhoneForCsv((user.employerProfile as any).phone) : "";
         const education = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.education || "" : "";
         const bioDesc = isJS && user.jobSeekerProfile ? user.jobSeekerProfile.bio || "" : isEmp && user.employerProfile ? user.employerProfile.description || "" : "";
         const website = isEmp && user.employerProfile ? user.employerProfile.website || "" : "";

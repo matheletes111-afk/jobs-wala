@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { Search, User, MapPin, Briefcase, GraduationCap, FileText, ChevronRight, LayoutGrid, List, Download } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
@@ -302,9 +302,9 @@ export default function ResumeSearch({
         `"${candidate.firstName.replace(/"/g, '""')}"`,
         `"${candidate.lastName.replace(/"/g, '""')}"`,
         `"${(candidate.user?.email || "").replace(/"/g, '""')}"`,
-        `"${(candidate.phone || "").replace(/"/g, '""')}"`,
+        `"${formatPhoneForCsv(candidate.phone).replace(/"/g, '""')}"`,
         `"${(candidate.jobTitle || "").replace(/"/g, '""')}"`,
-        `"${(candidate.location || "").replace(/"/g, '""')}"`,
+        `"${formatLocation(candidate.location).replace(/"/g, '""')}"`,
         candidate.experience ?? "",
         `"${(candidate.skills || []).join(", ").replace(/"/g, '""')}"`,
         `"${(candidate.education || "").replace(/"/g, '""')}"`,

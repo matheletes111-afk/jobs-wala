@@ -20,6 +20,19 @@ export function formatResumeUpdatedAt(date: Date | string | null | undefined): s
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/**
+ * Formats a phone number or numeric string for CSV export so that Excel / Google Sheets
+ * renders it as plain text instead of converting it to scientific notation (e.g., 9.198E+11)
+ * or stripping leading zeroes.
+ */
+export function formatPhoneForCsv(phone: string | number | null | undefined): string {
+  if (!phone) return "";
+  const str = String(phone).trim();
+  if (!str) return "";
+  // Tab prefix \t instructs Excel to treat the cell contents strictly as text without visible artifact
+  return `\t${str}`;
+}
+
 export function formatLocation(location: string | null | undefined, short: boolean = false): string {
   if (!location || location.trim() === "") return "Not specified";
 

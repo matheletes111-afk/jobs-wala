@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import { skillKeywordMatch } from "@/lib/skill-match";
@@ -344,9 +344,9 @@ export default function EmployerApplicationListClient({
         app.jobSeeker.id,
         `"${app.jobSeeker.firstName.replace(/"/g, '""')}"`,
         `"${app.jobSeeker.lastName.replace(/"/g, '""')}"`,
-        app.jobSeeker.email ?? "",
-        app.jobSeeker.phone ?? "",
-        `"${(app.jobSeeker.location || "").replace(/"/g, '""')}"`,
+        `"${(app.jobSeeker.email || "").replace(/"/g, '""')}"`,
+        `"${formatPhoneForCsv(app.jobSeeker.phone).replace(/"/g, '""')}"`,
+        `"${formatLocation(app.jobSeeker.location).replace(/"/g, '""')}"`,
         app.jobSeeker.experience ?? "",
         `"${(app.jobSeeker.education || "").replace(/"/g, '""')}"`,
         `"${(app.jobSeeker.jobTitle || "").replace(/"/g, '""')}"`,
