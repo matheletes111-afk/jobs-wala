@@ -47,7 +47,7 @@ export default async function JobsPage() {
 
   if (isCandidate) {
     return (
-      <UserLayoutClient userEmail={user.email ?? undefined}>
+      <UserLayoutClient userEmail={user.email ?? undefined} footer={<Footer />}>
         {pageContent}
       </UserLayoutClient>
     );

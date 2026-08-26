@@ -7,12 +7,14 @@ import AdminHeaderNav from "./AdminHeaderNav";
 
 interface AdminLayoutClientProps {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   userEmail?: string;
   userName?: string;
 }
 
 export default function AdminLayoutClient({
   children,
+  footer,
   userEmail,
   userName,
 }: AdminLayoutClientProps) {
@@ -68,6 +70,8 @@ export default function AdminLayoutClient({
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
             {children}
           </div>
+
+          {footer && <div className="mt-auto">{footer}</div>}
         </main>
       </div>
     </div>

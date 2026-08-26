@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@/types";
 import UserLayoutClient from "@/components/user/UserLayoutClient";
+import Footer from "@/components/Footer";
 
 export default async function UserLayout({
   children,
@@ -17,6 +18,7 @@ export default async function UserLayout({
   return (
     <UserLayoutClient
       userEmail={user.email ?? undefined}
+      footer={<Footer />}
     >
       {children}
     </UserLayoutClient>

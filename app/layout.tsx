@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Footer from "@/components/Footer";
-import { headers } from "next/headers";
+import FooterWrapper from "@/components/FooterWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,24 +20,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerList = await headers();
-  const pathname = headerList.get("x-pathname") || "";
-  const hideFooter = ["/admin", "/employer", "/user", "/dashboard"].some((p) =>
-    pathname === p || pathname.startsWith(p + "/")
-  ) && pathname !== "/employer/jobs/new";
-
   return (
     <html lang="en" className="w-full overflow-x-hidden">
       <body className={`${inter.className} flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden`}>
         <Providers>
           <div className="flex min-h-screen w-full min-w-0 flex-col">
             <div className="min-w-0 flex-1">{children}</div>
-            {!hideFooter && <Footer />}
+            <FooterWrapper>
+              <Footer />
+            </FooterWrapper>
           </div>
         </Providers>
       </body>

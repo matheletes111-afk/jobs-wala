@@ -7,6 +7,7 @@ import Link from "next/link";
 
 interface EmployerLayoutClientProps {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   isApproved: boolean;
   dbUserApprovalStatus?: string;
   dbUserRejectionReason?: string | null;
@@ -17,6 +18,7 @@ interface EmployerLayoutClientProps {
 
 export default function EmployerLayoutClient({
   children,
+  footer,
   isApproved,
   dbUserApprovalStatus,
   dbUserRejectionReason,
@@ -128,6 +130,9 @@ export default function EmployerLayoutClient({
             )}
             {children}
           </div>
+
+          {/* Render Footer here, inside the padded layout area! */}
+          {footer && <div className="mt-auto">{footer}</div>}
         </main>
       </div>
     </div>

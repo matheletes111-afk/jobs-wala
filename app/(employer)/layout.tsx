@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@/types";
 import { prisma } from "@/lib/prisma";
 import EmployerLayoutClient from "@/components/employer/EmployerLayoutClient";
+import Footer from "@/components/Footer";
 
 export default async function EmployerLayout({
   children,
@@ -30,6 +31,7 @@ export default async function EmployerLayout({
       userEmail={dbUser?.email || ""}
       companyLogo={dbUser?.employerProfile?.companyLogo}
       companyName={dbUser?.employerProfile?.companyName || ""}
+      footer={<Footer />}
     >
       {children}
     </EmployerLayoutClient>

@@ -8,11 +8,13 @@ import UserHeaderNav from "./UserHeaderNav";
 
 interface UserLayoutClientProps {
   children: React.ReactNode;
+  footer?: React.ReactNode;
   userEmail?: string;
 }
 
 export default function UserLayoutClient({
   children,
+  footer,
   userEmail,
 }: UserLayoutClientProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,6 +66,9 @@ export default function UserLayoutClient({
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
             {children}
           </div>
+
+          {/* Render Footer here */}
+          {footer && <div className="mt-auto">{footer}</div>}
         </main>
       </div>
     </div>
