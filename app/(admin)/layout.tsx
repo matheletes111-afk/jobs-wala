@@ -3,7 +3,6 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import { UserRole } from "@/types";
 import { prisma } from "@/lib/prisma";
 import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
-import Footer from "@/components/Footer";
 
 export default async function AdminLayout({
   children,
@@ -24,7 +23,6 @@ export default async function AdminLayout({
     <AdminLayoutClient
       userEmail={dbUser?.email || ""}
       userName="Administrator"
-      footer={<Footer />}
     >
       {children}
     </AdminLayoutClient>
