@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Search, LayoutGrid, List, ChevronDown, ChevronRight, Briefcase, User, Download } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { formatLocation, formatPhoneForCsv, stripHtml } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv, formatDisplayId, stripHtml } from "@/lib/utils";
 import Pagination from "@/components/common/Pagination";
 
 interface UserItem {
@@ -300,16 +300,18 @@ export default function AdminUsersClient({
       }
       
       const headers = [
-        "ID", "Email", "Role", "Created At",
+        "User ID", "System ID", "Email", "Role", "Created At",
         "Name / Company Name", "Location", "Skills / Industry",
         "Experience / Company Size", "Job Title", "Availability", "Resume DB Access",
         "Phone", "Education", "Bio / Description", "Website", "Resume URL",
         "Resume Updated At", "Certificates", "Profile Created", "Profile Updated"
       ];
 
-      const rows = exportUsers.map(user => {
+      const rows = exportUsers.map((user, index) => {
         const isJS = user.role === "JOB_SEEKER";
         const isEmp = user.role === "EMPLOYER";
+        const userType = isJS ? "CAND" : isEmp ? "EMP" : "ADM";
+        const displayId = formatDisplayId(user.id, userType, index);
 
         const name = isJS && user.jobSeekerProfile ? `${user.jobSeekerProfile.firstName} ${user.jobSeekerProfile.lastName}` : isEmp && user.employerProfile ? user.employerProfile.companyName : "";
         const location = isJS && user.jobSeekerProfile?.location ? displayLocation(user.jobSeekerProfile.location) : "";
@@ -330,6 +332,7 @@ export default function AdminUsersClient({
         const pUpdated = isJS && user.jobSeekerProfile?.updatedAt ? new Date(user.jobSeekerProfile.updatedAt).toISOString().split('T')[0] : isEmp && user.employerProfile?.updatedAt ? new Date(user.employerProfile.updatedAt).toISOString().split('T')[0] : "";
 
         return [
+          displayId,
           user.id,
           `"${user.email.replace(/"/g, '""')}"`,
           user.role,
@@ -559,8 +562,8 @@ export default function AdminUsersClient({
                 onClick={() => handleExportCSV(true)}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export Filtered"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : `Download Filtered (${total})`}
               </Button>
               <Button
                 variant="outline"
@@ -569,8 +572,8 @@ export default function AdminUsersClient({
                 onClick={() => handleExportCSV(false)}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export All"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : "Download All"}
               </Button>
               <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-250/60">
                 <button
@@ -714,7 +717,9 @@ function UserCard({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 mb-1">
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${isJobSeeker ? "bg-blue-500" : isEmployer ? "bg-indigo-500" : "bg-blue-500"}`} />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{user.role.replace("_", " ")}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {user.role.replace("_", " ")} • <span className="font-mono text-slate-500">{formatDisplayId(user.id, isJobSeeker ? "CAND" : isEmployer ? "EMP" : "ADM")}</span>
+              </p>
             </div>
             <Link href={getUserDetailUrl(user.id)}>
               <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{displayName}</h3>

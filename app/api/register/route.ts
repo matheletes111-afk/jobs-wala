@@ -6,6 +6,7 @@ import { z } from "zod";
 import { UserRole } from "@prisma/client";
 import crypto from "crypto";
 import { sendVerificationEmail, sendNewEmployerRegisteredAdminEmail } from "@/lib/email";
+import { getAppBaseUrl } from "@/lib/utils";
 
 const registerSchema = z
   .object({
@@ -152,9 +153,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send verification email
-    const host = req.headers.get("host") || "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const baseUrl = `${protocol}://${host}`;
+    const baseUrl = getAppBaseUrl(req.headers);
     // URL encode the token to handle special characters properly
     const encodedToken = encodeURIComponent(verificationToken);
     const verificationLink = `${baseUrl}/api/verify-email?token=${encodedToken}`;

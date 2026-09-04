@@ -17,7 +17,7 @@ import {
   Award,
   ArrowLeft,
 } from "lucide-react";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatDisplayId } from "@/lib/utils";
 import EmployerApprovalActions from "@/components/admin/EmployerApprovalActions";
 
 export default async function AdminUserDetailPage({
@@ -95,7 +95,7 @@ export default async function AdminUserDetailPage({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">
-                  {isEmployer ? "Employer Profile" : "User Profile"}
+                  {isEmployer ? "Employer Profile" : "Candidate Profile"} • <span className="font-mono text-slate-500 font-semibold">{formatDisplayId(user.id, isJobSeeker ? "CAND" : isEmployer ? "EMP" : "ADM")}</span>
                 </p>
 
                 <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">{displayName}</h1>

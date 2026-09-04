@@ -107,3 +107,45 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await requireAdmin();
+
+    const searchParams = req.nextUrl.searchParams;
+    const id = searchParams.get("id");
+
+    let body: { ids?: string[] } | null = null;
+    try {
+      if (req.headers.get("content-type")?.includes("application/json")) {
+        body = await req.json();
+      }
+    } catch (_e) {}
+
+    const ids: string[] = body?.ids && Array.isArray(body.ids) && body.ids.length > 0
+      ? body.ids
+      : id
+      ? [id]
+      : [];
+
+    if (ids.length === 0) {
+      return NextResponse.json({ error: "User ID(s) required" }, { status: 400 });
+    }
+
+    const { count } = await prisma.user.deleteMany({
+      where: { id: { in: ids } },
+    });
+
+    return NextResponse.json({
+      success: true,
+      deletedCount: count,
+      message: `Successfully deleted ${count} user${count !== 1 ? "s" : ""}.`,
+    });
+  } catch (e) {
+    console.error("[DELETE /api/admin/users]", e);
+    return NextResponse.json(
+      { error: "Failed to delete users." },
+      { status: 500 }
+    );
+  }
+}

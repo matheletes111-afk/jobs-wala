@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { CategoryStatus } from "@prisma/client";
 import { FolderTree, Pencil, Trash2, FolderPlus, Info, Search, Download } from "lucide-react";
+import { formatDisplayId } from "@/lib/utils";
 
 export interface CategoryRow {
   id: string;
@@ -132,11 +133,13 @@ export default function CategoryManager({
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleExportCSV = () => {
-    if (filteredCategories.length === 0) return;
-    const headers = ["ID", "Name", "Status", "Created At", "Updated At"];
+  const handleExportCSV = (applyFilter: boolean = false) => {
+    const listToExport = applyFilter ? filteredCategories : initialCategories;
+    if (listToExport.length === 0) return;
+    const headers = ["Category ID", "System ID", "Name", "Status", "Created At", "Updated At"];
 
-    const rows = filteredCategories.map(c => [
+    const rows = listToExport.map((c, idx) => [
+      formatDisplayId(c.id, "CAT", idx),
       c.id,
       `"${c.name.replace(/"/g, '""')}"`,
       c.status,
@@ -150,7 +153,7 @@ export default function CategoryManager({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `categories_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `${applyFilter ? "filtered_" : "all_"}categories_export_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -250,15 +253,24 @@ export default function CategoryManager({
           </div>
           
           {/* Search and Export */}
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <Button
               variant="outline"
               size="sm"
-              onClick={handleExportCSV}
-              className="h-11 px-5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-200 gap-2 shrink-0"
+              onClick={() => handleExportCSV(true)}
+              className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 gap-2 shrink-0 shadow-sm"
             >
-              <Download className="h-4 w-4" />
-              Export CSV
+              <Download className="h-4 w-4 text-blue-600" />
+              Download Filtered ({filteredCategories.length})
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleExportCSV(false)}
+              className="h-10 px-4 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 gap-2 shrink-0 shadow-sm"
+            >
+              <Download className="h-4 w-4 text-blue-600" />
+              Download All
             </Button>
             <div className="relative flex-1 md:w-80">
                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -295,6 +307,8 @@ export default function CategoryManager({
                        {c.name}
                      </h3>
                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="font-mono text-[11px] font-bold text-slate-400">{formatDisplayId(c.id, "CAT")}</span>
+                        <span className="h-1 w-1 rounded-full bg-slate-300" />
                         <span className="text-xs font-semibold text-slate-400">Created {new Date(c.createdAt).toLocaleDateString()}</span>
                         <span className="h-1 w-1 rounded-full bg-slate-300" />
                         <div className="flex items-center gap-1.5">

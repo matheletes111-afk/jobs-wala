@@ -47,53 +47,53 @@ export default function EmployerSidebar({
 
   return (
     <aside
-      className={`border-r border-slate-200 bg-white h-screen fixed left-0 top-0 bottom-0 flex flex-col justify-between transition-all duration-300 z-40 ${
+      className={`border-r border-slate-200 bg-white h-screen fixed left-0 top-0 bottom-0 flex flex-col transition-all duration-300 z-40 ${
         isCollapsed ? "w-20 p-4" : "w-72 p-6"
       } hidden md:flex`}
     >
-      {/* Upper part */}
-      <div className="flex flex-col gap-8">
-        {/* Header & Toggle */}
-        <div className={`flex items-center justify-between gap-3 min-w-0 ${isCollapsed ? "flex-col gap-2" : "flex-row"}`}>
-          {!isCollapsed ? (
-            <Link href="/" className="flex items-center gap-3 shrink-0">
-              <div className="flex items-center justify-start shrink-0 h-12 overflow-hidden">
-                <img
-                  src="/images/logo.png"
-                  alt="JobDaddy Logo"
-                  className="h-[200%] w-auto max-w-none object-contain"
-                />
-              </div>
-            </Link>
-          ) : (
-            <div className="h-12 w-12 flex items-center justify-center shrink-0">
-              {/* Collapsed small icon */}
+      {/* Header & Toggle (Fixed Top) */}
+      <div className={`shrink-0 pb-3 border-b border-slate-100 flex items-center justify-between gap-3 min-w-0 ${isCollapsed ? "flex-col gap-2" : "flex-row"}`}>
+        {!isCollapsed ? (
+          <Link href="/" className="flex items-center justify-center flex-1 min-w-0">
+            <div className="flex items-center justify-center shrink-0 h-12 overflow-hidden">
               <img
-                src="/images/favicon.png"
-                alt="JobDaddy"
-                className="h-8 w-8 object-contain"
+                src="/images/logo.png"
+                alt="JobDaddy Logo"
+                className="h-[200%] w-auto max-w-none object-contain"
               />
             </div>
-          )}
+          </Link>
+        ) : (
+          <div className="h-12 w-12 flex items-center justify-center shrink-0">
+            {/* Collapsed small icon */}
+            <img
+              src="/images/favicon.png"
+              alt="JobDaddy"
+              className="h-8 w-8 object-contain"
+            />
+          </div>
+        )}
 
-          {onToggleCollapse && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleCollapse}
-              className={`h-9 w-9 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl shrink-0 ${
-                isCollapsed ? "mt-1" : ""
-              }`}
-              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-            </Button>
-          )}
-        </div>
+        {onToggleCollapse && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleCollapse}
+            className={`h-9 w-9 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl shrink-0 ${
+              isCollapsed ? "mt-1" : ""
+            }`}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </Button>
+        )}
+      </div>
 
+      {/* Middle Scrollable Navigation Area */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar py-3 pr-0.5 flex flex-col gap-3">
         {/* Post a Job CTA */}
         {isApproved && (
-          <Link href="/employer/jobs/new">
+          <Link href="/employer/jobs/new" className="shrink-0">
             {isCollapsed ? (
               <Button
                 size="icon"
@@ -147,8 +147,8 @@ export default function EmployerSidebar({
         </nav>
       </div>
 
-      {/* Bottom part */}
-      <div className="border-t border-slate-100 pt-5 flex flex-col gap-3.5">
+      {/* Bottom part (Fixed Bottom) */}
+      <div className="shrink-0 border-t border-slate-100 pt-3 mt-auto flex flex-col gap-2.5">
         {!isCollapsed && (
           <div className="flex items-center px-4">
             <span className="rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-600">

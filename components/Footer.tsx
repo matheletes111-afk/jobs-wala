@@ -34,12 +34,12 @@ export default async function Footer() {
 
           {/* Logo & Description Column */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center shrink-0 h-16 md:h-20 overflow-hidden">
+            <div className="flex items-center gap-2 mb-4 -ml-1 sm:-ml-2">
+              <div className="flex items-center justify-start shrink-0 h-16 md:h-20 overflow-hidden">
                 <img
                   src="/images/logo.png"
                   alt="Jobdaddy"
-                  className="h-[200%] w-auto max-w-none object-contain"
+                  className="h-[200%] w-auto max-w-none object-contain object-left -translate-x-1"
                 />
               </div>
             </div>

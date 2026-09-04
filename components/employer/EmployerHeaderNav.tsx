@@ -139,7 +139,7 @@ export default function EmployerHeaderNav({
           className="fixed inset-x-0 top-20 z-40 flex flex-col bg-white border-b border-slate-200 shadow-lg animate-in slide-in-from-top duration-300 md:hidden"
           style={{ height: "calc(100vh - 5rem)" }}
         >
-          <div className="flex-1 overflow-y-auto px-6 py-8">
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-8">
             <nav className="flex flex-col gap-2">
               <EmployerNavLinks
                 isApproved={isApproved}

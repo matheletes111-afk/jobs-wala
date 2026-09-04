@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Menu, X, Sparkles, Phone, HelpCircle, Info, Search, Briefcase } from "lucide-react";
 
@@ -13,6 +14,16 @@ interface HeaderClientProps {
 }
 
 export default function HeaderClient({ user }: HeaderClientProps) {
+  const { data: session } = useSession();
+  const activeUser = session?.user || user;
+  const activeRole = ((session?.user as Record<string, unknown>)?.role as string) || activeUser?.role;
+  const dashboardUrl =
+    activeRole === "ADMIN"
+      ? "/admin/dashboard"
+      : activeRole === "EMPLOYER"
+      ? "/employer/dashboard"
+      : "/dashboard";
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
@@ -53,14 +64,14 @@ export default function HeaderClient({ user }: HeaderClientProps) {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md w-full">
-      <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between pl-2 sm:pl-4 md:pl-6 lg:pl-8 pr-4 sm:pr-6 md:pr-8 lg:pr-10">
         {/* Logo */}
-        <Link href="/" onClick={closeMobileMenu} className="flex shrink-0 items-center">
-          <div className="flex items-center justify-center shrink-0 h-14 md:h-16 overflow-hidden">
+        <Link href="/" onClick={closeMobileMenu} className="flex shrink-0 items-center -ml-3 sm:-ml-4 md:-ml-6">
+          <div className="flex items-center justify-start shrink-0 h-14 md:h-16 overflow-hidden">
             <img
               src="/images/logo.png"
               alt="Jobdaddy"
-              className="h-[200%] w-auto max-w-none object-contain"
+              className="h-[200%] w-auto max-w-none object-contain object-left -translate-x-3 sm:-translate-x-4 md:-translate-x-6"
             />
           </div>
         </Link>
@@ -208,8 +219,8 @@ export default function HeaderClient({ user }: HeaderClientProps) {
               </Button>
             </Link>
 
-            {user ? (
-              <Link href="/dashboard">
+            {activeUser ? (
+              <Link href={dashboardUrl}>
                 <Button className="bg-[#f97316] hover:bg-[#ea580c] text-white shadow-lg shadow-orange-500/20 transition-all hover:scale-105 active:scale-95 rounded-xl font-bold text-xs uppercase tracking-wider h-10 px-4 lg:px-5">
                   Dashboard
                 </Button>
@@ -397,8 +408,8 @@ export default function HeaderClient({ user }: HeaderClientProps) {
                 </Button>
               </Link>
 
-              {user ? (
-                <Link href="/dashboard" onClick={closeMobileMenu}>
+              {activeUser ? (
+                <Link href={dashboardUrl} onClick={closeMobileMenu}>
                   <Button className="w-full h-11 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#f97316] text-white">
                     Dashboard
                   </Button>

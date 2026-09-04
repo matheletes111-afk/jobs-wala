@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,22 @@ import { Check } from "lucide-react";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        router.replace(callbackUrl);
+      } else {
+        const role = (session.user as Record<string, unknown>)?.role;
+        if (role === "ADMIN") router.replace("/admin/dashboard");
+        else if (role === "EMPLOYER") router.replace("/employer/dashboard");
+        else router.replace("/dashboard");
+      }
+    }
+  }, [status, session, searchParams, router]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -199,16 +215,18 @@ function LoginForm() {
               </div>
             )}
             {error && (
-              <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-400">
+              <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-500">
                 <div>{error}</div>
-                {error.includes("verify your email") && (
+                {(error.toLowerCase().includes("verify") ||
+                  error.toLowerCase().includes("token") ||
+                  error.toLowerCase().includes("verification")) && (
                   <button
                     type="button"
                     onClick={handleResendVerification}
                     disabled={resendLoading}
-                    className="mt-2 text-xs font-black text-blue-500 hover:text-blue-600 underline uppercase tracking-wider block focus:outline-none disabled:opacity-50 transition-colors"
+                    className="mt-2.5 inline-flex items-center gap-1 text-xs font-extrabold text-blue-600 hover:text-blue-700 underline uppercase tracking-wider block focus:outline-none disabled:opacity-50 transition-colors cursor-pointer"
                   >
-                    {resendLoading ? "Sending Link..." : "Resend Verification Link"}
+                    {resendLoading ? "Sending Link..." : "Resend Verification Email →"}
                   </button>
                 )}
               </div>

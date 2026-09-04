@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation, formatSalary } from "@/lib/utils";
+import { formatLocation, formatSalary, formatDisplayId } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobStatusActions from "@/components/employer/JobStatusActions";
 import { Search, Briefcase, MapPin, Calendar, Plus, LayoutGrid, List, FileText, Pencil, Download } from "lucide-react";
@@ -337,12 +337,13 @@ export default function EmployerJobListClient() {
       }
       
       const headers = [
-        "ID", "Title", "Status", "Category", "Location", "Applications", 
+        "Job ID", "System ID", "Title", "Status", "Category", "Location", "Applications", 
         "Min Salary", "Max Salary", "Currency", "Per Type", 
         "Min Experience", "Max Experience", "Employment Type", "Work Mode", 
         "Required Skills", "Created At", "Expires At"
       ];
-      const rows = exportJobs.map((job: any) => [
+      const rows = exportJobs.map((job: any, index: number) => [
+        formatDisplayId(job.id, "JOB", index),
         job.id,
         `"${job.title.replace(/"/g, '""')}"`,
         job.status,
@@ -490,8 +491,8 @@ export default function EmployerJobListClient() {
                 disabled={exporting}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export Filtered"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : `Download Filtered (${total})`}
               </Button>
               <Button
                 variant="outline"
@@ -500,8 +501,8 @@ export default function EmployerJobListClient() {
                 disabled={exporting}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export All"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : "Download All"}
               </Button>
               <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200">
                 <Button

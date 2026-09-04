@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,17 @@ import { Check } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const role = (session.user as Record<string, unknown>)?.role;
+      if (role === "ADMIN") router.replace("/admin/dashboard");
+      else if (role === "EMPLOYER") router.replace("/employer/dashboard");
+      else router.replace("/dashboard");
+    }
+  }, [status, session, router]);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",

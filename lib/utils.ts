@@ -33,6 +33,38 @@ export function formatPhoneForCsv(phone: string | number | null | undefined): st
   return `\t${str}`;
 }
 
+/**
+ * Formats internal system IDs (e.g. CUIDs "cmn8kt7qq0001ky046m5ay1wi") into professional,
+ * human-readable identifiers for exports, downloads, and administrative tables.
+ *
+ * Examples:
+ * - CAND: Job Seeker / Candidate  -> JD-CAND-0001
+ * - EMP:  Employer / Company      -> JD-EMP-0001
+ * - ADM:  Administrator           -> JD-ADM-0001
+ * - USER: General User            -> JD-USR-0001
+ * - JOB:  Job Posting             -> JD-JOB-0001
+ * - CAT:  Category                -> JD-CAT-0001
+ * - APP:  Job Application         -> JD-APP-0001
+ * - RES:  Resume Document         -> JD-RES-0001
+ * - INQ:  Contact / Lead Inquiry  -> JD-INQ-0001
+ */
+export function formatDisplayId(
+  id: string | null | undefined,
+  type: "CAND" | "EMP" | "ADM" | "USER" | "JOB" | "CAT" | "APP" | "RES" | "INQ" | "SUB" = "USER",
+  index?: number
+): string {
+  if (!id) return "N/A";
+
+  if (typeof index === "number" && index >= 0) {
+    const num = String(index + 1).padStart(4, "0");
+    return `JD-${type}-${num}`;
+  }
+
+  // Create a clean uppercase 6-char alphanumeric suffix from the end of the ID
+  const cleanSuffix = id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase();
+  return `JD-${type}-${cleanSuffix || "0001"}`;
+}
+
 export function formatLocation(location: string | null | undefined, short: boolean = false): string {
   if (!location || location.trim() === "") return "Not specified";
 
@@ -158,5 +190,23 @@ export function stripHtml(html: string | null | undefined): string {
     // Collapse multiple spaces/newlines into one
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/**
+ * Resolves the canonical app base URL reliably in all environments (production domain, custom env, or request headers).
+ */
+export function getAppBaseUrl(headers?: Headers | null): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  }
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL.replace(/\/$/, "");
+  }
+  if (headers) {
+    const host = headers.get("x-forwarded-host") || headers.get("host") || "localhost:3000";
+    const protocol = headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+    return `${protocol}://${host}`;
+  }
+  return "https://jobdaddy.in";
 }
 

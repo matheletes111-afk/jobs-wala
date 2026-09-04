@@ -1,28 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, X } from "lucide-react";
-
-interface LocationData {
-  country: string;
-  state: string[];
-  city: string[];
-}
+import { ChevronDown, Check, Search, X, RotateCcw } from "lucide-react";
+import { Country, State, City } from "country-state-city";
 
 interface LocationDropdownProps {
   value?: string | null;
@@ -30,485 +17,574 @@ interface LocationDropdownProps {
   error?: string;
 }
 
-interface CountryStateCity {
-  Country: {
-    getAllCountries: () => Array<{ name: string; isoCode: string }>;
-  };
-  State: {
-    getStatesOfCountry: (countryIsoCode: string) => Array<{ name: string; isoCode: string }>;
-  };
-  City: {
-    getCitiesOfState: (countryIsoCode: string, stateIsoCode: string) => Array<{ name: string }>;
-  };
-}
-
-declare global {
-  interface Window {
-    csc?: CountryStateCity;
-    onCSCLoaded?: () => void;
-  }
-}
+const MAX_DISPLAY_ITEMS = 60;
 
 export default function LocationDropdown({
   value,
   onChange,
   error,
 }: LocationDropdownProps) {
-  const [countries, setCountries] = useState<Array<{ name: string; isoCode: string }>>([]);
-  const [states, setStates] = useState<Array<{ name: string; isoCode: string }>>([]);
-  const [cities, setCities] = useState<Array<{ name: string }>>([]);
-  
+  const allCountries = useMemo(() => Country.getAllCountries(), []);
+
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
-  
-  const [loading, setLoading] = useState(true);
-  const scriptLoaded = useRef(false);
-  const initialLocation = useRef<LocationData | null>(null);
-  const isPrefilling = useRef(false);
+
+  // Search filter states for dropdown menus
+  const [countrySearch, setCountrySearch] = useState("");
+  const [stateSearch, setStateSearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+
   const isInternalChange = useRef(false);
 
-  const prefillLocation = useCallback(() => {
-    if (!initialLocation.current || !window.csc || isPrefilling.current) return;
-    
-    isPrefilling.current = true;
-    const { Country, State } = window.csc;
-    
-    try {
-      const loc = initialLocation.current;
-      
-      const allCountries = Country.getAllCountries();
-      if (loc.country) {
-        const countryObj = allCountries.find(
-          (c) => c.name === loc.country || c.name.toLowerCase() === loc.country.toLowerCase()
-        );
-        
-        if (countryObj) {
-          setSelectedCountry(countryObj.isoCode);
-          const countryStates = State.getStatesOfCountry(countryObj.isoCode);
-          setStates(countryStates);
-        }
-      }
-    } catch (error) {
-      console.error("Error prefilling location:", error);
-    } finally {
-      isPrefilling.current = false;
-    }
-  }, []);
+  // States available for selected country
+  const states = useMemo(() => {
+    if (!selectedCountry) return [];
+    return State.getStatesOfCountry(selectedCountry);
+  }, [selectedCountry]);
 
-  // Parse existing location value
+  // Cities available for selected states in selected country
+  const allCities = useMemo(() => {
+    if (!selectedCountry || selectedStates.length === 0) return [];
+    const allCitiesList: Array<{ name: string }> = [];
+    selectedStates.forEach((stateIso) => {
+      const stateCities = City.getCitiesOfState(selectedCountry, stateIso);
+      allCitiesList.push(...stateCities);
+    });
+    // Deduplicate cities by name
+    return Array.from(
+      new Map(allCitiesList.map((item) => [item.name, item])).values()
+    );
+  }, [selectedCountry, selectedStates]);
+
+  // Filtered Countries
+  const filteredCountries = useMemo(() => {
+    const q = countrySearch.trim().toLowerCase();
+    if (!q) return allCountries.slice(0, MAX_DISPLAY_ITEMS);
+    return allCountries
+      .filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.isoCode.toLowerCase().includes(q)
+      )
+      .slice(0, MAX_DISPLAY_ITEMS);
+  }, [allCountries, countrySearch]);
+
+  // Filtered States
+  const filteredStates = useMemo(() => {
+    const q = stateSearch.trim().toLowerCase();
+    if (!q) return states;
+    return states.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.isoCode.toLowerCase().includes(q)
+    );
+  }, [states, stateSearch]);
+
+  // Filtered and Windowed Cities (High performance on mobile)
+  const { visibleCities, totalCityMatches } = useMemo(() => {
+    const q = citySearch.trim().toLowerCase();
+    let matches = allCities;
+    if (q) {
+      matches = allCities.filter((c) => c.name.toLowerCase().includes(q));
+    }
+    // Prioritize selected cities at the top so user can always see/toggle them
+    const selectedSet = new Set(selectedCities);
+    const selectedItems = matches.filter((c) => selectedSet.has(c.name));
+    const unselectedItems = matches.filter((c) => !selectedSet.has(c.name));
+    const ordered = [...selectedItems, ...unselectedItems];
+
+    return {
+      visibleCities: ordered.slice(0, MAX_DISPLAY_ITEMS),
+      totalCityMatches: matches.length,
+    };
+  }, [allCities, citySearch, selectedCities]);
+
+  // Synchronize state from value prop
   useEffect(() => {
     if (isInternalChange.current) {
       isInternalChange.current = false;
       return;
     }
 
-    if (value) {
-      try {
-        const parsed = JSON.parse(value);
-        let sStates: string[] = [];
-        let sCities: string[] = [];
-        
-        if (parsed.state) {
-          sStates = Array.isArray(parsed.state) ? parsed.state : [parsed.state];
-        }
-        if (parsed.city) {
-          sCities = Array.isArray(parsed.city) ? parsed.city : [parsed.city];
-        }
-        
-        initialLocation.current = {
-          country: parsed.country || "",
-          state: sStates,
-          city: sCities
-        };
-        
-        if (scriptLoaded.current && window.csc) {
-          setSelectedCountry("");
-          setSelectedStates([]);
-          setSelectedCities([]);
-          setStates([]);
-          setCities([]);
-          setTimeout(() => {
-            prefillLocation();
-          }, 100);
-        }
-      } catch (e) {
-        initialLocation.current = null;
-        setSelectedCountry("");
-        setSelectedStates([]);
-        setSelectedCities([]);
-        setStates([]);
-        setCities([]);
-      }
-    } else {
-      initialLocation.current = null;
+    if (!value || !value.trim()) {
       setSelectedCountry("");
       setSelectedStates([]);
       setSelectedCities([]);
-      setStates([]);
-      setCities([]);
-    }
-  }, [value, prefillLocation]);
-
-  // Watch for states to be loaded and prefill states if needed
-  useEffect(() => {
-    if (
-      states.length > 0 &&
-      initialLocation.current?.state &&
-      initialLocation.current.state.length > 0 &&
-      selectedCountry &&
-      selectedStates.length === 0
-    ) {
-      const targetStateNames = initialLocation.current.state.map(s => s.toLowerCase());
-      const matchingStates = states.filter(s => targetStateNames.includes(s.name.toLowerCase()));
-      
-      if (matchingStates.length > 0) {
-        const stateIsoCodes = matchingStates.map(s => s.isoCode);
-        setSelectedStates(stateIsoCodes);
-        
-        if (window.csc && window.csc.City) {
-          const allCities: { name: string }[] = [];
-          stateIsoCodes.forEach(iso => {
-            const stateCities = window.csc!.City.getCitiesOfState(selectedCountry, iso);
-            allCities.push(...stateCities);
-          });
-          
-          // Deduplicate cities by name
-          const uniqueCities = Array.from(new Map(allCities.map(item => [item.name, item])).values());
-          setCities(uniqueCities);
-        }
-      }
-    }
-  }, [states, selectedCountry, selectedStates]);
-
-  // Watch for cities to be loaded and prefill cities if needed
-  useEffect(() => {
-    if (
-      cities.length > 0 &&
-      initialLocation.current?.city &&
-      initialLocation.current.city.length > 0 &&
-      selectedStates.length > 0 &&
-      selectedCities.length === 0
-    ) {
-      const targetCityNames = initialLocation.current.city.map(c => c.toLowerCase());
-      const matchingCities = cities.filter(c => targetCityNames.includes(c.name.toLowerCase()));
-      
-      if (matchingCities.length > 0) {
-        setSelectedCities(matchingCities.map(c => c.name));
-      }
-    }
-  }, [cities, selectedStates, selectedCities]);
-
-  const loadCountries = () => {
-    if (typeof window !== "undefined" && window.csc) {
-      try {
-        const { Country } = window.csc;
-        const allCountries = Country.getAllCountries();
-        setCountries(allCountries);
-        setLoading(false);
-
-        if (initialLocation.current) {
-          setTimeout(() => {
-            prefillLocation();
-          }, 50);
-        }
-      } catch (error) {
-        console.error("Error loading countries:", error);
-        setLoading(false);
-      }
-    }
-  };
-
-  const loadStates = (countryIsoCode: string) => {
-    if (typeof window !== "undefined" && window.csc) {
-      try {
-        const { State } = window.csc;
-        const countryStates = State.getStatesOfCountry(countryIsoCode);
-        setStates(countryStates);
-      } catch (error) {
-        console.error("Error loading states:", error);
-      }
-    }
-  };
-
-  const loadCitiesForStates = (countryIsoCode: string, stateIsoCodes: string[]) => {
-    if (typeof window !== "undefined" && window.csc) {
-      try {
-        const { City } = window.csc;
-        const allCities: { name: string }[] = [];
-        stateIsoCodes.forEach(stateIso => {
-          const stateCities = City.getCitiesOfState(countryIsoCode, stateIso);
-          allCities.push(...stateCities);
-        });
-        const uniqueCities = Array.from(new Map(allCities.map(item => [item.name, item])).values());
-        setCities(uniqueCities);
-      } catch (error) {
-        console.error("Error loading cities:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    // If csc is already loaded globally, load countries directly
-    if (window.csc) {
-      scriptLoaded.current = true;
-      loadCountries();
       return;
     }
 
-    const handleLoad = () => {
-      scriptLoaded.current = true;
-      loadCountries();
-    };
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && typeof parsed === "object") {
+        let countryIso = "";
+        if (parsed.country) {
+          const matchCountry = allCountries.find(
+            (c) =>
+              c.name.toLowerCase() === parsed.country.toLowerCase() ||
+              c.isoCode.toLowerCase() === parsed.country.toLowerCase()
+          );
+          countryIso = matchCountry ? matchCountry.isoCode : parsed.country;
+        }
 
-    // Initialize the global callback queue if not already present
-    if (!window.onCSCLoaded) {
-      (window as any).cscCallbacks = [];
-      window.onCSCLoaded = () => {
-        const queue = (window as any).cscCallbacks || [];
-        queue.forEach((cb: () => void) => cb());
-      };
-    }
+        let sStates: string[] = [];
+        if (parsed.state) {
+          const rawStates = Array.isArray(parsed.state)
+            ? parsed.state
+            : [parsed.state];
+          if (countryIso) {
+            const countryStates = State.getStatesOfCountry(countryIso);
+            sStates = rawStates
+              .map((st: string) => {
+                const matchState = countryStates.find(
+                  (s) =>
+                    s.name.toLowerCase() === String(st).toLowerCase() ||
+                    s.isoCode.toLowerCase() === String(st).toLowerCase()
+                );
+                return matchState ? matchState.isoCode : String(st);
+              })
+              .filter(Boolean);
+          } else {
+            sStates = rawStates.map(String);
+          }
+        }
 
-    // Register this component's load callback
-    if ((window as any).cscCallbacks) {
-      (window as any).cscCallbacks.push(handleLoad);
-    }
+        let sCities: string[] = [];
+        if (parsed.city) {
+          sCities = (Array.isArray(parsed.city) ? parsed.city : [parsed.city])
+            .map(String)
+            .filter(Boolean);
+        }
 
-    // Only create and append the script once
-    let script = document.getElementById("csc-script-loader") as HTMLScriptElement | null;
-    if (!script) {
-      script = document.createElement("script");
-      script.id = "csc-script-loader";
-      script.type = "module";
-      script.innerHTML = `
-        import { Country, State, City } from 'https://cdn.jsdelivr.net/npm/country-state-city@3.1.0/+esm';
-        window.csc = { Country, State, City };
-        if (window.onCSCLoaded) window.onCSCLoaded();
-      `;
-      document.head.appendChild(script);
-    }
-
-    return () => {
-      // Clean up this component's callback when unmounted
-      if ((window as any).cscCallbacks) {
-        (window as any).cscCallbacks = (window as any).cscCallbacks.filter((cb: any) => cb !== handleLoad);
+        setSelectedCountry(countryIso);
+        setSelectedStates(sStates);
+        setSelectedCities(sCities);
+        return;
       }
+    } catch {
+      // Raw string (e.g. "Bangalore" or "Maharashtra" or "India")
+      const raw = decodeURIComponent(value).trim();
+      if (!raw) return;
+
+      // Check if it matches a country
+      const matchCountry = allCountries.find(
+        (c) => c.name.toLowerCase() === raw.toLowerCase()
+      );
+      if (matchCountry) {
+        setSelectedCountry(matchCountry.isoCode);
+        setSelectedStates([]);
+        setSelectedCities([]);
+        return;
+      }
+
+      // Check default country (India) for matching states or cities
+      const defaultCountryStates = State.getStatesOfCountry("IN");
+      const matchState = defaultCountryStates.find(
+        (s) => s.name.toLowerCase() === raw.toLowerCase()
+      );
+      if (matchState) {
+        setSelectedCountry("IN");
+        setSelectedStates([matchState.isoCode]);
+        setSelectedCities([]);
+        return;
+      }
+    }
+  }, [value, allCountries]);
+
+  const emitChange = (
+    countryIso: string,
+    stateIsos: string[],
+    cityNames: string[]
+  ) => {
+    const countryObj = allCountries.find((c) => c.isoCode === countryIso);
+    const countryName = countryObj ? countryObj.name : countryIso;
+
+    const countryStates = countryIso
+      ? State.getStatesOfCountry(countryIso)
+      : [];
+    const stateNames = stateIsos.map((iso) => {
+      const st = countryStates.find((s) => s.isoCode === iso);
+      return st ? st.name : iso;
+    });
+
+    const locationData = {
+      country: countryName || "",
+      state: stateNames,
+      city: cityNames,
     };
-  }, []);
+
+    isInternalChange.current = true;
+    if (!countryName && stateNames.length === 0 && cityNames.length === 0) {
+      onChange("");
+    } else {
+      onChange(JSON.stringify(locationData));
+    }
+  };
 
   const handleCountryChange = (countryIsoCode: string) => {
     setSelectedCountry(countryIsoCode);
     setSelectedStates([]);
     setSelectedCities([]);
-    setStates([]);
-    setCities([]);
-
-    if (countryIsoCode) {
-      loadStates(countryIsoCode);
-      const countryObj = countries.find((c) => c.isoCode === countryIsoCode);
-      updateLocation(countryObj ? countryObj.name : "", [], []);
-    } else {
-      updateLocation("", [], []);
-    }
+    setCountrySearch("");
+    setStateSearch("");
+    setCitySearch("");
+    emitChange(countryIsoCode, [], []);
   };
 
-  const handleStateToggle = (stateIsoOrName: string) => {
-    const stateObj = states.find(
-      (s) =>
-        s.isoCode === stateIsoOrName ||
-        s.name.toLowerCase() === stateIsoOrName.toLowerCase()
-    );
-    const targetIso = stateObj ? stateObj.isoCode : stateIsoOrName;
-    const targetName = stateObj ? stateObj.name : stateIsoOrName;
-
-    const isCurrentlySelected = selectedStates.some(
-      (code) =>
-        code === targetIso ||
-        code.toLowerCase() === targetName.toLowerCase()
-    );
-
-    let newSelectedStates: string[];
-    if (isCurrentlySelected) {
-      newSelectedStates = selectedStates.filter(
-        (code) =>
-          code !== targetIso &&
-          code.toLowerCase() !== targetName.toLowerCase()
-      );
+  const handleStateToggle = (stateIso: string) => {
+    const isSelected = selectedStates.includes(stateIso);
+    let nextStates: string[];
+    if (isSelected) {
+      nextStates = selectedStates.filter((s) => s !== stateIso);
     } else {
-      newSelectedStates = [...selectedStates, targetIso];
+      nextStates = [...selectedStates, stateIso];
     }
-    
-    setSelectedStates(newSelectedStates);
-    setSelectedCities([]); // reset cities on state change
-    setCities([]);
-
-    if (newSelectedStates.length > 0 && selectedCountry) {
-      loadCitiesForStates(selectedCountry, newSelectedStates);
-    }
-    
-    const countryObj = countries.find(
-      (c) => c.isoCode === selectedCountry || c.name.toLowerCase() === selectedCountry.toLowerCase()
-    );
-    const selectedStateNames = newSelectedStates
-      .map((iso) => {
-        const s = states.find(
-          (st) => st.isoCode === iso || st.name.toLowerCase() === iso.toLowerCase()
-        );
-        return s ? s.name : iso;
-      })
-      .filter(Boolean) as string[];
-      
-    updateLocation(
-      countryObj ? countryObj.name : selectedCountry || "",
-      selectedStateNames,
-      []
-    );
+    setSelectedStates(nextStates);
+    setSelectedCities([]); // reset cities when state selection changes
+    setCitySearch("");
+    emitChange(selectedCountry, nextStates, []);
   };
 
   const handleCityToggle = (cityName: string) => {
-    const isCurrentlySelected = selectedCities.some(
-      (c) => c.toLowerCase() === cityName.toLowerCase()
-    );
-
-    let newSelectedCities: string[];
-    if (isCurrentlySelected) {
-      newSelectedCities = selectedCities.filter(
-        (c) => c.toLowerCase() !== cityName.toLowerCase()
-      );
+    const isSelected = selectedCities.includes(cityName);
+    let nextCities: string[];
+    if (isSelected) {
+      nextCities = selectedCities.filter((c) => c !== cityName);
     } else {
-      newSelectedCities = [...selectedCities, cityName];
+      nextCities = [...selectedCities, cityName];
     }
-    
-    setSelectedCities(newSelectedCities);
-    
-    const countryObj = countries.find(
-      (c) => c.isoCode === selectedCountry || c.name.toLowerCase() === selectedCountry.toLowerCase()
-    );
-    const selectedStateNames = selectedStates
-      .map((iso) => {
-        const s = states.find(
-          (st) => st.isoCode === iso || st.name.toLowerCase() === iso.toLowerCase()
-        );
-        return s ? s.name : iso;
-      })
-      .filter(Boolean) as string[];
-      
-    updateLocation(
-      countryObj ? countryObj.name : selectedCountry || "",
-      selectedStateNames,
-      newSelectedCities
-    );
+    setSelectedCities(nextCities);
+    emitChange(selectedCountry, selectedStates, nextCities);
   };
 
-  const updateLocation = (country: string, stateNames: string[], cityNames: string[]) => {
-    const locationData = {
-      country: country || "",
-      state: stateNames,
-      city: cityNames,
-    };
-    isInternalChange.current = true;
-    onChange(JSON.stringify(locationData));
-  };
+  const selectedCountryObj = allCountries.find((c) => c.isoCode === selectedCountry);
 
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* 1. Country Selector with Search */}
         <div className="space-y-1.5">
-          <Label htmlFor="country" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Country</Label>
-          <Select
-            value={selectedCountry}
-            onValueChange={handleCountryChange}
-            disabled={loading}
+          <Label
+            htmlFor="country"
+            className="text-[10px] font-bold text-slate-400 uppercase tracking-wider"
           >
-            <SelectTrigger id="country" className="w-full h-10 rounded-xl bg-slate-50 border-slate-200 text-xs font-semibold text-slate-700 focus:ring-blue-500/20 shadow-sm">
-              <SelectValue placeholder="Select Country" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-slate-200 shadow-lg">
-              {countries.map((country) => (
-                <SelectItem key={country.isoCode} value={country.isoCode} className="text-xs font-semibold">
-                  {country.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="state" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">State (Multiple)</Label>
+            Country
+          </Label>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
+                id="country"
                 className="h-10 w-full justify-between rounded-xl border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 shadow-sm"
-                disabled={!selectedCountry || loading || states.length === 0}
               >
                 <span className="truncate">
-                  {selectedStates.length > 0 
-                    ? `${selectedStates.length} Selected`
-                    : "Select States"}
+                  {selectedCountryObj ? selectedCountryObj.name : "Select Country"}
                 </span>
-                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto bg-white border-slate-200 shadow-lg">
-              {states.map((state) => (
-                <DropdownMenuCheckboxItem
-                  key={state.isoCode}
-                  checked={selectedStates.includes(state.isoCode)}
-                  onCheckedChange={() => handleStateToggle(state.isoCode)}
-                  onSelect={(e) => e.preventDefault()}
-                  className="text-xs font-semibold"
-                >
-                  {state.name}
-                </DropdownMenuCheckboxItem>
-              ))}
+            <DropdownMenuContent
+              align="start"
+              className="w-[280px] sm:w-[300px] max-h-80 p-0 flex flex-col bg-white border-slate-200 shadow-xl rounded-xl overflow-hidden z-50"
+            >
+              {/* Country Search Bar */}
+              <div className="p-2 border-b border-slate-100 bg-slate-50/70 sticky top-0 z-10">
+                <div className="relative">
+                  <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={countrySearch}
+                    onChange={(e) => setCountrySearch(e.target.value)}
+                    placeholder="Search country..."
+                    className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  {countrySearch && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCountrySearch("");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Country Options List */}
+              <div className="overflow-y-auto max-h-60 p-1 divide-y divide-slate-50">
+                {filteredCountries.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-4">No countries found</p>
+                ) : (
+                  filteredCountries.map((c) => {
+                    const isSelected = selectedCountry === c.isoCode;
+                    return (
+                      <button
+                        key={c.isoCode}
+                        type="button"
+                        onClick={() => handleCountryChange(c.isoCode)}
+                        className={`w-full px-3 py-2 text-xs font-semibold text-left flex items-center justify-between rounded-lg transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50 text-blue-700 font-bold"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="truncate">{c.name}</span>
+                        {isSelected && <Check className="h-3.5 w-3.5 text-blue-600 shrink-0 ml-2" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
+        {/* 2. State Selector with Search */}
         <div className="space-y-1.5">
-          <Label htmlFor="city" className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">City (Multiple)</Label>
+          <div className="flex items-center justify-between">
+            <Label
+              htmlFor="state"
+              className="text-[10px] font-bold text-slate-400 uppercase tracking-wider"
+            >
+              State (Multiple)
+            </Label>
+            {selectedStates.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedStates([]);
+                  setSelectedCities([]);
+                  emitChange(selectedCountry, [], []);
+                }}
+                className="text-[10px] font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"
+              >
+                <RotateCcw className="h-2.5 w-2.5" /> Clear
+              </button>
+            )}
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
+                id="state"
                 className="h-10 w-full justify-between rounded-xl border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 shadow-sm"
-                disabled={selectedStates.length === 0 || loading || cities.length === 0}
+                disabled={!selectedCountry || states.length === 0}
               >
                 <span className="truncate">
-                  {selectedCities.length > 0 
-                    ? `${selectedCities.length} Selected`
-                    : "Select Cities"}
+                  {selectedStates.length > 0
+                    ? `${selectedStates.length} Selected`
+                    : states.length === 0
+                    ? "No States Available"
+                    : "Select States"}
                 </span>
-                <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto bg-white border-slate-200 shadow-lg">
-              {cities.map((city, index) => (
-                <DropdownMenuCheckboxItem
-                  key={`${city.name}-${index}`}
-                  checked={selectedCities.includes(city.name)}
-                  onCheckedChange={() => handleCityToggle(city.name)}
-                  onSelect={(e) => e.preventDefault()}
-                  className="text-xs font-semibold"
-                >
-                  {city.name}
-                </DropdownMenuCheckboxItem>
-              ))}
+            <DropdownMenuContent
+              align="start"
+              className="w-[280px] sm:w-[300px] max-h-80 p-0 flex flex-col bg-white border-slate-200 shadow-xl rounded-xl overflow-hidden z-50"
+            >
+              {/* State Search Bar */}
+              <div className="p-2 border-b border-slate-100 bg-slate-50/70 sticky top-0 z-10">
+                <div className="relative">
+                  <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={stateSearch}
+                    onChange={(e) => setStateSearch(e.target.value)}
+                    placeholder="Search state..."
+                    className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  {stateSearch && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setStateSearch("");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* State Options List */}
+              <div className="overflow-y-auto max-h-60 p-1 divide-y divide-slate-50">
+                {filteredStates.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-4">No states found</p>
+                ) : (
+                  filteredStates.map((st) => {
+                    const isSelected = selectedStates.includes(st.isoCode);
+                    return (
+                      <button
+                        key={st.isoCode}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleStateToggle(st.isoCode);
+                        }}
+                        className={`w-full px-3 py-2 text-xs font-semibold text-left flex items-center justify-between rounded-lg transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-blue-50 text-blue-700 font-bold"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="truncate">{st.name}</span>
+                        <div
+                          className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ml-2 transition-colors ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* 3. City Selector with Instant Search & Windowed Rendering */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label
+              htmlFor="city"
+              className="text-[10px] font-bold text-slate-400 uppercase tracking-wider"
+            >
+              City (Multiple)
+            </Label>
+            {selectedCities.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCities([]);
+                  emitChange(selectedCountry, selectedStates, []);
+                }}
+                className="text-[10px] font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-0.5"
+              >
+                <RotateCcw className="h-2.5 w-2.5" /> Clear
+              </button>
+            )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                id="city"
+                className="h-10 w-full justify-between rounded-xl border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 shadow-sm"
+                disabled={selectedStates.length === 0 || allCities.length === 0}
+              >
+                <span className="truncate">
+                  {selectedCities.length > 0
+                    ? `${selectedCities.length} Selected`
+                    : selectedStates.length === 0
+                    ? "Select State First"
+                    : allCities.length === 0
+                    ? "No Cities Available"
+                    : "Select Cities"}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-[280px] sm:w-[300px] max-h-80 p-0 flex flex-col bg-white border-slate-200 shadow-xl rounded-xl overflow-hidden z-50"
+            >
+              {/* City Search Bar */}
+              <div className="p-2 border-b border-slate-100 bg-slate-50/70 sticky top-0 z-10">
+                <div className="relative">
+                  <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    placeholder="Search city (e.g. Bangalore)..."
+                    className="w-full h-8 pl-8 pr-7 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  />
+                  {citySearch && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCitySearch("");
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* City Options List */}
+              <div className="overflow-y-auto max-h-60 p-1 divide-y divide-slate-50">
+                {visibleCities.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-4">No cities found</p>
+                ) : (
+                  visibleCities.map((city, index) => {
+                    const isSelected = selectedCities.includes(city.name);
+                    return (
+                      <button
+                        key={`${city.name}-${index}`}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleCityToggle(city.name);
+                        }}
+                        className={`w-full px-3 py-2 text-xs font-semibold text-left flex items-center justify-between rounded-lg transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-emerald-50 text-emerald-800 font-bold"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="truncate">{city.name}</span>
+                        <div
+                          className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ml-2 transition-colors ${
+                            isSelected
+                              ? "bg-emerald-600 border-emerald-600 text-white"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Informative Footer for high item counts */}
+              {totalCityMatches > MAX_DISPLAY_ITEMS && (
+                <div className="px-3 py-1.5 bg-slate-50 border-t border-slate-100 text-[10px] font-medium text-slate-400 text-center">
+                  Showing {MAX_DISPLAY_ITEMS} of {totalCityMatches} cities • Type to filter
+                </div>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      
-      {/* Selected location tags/pills */}
+
+      {/* Selected location tags/pills with smooth animations */}
       {(selectedStates.length > 0 || selectedCities.length > 0) && (
         <div className="flex flex-wrap gap-1.5 pt-3">
           {selectedStates.map((iso) => {
-            const state = states.find(
-              (s) => s.isoCode === iso || s.name.toLowerCase() === iso.toLowerCase()
-            );
-            const displayName = state ? state.name : iso;
+            const st = states.find((s) => s.isoCode === iso);
+            const displayName = st ? st.name : iso;
             return (
               <span
                 key={iso}

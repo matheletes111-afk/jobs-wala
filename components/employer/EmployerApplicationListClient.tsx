@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatLocation, formatPhoneForCsv } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv, formatDisplayId } from "@/lib/utils";
 import ApplicationActions from "@/components/employer/ApplicationActions";
 import SkillMatchBar from "@/components/employer/SkillMatchBar";
 import { skillKeywordMatch } from "@/lib/skill-match";
@@ -325,23 +325,24 @@ export default function EmployerApplicationListClient({
       }
       
       const headers = [
-        "Application ID", "Status", "Applied At", "Cover Letter",
+        "Application ID", "System ID", "Status", "Applied At", "Cover Letter",
         "Job ID", "Job Title", "Job Location", "Job Category", "Required Skills",
         "Candidate ID", "First Name", "Last Name", "Email", "Phone",
         "Candidate Location", "Experience (Years)", "Education", "Job Title Profile",
         "Candidate Skills", "Skill Match Percentage", "Matched Skills"
       ];
-      const rows = exportApps.map((app: any) => [
+      const rows = exportApps.map((app: any, index: number) => [
+        formatDisplayId(app.id, "APP", index),
         app.id,
         app.status,
         app.appliedAt ? new Date(app.appliedAt).toISOString().split('T')[0] : "",
         `"${(app.coverLetter || "").replace(/"/g, '""')}"`,
-        app.job.id,
+        formatDisplayId(app.job.id, "JOB"),
         `"${app.job.title.replace(/"/g, '""')}"`,
         `"${formatLocation(app.job.location, true)}"`,
         `"${app.job.category}"`,
         `"${(app.job.requiredSkills || []).join(", ").replace(/"/g, '""')}"`,
-        app.jobSeeker.id,
+        formatDisplayId(app.jobSeeker.id, "CAND"),
         `"${app.jobSeeker.firstName.replace(/"/g, '""')}"`,
         `"${app.jobSeeker.lastName.replace(/"/g, '""')}"`,
         `"${(app.jobSeeker.email || "").replace(/"/g, '""')}"`,
@@ -385,30 +386,6 @@ export default function EmployerApplicationListClient({
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Application Hub</h1>
             <p className="mt-1 text-sm font-medium text-slate-500">Review applicant details, manage application statuses, and track your recruitment pipeline.</p>
           </div>
-          {!loading && applications.length > 0 && (
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportCSV(true)}
-                loading={exporting}
-                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
-              >
-                {!exporting && <Download className="h-4 w-4" />}
-                {exporting ? "Exporting..." : "Export Filtered"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleExportCSV(false)}
-                loading={exporting}
-                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
-              >
-                {!exporting && <Download className="h-4 w-4" />}
-                {exporting ? "Exporting..." : "Export All"}
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Clean Flat Filters Card */}
@@ -472,27 +449,49 @@ export default function EmployerApplicationListClient({
 
         {/* Content list toggles */}
         {!loading && applications.length > 0 && (
-          <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Discovered {total} Candidate Profiles</span>
             </div>
-            <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200">
+            <div className="flex flex-wrap items-center gap-3">
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setViewMode("grid")}
-                className={`h-9 w-9 rounded-lg transition-all ${viewMode === "grid" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:bg-slate-200"}`}
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportCSV(true)}
+                disabled={exporting}
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <LayoutGrid className="h-4.5 w-4.5" />
+                <Download className="h-4 w-4 text-blue-600" />
+                <span>{exporting ? "Downloading..." : `Download Filtered (${total})`}</span>
               </Button>
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setViewMode("table")}
-                className={`h-9 w-9 rounded-lg transition-all ${viewMode === "table" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:bg-slate-200"}`}
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportCSV(false)}
+                disabled={exporting}
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <List className="h-4.5 w-4.5" />
+                <Download className="h-4 w-4 text-blue-600" />
+                <span>{exporting ? "Downloading..." : "Download All"}</span>
               </Button>
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setViewMode("grid")}
+                  className={`h-9 w-9 rounded-lg transition-all ${viewMode === "grid" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:bg-slate-200"}`}
+                >
+                  <LayoutGrid className="h-4.5 w-4.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setViewMode("table")}
+                  className={`h-9 w-9 rounded-lg transition-all ${viewMode === "table" ? "bg-white shadow-sm text-blue-600" : "text-slate-500 hover:bg-slate-200"}`}
+                >
+                  <List className="h-4.5 w-4.5" />
+                </Button>
+              </div>
             </div>
           </div>
         )}

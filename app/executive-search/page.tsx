@@ -56,9 +56,9 @@ export default function ExecutiveSearchPage() {
                 <Globe className="size-3.5 text-blue-400 animate-spin-slow" />
                 A Global Leadership & Executive Recruitment
               </span>
-              <h1 className="text-4xl sm:text-5xl lg:text-7.5xl font-extrabold tracking-tight text-white leading-tight">
-                Executive Search <br />
-                <span className="text-blue-500">& Global Hiring.</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                <span style={{ color: "#ffffff" }}>Executive Search</span> <br />
+                <span style={{ color: "#ffffff" }}>& Global Hiring.</span>
               </h1>
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-medium">
                 Close critical mandates within a 48-hour matching window. Reach elite leadership, C-suite, technical, and high-volume talent pools through a network established over 15+ years.
@@ -299,45 +299,50 @@ export default function ExecutiveSearchPage() {
           </div>
         </section>
 
-        {/* SECTION 4: SUCCESS-BASED RECRUITMENT MODEL */}
+        {/* SECTION 4: SUCCESS-BASED RECRUITMENT MODEL (Shade of White with Border Shadow) */}
         <section id="commercial-model" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
-            <div className="bg-[#0f172a] text-white rounded-3xl p-8 sm:p-12 md:p-16 border border-slate-850 shadow-2xl">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="bg-[#f1f5f9] text-slate-900 rounded-3xl p-8 sm:p-12 md:p-16 border border-slate-300/80 shadow-xl shadow-slate-300/40 relative overflow-hidden">
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
 
                 {/* Left Column: Context and Small Lobby Image */}
                 <div className="lg:col-span-7 space-y-8">
                   <div className="space-y-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/35 text-blue-400 text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
-                      <DollarSign className="size-3" /> Risk-Free Partnerships
+                    <span className="eyebrow-badge">
+                      RISK-FREE PARTNERSHIPS
                     </span>
-                    <h2 className="text-3xl font-black tracking-tight sm:text-4.5xl leading-tight !text-white">
+                    <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-slate-900">
                       Success-Based Recruitment Model
                     </h2>
-                    <p className="text-slate-400 font-medium leading-relaxed text-sm max-w-xl">
+                    <p className="text-slate-600 font-medium leading-relaxed text-sm max-w-xl">
                       We believe that you should only pay for proven results. Our commercial model aligns our performance with your candidate onboarding results. There are absolutely no upfront retainers or engagement fees.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="flex gap-3">
-                      <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="size-5 text-emerald-600 shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-bold text-white text-sm">Zero Upfront Cost</h4>
-                        <p className="text-xs text-slate-400 mt-1 font-medium leading-relaxed">Pay only when a candidate accepts your offer and completes their onboarding.</p>
+                        <h4 className="font-bold text-slate-900 text-sm">Zero Upfront Cost</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                          Pay only when a candidate accepts your offer and completes their onboarding.
+                        </p>
                       </div>
                     </div>
                     <div className="flex gap-3">
-                      <CheckCircle2 className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="size-5 text-emerald-600 shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-bold text-white text-sm">Transparent Success Rates</h4>
-                        <p className="text-xs text-slate-400 mt-1 font-medium leading-relaxed">Book flat success based fees on role seniority and search complexity.</p>
+                        <h4 className="font-bold text-slate-900 text-sm">Transparent Success Rates</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                          Book flat success based fees on role seniority and search complexity.
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Office Lobby Image */}
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-800 shadow-xl aspect-[21/9] max-h-[220px] max-w-[450px] w-full">
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-300/80 shadow-md aspect-[21/9] max-h-[220px] max-w-[450px] w-full">
                     <img
                       src="/images/office_lobby.png"
                       alt="Luxury office reception lobby"
@@ -346,25 +351,33 @@ export default function ExecutiveSearchPage() {
                   </div>
                 </div>
 
-                {/* Right Column: Rate Card */}
-                <div className="lg:col-span-5 bg-white text-slate-900 p-8 rounded-3xl border border-slate-200/50 shadow-2xl space-y-6">
-                  <h3 className="text-lg font-black text-slate-900 border-b border-slate-100 pb-4">Standard Rate Structure</h3>
+                {/* Right Column: Floating High-Contrast White Rate Card */}
+                <div className="lg:col-span-5 bg-white text-slate-900 p-8 sm:p-9 rounded-3xl border border-slate-200/90 shadow-xl space-y-6">
+                  <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4">
+                    Standard Rate Structure
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm font-medium">
-                      <span className="text-slate-500 font-semibold">Volume Staffing Contracts</span>
-                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-100 px-3 py-1 rounded-lg">7% - 9%</span>
+                      <span className="text-slate-700 font-bold">Volume Staffing Contracts</span>
+                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl text-xs">
+                        7% - 9%
+                      </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-medium border-t border-slate-50 pt-3">
-                      <span className="text-slate-500 font-semibold">Mid-Level & Technical Roles</span>
-                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-100 px-3 py-1 rounded-lg">10% - 12%</span>
+                    <div className="flex justify-between items-center text-sm font-medium border-t border-slate-100 pt-3">
+                      <span className="text-slate-700 font-bold">Mid-Level & Technical Roles</span>
+                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl text-xs">
+                        10% - 12%
+                      </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-medium border-t border-slate-50 pt-3">
-                      <span className="text-slate-500 font-semibold">C-Suite & Executive Search</span>
-                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-100 px-3 py-1 rounded-lg">13% - 15%</span>
+                    <div className="flex justify-between items-center text-sm font-medium border-t border-slate-100 pt-3">
+                      <span className="text-slate-700 font-bold">C-Suite & Executive Search</span>
+                      <span className="text-orange-600 font-extrabold bg-orange-50 border border-orange-200 px-3 py-1 rounded-xl text-xs">
+                        13% - 15%
+                      </span>
                     </div>
                   </div>
-                  <div className="bg-orange-50 border border-orange-100/50 rounded-2xl p-4 text-xs font-semibold text-orange-850 leading-relaxed flex gap-2">
-                    <span className="text-base mt-[-2px]">💡</span>
+                  <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 text-xs font-semibold text-amber-950 leading-relaxed flex gap-3 shadow-xs">
+                    <span className="text-base shrink-0">💡</span>
                     <span>Placements are backed by our 90-day replacement guarantee framework for absolute hire assurance.</span>
                   </div>
                 </div>

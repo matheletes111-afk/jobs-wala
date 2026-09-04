@@ -78,6 +78,13 @@ enum ResumeParseStatus {
   FAILED
 }
 
+enum ContactInquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
 model Category {
   id        String         @id @default(cuid())
   name      String
@@ -382,6 +389,23 @@ model CareerPurchaseLead {
 
   @@index([email])
   @@index([status])
+}
+
+model ContactInquiry {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  mobile    String
+  subject   String
+  message   String               @db.Text
+  status    ContactInquiryStatus @default(NEW)
+  adminNote String?              @db.Text
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([status])
+  @@index([email])
+  @@index([createdAt])
 }
 
 

@@ -23,7 +23,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { formatLocation, stripHtml } from "@/lib/utils";
+import { formatLocation, formatDisplayId, stripHtml } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import JobApprovalActions from "@/components/admin/JobApprovalActions";
 import ShareJobButton from "@/components/ShareJobButton";
@@ -374,9 +374,10 @@ export default function AdminJobsClient({
       }
 
       const headers = [
-        "Job ID", "Job Title", "Company Name", "Industry", "Location", "Category", "Status", "Applications Count", "Created At"
+        "Job ID", "System ID", "Job Title", "Company Name", "Industry", "Location", "Category", "Status", "Applications Count", "Created At"
       ];
-      const rows = exportJobs.map(job => [
+      const rows = exportJobs.map((job, index) => [
+        formatDisplayId(job.id, "JOB", index),
         job.id,
         `"${job.title.replace(/"/g, '""')}"`,
         `"${(job.companyName || job.employer.companyName).replace(/"/g, '""')}"`,
@@ -523,8 +524,8 @@ export default function AdminJobsClient({
                 onClick={() => handleExportCSV(true)}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export Filtered"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : `Download Filtered (${total})`}
               </Button>
               <Button
                 variant="outline"
@@ -533,8 +534,8 @@ export default function AdminJobsClient({
                 onClick={() => handleExportCSV(false)}
                 className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border border-slate-200 hover:bg-slate-55 transition-colors text-slate-700 disabled:opacity-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export All"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : "Download All"}
               </Button>
               <div className="flex p-1 rounded-xl bg-slate-100 border border-slate-250/60">
                 <button
@@ -644,7 +645,9 @@ function JobCard({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 mb-1">
               <span className={`inline-flex h-1.5 w-1.5 rounded-full ${job.status === "ACTIVE" ? "bg-blue-500" : job.status === "PENDING" ? "bg-orange-500" : "bg-red-500"}`} />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {job.status === "ACTIVE" ? "ACTIVE JOB" : "PENDING REVIEW"} • <span className="font-mono text-slate-500">{formatDisplayId(job.id, "JOB")}</span>
+              </p>
             </div>
             <Link href={getJobDetailUrl(job.id)}>
               <h3 className="text-base font-bold text-slate-800 hover:text-blue-600 transition-colors truncate">{job.title}</h3>

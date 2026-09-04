@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatLocation } from "@/lib/utils";
@@ -172,7 +172,10 @@ export default function HomePageClient({
   const [clientsHovered, setClientsHovered] = useState(false);
   const autoPlayPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [jobs, setJobs] = useState<JobItem[]>([]);
+  const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -185,14 +188,17 @@ export default function HomePageClient({
         // eslint-disable-next-line no-console
         console.error("Failed to fetch jobs. Status:", res.status);
         setJobs([]);
+        setAppliedJobIds([]);
         return;
       }
       const data = await res.json();
       setJobs(data.jobs ?? []);
+      setAppliedJobIds(data.appliedJobIds ?? []);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
       setJobs([]);
+      setAppliedJobIds([]);
     } finally {
       setLoading(false);
     }
@@ -268,24 +274,29 @@ export default function HomePageClient({
 
       {/* 1. Latest Jobs (Dynamic) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
-            Latest Jobs
-          </h2>
-          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-            View all jobs
-            <ArrowRight className="size-4" />
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <div className="mb-2">
+              <span className="eyebrow-badge">VERIFIED OPPORTUNITIES</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Latest Open Roles
+            </h2>
+          </div>
+          <Link href="/jobs/browse" className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors group">
+            <span>Explore all positions</span>
+            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-slate-100 p-12 text-center text-slate-400 bg-slate-50/50">
+          <div className="rounded-2xl border border-slate-200 p-12 text-center text-slate-500 bg-slate-50/50">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-4" />
-            Loading latest opportunities...
+            <p className="text-xs font-semibold text-slate-500">Loading latest opportunities...</p>
           </div>
         ) : jobs.length === 0 ? (
-          <div className="rounded-2xl border border-slate-100 p-12 text-center text-slate-400 bg-slate-50/50">
-            No jobs available right now. Check back later.
+          <div className="rounded-2xl border border-slate-200 p-12 text-center text-slate-500 bg-slate-50/50">
+            <p className="text-sm font-semibold text-slate-600">No jobs available right now. Check back later.</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -293,24 +304,19 @@ export default function HomePageClient({
               return (
                 <div
                   key={job.id}
-                  className="rounded-xl p-4 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #bfdbfe",
-                    boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
-                  }}
+                  className="rounded-2xl p-4 transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 hover:border-blue-400 hover:shadow-md bg-white border border-slate-200 shadow-sm"
                 >
                   <div>
                     {/* Header: Company Info */}
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2.5 mb-3">
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
                         companyName={job.companyName || job.employer.companyName}
                         size="sm"
-                        className="rounded-lg border border-slate-100"
+                        className="rounded-xl border border-slate-100 bg-white shrink-0"
                       />
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-500 truncate">{job.companyName || job.employer.companyName}</p>
+                        <p className="text-xs font-bold text-slate-600 truncate">{job.companyName || job.employer.companyName}</p>
                       </div>
                     </div>
 
@@ -323,24 +329,24 @@ export default function HomePageClient({
                     </Link>
 
                     {/* Job Metadata tags */}
-                    <div className="flex flex-wrap gap-y-2 gap-x-3 text-[11px] font-semibold text-slate-400 mb-3">
+                    <div className="flex flex-wrap gap-y-2 gap-x-3 text-[11px] font-semibold text-slate-500 mb-3">
                       <span className="flex items-center gap-1">
-                        <Briefcase className="size-3.5 shrink-0" />
+                        <Briefcase className="size-3.5 shrink-0 text-slate-400" />
                         {job.experienceRequired != null ? `${job.experienceRequired} Yrs` : "2-4 Yrs"}
                       </span>
                       <span className="flex items-center gap-1 truncate max-w-[100px]">
-                        <MapPin className="size-3.5 shrink-0" />
+                        <MapPin className="size-3.5 shrink-0 text-slate-400" />
                         {formatLocation(job.location, true)}
                       </span>
                       <span className="flex items-center gap-1 capitalize">
-                        <span className="size-1.5 rounded-full bg-slate-300" />
+                        <span className="size-1.5 rounded-full bg-blue-500" />
                         {(job.workMode || job.employmentType || "Hybrid").toLowerCase().replace("_", " ")}
                       </span>
                     </div>
 
                     {/* Salary & Match indicator */}
                     <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
                         {job.salaryRange || "₹ 6 - 12 LPA"}
                       </span>
                     </div>
@@ -357,17 +363,24 @@ export default function HomePageClient({
                         jobTitle={job.title}
                         className="h-8 w-8 rounded-lg bg-slate-50 border border-slate-100 hover:bg-blue-50 hover:text-blue-600 transition-colors text-slate-400 shrink-0"
                       />
-                      <Link
-                        href={
-                          session
-                            ? `/jobs/${job.id}`
-                            : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
-                        }
-                      >
-                        <Button className="h-8 px-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
-                          <span style={{ color: "white" }}> Apply Now</span>
-                        </Button>
-                      </Link>
+                      {appliedSet.has(job.id) ? (
+                        <span className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
+                          <CheckCircle className="size-3.5 text-emerald-600" />
+                          Applied
+                        </span>
+                      ) : (
+                        <Link
+                          href={
+                            session
+                              ? `/jobs/${job.id}`
+                              : `/login?callbackUrl=${encodeURIComponent(`/jobs/${job.id}`)}`
+                          }
+                        >
+                          <Button className="h-8 px-3.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs" style={{ background: "#2563eb", color: "white", border: "none" }}>
+                            <span style={{ color: "white" }}>Apply Now</span>
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -841,13 +854,18 @@ export default function HomePageClient({
 
       {/* 3. Browse By Categories (Dynamic) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
-            Browse By Categories
-          </h2>
-          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-            View all categories
-            <ArrowRight className="size-4" />
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <div className="mb-2">
+              <span className="eyebrow-badge">EXPLORE SECTORS</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Browse by Career Categories
+            </h2>
+          </div>
+          <Link href="/jobs/browse" className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors group">
+            <span>View all categories</span>
+            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
 
@@ -879,19 +897,14 @@ export default function HomePageClient({
                 <Link
                   key={cat.id}
                   href={`/jobs/category/${encodeURIComponent(cat.name)}`}
-                  className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #bfdbfe",
-                    boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
-                  }}
+                  className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 hover:shadow-md bg-white border border-slate-200 shadow-sm"
                 >
-                  <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${bgColor}`}>
+                  <div className={`mb-3.5 flex h-12 w-12 items-center justify-center rounded-xl ${bgColor}`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <p className="font-extrabold text-sm text-slate-900 mb-1">{cat.name}</p>
-                  <span className="text-[11px] font-bold text-slate-400">
-                    {cat.jobCount.toLocaleString()}+ Jobs
+                  <p className="font-bold text-sm text-slate-900 mb-1">{cat.name}</p>
+                  <span className="text-[11px] font-semibold text-slate-500">
+                    {cat.jobCount.toLocaleString()}+ Roles
                   </span>
                 </Link>
               );
@@ -900,18 +913,13 @@ export default function HomePageClient({
             {/* Additional mockup categories for aesthetic completeness if list is short */}
             {categories.length > 0 && (
               <div
-                className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-md"
-                style={{
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #bfdbfe",
-                  boxShadow: "0 6px 15px -4px rgba(37, 99, 235, 0.06), 0 4px 10px -5px rgba(37, 99, 235, 0.06)"
-                }}
+                className="flex flex-col items-center justify-center p-4 text-center rounded-2xl min-w-[170px] flex-1 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400 hover:shadow-md bg-white border border-slate-200 shadow-sm"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
+                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
                   <Grid className="h-6 w-6" />
                 </div>
-                <p className="font-extrabold text-sm text-slate-900 mb-1">More Categories</p>
-                <span className="text-[11px] font-bold text-slate-400">
+                <p className="font-bold text-sm text-slate-900 mb-1">More Categories</p>
+                <span className="text-[11px] font-semibold text-slate-500">
                   Explore all
                 </span>
               </div>
@@ -922,13 +930,18 @@ export default function HomePageClient({
 
       {/* 4. Top Companies Hiring (Dynamic) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 lg:px-10">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight sm:text-3xl">
-            Top Companies Hiring
-          </h2>
-          <Link href="/jobs/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors">
-            View all companies
-            <ArrowRight className="size-4" />
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <div className="mb-2">
+              <span className="eyebrow-badge">HIRING PARTNERS</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Top Hiring Companies
+            </h2>
+          </div>
+          <Link href="/jobs/browse" className="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors group">
+            <span>View all companies</span>
+            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
 

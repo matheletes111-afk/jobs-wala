@@ -11,12 +11,14 @@ import {
   FileText,
   GraduationCap,
   CreditCard,
+  MessageSquare,
 } from "lucide-react";
 
 export const adminNavLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/admin/inquiries", label: "Inquiries", icon: MessageSquare },
   { href: "/admin/resume-database", label: "Resume DB", icon: FileText },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/plans", label: "Plans", icon: BarChart3 },

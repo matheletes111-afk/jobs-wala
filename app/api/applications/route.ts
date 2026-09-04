@@ -9,8 +9,11 @@ import { extractS3KeyFromUrl } from "@/lib/s3";
 import { ResumeParseStatus } from "@prisma/client";
 
 const applicationSchema = z.object({
-  jobId: z.string(),
+  jobId: z.string().optional(),
+  jobIds: z.array(z.string()).optional(),
   coverLetter: z.string().optional().nullable().transform((v) => (v && v.trim().length >= 10 ? v.trim() : null)),
+}).refine((data) => (data.jobId && data.jobId.trim().length > 0) || (data.jobIds && data.jobIds.length > 0), {
+  message: "Either jobId or jobIds must be provided.",
 });
 
 export async function POST(req: NextRequest) {
@@ -18,23 +21,6 @@ export async function POST(req: NextRequest) {
     const user = await requireJobSeeker();
     const body = await req.json();
     const data = applicationSchema.parse(body);
-
-    // Check if already applied
-    const existing = await prisma.application.findUnique({
-      where: {
-        jobId_jobSeekerId: {
-          jobId: data.jobId,
-          jobSeekerId: user.id,
-        },
-      },
-    });
-
-    if (existing) {
-      return NextResponse.json(
-        { error: "You have already applied for this job" },
-        { status: 400 }
-      );
-    }
 
     // Check if profile exists and is complete
     const profile = await prisma.jobSeekerProfile.findUnique({
@@ -107,10 +93,110 @@ export async function POST(req: NextRequest) {
       console.error("[APPLICATION RESUME SYNC] Failed to sync resume on application:", syncErr);
     }
 
-    // Create application (cover letter optional)
+    // Bulk apply mode
+    if (data.jobIds && data.jobIds.length > 0) {
+      const targetJobIds = Array.from(new Set(data.jobIds));
+
+      // Find existing applications among targetJobIds
+      const existingApps = await prisma.application.findMany({
+        where: {
+          jobSeekerId: user.id,
+          jobId: { in: targetJobIds },
+        },
+        select: { jobId: true },
+      });
+
+      const existingJobIdSet = new Set(existingApps.map((a) => a.jobId));
+      const newJobIds = targetJobIds.filter((id) => !existingJobIdSet.has(id));
+
+      if (newJobIds.length === 0) {
+        return NextResponse.json(
+          {
+            error: "You have already applied to all selected jobs.",
+            alreadyAppliedCount: existingApps.length,
+            appliedJobIds: Array.from(existingJobIdSet),
+          },
+          { status: 400 }
+        );
+      }
+
+      // Create new applications in parallel
+      const createdApplications = await Promise.all(
+        newJobIds.map((jobId) =>
+          prisma.application.create({
+            data: {
+              jobId,
+              jobSeekerId: user.id,
+              coverLetter: data.coverLetter ?? null,
+            },
+            include: {
+              job: {
+                include: {
+                  employer: {
+                    include: {
+                      user: true,
+                    },
+                  },
+                },
+              },
+            },
+          })
+        )
+      );
+
+      // Trigger employer notification emails in background
+      Promise.allSettled(
+        createdApplications.map((app) => {
+          if (app.job.employer.user.email) {
+            return sendNewApplicationEmail({
+              to: app.job.employer.user.email,
+              candidateName: `${profile.firstName} ${profile.lastName}`,
+              jobTitle: app.job.title,
+            });
+          }
+          return Promise.resolve();
+        })
+      ).catch((err) => console.error("[BULK EMAIL ERROR]", err));
+
+      const totalAppliedIds = [
+        ...createdApplications.map((a) => a.jobId),
+        ...Array.from(existingJobIdSet),
+      ];
+
+      return NextResponse.json(
+        {
+          success: true,
+          count: createdApplications.length,
+          alreadyAppliedCount: existingApps.length,
+          appliedJobIds: totalAppliedIds,
+          message: `Successfully applied to ${createdApplications.length} job${createdApplications.length !== 1 ? "s" : ""}!`,
+        },
+        { status: 201 }
+      );
+    }
+
+    // Single job apply mode
+    const singleJobId = data.jobId!;
+    const existing = await prisma.application.findUnique({
+      where: {
+        jobId_jobSeekerId: {
+          jobId: singleJobId,
+          jobSeekerId: user.id,
+        },
+      },
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "You have already applied for this job" },
+        { status: 400 }
+      );
+    }
+
+    // Create single application
     const application = await prisma.application.create({
       data: {
-        jobId: data.jobId,
+        jobId: singleJobId,
         jobSeekerId: user.id,
         coverLetter: data.coverLetter ?? null,
       },

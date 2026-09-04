@@ -11,6 +11,7 @@ import { formatLocation } from "@/lib/utils";
 import { Briefcase, FileText, Search, Send, ChevronDown } from "lucide-react";
 
 import HomeSlider from "@/components/HomeSlider";
+import HomeHeroSearch from "@/components/HomeHeroSearch";
 
 const HERO_IMAGE_URL = "/images/home_img.png";
 
@@ -202,62 +203,8 @@ export default async function HomePage() {
                     </Link>
                   </div>
 
-                  {/* Search Section - High Fidelity replica of Figma */}
-                  <div className="bg-sky-50/95 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.06)] p-5 md:p-6 w-full max-w-xl mx-auto lg:mx-0 mb-6 relative z-20">
-                    <p className="mb-6 text-xs md:text-sm text-slate-500 font-semibold text-left leading-relaxed">
-                      Our AI technology matches your skills with the right opportunities, so you can focus on what matters – building your future.
-                    </p>
-                    <form action="/jobs/browse" method="get" className="flex flex-col md:flex-row items-end gap-5 mb-6">
-
-                      {/* Input block 1: Job title, skills or company */}
-                      <div className="flex-1 flex flex-col gap-2 w-full text-left">
-                        <label className="text-sm font-bold text-slate-800">Job title, skills or company</label>
-                        <input
-                          type="search"
-                          name="search"
-                          placeholder="e.g. Software Engineer"
-                          className="search-input w-full text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                          style={{ height: "48px", padding: "0 16px", borderRadius: "12px", border: "1px solid #cbd5e1" }}
-                        />
-                      </div>
-
-                      {/* Input block 2: Location */}
-                      <div className="flex-1 flex flex-col gap-2 w-full text-left">
-                        <label className="text-sm font-bold text-slate-800">Location</label>
-                        <input
-                          type="text"
-                          name="location"
-                          placeholder="e.g. Bangalore"
-                          className="search-input w-full text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                          style={{ height: "48px", padding: "0 16px", borderRadius: "12px", border: "1px solid #cbd5e1" }}
-                        />
-                      </div>
-
-                      {/* Search Button */}
-                      <button
-                        type="submit"
-                        className="h-12 w-full md:w-auto shrink-0 flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3 text-white font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer"
-                        style={{ color: "white", background: "#2563eb", border: "none", borderRadius: "12px" }}
-                      >
-                        <Search className="h-4 w-4" style={{ stroke: "white" }} />
-                        <span style={{ color: "white", }}>Search Jobs</span>
-                      </button>
-                    </form>
-
-                    {/* Popular Searches */}
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500 text-left">
-                      <span className="font-bold text-slate-700 mr-2">Popular Searches:</span>
-                      {["Software Developer", "Sales", "Marketing", "Data Analyst", "Customer Support"].map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/jobs/browse?search=${encodeURIComponent(tag)}`}
-                          className="px-3 py-1.5 rounded-lg bg-blue-50/60 hover:bg-blue-100/80 text-[#2563eb] font-semibold transition-colors"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Search Section - High Fidelity replica of Figma with Intelligent Autocomplete */}
+                  <HomeHeroSearch />
                 </div>
 
                 {/* Right Column: Hero Boy Image with Floating Badges (Hidden but not removed) */}

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { formatLocation, formatPhoneForCsv } from "@/lib/utils";
+import { formatLocation, formatPhoneForCsv, formatDisplayId } from "@/lib/utils";
 import LocationDropdown from "@/components/user/LocationDropdown";
 import { Search, User, MapPin, Briefcase, GraduationCap, FileText, ChevronRight, LayoutGrid, List, Download } from "lucide-react";
 import CandidateAvatar from "@/components/CandidateAvatar";
@@ -292,12 +292,13 @@ export default function ResumeSearch({
       }
       
       const headers = [
-        "Candidate ID", "First Name", "Last Name", "Email", "Phone", "Job Title", 
+        "Candidate ID", "System ID", "First Name", "Last Name", "Email", "Phone", "Job Title", 
         "Location", "Experience (Years)", "Skills", "Education", 
         "Availability", "Bio", "Resume URL", "Resume Updated At",
         "Certificates", "Profile Created", "Profile Updated"
       ];
-      const rows = exportCandidates.map((candidate: any) => [
+      const rows = exportCandidates.map((candidate: any, index: number) => [
+        formatDisplayId(candidate.id, "CAND", index),
         candidate.id,
         `"${candidate.firstName.replace(/"/g, '""')}"`,
         `"${candidate.lastName.replace(/"/g, '""')}"`,
@@ -356,20 +357,20 @@ export default function ResumeSearch({
                 size="sm"
                 onClick={() => handleExportCSV(true)}
                 disabled={exporting}
-                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-55 shadow-sm"
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export Filtered"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : `Download Filtered (${total})`}
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleExportCSV(false)}
                 disabled={exporting}
-                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-55 shadow-sm"
+                className="h-10 px-4 rounded-xl text-xs font-semibold gap-2 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 shadow-sm"
               >
-                <Download className="h-4 w-4" />
-                {exporting ? "Exporting..." : "Export All"}
+                <Download className="h-4 w-4 text-blue-600" />
+                {exporting ? "Downloading..." : "Download All"}
               </Button>
             </div>
           )}

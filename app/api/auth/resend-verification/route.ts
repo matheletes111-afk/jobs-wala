@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { sendVerificationEmail } from "@/lib/email";
+import { getAppBaseUrl } from "@/lib/utils";
 
 export async function POST(req: Request) {
   try {
@@ -52,10 +53,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // Send verification email with dynamic baseUrl
-    const host = req.headers.get("host") || "localhost:3000";
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const baseUrl = `${protocol}://${host}`;
+    // Send verification email with canonical baseUrl
+    const headers = "headers" in req ? req.headers : null;
+    const baseUrl = getAppBaseUrl(headers);
     const encodedToken = encodeURIComponent(verificationToken);
     const verificationLink = `${baseUrl}/api/verify-email?token=${encodedToken}`;
 

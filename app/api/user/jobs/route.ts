@@ -23,11 +23,12 @@ export async function GET(req: NextRequest) {
     const title = (searchParams.get("title") || "").trim();
     const category = (searchParams.get("category") || "").trim();
     const sort = (searchParams.get("sort") || "desc").trim();
+    const locationParam = searchParams.get("location") || "";
     let country = "";
     let state: string[] = [];
     let city: string[] = [];
-    let locationRawSearch = "";
-    const locationParam = searchParams.get("location") || "";
+    let locationRawTokens: string[] = [];
+
     if (locationParam) {
       try {
         const loc = JSON.parse(decodeURIComponent(locationParam)) as {
@@ -35,14 +36,20 @@ export async function GET(req: NextRequest) {
           state?: string | string[];
           city?: string | string[];
         };
-        if (loc.country) country = loc.country.trim();
-        if (loc.state) state = Array.isArray(loc.state) ? loc.state : [loc.state.trim()];
-        if (loc.city) city = Array.isArray(loc.city) ? loc.city : [loc.city.trim()];
+        if (loc && typeof loc === "object") {
+          if (loc.country) country = String(loc.country).trim();
+          if (loc.state) state = (Array.isArray(loc.state) ? loc.state : [String(loc.state)]).map(s => s.trim()).filter(Boolean);
+          if (loc.city) city = (Array.isArray(loc.city) ? loc.city : [String(loc.city)]).map(c => c.trim()).filter(Boolean);
+        }
       } catch {
-        // Fallback: If it is not a valid JSON string (e.g. from homepage banner), treat it as raw text search query
-        locationRawSearch = decodeURIComponent(locationParam).trim();
+        const raw = decodeURIComponent(locationParam).trim();
+        locationRawTokens = raw.split(/[,\s]+/).map(t => t.trim()).filter(t => t.length > 0);
       }
     }
+
+    const searchType = (searchParams.get("searchType") || "all").toLowerCase().trim();
+    const skill = (searchParams.get("skill") || "").trim();
+    const company = (searchParams.get("company") || "").trim();
 
     const andParts: Array<Record<string, unknown>> = [
       { status: "ACTIVE" as const },
@@ -52,52 +59,119 @@ export async function GET(req: NextRequest) {
         },
       },
     ];
+
     if (search) {
+      if (searchType === "skill") {
+        andParts.push({
+          OR: [
+            { requiredSkills: { has: search } },
+            { secondarySkills: { has: search } },
+            { description: { contains: search, mode: "insensitive" as const } },
+          ],
+        });
+      } else if (searchType === "company") {
+        andParts.push({
+          OR: [
+            { companyName: { contains: search, mode: "insensitive" as const } },
+            { employer: { companyName: { contains: search, mode: "insensitive" as const } } },
+          ],
+        });
+      } else if (searchType === "title") {
+        andParts.push({
+          title: { contains: search, mode: "insensitive" as const },
+        });
+      } else {
+        // searchType === "all" (Omni search across all dimensions)
+        const searchTokens = search.split(/\s+/).map((t) => t.trim()).filter(Boolean);
+        const makeOrForTerm = (term: string) => ({
+          OR: [
+            { title: { contains: term, mode: "insensitive" as const } },
+            { description: { contains: term, mode: "insensitive" as const } },
+            { companyName: { contains: term, mode: "insensitive" as const } },
+            { employer: { companyName: { contains: term, mode: "insensitive" as const } } },
+            { category: { contains: term, mode: "insensitive" as const } },
+            { requiredSkills: { has: term } },
+            { secondarySkills: { has: term } },
+          ],
+        });
+
+        if (searchTokens.length > 1) {
+          andParts.push({
+            OR: [
+              makeOrForTerm(search),
+              { AND: searchTokens.map((t) => makeOrForTerm(t)) },
+            ],
+          });
+        } else {
+          andParts.push(makeOrForTerm(search));
+        }
+      }
+    }
+
+    if (skill) {
       andParts.push({
         OR: [
-          { title: { contains: search, mode: "insensitive" as const } },
-          { description: { contains: search, mode: "insensitive" as const } },
+          { requiredSkills: { has: skill } },
+          { secondarySkills: { has: skill } },
+          { description: { contains: skill, mode: "insensitive" as const } },
         ],
       });
     }
+
+    if (company) {
+      andParts.push({
+        OR: [
+          { companyName: { contains: company, mode: "insensitive" as const } },
+          { employer: { companyName: { contains: company, mode: "insensitive" as const } } },
+        ],
+      });
+    }
+
     if (title) {
       andParts.push({
         title: { contains: title, mode: "insensitive" as const },
       });
     }
-    if (category) andParts.push({ category });
+
+    if (category && category !== "all") andParts.push({ category });
+
     if (country) {
       andParts.push({
         location: {
-          contains: `"country":"${country.replace(/"/g, '\\"')}"`,
+          contains: country,
           mode: "insensitive" as const,
         },
       });
     }
+
     if (state && state.length > 0) {
-      const stateOrs = state.filter(s => s.trim()).map(s => ({
+      const stateOrs = state.map(s => ({
         location: {
-          contains: `"${s.trim().replace(/"/g, '\\"')}"`,
+          contains: s,
           mode: "insensitive" as const,
         }
       }));
-      if (stateOrs.length > 0) andParts.push({ OR: stateOrs });
+      andParts.push({ OR: stateOrs });
     }
+
     if (city && city.length > 0) {
-      const cityOrs = city.filter(c => c.trim()).map(c => ({
+      const cityOrs = city.map(c => ({
         location: {
-          contains: `"${c.trim().replace(/"/g, '\\"')}"`,
+          contains: c,
           mode: "insensitive" as const,
         }
       }));
-      if (cityOrs.length > 0) andParts.push({ OR: cityOrs });
+      andParts.push({ OR: cityOrs });
     }
-    if (locationRawSearch) {
-      andParts.push({
-        location: {
-          contains: locationRawSearch,
-          mode: "insensitive" as const,
-        },
+
+    if (locationRawTokens.length > 0) {
+      locationRawTokens.forEach(token => {
+        andParts.push({
+          location: {
+            contains: token,
+            mode: "insensitive" as const,
+          },
+        });
       });
     }
 
