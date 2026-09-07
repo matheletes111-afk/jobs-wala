@@ -89,11 +89,16 @@ export default function JobSearch() {
   const [candSkills, setCandSkills] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Multi-select & Bulk Apply states (for Candidate role only)
+  // ============================================================================
+  // [BUG-20: NEW WORK] Multi-select & Bulk Apply states (for Candidate role only)
+  // (Temporarily commented out - to re-enable, simply uncomment this block)
+  // ============================================================================
+  /*
   const isCandidate = session?.user?.role === "JOB_SEEKER";
   const [selectedJobIds, setSelectedJobIds] = useState<string[]>([]);
   const [bulkApplying, setBulkApplying] = useState(false);
   const [applyFeedback, setApplyFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  */
 
   // Expandable job card state (BUG-21: Compact initial footprint, expand on click)
   const [expandedJobIds, setExpandedJobIds] = useState<string[]>([]);
@@ -121,6 +126,11 @@ export default function JobSearch() {
   const appliedSet = useMemo(() => new Set(appliedJobIds), [appliedJobIds]);
   const activeRequestRef = useRef<AbortController | null>(null);
 
+  // ============================================================================
+  // [BUG-20: NEW WORK] Multi-select & Bulk Apply Action Handlers (Candidate role)
+  // (Temporarily commented out - to re-enable, simply uncomment this block)
+  // ============================================================================
+  /*
   // Unapplied jobs on current page (can be selected)
   const unappliedPageJobs = useMemo(
     () => jobs.filter((j) => !appliedSet.has(j.id)),
@@ -199,6 +209,7 @@ export default function JobSearch() {
       setBulkApplying(false);
     }
   };
+  */
 
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -691,7 +702,11 @@ export default function JobSearch() {
 
       {/* Results Header & Grid/List View Switcher */}
       <div>
-        {/* Application Feedback Alert */}
+        {/* ============================================================================ */}
+        {/* [BUG-20: NEW WORK] Application Feedback Alert */}
+        {/* (Temporarily commented out - to re-enable, simply uncomment this block) */}
+        {/* ============================================================================ */}
+        {/*
         {applyFeedback && (
           <div
             className={`mb-5 p-4 rounded-2xl border flex items-center justify-between gap-3 animate-in slide-in-from-top-2 duration-300 ${
@@ -717,6 +732,7 @@ export default function JobSearch() {
             </button>
           </div>
         )}
+        */}
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -726,7 +742,11 @@ export default function JobSearch() {
               Showing {start} - {end}
             </p>
 
-            {/* Candidate Role Multi-Select Toolbar Button */}
+            {/* ============================================================================ */}
+            {/* [BUG-20: NEW WORK] Candidate Role Multi-Select Toolbar Button & Badge */}
+            {/* (Temporarily commented out - to re-enable, simply uncomment this block) */}
+            {/* ============================================================================ */}
+            {/*
             {isCandidate && unappliedPageJobs.length > 0 && (
               <button
                 type="button"
@@ -747,6 +767,7 @@ export default function JobSearch() {
                 {selectedJobIds.length} Selected
               </span>
             )}
+            */}
           </div>
 
           {/* View Mode Toggle */}
@@ -810,22 +831,24 @@ export default function JobSearch() {
                 new Set([...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])])
               );
               const isApplied = appliedSet.has(job.id);
-              const isSelected = selectedJobIds.includes(job.id);
+              // [BUG-20: NEW WORK] Multi-select active state:
+              // const isSelected = selectedJobIds.includes(job.id);
               const isExpanded = expandedJobIds.includes(job.id);
 
               return (
                 <div
                   key={job.id}
-                  className={`bg-white border transition-all duration-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between group shadow-sm relative ${
-                    isSelected
-                      ? "border-blue-500 ring-2 ring-blue-500/10 bg-blue-50/20 shadow-md"
-                      : "border-slate-200/90 hover:border-blue-300 hover:shadow-md"
-                  }`}
+                  className="bg-white border transition-all duration-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between group shadow-sm relative border-slate-200/90 hover:border-blue-300 hover:shadow-md"
                 >
                   <div>
                     {/* Header: Checkbox + Company Logo + Company Name + Date + Share + Applied Badge */}
                     <div className="flex items-start justify-between gap-3 mb-2.5">
                       <div className="flex items-center gap-2.5 min-w-0">
+                        {/* ============================================================================ */}
+                        {/* [BUG-20: NEW WORK] Candidate Card Multi-Select Checkbox */}
+                        {/* (Temporarily commented out - to re-enable, simply uncomment this block) */}
+                        {/* ============================================================================ */}
+                        {/*
                         {isCandidate && !isApplied && (
                           <button
                             type="button"
@@ -833,13 +856,14 @@ export default function JobSearch() {
                             className="p-1 -ml-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer shrink-0"
                             aria-label={`Select job ${job.title}`}
                           >
-                            {isSelected ? (
+                            {selectedJobIds.includes(job.id) ? (
                               <CheckSquare className="h-4.5 w-4.5 text-blue-600" />
                             ) : (
                               <Square className="h-4.5 w-4.5 text-slate-300 group-hover:text-slate-400" />
                             )}
                           </button>
                         )}
+                        */}
 
                         <CompanyLogo
                           companyLogo={job.employer.companyLogo}
@@ -1037,21 +1061,22 @@ export default function JobSearch() {
                 new Set([...(job.requiredSkills ?? []), ...(job.secondarySkills ?? [])])
               );
               const isApplied = appliedSet.has(job.id);
-              const isSelected = selectedJobIds.includes(job.id);
+              // [BUG-20: NEW WORK] Multi-select active state:
+              // const isSelected = selectedJobIds.includes(job.id);
               const isExpanded = expandedJobIds.includes(job.id);
 
               return (
                 <div
                   key={job.id}
-                  className={`bg-white border transition-all rounded-2xl p-4 sm:p-5 flex flex-col group ${
-                    isSelected
-                      ? "border-blue-500 ring-2 ring-blue-500/10 bg-blue-50/20 shadow-md"
-                      : "border-slate-200 hover:border-blue-300 hover:shadow-sm"
-                  }`}
+                  className="bg-white border transition-all rounded-2xl p-4 sm:p-5 flex flex-col group border-slate-200 hover:border-blue-300 hover:shadow-sm"
                 >
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                      {/* Multi-Select Checkbox for candidate */}
+                      {/* ============================================================================ */}
+                      {/* [BUG-20: NEW WORK] Candidate List Card Multi-Select Checkbox */}
+                      {/* (Temporarily commented out - to re-enable, simply uncomment this block) */}
+                      {/* ============================================================================ */}
+                      {/*
                       {isCandidate && !isApplied && (
                         <button
                           type="button"
@@ -1059,13 +1084,14 @@ export default function JobSearch() {
                           className="p-1 -ml-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer shrink-0 mt-0.5"
                           aria-label={`Select job ${job.title}`}
                         >
-                          {isSelected ? (
+                          {selectedJobIds.includes(job.id) ? (
                             <CheckSquare className="h-4.5 w-4.5 text-blue-600" />
                           ) : (
                             <Square className="h-4.5 w-4.5 text-slate-300 group-hover:text-slate-400" />
                           )}
                         </button>
                       )}
+                      */}
 
                       <CompanyLogo
                         companyLogo={job.employer.companyLogo}
@@ -1236,7 +1262,11 @@ export default function JobSearch() {
           </div>
         )}
 
-        {/* Floating Bulk Apply Action Bar (For Candidate Role) */}
+        {/* ============================================================================ */}
+        {/* [BUG-20: NEW WORK] Floating Bulk Apply Action Bar (For Candidate Role) */}
+        {/* (Temporarily commented out - to re-enable, simply uncomment this block) */}
+        {/* ============================================================================ */}
+        {/*
         {isCandidate && selectedJobIds.length > 0 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 animate-in fade-in slide-in-from-bottom-4 duration-300 max-w-full mx-auto">
             <div className="flex items-center gap-2 pr-3 border-r border-slate-700">
@@ -1246,7 +1276,6 @@ export default function JobSearch() {
               </span>
             </div>
 
-            {/* 1-Click Apply Button */}
             <Button
               size="sm"
               onClick={handleBulkApply}
@@ -1257,7 +1286,6 @@ export default function JobSearch() {
               <span>{bulkApplying ? "Applying..." : `Apply in 1-Click (${selectedJobIds.length})`}</span>
             </Button>
 
-            {/* Deselect All */}
             <button
               type="button"
               onClick={deselectAllJobs}
@@ -1268,6 +1296,7 @@ export default function JobSearch() {
             </button>
           </div>
         )}
+        */}
 
         {/* Pagination */}
         {!loading && totalPages > 1 && (

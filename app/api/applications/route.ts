@@ -93,7 +93,10 @@ export async function POST(req: NextRequest) {
       console.error("[APPLICATION RESUME SYNC] Failed to sync resume on application:", syncErr);
     }
 
-    // Bulk apply mode
+    // ============================================================================
+    // [BUG-20: NEW WORK] Bulk Apply Mode (Candidate multi-select apply)
+    // Kept active so uncommenting JobSearch.tsx works immediately end-to-end.
+    // ============================================================================
     if (data.jobIds && data.jobIds.length > 0) {
       const targetJobIds = Array.from(new Set(data.jobIds));
 
