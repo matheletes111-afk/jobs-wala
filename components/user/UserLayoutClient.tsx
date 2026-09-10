@@ -44,14 +44,12 @@ export default function UserLayoutClient({
 
             {/* Mobile logo only */}
             <div className="flex items-center md:hidden pl-0">
-              <Link href="/" className="flex shrink-0 items-center gap-3">
-                <div className="flex items-center justify-start shrink-0 h-10 overflow-hidden">
-                  <img
-                    src="/images/logo.png"
-                    alt="Jobs Portal"
-                    className="h-[200%] w-auto max-w-none object-contain"
-                  />
-                </div>
+              <Link href="/" className="flex shrink-0 items-center">
+                <img
+                  src="/images/logo.png"
+                  alt="Jobdaddy"
+                  className="h-9 w-auto object-contain"
+                />
               </Link>
             </div>
             <nav className="flex items-center gap-4 ml-auto">

@@ -89,13 +89,11 @@ export default function UserSidebar({
       <div className={`shrink-0 pb-3 border-b border-slate-100 flex items-center justify-between gap-3 min-w-0 ${isCollapsed ? "flex-col gap-2" : "flex-row"}`}>
         {!isCollapsed ? (
           <Link href="/" className="flex items-center justify-center flex-1 min-w-0">
-            <div className="flex items-center justify-center shrink-0 h-12 overflow-hidden">
-              <img
-                src="/images/logo.png"
-                alt="JobDaddy Logo"
-                className="h-[200%] w-auto max-w-none object-contain"
-              />
-            </div>
+            <img
+              src="/images/logo.png"
+              alt="JobDaddy Logo"
+              className="h-10 w-auto object-contain"
+            />
           </Link>
         ) : (
           <div className="h-12 w-12 flex items-center justify-center shrink-0">

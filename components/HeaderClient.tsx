@@ -66,14 +66,12 @@ export default function HeaderClient({ user }: HeaderClientProps) {
     <header className="sticky top-0 z-50 bg-white border-b border-slate-200/60 shadow-sm backdrop-blur-md w-full">
       <div className="mx-auto flex h-20 w-full max-w-7xl min-w-0 items-center justify-between pl-2 sm:pl-4 md:pl-6 lg:pl-8 pr-4 sm:pr-6 md:pr-8 lg:pr-10">
         {/* Logo */}
-        <Link href="/" onClick={closeMobileMenu} className="flex shrink-0 items-center -ml-3 sm:-ml-4 md:-ml-6">
-          <div className="flex items-center justify-start shrink-0 h-14 md:h-16 overflow-hidden">
-            <img
-              src="/images/logo.png"
-              alt="Jobdaddy"
-              className="h-[200%] w-auto max-w-none object-contain object-left -translate-x-3 sm:-translate-x-4 md:-translate-x-6"
-            />
-          </div>
+        <Link href="/" onClick={closeMobileMenu} className="flex shrink-0 items-center">
+          <img
+            src="/images/logo.png"
+            alt="Jobdaddy"
+            className="h-11 sm:h-12 md:h-13 w-auto object-contain"
+          />
         </Link>
 
         {/* Right Aligned Container: Desktop Nav + Actions */}

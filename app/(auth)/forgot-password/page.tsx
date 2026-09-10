@@ -51,10 +51,8 @@ export default function ForgotPasswordPage() {
         <Link href="/" className="mb-12 inline-flex transition-transform hover:scale-105 active:scale-95">
           <img
             src="/images/logo.png"
-            alt="Jobs Portal"
-            width={320}
-            height={320}
-            className="h-32 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
+            alt="Jobdaddy"
+            className="h-14 w-auto max-w-full object-contain"
           />
         </Link>
         <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-primary">
@@ -75,10 +73,8 @@ export default function ForgotPasswordPage() {
           <Link href="/" className="inline-flex">
             <img
               src="/images/logo.png"
-              alt="Jobs Portal"
-              width={240}
-              height={240}
-              className="h-20 w-auto max-w-full rounded-lg object-contain filter brightness-110 contrast-125 mix-blend-screen"
+              alt="Jobdaddy"
+              className="h-11 w-auto max-w-full object-contain"
             />
           </Link>
         </div>

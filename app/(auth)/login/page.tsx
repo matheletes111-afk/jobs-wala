@@ -152,9 +152,9 @@ function LoginForm() {
         <div className="relative z-10 flex flex-col items-start px-12 2xl:px-20 text-left gap-8">
           {/* Logo */}
           <Link href="/" className="transition-transform hover:scale-105 active:scale-95">
-            <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-8 shadow-xl inline-block">
-              <img src="/images/logo.png" alt="Jobs Portal" width={400} height={160}
-                className="h-32 w-auto object-contain mix-blend-multiply" />
+            <div className="bg-white/50 backdrop-blur-sm border border-slate-200 rounded-3xl p-6 shadow-xl inline-block">
+              <img src="/images/logo.png" alt="Jobdaddy" width={220} height={70}
+                className="h-14 w-auto object-contain" />
             </div>
           </Link>
 
@@ -193,10 +193,8 @@ function LoginForm() {
           <Link href="/" className="inline-flex">
             <img
               src="/images/logo.png"
-              alt="Jobs Portal"
-              width={240}
-              height={240}
-              className="h-20 w-auto max-w-full rounded-lg object-contain mix-blend-multiply"
+              alt="Jobdaddy"
+              className="h-11 w-auto max-w-full object-contain"
             />
           </Link>
         </div>

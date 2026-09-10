@@ -34,14 +34,14 @@ export default async function Footer() {
 
           {/* Logo & Description Column */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2 mb-4 -ml-1 sm:-ml-2">
-              <div className="flex items-center justify-start shrink-0 h-16 md:h-20 overflow-hidden">
+            <div className="flex items-center gap-2 mb-4">
+              <Link href="/" className="inline-block">
                 <img
                   src="/images/logo.png"
                   alt="Jobdaddy"
-                  className="h-[200%] w-auto max-w-none object-contain object-left -translate-x-1"
+                  className="h-12 md:h-14 w-auto object-contain"
                 />
-              </div>
+              </Link>
             </div>
             <p className="text-xs font-semibold text-slate-500 leading-relaxed max-w-xs mb-6">
               AI-powered job portal that connects talent with the right opportunities.
