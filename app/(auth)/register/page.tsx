@@ -81,9 +81,15 @@ export default function RegisterPage() {
       }
     }
 
-    if (formData.role === "EMPLOYER" && !formData.companyName) {
-      setError("Company name is required");
-      return;
+    if (formData.role === "EMPLOYER") {
+      if (!formData.companyName) {
+        setError("Company name is required");
+        return;
+      }
+      if (!formData.phone?.trim()) {
+        setError("Phone number is required");
+        return;
+      }
     }
 
     setLoading(true);
@@ -101,6 +107,7 @@ export default function RegisterPage() {
         payload.phone = formData.phone.trim();
       } else if (formData.role === "EMPLOYER") {
         payload.companyName = formData.companyName;
+        payload.phone = formData.phone.trim();
       }
 
       const response = await fetch("/api/register", {
@@ -289,19 +296,35 @@ export default function RegisterPage() {
             )}
 
             {formData.role === "EMPLOYER" && (
-              <div className="space-y-3">
-                <Label htmlFor="companyName" className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                  Company Name
-                </Label>
-                <Input
-                  id="companyName"
-                  placeholder="Acme Studios"
-                  value={formData.companyName}
-                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                  className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
-                  required
-                />
-              </div>
+              <>
+                <div className="space-y-3">
+                  <Label htmlFor="companyName" className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Company Name
+                  </Label>
+                  <Input
+                    id="companyName"
+                    placeholder="Acme Studios"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
+                    required
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="employerPhone" className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="employerPhone"
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all px-5 font-bold"
+                    required
+                  />
+                </div>
+              </>
             )}
 
             <div className="space-y-3">

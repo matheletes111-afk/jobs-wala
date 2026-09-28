@@ -48,6 +48,7 @@ interface UserItem {
     resumeSearchEnabled?: boolean;
     resumeUploadEnabled?: boolean;
     website?: string | null;
+    phone?: string | null;
     approvalStatus?: string;
     createdAt?: string | null;
     updatedAt?: string | null;

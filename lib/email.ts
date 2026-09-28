@@ -701,11 +701,13 @@ export async function sendNewEmployerRegisteredAdminEmail({
   to,
   companyName,
   employerEmail,
+  employerPhone,
   reviewUrl,
 }: {
   to: string;
   companyName: string;
   employerEmail: string;
+  employerPhone?: string;
   reviewUrl: string;
 }) {
   const subject = `📢 New Employer Registered: ${companyName}`;
@@ -721,7 +723,14 @@ export async function sendNewEmployerRegisteredAdminEmail({
           <p style="margin: 2px 0 10px 0; color: #333; font-size: 16px;">${companyName}</p>
           
           <p style="margin: 0; color: #1976D2; font-weight: bold;">Contact Email</p>
-          <p style="margin: 2px 0 0 0; color: #333; font-size: 16px;">${employerEmail}</p>
+          <p style="margin: 2px 0 ${employerPhone ? "10px" : "0"} 0; color: #333; font-size: 16px;">${employerEmail}</p>
+
+          ${
+            employerPhone
+              ? `<p style="margin: 0; color: #1976D2; font-weight: bold;">Contact Phone</p>
+          <p style="margin: 2px 0 0 0; color: #333; font-size: 16px;">${employerPhone}</p>`
+              : ""
+          }
         </div>
         <p style="color: #666; line-height: 1.6;">
           Please review their profile and approve or reject their access from the admin console.

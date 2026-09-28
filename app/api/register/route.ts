@@ -59,6 +59,18 @@ const registerSchema = z
       message: "Company name is required for employers",
       path: ["companyName"],
     }
+  )
+  .refine(
+    (data) => {
+      if (data.role === UserRole.EMPLOYER) {
+        return data.phone !== undefined && data.phone !== null && String(data.phone).trim().length > 0;
+      }
+      return true;
+    },
+    {
+      message: "Phone number is required for employers",
+      path: ["phone"],
+    }
   );
 
 export async function POST(req: NextRequest) {
@@ -135,10 +147,18 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
+        if (!validatedData.phone || String(validatedData.phone).trim().length === 0) {
+          await prisma.user.delete({ where: { id: user.id } });
+          return NextResponse.json(
+            { error: "Phone number is required for employers" },
+            { status: 400 }
+          );
+        }
         await prisma.employerProfile.create({
           data: {
             userId: user.id,
             companyName: validatedData.companyName,
+            phone: String(validatedData.phone).trim(),
             approvalStatus: "PENDING",
           },
         });
@@ -208,6 +228,7 @@ export async function POST(req: NextRequest) {
             to: adminEmail,
             companyName: validatedData.companyName || "Unknown Employer",
             employerEmail: validatedData.email,
+            employerPhone: validatedData.phone ? String(validatedData.phone).trim() : undefined,
             reviewUrl,
           });
         } catch (adminEmailError) {
