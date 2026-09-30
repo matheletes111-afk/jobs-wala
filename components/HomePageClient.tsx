@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { formatLocation } from "@/lib/utils";
+import { formatLocation, formatSalary } from "@/lib/utils";
 import { UserRole } from "@/types";
 import {
   MapPin,
@@ -63,6 +63,10 @@ type JobItem = {
   location: string;
   category: string;
   salaryRange?: string | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  payType?: string | null;
   employmentType: string;
   createdAt: string;
   experienceRequired?: number | null;
@@ -345,11 +349,13 @@ export default function HomePageClient({
                     </div>
 
                     {/* Salary & Match indicator */}
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                        {job.salaryRange || "₹ 6 - 12 LPA"}
-                      </span>
-                    </div>
+                    {formatSalary(job) && (
+                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                          {formatSalary(job)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Footer card controls */}
