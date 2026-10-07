@@ -53,9 +53,8 @@ export async function GET(req: NextRequest) {
       orderBy: { price: "asc" },
     });
 
-    if (packages.length !== 3) {
-      // Re-align and seed exactly the 3 default packages
-      await prisma.careerPackage.deleteMany({});
+    if (packages.length === 0) {
+      // Seed default packages ONLY if table is completely empty
       await prisma.careerPackage.createMany({
         data: DEFAULT_PACKAGES,
       });
@@ -64,7 +63,13 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    return NextResponse.json(packages);
+    return NextResponse.json(packages, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+      },
+    });
   } catch (error) {
     console.error("Packages GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -77,13 +82,13 @@ export async function POST(req: NextRequest) {
     const { name, description, price, features, tier } = body;
 
     if (!name || price === undefined || !tier) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields (name, price, tier)" }, { status: 400 });
     }
 
     const newPackage = await prisma.careerPackage.create({
       data: {
-        name,
-        description,
+        name: name.trim(),
+        description: description ? description.trim() : null,
         price: parseFloat(price),
         features: Array.isArray(features) ? features : [],
         tier,
@@ -103,14 +108,14 @@ export async function PUT(req: NextRequest) {
     const { id, name, description, price, features, tier } = body;
 
     if (!id || !name || price === undefined || !tier) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json({ error: "Missing required fields (id, name, price, tier)" }, { status: 400 });
     }
 
     const updatedPackage = await prisma.careerPackage.update({
       where: { id },
       data: {
-        name,
-        description,
+        name: name.trim(),
+        description: description ? description.trim() : null,
         price: parseFloat(price),
         features: Array.isArray(features) ? features : [],
         tier,

@@ -13,7 +13,8 @@ import {
   Save,
   Loader2,
   Briefcase,
-  RefreshCw
+  RefreshCw,
+  Plus,
 } from "lucide-react";
 
 interface Package {
@@ -51,6 +52,7 @@ export default function AdminCareerPackagesPage() {
   const [savingPackage, setSavingPackage] = useState(false);
 
   // Form states
+  const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pkgName, setPkgName] = useState("");
   const [pkgDescription, setPkgDescription] = useState("");
@@ -62,7 +64,7 @@ export default function AdminCareerPackagesPage() {
   const fetchPackages = async () => {
     setLoadingPackages(true);
     try {
-      const res = await fetch("/api/career/packages");
+      const res = await fetch("/api/career/packages", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setPackages(data);
@@ -78,7 +80,7 @@ export default function AdminCareerPackagesPage() {
   const fetchLeads = async () => {
     setLoadingLeads(true);
     try {
-      const res = await fetch("/api/career/leads");
+      const res = await fetch("/api/career/leads", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setLeads(data);
@@ -100,7 +102,18 @@ export default function AdminCareerPackagesPage() {
     }
   }, [activeTab]);
 
+  const handleAddNew = () => {
+    setEditingId(null);
+    setIsCreating(true);
+    setPkgName("");
+    setPkgDescription("");
+    setPkgPrice("");
+    setPkgTier("fresher");
+    setPkgFeaturesText("");
+  };
+
   const handleEdit = (pkg: Package) => {
+    setIsCreating(false);
     setEditingId(pkg.id);
     setPkgName(pkg.name);
     setPkgDescription(pkg.description || "");
@@ -110,6 +123,7 @@ export default function AdminCareerPackagesPage() {
   };
 
   const handleClearForm = () => {
+    setIsCreating(false);
     setEditingId(null);
     setPkgName("");
     setPkgDescription("");
@@ -157,8 +171,8 @@ export default function AdminCareerPackagesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this package?")) return;
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
 
     try {
       const res = await fetch(`/api/career/packages?id=${id}`, {
@@ -167,6 +181,9 @@ export default function AdminCareerPackagesPage() {
 
       if (res.ok) {
         setPackages(packages.filter(p => p.id !== id));
+        if (editingId === id) {
+          handleClearForm();
+        }
       } else {
         alert("Failed to delete package.");
       }
@@ -174,6 +191,8 @@ export default function AdminCareerPackagesPage() {
       alert("Error deleting: " + err.message);
     }
   };
+
+  const isFormOpen = isCreating || editingId !== null;
 
   return (
     <div className="min-h-screen w-full min-w-0 bg-transparent text-slate-800 animate-in fade-in duration-700">
@@ -188,7 +207,7 @@ export default function AdminCareerPackagesPage() {
             Career Services <span className="text-blue-600">Administration</span>
           </h1>
           <p className="mt-1.5 text-sm font-medium text-slate-500">
-            Manage plans, prices, and monitor payments dashboard.
+            Create, edit, and manage career service packages &amp; pricing dynamically.
           </p>
         </div>
 
@@ -222,58 +241,74 @@ export default function AdminCareerPackagesPage() {
         {activeTab === "crud" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {/* Form Editor / Price Editor */}
+            {/* Form Editor */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-fit">
-              {editingId === null ? (
+              {!isFormOpen ? (
                 <div className="flex flex-col items-center justify-center text-center py-16 px-4">
                   <div className="bg-blue-50 p-4 rounded-xl text-blue-600 mb-4 border border-blue-100">
-                    <Settings className="h-8 w-8 text-blue-600" />
+                    <Briefcase className="h-8 w-8 text-blue-600" />
                   </div>
                   <h3 className="text-sm font-bold text-slate-900 mb-1">
-                    Select a Package to Edit Price
+                    Manage Career Packages
                   </h3>
-                  <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed">
-                    Please select a package from the table on the right to edit its pricing. Creation of new packages is disabled.
+                  <p className="text-xs text-slate-500 max-w-[220px] leading-relaxed mb-5">
+                    Click an existing package to edit, or create a brand new one to publish immediately.
                   </p>
+                  <button
+                    onClick={handleAddNew}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add New Package
+                  </button>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-blue-500" />
-                    Edit Package Pricing
-                  </h2>
+                  <div className="mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+                    <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-blue-500" />
+                      {editingId ? "Edit Career Package" : "Create Career Package"}
+                    </h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                      {editingId ? "Editing" : "New"}
+                    </span>
+                  </div>
 
                   <form onSubmit={handleSubmitPackage} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Package Name</label>
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
+                        Package Name <span className="text-rose-500">*</span>
+                      </label>
                       <input
                         type="text"
                         required
-                        disabled
                         placeholder="e.g. Executive Premium Rewrite"
                         value={pkgName}
                         onChange={(e) => setPkgName(e.target.value)}
-                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800 font-medium"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Tier / Classification</label>
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
+                        Tier / Classification <span className="text-rose-500">*</span>
+                      </label>
                       <select
-                        disabled
                         value={pkgTier}
                         onChange={(e) => setPkgTier(e.target.value)}
-                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-medium"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-800 font-medium"
                       >
-                        <option value="fresher">Fresher Plan</option>
-                        <option value="mid_level">Mid-Level Plan</option>
-                        <option value="executive">Executive Plan</option>
-                        <option value="add_on">Power-Up Add-on</option>
+                        <option value="fresher">Fresher Plan (Entry Level)</option>
+                        <option value="mid_level">Mid-Level Plan (Experienced)</option>
+                        <option value="executive">Executive Plan (Leadership)</option>
+                        <option value="add_on">Power-Up Add-on (Add-on Service)</option>
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Price (₹ INR)</label>
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
+                        Price (₹ INR) <span className="text-rose-500">*</span>
+                      </label>
                       <input
                         type="number"
                         required
@@ -287,29 +322,30 @@ export default function AdminCareerPackagesPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Brief Description</label>
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
+                        Brief Description
+                      </label>
                       <textarea
-                        disabled
                         rows={2}
                         placeholder="Describe target user demographics and features"
                         value={pkgDescription}
                         onChange={(e) => setPkgDescription(e.target.value)}
-                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 resize-none"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 resize-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                      <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider block">
                         Bullet Features (One per line)
                       </label>
                       <textarea
-                        disabled
                         rows={4}
                         placeholder={"ATS compliant design\nFull LinkedIn rebuild\n24hr Delivery"}
                         value={pkgFeaturesText}
                         onChange={(e) => setPkgFeaturesText(e.target.value)}
-                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-100 cursor-not-allowed text-slate-500 font-mono"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700 font-mono text-[11px]"
                       />
+                      <span className="text-[10px] text-slate-400">Enter each feature bullet on a new line.</span>
                     </div>
 
                     <div className="flex gap-2 pt-2 border-t border-slate-100">
@@ -318,13 +354,17 @@ export default function AdminCareerPackagesPage() {
                         disabled={savingPackage}
                         className="flex-1 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                       >
-                        <span style={{ color: "white" }}>
-                          {savingPackage ? (
+                        {savingPackage ? (
+                          <>
                             <Loader2 className="h-4 w-4 animate-spin text-white" />
-                          ) : (
-                            "Update Price"
-                          )}
-                        </span>
+                            <span>Saving...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 text-white" />
+                            <span>{editingId ? "Update Package" : "Create Package"}</span>
+                          </>
+                        )}
                       </button>
                       <button
                         type="button"
@@ -341,14 +381,35 @@ export default function AdminCareerPackagesPage() {
 
             {/* Packages List */}
             <div className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-              <h2 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Published Career Packages</h2>
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                <div>
+                  <h2 className="text-sm font-bold text-slate-800">Published Career Packages</h2>
+                  <p className="text-xs text-slate-400 font-normal">
+                    {packages.length} active {packages.length === 1 ? "package" : "packages"} in catalogue
+                  </p>
+                </div>
+                <button
+                  onClick={handleAddNew}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors inline-flex items-center gap-1.5 shadow-sm"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add Package
+                </button>
+              </div>
 
               {loadingPackages ? (
                 <div className="flex justify-center py-20">
                   <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
                 </div>
               ) : packages.length === 0 ? (
-                <p className="text-slate-400 text-xs py-10 text-center font-medium">No packages configured yet.</p>
+                <div className="py-16 text-center">
+                  <p className="text-slate-400 text-xs mb-3 font-medium">No career packages configured yet.</p>
+                  <button
+                    onClick={handleAddNew}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-100 transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Create first package
+                  </button>
+                </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -356,32 +417,54 @@ export default function AdminCareerPackagesPage() {
                       <tr className="border-b border-slate-200 bg-slate-50 text-[11px] uppercase font-bold text-slate-400">
                         <th className="py-3 px-4">Plan Details</th>
                         <th className="py-3 px-4">Tier</th>
+                        <th className="py-3 px-4">Features</th>
                         <th className="py-3 px-4">Price</th>
                         <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-xs">
                       {packages.map((pkg) => (
-                        <tr key={pkg.id} className="hover:bg-slate-50/30">
+                        <tr key={pkg.id} className="hover:bg-slate-50/40 transition-colors">
                           <td className="py-4 px-4 max-w-xs">
                             <p className="font-bold text-slate-800">{pkg.name}</p>
-                            <p className="text-slate-400 text-[11px] truncate">{pkg.description || "No description"}</p>
+                            <p className="text-slate-400 text-[11px] truncate mt-0.5">{pkg.description || "No description"}</p>
                           </td>
-                          <td className="py-4 px-4">
-                            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 capitalize">
+                          <td className="py-4 px-4 whitespace-nowrap">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                              pkg.tier === "fresher"
+                                ? "bg-blue-50 text-blue-700 border border-blue-100"
+                                : pkg.tier === "mid_level"
+                                ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
+                                : pkg.tier === "executive"
+                                ? "bg-purple-50 text-purple-700 border border-purple-100"
+                                : "bg-amber-50 text-amber-700 border border-amber-100"
+                            }`}>
                               {pkg.tier.replace("_", " ")}
                             </span>
                           </td>
-                          <td className="py-4 px-4 font-extrabold text-slate-800">
+                          <td className="py-4 px-4 whitespace-nowrap text-slate-500 text-[11px]">
+                            <span className="font-semibold text-slate-700">{pkg.features?.length || 0}</span> items
+                          </td>
+                          <td className="py-4 px-4 font-extrabold text-slate-900 whitespace-nowrap">
                             ₹{pkg.price}
                           </td>
-                          <td className="py-4 px-4 text-right">
-                            <button
-                              onClick={() => handleEdit(pkg)}
-                              className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-55 text-blue-600 font-bold text-[11px] border border-slate-200 hover:border-blue-300 transition-colors inline-flex items-center gap-1 shadow-sm"
-                            >
-                              <Edit2 className="h-3 w-3" /> Edit Price
-                            </button>
+                          <td className="py-4 px-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleEdit(pkg)}
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-50 text-blue-600 font-bold text-[11px] border border-slate-200 hover:border-blue-300 transition-colors inline-flex items-center gap-1 shadow-sm"
+                                title="Edit Package Details"
+                              >
+                                <Edit2 className="h-3 w-3" /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(pkg.id, pkg.name)}
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-rose-600 font-bold text-[11px] border border-slate-200 hover:border-rose-300 transition-colors inline-flex items-center gap-1 shadow-sm"
+                                title="Delete Package"
+                              >
+                                <Trash2 className="h-3 w-3" /> Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

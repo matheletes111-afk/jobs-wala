@@ -65,7 +65,7 @@ export default function CareerServicesClient() {
   useEffect(() => {
     async function fetchPackages() {
       try {
-        const res = await fetch("/api/career/packages");
+        const res = await fetch("/api/career/packages", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setPackages(data);
@@ -399,8 +399,12 @@ export default function CareerServicesClient() {
             <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-4" />
             <p className="text-slate-500 text-sm">Loading pricing options...</p>
           </div>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-16 text-slate-500 text-sm">
+            No career packages currently published.
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {plans.map((pkg) => (
               <div
                 key={pkg.id}

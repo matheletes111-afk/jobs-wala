@@ -15,6 +15,9 @@ import {
   TrendingUp
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Enterprise ATS (Applicant Tracking System) - JobDaddy",
   description: "Automate candidate sourcing, AI screening, ranking, and pipeline management with JobDaddy's AI-Powered Applicant Tracking System.",
@@ -37,7 +40,7 @@ export default async function AtsPage() {
   // Fetch career packages from DB if available
   const careerPackages = await prisma.careerPackage.findMany({
     where: {
-      tier: { in: ["fresher", "mid_level", "executive"] }
+      tier: { not: "add_on" }
     },
     orderBy: {
       price: "asc",
@@ -621,7 +624,7 @@ export default async function AtsPage() {
                     </div>
 
                     <div className="mt-10">
-                      <Link href="/register">
+                      <Link href="/career-services#pricing-plans">
                         <Button 
                           style={{ backgroundColor: '#0a121e', color: '#ffffff', borderRadius: '12px', height: '48px', fontWeight: 700, fontSize: '12px', letterSpacing: '0.05em', textTransform: 'uppercase', width: '100%', border: 'none' }}
                         >
