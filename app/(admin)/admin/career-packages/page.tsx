@@ -256,10 +256,13 @@ export default function AdminCareerPackagesPage() {
                   </p>
                   <button
                     onClick={handleAddNew}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all"
+                    style={{ backgroundColor: "#2563eb", color: "#ffffff" }}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-blue-700 font-bold text-xs shadow-sm transition-all"
                   >
-                    <Plus className="h-4 w-4" />
-                    Add New Package
+                    <span style={{ color: "#ffffff", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <Plus className="h-4 w-4" style={{ color: "#ffffff", stroke: "#ffffff" }} />
+                      <span style={{ color: "#ffffff", fontWeight: 700 }}>Add New Package</span>
+                    </span>
                   </button>
                 </div>
               ) : (
@@ -352,19 +355,24 @@ export default function AdminCareerPackagesPage() {
                       <button
                         type="submit"
                         disabled={savingPackage}
-                        className="flex-1 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                        style={{ backgroundColor: "#2563eb", color: "#ffffff" }}
+                        className="flex-1 py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-400 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                       >
-                        {savingPackage ? (
-                          <>
-                            <Loader2 className="h-4 w-4 animate-spin text-white" />
-                            <span>Saving...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 text-white" />
-                            <span>{editingId ? "Update Package" : "Create Package"}</span>
-                          </>
-                        )}
+                        <span style={{ color: "#ffffff", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          {savingPackage ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" style={{ color: "#ffffff" }} />
+                              <span style={{ color: "#ffffff", fontWeight: 700 }}>Saving...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4" style={{ color: "#ffffff", stroke: "#ffffff" }} />
+                              <span style={{ color: "#ffffff", fontWeight: 700 }}>
+                                {editingId ? "Update Package" : "Create Package"}
+                              </span>
+                            </>
+                          )}
+                        </span>
                       </button>
                       <button
                         type="button"
@@ -390,9 +398,13 @@ export default function AdminCareerPackagesPage() {
                 </div>
                 <button
                   onClick={handleAddNew}
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors inline-flex items-center gap-1.5 shadow-sm"
+                  style={{ backgroundColor: "#2563eb", color: "#ffffff" }}
+                  className="px-3 py-1.5 rounded-lg hover:bg-blue-700 font-bold text-xs transition-colors inline-flex items-center gap-1.5 shadow-sm"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add Package
+                  <span style={{ color: "#ffffff", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <Plus className="h-3.5 w-3.5" style={{ color: "#ffffff", stroke: "#ffffff" }} />
+                    <span style={{ color: "#ffffff", fontWeight: 700 }}>Add Package</span>
+                  </span>
                 </button>
               </div>
 
@@ -405,9 +417,13 @@ export default function AdminCareerPackagesPage() {
                   <p className="text-slate-400 text-xs mb-3 font-medium">No career packages configured yet.</p>
                   <button
                     onClick={handleAddNew}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-100 transition-colors"
+                    style={{ backgroundColor: "#2563eb", color: "#ffffff" }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-blue-700 font-bold text-xs transition-colors shadow-sm"
                   >
-                    <Plus className="h-3.5 w-3.5" /> Create first package
+                    <span style={{ color: "#ffffff", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <Plus className="h-3.5 w-3.5" style={{ color: "#ffffff", stroke: "#ffffff" }} />
+                      <span style={{ color: "#ffffff", fontWeight: 700 }}>Create first package</span>
+                    </span>
                   </button>
                 </div>
               ) : (
