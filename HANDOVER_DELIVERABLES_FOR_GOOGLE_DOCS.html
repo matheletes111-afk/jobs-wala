@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JobDaddy - Handover Deliverables (Items 2 to 5)</title>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { margin: 0; padding: 20px; font-size: 11pt; color: #000; }
+      a { text-decoration: none; color: #000; }
+      .page-break { page-break-before: always; }
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+    }
+
+    .top-bar {
+      position: sticky;
+      top: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+
+    .top-bar h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #334155;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 32px auto 60px auto;
+      background: #ffffff;
+      padding: 64px 72px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+    }
+
+    h1 {
+      font-size: 26pt;
+      color: #0f172a;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 12px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    h2 {
+      font-size: 18pt;
+      color: #1e293b;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 8px;
+      margin-top: 36px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 13pt;
+      color: #334155;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    p, li {
+      font-size: 11pt;
+      color: #334155;
+    }
+
+    .meta-box {
+      background-color: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .meta-box p {
+      margin: 4px 0;
+      font-size: 11pt;
+    }
+
+    .alert-box {
+      background-color: #fef2f2;
+      border-left: 4px solid #ef4444;
+      padding: 14px 18px;
+      margin: 20px 0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .alert-box p {
+      margin: 0;
+      color: #991b1b;
+      font-size: 10.5pt;
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 10pt;
+    }
+
+    table, th, td {
+      border: 1px solid #cbd5e1;
+    }
+
+    th {
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    td {
+      padding: 10px 12px;
+      vertical-align: top;
+      color: #334155;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fcfdfe;
+    }
+
+    code {
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 9.5pt;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 9.5pt;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      border: none;
+    }
+
+    .signature-section {
+      margin-top: 40px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 24px;
+    }
+
+    .signature-grid {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      gap: 32px;
+    }
+
+    .sig-col {
+      flex: 1;
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+      border-radius: 6px;
+      background-color: #fcfdfe;
+    }
+
+    .sig-line {
+      margin-top: 50px;
+      border-top: 1px solid #0f172a;
+      padding-top: 6px;
+      font-size: 10.5pt;
+      font-weight: 600;
+    }
+
+    .copy-success {
+      display: none;
+      color: #10b981;
+      font-weight: 600;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar no-print">
+    <h3>📄 JobDaddy Deliverables 2 to 5 (Formatted for Google Docs)</h3>
+    <div class="btn-group">
+      <span id="copySuccess" class="copy-success">✓ Copied! Paste into Google Docs (Ctrl+V)</span>
+      <button class="btn" onclick="copyDocumentForGoogleDocs()">📋 1-Click Copy for Google Docs</button>
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+  </div>
+
+  <div class="container" id="docContent">
+
+    <h1>JobDaddy Platform Handover Deliverables</h1>
+    
+    <div class="meta-box">
+      <p><strong>Project:</strong> JobDaddy Platform (<a href="https://www.jobdaddy.in" target="_blank">https://www.jobdaddy.in</a>)</p>
+      <p><strong>Deliverables Included:</strong> Action Items 2 to 5 (Access Management, IP Transfer, SOPs/Runbooks, Credentials)</p>
+      <p><strong>Target Recipient:</strong> Rahul (<code>rahulme81@gmail.com</code>)</p>
+      <p><strong>Hosting Provider:</strong> Vercel (Edge & Serverless Infrastructure)</p>
+      <p><strong>Date:</strong> October 2026</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ITEM 2: ACCESS MANAGEMENT DOCUMENTATION    -->
+    <!-- ========================================== -->
+    <h2>Item 2: Access Management & Network/System Documentation</h2>
+    <p>This section details the cloud infrastructure topology, service dependencies, and the exact delegation runbooks to transfer full administrative control to <code>rahulme81@gmail.com</code>.</p>
+
+    <h3>2.1 Infrastructure Overview</h3>
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>System Component</th>
+          <th>Provider / Platform</th>
+          <th>Resource Identifier</th>
+          <th>Access Delegation Method to rahulme81@gmail.com</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Web Application & Edge CDN</strong></td>
+          <td>Vercel</td>
+          <td>Project: <code>jobdaddy</code> (or <code>jobs-wala</code>)</td>
+          <td>Invite <code>rahulme81@gmail.com</code> as <strong>Owner</strong> on Vercel Team, then execute Project Transfer.</td>
+        </tr>
+        <tr>
+          <td><strong>Custom Domain & DNS</strong></td>
+          <td>Domain Registrar</td>
+          <td><code>jobdaddy.in</code> and <code>www.jobdaddy.in</code></td>
+          <td>EPP/Auth-code transfer to client's registrar, or delegate DNS management.</td>
+        </tr>
+        <tr>
+          <td><strong>PostgreSQL Database</strong></td>
+          <td>Neon Tech</td>
+          <td><code>ep-falling-leaf-ahfcb4xb-pooler</code> (US-East-1)</td>
+          <td>Invite <code>rahulme81@gmail.com</code> as Admin via Neon Console Settings > Members.</td>
+        </tr>
+        <tr>
+          <td><strong>Object File Storage</strong></td>
+          <td>Cloudflare R2</td>
+          <td>Bucket: <code>jobdaddy</code> (Account: <code>163a6778fa01...</code>)</td>
+          <td>Cloudflare Dashboard > Members > Add as Administrator with R2 Token permissions.</td>
+        </tr>
+        <tr>
+          <td><strong>Payment Processing</strong></td>
+          <td>Razorpay</td>
+          <td>Merchant ID / JobDaddy Account</td>
+          <td>Razorpay Dashboard > Settings > User Access > Add <code>rahulme81@gmail.com</code> as Owner/Admin.</td>
+        </tr>
+        <tr>
+          <td><strong>Transactional Email</strong></td>
+          <td>SendGrid / Resend</td>
+          <td>SendGrid Subuser / Resend Team</td>
+          <td>Invite client email or update API keys to client-owned SendGrid/Resend account.</td>
+        </tr>
+        <tr>
+          <td><strong>AI Resume Parser</strong></td>
+          <td>OpenAI</td>
+          <td>OpenAI Platform Organization</td>
+          <td>Invite client to OpenAI Team or inject client-generated <code>OPENAI_API_KEY</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 Vercel Deployment & Ownership Transfer</h3>
+    <p>The production frontend and API routes are hosted on Vercel with automatic edge continuous deployment.</p>
+    <ol>
+      <li>Log into the <a href="https://vercel.com/dashboard" target="_blank">Vercel Dashboard</a>.</li>
+      <li>Open the project settings for <strong>JobDaddy</strong>.</li>
+      <li>Navigate to <strong>Members</strong> and click <strong>Invite Member</strong>. Enter <code>rahulme81@gmail.com</code> and assign the <strong>Owner</strong> role.</li>
+      <li>To transfer the project repository link: Go to <strong>Settings</strong> &gt; <strong>General</strong> &gt; <strong>Transfer Project</strong> and select the client's destination team or personal account.</li>
+      <li>Confirm that all production environment variables remain intact and that the production branch is bound to <code>main</code>.</li>
+    </ol>
+
+    <h3>2.3 Custom Domain & DNS Configuration (jobdaddy.in)</h3>
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Record Type</th>
+          <th>Host / Name</th>
+          <th>Value / Destination</th>
+          <th>TTL</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A</strong></td>
+          <td><code>@</code> (root)</td>
+          <td><code>76.76.21.21</code></td>
+          <td>300 (Auto)</td>
+          <td>Routes apex <code>jobdaddy.in</code> to Vercel Anycast IP</td>
+        </tr>
+        <tr>
+          <td><strong>CNAME</strong></td>
+          <td><code>www</code></td>
+          <td><code>cname.vercel-dns.com</code></td>
+          <td>300 (Auto)</td>
+          <td>Routes <code>www.jobdaddy.in</code> to Vercel Global Edge CDN</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><em>Note:</em> SSL certificates are automatically provisioned and renewed by Vercel through Let's Encrypt / DigiCert. No manual SSL installation or renewal fee is required.</p>
+
+    <h3>2.4 Database Administration (Neon PostgreSQL)</h3>
+    <p>The application connects to a managed PostgreSQL cluster on Neon Tech with transaction pooling enabled via PgBouncer.</p>
+    <ul>
+      <li><strong>Host:</strong> <code>ep-falling-leaf-ahfcb4xb-pooler.c-3.us-east-1.aws.neon.tech</code></li>
+      <li><strong>Database:</strong> <code>neondb</code> | <strong>Port:</strong> <code>5432</code> | <strong>SSL:</strong> Required</li>
+      <li><strong>Procedure:</strong> Invite <code>rahulme81@gmail.com</code> as an Admin in the Neon Console. Update billing details to the client's credit card, and perform a master password rotation as detailed in Section 5.3.</li>
+    </ul>
+
+    <h3>2.5 Cloudflare R2 Storage Bucket Access</h3>
+    <p>All resumes (PDF/DOCX), candidate documents, and company logos are stored securely on Cloudflare R2.</p>
+    <ul>
+      <li><strong>Bucket:</strong> <code>jobdaddy</code></li>
+      <li><strong>Public CDN URL:</strong> <code>https://pub-77077181400d4766a0a4b6fdbf5d14cb.r2.dev</code></li>
+      <li><strong>S3 API Endpoint:</strong> <code>https://163a6778fa01288598cca5554bb1ddf7.r2.cloudflarestorage.com</code></li>
+      <li><strong>Procedure:</strong> Invite <code>rahulme81@gmail.com</code> to Cloudflare Account Members as Administrator. Generate an R2 API Token with <code>Object Read &amp; Write</code> permissions.</li>
+    </ul>
+
+    <!-- ========================================== -->
+    <!-- ITEM 3: IP TRANSFER AGREEMENT              -->
+    <!-- ========================================== -->
+    <div class="page-break"></div>
+    <h2>Item 3: Intellectual Property (IP) Transfer Agreement</h2>
+    <p><em>The following deed constitutes the formal, legally binding Intellectual Property assignment transferring all rights, titles, and interests in JobDaddy to the client.</em></p>
+
+    <div style="border: 1px solid #cbd5e1; padding: 24px; background: #fff; margin: 20px 0; border-radius: 6px;">
+      <h3 style="text-align: center; text-transform: uppercase; margin-top: 0; letter-spacing: 0.5px;">Deed of Intellectual Property Assignment and Absolute Transfer</h3>
+      
+      <p>This <strong>Deed of Intellectual Property Assignment</strong> ("Agreement") is executed on this ______ day of October, 2026, by and between:</p>
+      
+      <p><strong>1. THE ASSIGNOR (DEVELOPER / VENDOR):</strong><br>
+      Name / Entity: ________________________________________________________________<br>
+      Address: ____________________________________________________________________<br>
+      *(hereinafter referred to as the "Assignor")*</p>
+      
+      <p><strong>AND</strong></p>
+
+      <p><strong>2. THE ASSIGNEE (CLIENT / OWNER):</strong><br>
+      Name / Entity: ________________________________________________________________<br>
+      Authorized Representative: Rahul (<code>rahulme81@gmail.com</code>)<br>
+      Address: ____________________________________________________________________<br>
+      *(hereinafter referred to as the "Assignee")*</p>
+
+      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+      <h4>1. Scope of Assigned Property</h4>
+      <p>The Assignor hereby assigns, transfers, and conveys unto the Assignee all right, title, and interest in and to the custom software platform known as <strong>"JobDaddy"</strong> (accessible at <code>https://www.jobdaddy.in</code>), including without limitation:</p>
+      <ul>
+        <li>The complete frontend and backend source code, Prisma database schemas, API routes, scripts, and build configurations.</li>
+        <li>Custom algorithms, including AI resume parsing logic, ATS keyword scoring, and recruiter X-Ray search.</li>
+        <li>UI/UX designs, wireframes, custom graphic layouts, and associated trademarks and branding.</li>
+        <li>All rights in the registered domain name <code>jobdaddy.in</code> and associated subdomains.</li>
+      </ul>
+
+      <h4>2. Consideration & Absolute Transfer</h4>
+      <p>In consideration of the agreed commercial terms fully paid and satisfied, the Assignor transfers all proprietary rights, copyrights, and commercial exploitation rights to the Assignee globally, permanently, and without restriction.</p>
+
+      <h4>3. Waiver of Moral Rights</h4>
+      <p>To the fullest extent permitted by applicable law, the Assignor unconditionally waives all moral rights, rights of paternity, and rights of integrity in the software platform in favor of the Assignee.</p>
+
+      <h4>4. Warranties of Originality and Non-Infringement</h4>
+      <p>The Assignor warrants that the custom code created for the platform is original, does not violate any third-party trade secret or copyright, and is free and clear of all liens or third-party encumbrances. All third-party open-source libraries used (e.g., Next.js, React, Tailwind CSS, Prisma) are licensed under permissive licenses (MIT/Apache 2.0).</p>
+
+      <h4>5. Governing Law</h4>
+      <p>This Agreement shall be governed by and construed in accordance with the laws of India, subject to the jurisdiction of competent courts in [City/State, India].</p>
+
+      <div class="signature-section">
+        <div class="signature-grid">
+          <div class="sig-col">
+            <strong>For and on behalf of ASSIGNOR:</strong>
+            <div class="sig-line">Authorized Signatory / Name</div>
+            <p style="margin: 4px 0 0 0; font-size: 9.5pt; color: #64748b;">Date: ________________________</p>
+          </div>
+          <div class="sig-col">
+            <strong>For and on behalf of ASSIGNEE:</strong>
+            <div class="sig-line">Rahul (Authorized Signatory)</div>
+            <p style="margin: 4px 0 0 0; font-size: 9.5pt; color: #64748b;">Date: ________________________</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ITEM 4: TECHNICAL DOCUMENTATION & SOPS     -->
+    <!-- ========================================== -->
+    <div class="page-break"></div>
+    <h2>Item 4: Technical Documentation & Standard Operating Procedures (SOPs)</h2>
+    
+    <h3>4.1 Platform Stack Specifications</h3>
+    <ul>
+      <li><strong>Core Framework:</strong> Next.js 16 (React 19, App Router architecture)</li>
+      <li><strong>Database &amp; ORM:</strong> PostgreSQL 16 on Neon, managed with Prisma ORM v6</li>
+      <li><strong>File Storage:</strong> Cloudflare R2 (S3-compatible, zero egress fees)</li>
+      <li><strong>Authentication:</strong> NextAuth.js v5 (stateless JWT session strategy)</li>
+      <li><strong>Payment Engine:</strong> Razorpay Orders, Subscriptions, and HMAC webhook verification</li>
+      <li><strong>Email Delivery:</strong> SendGrid with secondary Resend and SMTP failover</li>
+      <li><strong>AI Intelligence:</strong> OpenAI API (structured resume extraction &amp; ATS ranking)</li>
+    </ul>
+
+    <h3>4.2 Operational Runbooks (SOPs)</h3>
+
+    <h4>SOP-01: Local Environment Setup</h4>
+    <ol>
+      <li>Clone repository: <code>git clone https://github.com/matheletes111-afk/jobs-wala.git</code></li>
+      <li>Install dependencies: <code>npm install</code></li>
+      <li>Generate Prisma client: <code>npm run db:generate</code></li>
+      <li>Start development server: <code>npm run dev</code> (Server runs on <code>http://localhost:3000</code>)</li>
+    </ol>
+
+    <h4>SOP-02: Production Deployment on Vercel</h4>
+    <ol>
+      <li>Any commit pushed or merged into the <code>main</code> branch automatically triggers a production build on Vercel.</li>
+      <li>To trigger a manual redeployment without pushing code: Navigate to <strong>Vercel Dashboard &gt; jobdaddy &gt; Deployments</strong>, select the latest deployment, and click <strong>Redeploy</strong>.</li>
+      <li>Build command: <code>next build --webpack</code> | Postinstall command: <code>prisma generate</code>.</li>
+    </ol>
+
+    <h4>SOP-03: Running Database Migrations with Prisma</h4>
+    <ul>
+      <li>To create and apply a migration during feature development: <code>npm run db:migrate</code></li>
+      <li>To push schema changes directly to staging/production: <code>npm run db:push</code></li>
+      <li>To inspect and edit live database tables graphically: <code>npm run db:studio</code> (launches Prisma Studio at <code>http://localhost:5555</code>)</li>
+    </ul>
+
+    <h4>SOP-04: Creating Administrative Accounts</h4>
+    <ol>
+      <li>Set admin credentials in environment:
+        <pre><code>ADMIN_EMAIL="admin@jobdaddy.in" ADMIN_PASSWORD="SecurePassword123!" npm run create-admin</code></pre>
+      </li>
+      <li>Log in via <code>https://www.jobdaddy.in/login</code>. The account has instant access to <code>https://www.jobdaddy.in/admin</code>.</li>
+    </ol>
+
+    <h4>SOP-05: Cloudflare R2 Storage Management</h4>
+    <ul>
+      <li>Resumes and logos are uploaded using presigned URLs generated in <code>lib/s3.ts</code>.</li>
+      <li>If uploads fail with a CORS error, check that the R2 bucket settings allow origins <code>https://www.jobdaddy.in</code> and <code>https://jobdaddy.in</code> for methods <code>GET, PUT, POST, HEAD</code>.</li>
+      <li>Bucket name: <code>jobdaddy</code>. Public preview URL: <code>https://pub-77077181400d4766a0a4b6fdbf5d14cb.r2.dev</code>.</li>
+    </ul>
+
+    <h4>SOP-06: Razorpay Payments &amp; Webhook Handling</h4>
+    <ul>
+      <li>Payment flows are implemented in <code>lib/razorpay.ts</code> and <code>app/api/webhooks/razorpay/route.ts</code>.</li>
+      <li>Webhook URL: <code>https://www.jobdaddy.in/api/webhooks/razorpay</code>.</li>
+      <li>Events enabled: <code>payment.captured</code>, <code>order.paid</code>, <code>subscription.charged</code>.</li>
+      <li>To switch to Live Mode: Replace <code>RAZORPAY_KEY_ID</code> and <code>RAZORPAY_KEY_SECRET</code> with live keys in Vercel Environment Variables.</li>
+    </ul>
+
+    <h4>SOP-07: Incident Response &amp; 1-Click Rollback</h4>
+    <ul>
+      <li>To check runtime errors: Go to Vercel Dashboard &gt; <strong>Logs</strong> &gt; filter by Status 500+.</li>
+      <li><strong>Immediate Rollback:</strong> If a deployment has an issue, go to Vercel &gt; <strong>Deployments</strong> &gt; select the prior stable deployment &gt; click <strong>Promote to Production</strong>. Traffic is reverted in under 5 seconds.</li>
+    </ul>
+
+    <!-- ========================================== -->
+    <!-- ITEM 5: CREDENTIALS HANDOVER MATRIX        -->
+    <!-- ========================================== -->
+    <div class="page-break"></div>
+    <h2>Item 5: Credentials Handover Matrix &amp; Security Protocol</h2>
+    
+    <div class="alert-box">
+      <p>⚠️ <strong>SECURITY DIRECTIVE:</strong> Never transmit active production passwords or secrets via unencrypted chat or open email. Deliver live secret values using an encrypted vault (1Password / Bitwarden) or rotate them directly in the respective cloud dashboards as outlined below.</p>
+    </div>
+
+    <h3>5.1 Master Environment Variables Matrix</h3>
+    <table border="1" cellpadding="8" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Variable Key</th>
+          <th>Service / Purpose</th>
+          <th>Configuration Location</th>
+          <th>Recommended Handover &amp; Rotation Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>DATABASE_URL</code></td>
+          <td>Neon PostgreSQL Connection String</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Client rotates <code>neondb_owner</code> password in Neon Console; updates in Vercel.</td>
+        </tr>
+        <tr>
+          <td><code>NEXTAUTH_SECRET</code></td>
+          <td>NextAuth v5 Session Signing Key</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Generate new 32-byte secret (<code>openssl rand -base64 32</code>) and update.</td>
+        </tr>
+        <tr>
+          <td><code>AUTH_SECRET</code></td>
+          <td>Duplicate Session Secret (Auth.js)</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Ensure value matches <code>NEXTAUTH_SECRET</code>.</td>
+        </tr>
+        <tr>
+          <td><code>NEXTAUTH_URL</code></td>
+          <td>Canonical Auth Redirect URL</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Configured as <code>https://www.jobdaddy.in</code>.</td>
+        </tr>
+        <tr>
+          <td><code>NEXT_PUBLIC_APP_URL</code></td>
+          <td>Public Frontend URL</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Configured as <code>https://www.jobdaddy.in</code>.</td>
+        </tr>
+        <tr>
+          <td><code>R2_ACCOUNT_ID</code></td>
+          <td>Cloudflare Account ID</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Cloudflare Dashboard &gt; R2 Overview sidebar.</td>
+        </tr>
+        <tr>
+          <td><code>R2_ACCESS_KEY_ID</code></td>
+          <td>Cloudflare R2 API Token Key</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Client generates dedicated R2 token in Cloudflare dashboard.</td>
+        </tr>
+        <tr>
+          <td><code>R2_SECRET_ACCESS_KEY</code></td>
+          <td>Cloudflare R2 API Token Secret</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Client generates dedicated R2 token in Cloudflare dashboard.</td>
+        </tr>
+        <tr>
+          <td><code>R2_BUCKET_NAME</code></td>
+          <td>Cloudflare R2 Bucket Name (<code>jobdaddy</code>)</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Retain bucket name <code>jobdaddy</code>.</td>
+        </tr>
+        <tr>
+          <td><code>R2_PUBLIC_URL</code></td>
+          <td>Cloudflare R2 Public CDN URL</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td><code>https://pub-77077181400d4766a0a4b6fdbf5d14cb.r2.dev</code></td>
+        </tr>
+        <tr>
+          <td><code>RAZORPAY_KEY_ID</code></td>
+          <td>Razorpay Payment Key ID</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Switch from Test key (<code>rzp_test_...</code>) to Live key (<code>rzp_live_...</code>).</td>
+        </tr>
+        <tr>
+          <td><code>RAZORPAY_KEY_SECRET</code></td>
+          <td>Razorpay Secret Key</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Switch from Test secret to Live secret in Razorpay Dashboard.</td>
+        </tr>
+        <tr>
+          <td><code>RAZORPAY_WEBHOOK_SECRET</code></td>
+          <td>Razorpay Webhook Verification Secret</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Configure matching secret in Razorpay Webhook settings.</td>
+        </tr>
+        <tr>
+          <td><code>SENDGRID_API_KEY</code></td>
+          <td>SendGrid Transactional Mail API Key</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Invite client to SendGrid or replace with client-owned API key.</td>
+        </tr>
+        <tr>
+          <td><code>SENDGRID_FROM_EMAIL</code></td>
+          <td>Verified Sender Identity</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Set to verified domain sender (e.g., <code>notifications@jobdaddy.in</code>).</td>
+        </tr>
+        <tr>
+          <td><code>OPENAI_API_KEY</code></td>
+          <td>OpenAI API Key for Resume Parsing</td>
+          <td>Vercel &amp; <code>.env</code></td>
+          <td>Client generates production API key from OpenAI Platform.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 Post-Handover Key Rotation Checklist for Rahul</h3>
+    <p>Following ownership transfer, execute the following security rotation:</p>
+    <ul>
+      <li>[ ] <strong>Neon DB:</strong> Log into Neon Console &gt; Reset password for user <code>neondb_owner</code> &gt; Update <code>DATABASE_URL</code> in Vercel.</li>
+      <li>[ ] <strong>NextAuth:</strong> Run <code>[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Minimum 0 -Maximum 256 }))</code> in PowerShell &gt; Update <code>NEXTAUTH_SECRET</code> &amp; <code>AUTH_SECRET</code> in Vercel.</li>
+      <li>[ ] <strong>Cloudflare:</strong> Go to R2 &gt; Create new API Token &gt; Update <code>R2_ACCESS_KEY_ID</code> and <code>R2_SECRET_ACCESS_KEY</code> in Vercel.</li>
+      <li>[ ] <strong>Razorpay:</strong> Generate Live API Keys &gt; Update <code>RAZORPAY_KEY_ID</code>, <code>RAZORPAY_KEY_SECRET</code>, and <code>RAZORPAY_WEBHOOK_SECRET</code> in Vercel.</li>
+      <li>[ ] <strong>OpenAI:</strong> Create project key in OpenAI Platform &gt; Update <code>OPENAI_API_KEY</code> in Vercel.</li>
+      <li>[ ] <strong>Vercel Redeploy:</strong> Click <strong>Redeploy</strong> on Vercel to propagate all updated environment variables to edge workers.</li>
+    </ul>
+
+  </div>
+
+  <script>
+    async function copyDocumentForGoogleDocs() {
+      const docElement = document.getElementById('docContent');
+      const htmlContent = docElement.innerHTML;
+      const textContent = docElement.innerText;
+
+      try {
+        const blobHtml = new Blob([htmlContent], { type: 'text/html' });
+        const blobText = new Blob([textContent], { type: 'text/plain' });
+        const clipboardItem = new ClipboardItem({
+          'text/html': blobHtml,
+          'text/plain': blobText
+        });
+
+        await navigator.clipboard.write([clipboardItem]);
+        
+        const successMsg = document.getElementById('copySuccess');
+        successMsg.style.display = 'inline-block';
+        setTimeout(() => {
+          successMsg.style.display = 'none';
+        }, 5000);
+      } catch (err) {
+        // Fallback for older browsers
+        const range = document.createRange();
+        range.selectNode(docElement);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        alert('Copied to clipboard! Open docs.google.com and press Ctrl+V to paste into your Google Doc.');
+      }
+    }
+  </script>
+</body>
+</html>
