@@ -131,10 +131,21 @@ export async function POST(req: Request) {
 
     console.log("Razorpay Subscription Created:", razorpaySubscription.id);
 
+    // Fetch user and profile details for checkout prefill
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { employerProfile: true },
+    });
+
     return NextResponse.json({
       success: true,
       subscriptionId: razorpaySubscription.id,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+      prefill: {
+        name: user?.employerProfile?.companyName || user?.employerProfile?.pointOfContact || "",
+        email: user?.email || "",
+        contact: user?.employerProfile?.phone || "",
+      },
     });
   } catch (error) {
     console.error("Subscription initiation error:", error);

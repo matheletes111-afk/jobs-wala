@@ -115,6 +115,7 @@ export default function EmployerSubscriptionPage() {
         subscription_id: data.subscriptionId,
         name: "JobDaddy",
         description: `Subscription for ${plan.name}`,
+        prefill: data.prefill || {},
         handler: async function (response: RazorpayResponse) {
           const verifyRes = await fetch("/api/employer/subscribe/verify", {
             method: "POST",
